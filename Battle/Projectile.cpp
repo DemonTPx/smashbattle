@@ -72,7 +72,7 @@ void Projectile::load_images(const char * sprite_file) {
 	sprite = SDL_DisplayFormat(loaded);
 	SDL_FreeSurface(loaded);
 
-	colorkey = SDL_MapRGB(sprite->format, 255, 255, 255); 
+	colorkey = SDL_MapRGB(sprite->format, 0, 255, 255); 
 	SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
 }
 

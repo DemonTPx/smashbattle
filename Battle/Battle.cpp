@@ -117,16 +117,7 @@ void Battle::run() {
 		}
 
 		// Processing
-		if(!paused && !countdown) {
-
-			if(player1->hitpoints <= 0) {
-				player2->score++;
-				reset_game();
-			}
-			if(player2->hitpoints <= 0) {
-				player1->score++;
-				reset_game();
-			}
+		if(!paused && !countdown && !ended) {
 
 			move_player(player1);
 			move_player(player2);
@@ -145,6 +136,23 @@ void Battle::run() {
 				if(p->hit) {
 					projectiles->erase(projectiles->begin() + idx);
 				}
+			}
+			
+			if(player1->hitpoints <= 0) {
+				player2->score++;
+				player1->is_hit = true;
+				player2->is_hit = false;
+				ended = true;
+				end_timer = new Timer();
+				end_timer->start();
+			}
+			if(player2->hitpoints <= 0) {
+				player1->score++;
+				player1->is_hit = false;
+				player2->is_hit = true;
+				ended = true;
+				end_timer = new Timer();
+				end_timer->start();
 			}
 		}
 		
@@ -169,6 +177,12 @@ void Battle::run() {
 		if(countdown) {
 			if(!paused)
 				handle_draw_countdown(screen);
+		}
+		if(ended) {
+			draw_win_screen(screen);
+			if(end_timer->get_ticks() > 2000) {
+				reset_game();
+			}
 		}
 
 		// Flipping
@@ -212,10 +226,13 @@ void Battle::reset_game() {
 
 	frame = 0;
 	paused = false;
+	ended = false;
 	countdown = true;
 	countdown_sec_left = 4;
 	countdown_timer = new Timer();
 	countdown_timer->start();
+
+	Main::audio->stop_music();
 }
 
 void Battle::process_shoot(Player * p) {
@@ -731,11 +748,11 @@ void Battle::draw_score(SDL_Surface * screen) {
 	SDL_FreeSurface(surface);
 
 
-	sprintf_s(str, 40, "%02d - %02d", player1->score, player2->score);
+	sprintf_s(str, 40, "%02d:%02d", player1->score, player2->score);
 
-	surface = TTF_RenderText_Solid(font26, str, fontColor);
+	surface = TTF_RenderText_Solid(font52, str, fontColor);
 	rect.x = (WINDOW_WIDTH - surface->w) / 2;
-	rect.y = WINDOW_HEIGHT - surface->h - 2;
+	rect.y = WINDOW_HEIGHT - surface->h + 2;
 
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 
@@ -747,6 +764,26 @@ void Battle::draw_pause_screen(SDL_Surface * screen) {
 	SDL_Rect rect;
 
 	surface = TTF_RenderText_Solid(font26, "QUIT GAME Y/N", fontColor);
+	rect.x = (screen->w - surface->w) / 2;
+	rect.y = (screen->h - surface->h) / 2;
+
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+
+	SDL_FreeSurface(surface);
+}
+
+void Battle::draw_win_screen(SDL_Surface * screen) {
+	SDL_Surface * surface;
+	SDL_Rect rect;
+
+	char * text;
+
+	if(player1->hitpoints == 0) 
+		text = "Player 2 wins";
+	if(player2->hitpoints == 0)
+		text = "Player 1 wins";
+
+	surface = TTF_RenderText_Solid(font26, text, fontColor);
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = (screen->h - surface->h) / 2;
 
@@ -787,6 +824,7 @@ void Battle::handle_draw_countdown(SDL_Surface * screen) {
 	rect.y = (screen->h - surf->h) / 2;
 	
 	SDL_BlitSurface(surf, NULL, screen, &rect);
+	SDL_FreeSurface(surf);
 }
 
 void Battle::load_images() {

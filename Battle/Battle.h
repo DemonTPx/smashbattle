@@ -19,6 +19,7 @@ private:
 	void draw_level(SDL_Surface * screen);
 	void draw_pause_screen(SDL_Surface * screen);
 	void draw_score(SDL_Surface * screen);
+	void draw_win_screen(SDL_Surface * screen);
 
 	void handle_draw_countdown(SDL_Surface * screen);
 	
@@ -42,6 +43,10 @@ private:
 	Player * player2;
 
 	bool paused;
+	
+	bool ended;
+	Timer * end_timer;
+
 	bool countdown;
 	int countdown_sec_left;
 	Timer * countdown_timer;
