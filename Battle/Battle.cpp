@@ -1,10 +1,15 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
+#include "SDL/SDL_mixer.h"
+
+#include <vector>
 
 #include "Timer.h"
+#include "AudioController.h"
 #include "Main.h"
 
 #include "Player.h"
+#include "Projectile.h"
 
 #include "Battle.h"
 
@@ -57,7 +62,6 @@ void Battle::run() {
 
 	SDL_Event event;
 	SDL_Surface * screen;
-	int frame;
 
 	screen = Main::instance->screen;
 
@@ -66,21 +70,24 @@ void Battle::run() {
 	SDL_FillRect(screen, NULL, 0);
 	draw_level(screen);
 
-	Player player1("bert.bmp");
-	Player player2("jeroen.bmp");
+	player1 = new Player("bert.bmp");
+	player1->position->x = 160;
+	player1->position->y = 256;
+	player1->key_l = SDLK_a;
+	player1->key_r = SDLK_d;
+	player1->key_u = SDLK_w;
+	player1->key_shoot = SDLK_LCTRL;
 
-	player1.position->x = 160;
-	player1.position->y = 256;
-	player1.key_l = SDLK_a;
-	player1.key_r = SDLK_d;
-	player1.key_u = SDLK_w;
+	player2 = new Player("jeroen.bmp");
+	player2->position->x = 448;
+	player2->position->y = 256;
+	player2->key_l = SDLK_LEFT;
+	player2->key_r = SDLK_RIGHT;
+	player2->key_u = SDLK_UP;
+	player2->key_shoot = SDLK_KP0;
+	player2->set_sprite(SPR_L);
 
-	player2.position->x = 448;
-	player2.position->y = 256;
-	player2.key_l = SDLK_LEFT;
-	player2.key_r = SDLK_RIGHT;
-	player2.key_u = SDLK_UP;
-	player2.set_sprite(SPR_L);
+	projectiles = new std::vector<Projectile*>(0);
 
 	frame = 0;
 	paused = false;
@@ -100,15 +107,30 @@ void Battle::run() {
 					if(paused) game_running = false;
 				}
 			}
-			player1.handle_input(&event);
-			player2.handle_input(&event);
+			player1->handle_input(&event);
+			player2->handle_input(&event);
 		}
 
 		// Processing
 		if(!paused) {
-			move_player(&player1);
-			move_player(&player2);
-			check_player_collision(&player1, &player2);
+			move_player(player1);
+			move_player(player2);
+
+			process_shoot(player1);
+			process_shoot(player2);
+
+			check_player_collision(player1, player2);
+
+			check_player_projectile_collision(player1);
+			check_player_projectile_collision(player2);
+
+			for(unsigned int idx = 0; idx < projectiles->size(); idx++) {
+				Projectile * p = projectiles->at(idx);
+				move_projectile(p);
+				if(p->hit) {
+					projectiles->erase(projectiles->begin() + idx);
+				}
+			}
 		}
 		
 		// Drawing
@@ -116,8 +138,15 @@ void Battle::run() {
 		frame++;
 		draw_level(screen);
 
-		player1.show(screen);
-		player2.show(screen);
+		player1->show(screen);
+		player2->show(screen);
+
+		draw_score(screen);
+
+		for(unsigned int idx = 0; idx < projectiles->size(); idx++) {
+			Projectile * p = projectiles->at(idx);
+			p->show(screen);
+		}
 		
 		if(paused) {
 			draw_pause_screen(screen);
@@ -127,8 +156,41 @@ void Battle::run() {
 
 		Main::instance->flip();
 	}
+	
+	projectiles->clear();
+	delete projectiles;
 
 	free_images();
+}
+
+void Battle::process_shoot(Player * p) {
+	if(p->keydn_shoot) {
+		if(frame > p->shoot_start + p->shoot_delay) {
+			p->shoot_start = frame;
+			Projectile * pr;
+			SDL_Rect * clip_weapon;
+
+			clip_weapon = new SDL_Rect();
+			clip_weapon->x = 0;
+			clip_weapon->y = 0;
+			clip_weapon->w = 6;
+			clip_weapon->h = 6;
+
+			pr = new Projectile("weapons.bmp", clip_weapon);
+
+			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_WALK3 || p->current_sprite == SPR_L_JUMP || p->current_sprite == SPR_R_BRAKE) {
+				pr->speedx = -10;
+				pr->position->x = p->position->x - pr->position->w - 1;
+			} else {
+				pr->speedx = 10;
+				pr->position->x = p->position->x + p->position->w + 1;
+			}
+			pr->position->y = p->position->y + 12;
+			projectiles->push_back(pr);
+
+			Main::instance->audio->play_shoot();
+		}
+	}
 }
 
 void Battle::move_player(Player * p) {
@@ -137,6 +199,12 @@ void Battle::move_player(Player * p) {
 	
 	speedx = 0;
 	speedy = 0;
+
+	if(p->is_hit) {
+		if(frame > p->hit_start + p->hit_delay) {
+			p->is_hit = false;
+		}
+	}
 
 	speedx = SPEED_HORIZ;
 
@@ -297,6 +365,36 @@ void Battle::move_player(Player * p) {
 	}
 }
 
+void Battle::move_projectile(Projectile * p) {
+	p->position->x += p->speedx;
+	p->distance_traveled += p->speedx;
+	if(p->position->x < 0)
+		p->position->x += WINDOW_WIDTH;
+	if(p->position->x > WINDOW_WIDTH)
+		p->position->x -= WINDOW_WIDTH;
+
+	if(check_collision(p->position)) {
+		p->speedx = 0;
+		p->hit = true;
+	}
+
+	p->position->y += p->speedy;
+	p->distance_traveled += p->speedy;
+	if(p->position->y < 0)
+		p->position->y += WINDOW_HEIGHT;
+	if(p->position->y > WINDOW_HEIGHT)
+		p->position->y -= WINDOW_HEIGHT;
+
+	if(check_collision(p->position)) {
+		p->speedy = 0;
+		p->hit = true;
+	}
+
+	if(p->distance_traveled > p->max_distance || p->distance_traveled < -p->max_distance) {
+		p->hit = true;
+	}
+}
+
 void Battle::check_player_collision(Player * p1, Player * p2) {
 	// Check if there is a collision between the players and process the further movement
 	int l1, r1, t1, b1;
@@ -413,6 +511,49 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 	*/
 }
 
+void Battle::check_player_projectile_collision(Player * p) {
+	Projectile * pr;
+	int l1, r1, t1, b1;
+	int l2, r2, t2, b2;
+
+	if(p->is_hit) return;
+	
+	l1 = p->position->x;
+	r1 = p->position->x + p->position->w;
+	t1 = p->position->y;
+	b1 = p->position->y + p->position->h;
+
+	/*
+	if(l1 >= WINDOW_WIDTH) l1 = l1 - WINDOW_WIDTH;
+	if(r1 >= WINDOW_WIDTH) r1 = r1 - WINDOW_WIDTH;
+
+	if(t1 >= WINDOW_HEIGHT) t1 = t1 - WINDOW_HEIGHT;
+	if(b1 >= WINDOW_HEIGHT) b1 = b1 - WINDOW_HEIGHT;
+
+	if(t1 < 0) t1 = 0;
+	if(b1 > WINDOW_HEIGHT) b1 = WINDOW_HEIGHT; */
+
+	for(unsigned int idx = 0; idx < projectiles->size(); idx++) {
+		pr = projectiles->at(idx);
+		l2 = pr->position->x;
+		r2 = pr->position->x + pr->position->w;
+		t2 = pr->position->y;
+		b2 = pr->position->y + pr->position->h;
+
+		if(l1 > r2) continue;
+		if(r1 < l2) continue;
+		if(t1 > b2) continue;
+		if(b1 < t2) continue;
+
+		pr->hit = true;
+		p->is_hit = true;
+		p->hit_start = frame;
+		p->hitpoints -= 10;
+
+		Main::audio->play_hit();
+	}
+}
+
 bool Battle::check_collision(SDL_Rect * rect) {
 	// Check if the rect is colliding with the level
 	int l, r, t, b;
@@ -426,8 +567,8 @@ bool Battle::check_collision(SDL_Rect * rect) {
 	if(l >= WINDOW_WIDTH) l = l - WINDOW_WIDTH;
 	if(r >= WINDOW_WIDTH) r = r - WINDOW_WIDTH;
 
-	if(t >= WINDOW_HEIGHT) t = t - WINDOW_HEIGHT;
-	if(b >= WINDOW_HEIGHT) b = b - WINDOW_HEIGHT;
+	//if(t >= WINDOW_HEIGHT) t = t - WINDOW_HEIGHT;
+	//if(b >= WINDOW_HEIGHT) b = b - WINDOW_HEIGHT;
 
 	if(t < 0) t = 0;
 	if(b > WINDOW_HEIGHT) b = WINDOW_HEIGHT;
@@ -503,6 +644,31 @@ void Battle::draw_level(SDL_Surface * screen) {
 
 		SDL_BlitSurface(tiles, tile_rect[level[i]], screen, &rect);
 	}
+}
+
+void Battle::draw_score(SDL_Surface * screen) {
+	SDL_Surface * surface;
+	SDL_Rect rect;
+
+	char str[40];
+
+	sprintf_s(str, 40, "Player1 HP: %d", player1->hitpoints);
+
+	surface = TTF_RenderText_Solid(font, str, fontColor);
+	rect.x = 2;
+	rect.y = WINDOW_HEIGHT - surface->h - 2;
+
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+
+	sprintf_s(str, 40, "Player2 HP: %d", player2->hitpoints);
+
+	surface = TTF_RenderText_Solid(font, str, fontColor);
+	rect.x = WINDOW_WIDTH - surface->w - 2;
+	rect.y = WINDOW_HEIGHT - surface->h - 2;
+
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+
+	SDL_FreeSurface(surface);
 }
 
 void Battle::draw_pause_screen(SDL_Surface * screen) {

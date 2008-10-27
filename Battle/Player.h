@@ -30,14 +30,24 @@ public:
 
 	int momentumx, momentumy;
 	int last_speedx, last_speedy;
-	bool keydn_l, keydn_r, keydn_u;
 	bool is_jumping, is_falling;
 	int jump_start;
 	int current_sprite;
 	int cycle_direction;
 	int distance_walked;
 
-	int key_l, key_r, key_u;
+	bool keydn_l, keydn_r, keydn_u, keydn_shoot;
+	int key_l, key_r, key_u, key_shoot;
+
+	bool is_hit;
+	int hit_start;
+	int hit_delay;
+	int hit_flicker_frame;
+
+	int shoot_start;
+	int shoot_delay;
+
+	int hitpoints;
 
 	static const int jump_height;
 

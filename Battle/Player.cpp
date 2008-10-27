@@ -3,6 +3,9 @@
 
 #include "Player.h"
 
+#define WINDOW_WIDTH 640
+#define WINDOW_HEIGHT 480
+
 const int Player::jump_height = 144;
 
 #define PLAYER_W 17
@@ -19,6 +22,7 @@ Player::Player(const char * sprite_file) {
 	keydn_l = false;
 	keydn_r = false;
 	keydn_u = false;
+	keydn_shoot = false;
 
 	is_jumping = false;
 	is_falling = false;
@@ -26,6 +30,17 @@ Player::Player(const char * sprite_file) {
 	key_r = SDLK_RIGHT;
 	key_l = SDLK_LEFT;
 	key_u = SDLK_UP;
+	key_shoot = SDLK_KP0;
+
+	is_hit = false;
+	hit_start = 0;
+	hit_delay = 30;
+	hit_flicker_frame = 0;
+
+	shoot_start = 0;
+	shoot_delay = 10;
+
+	hitpoints = 100;
 
 	cycle_direction = CYCLE_UP;
 
@@ -46,17 +61,25 @@ void Player::show(SDL_Surface * screen) {
 	rect.x = position->x;
 	rect.y = position->y;
 
+	// Check if player is hit and cycle between a show and a hide of the player to create
+	// a flicker effect
+	if(is_hit) {
+		hit_flicker_frame = (hit_flicker_frame + 1) % 10;
+		if(hit_flicker_frame < 5)
+			return;
+	}
+
 	SDL_BlitSurface(sprites, clip[current_sprite], screen, &rect);
 
 	// If the player is going out the side of the screen, we want it to
 	// appear on the other side.
-	if(position->x >= 608) {
-		rect.x = position->x - 640;
+	if(position->x >= WINDOW_WIDTH - PLAYER_W) {
+		rect.x = position->x - WINDOW_WIDTH;
 		rect.y = position->y;
 		SDL_BlitSurface(sprites, clip[current_sprite], screen, &rect);
 	}
 	if(position->x <= 0) {
-		rect.x = position->x + 640;
+		rect.x = position->x + WINDOW_WIDTH;
 		rect.y = position->y;
 		SDL_BlitSurface(sprites, clip[current_sprite], screen, &rect);
 	}
@@ -73,6 +96,9 @@ void Player::handle_input(SDL_Event * event) {
 		if(event->key.keysym.sym == key_u) {
 			keydn_u = true;
 		}
+		if(event->key.keysym.sym == key_shoot) {
+			keydn_shoot = true;
+		}
 	}
 	if(event->type == SDL_KEYUP) {
 		if(event->key.keysym.sym == key_r) {
@@ -83,6 +109,9 @@ void Player::handle_input(SDL_Event * event) {
 		}
 		if(event->key.keysym.sym == key_u) {
 			keydn_u = false;
+		}
+		if(event->key.keysym.sym == key_shoot) {
+			keydn_shoot = false;
 		}
 	}
 }

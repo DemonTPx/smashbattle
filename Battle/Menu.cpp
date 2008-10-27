@@ -1,6 +1,9 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
+#include "SDL/SDL_mixer.h"
+
 #include "Timer.h"
+#include "AudioController.h"
 #include "Main.h"
 #include "Battle.h"
 
@@ -59,6 +62,7 @@ void Menu::run() {
 						draw();
 						break;
 					case SDLK_RETURN:
+						Main::audio->play_select();
 						if(selected_item == 0) {
 							Battle battle;
 							battle.run();

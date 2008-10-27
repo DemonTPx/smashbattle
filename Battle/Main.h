@@ -20,6 +20,8 @@ public:
 
 	static Timer * fps;
 
+	static AudioController * audio;
+
 	Main();
 	~Main();
 	int run();

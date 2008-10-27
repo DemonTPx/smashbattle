@@ -2,6 +2,9 @@
 #define _BATTLE_H
 
 #include "Player.h"
+#include "Projectile.h"
+#include <vector>
+
 class Battle {
 public:
 	Battle();
@@ -12,8 +15,12 @@ private:
 	bool game_running;
 	void draw_level(SDL_Surface * screen);
 	void draw_pause_screen(SDL_Surface * screen);
+	void draw_score(SDL_Surface * screen);
 	void move_player(Player * p);
+	void move_projectile(Projectile * p);
+	void process_shoot(Player * p);
 	void check_player_collision(Player * p1, Player * p2);
+	void check_player_projectile_collision(Player * p);
 	bool check_collision(SDL_Rect * rect);
 	bool check_bottom(SDL_Rect * rect);
 	int level_pos(int x, int y);
@@ -22,7 +29,14 @@ private:
 	void free_images();
 	void set_clips();
 
+	Player * player1;
+	Player * player2;
+
 	bool paused;
+
+	int frame;
+
+	std::vector<Projectile*> * projectiles;
 	
 	TTF_Font * font;
 	SDL_Color fontColor;

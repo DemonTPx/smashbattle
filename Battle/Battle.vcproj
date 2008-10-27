@@ -43,7 +43,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="2"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -60,8 +60,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdl.lib sdlmain.lib sdl_ttf.lib"
+				AdditionalDependencies="sdl.lib sdlmain.lib sdl_ttf.lib sdl_mixer.lib"
 				LinkIncremental="2"
+				IgnoreAllDefaultLibraries="false"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -177,6 +178,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\AudioController.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Battle.cpp"
 				>
 			</File>
@@ -197,6 +202,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Projectile.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\TetrisTest.cpp"
 				>
 			</File>
@@ -210,6 +219,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\AudioController.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Battle.h"
 				>
@@ -228,6 +241,10 @@
 			</File>
 			<File
 				RelativePath=".\Player.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Projectile.h"
 				>
 			</File>
 			<File
@@ -257,7 +274,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\res\hit.wav"
+				>
+			</File>
+			<File
 				RelativePath="..\res\jeroen.bmp"
+				>
+			</File>
+			<File
+				RelativePath="..\res\select.wav"
+				>
+			</File>
+			<File
+				RelativePath="..\res\shoot.wav"
 				>
 			</File>
 			<File
@@ -270,6 +299,10 @@
 			</File>
 			<File
 				RelativePath="..\res\title.bmp"
+				>
+			</File>
+			<File
+				RelativePath="..\res\weapons.bmp"
 				>
 			</File>
 		</Filter>

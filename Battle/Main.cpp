@@ -1,10 +1,14 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
+#include "SDL/SDL_mixer.h"
+
 #include <cstdio>
+
 #include "Timer.h"
 #include "Block.h"
 #include "Interface.h"
 #include "Menu.h"
+#include "AudioController.h"
 
 #include "Main.h"
 
@@ -22,6 +26,8 @@ bool Main::fps_cap = false;
 
 Timer * Main::fps = NULL;
 
+AudioController * Main::audio = NULL;
+
 Main::Main() {
 	Main::instance = this;
 }
@@ -36,7 +42,7 @@ bool Main::init() {
 	//Start SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, SDL_SWSURFACE | SDL_FULLSCREEN);
+	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, SDL_SWSURFACE);
 	SDL_ShowCursor(0);
 
 	fps_cap = true;
@@ -52,6 +58,10 @@ bool Main::init() {
 	
 	fps = new Timer();
 
+	audio = new AudioController();
+	audio->open_audio();
+	audio->load_files();
+
 	return true;
 }
 
@@ -62,7 +72,11 @@ void Main::clean_up() {
 	//TTF_CloseFont(font);
 
 	delete fps;
-	
+
+	audio->close_files();
+	audio->close_audio();
+	delete audio;
+
 	//Quit SDL
 	SDL_Quit();
 }
