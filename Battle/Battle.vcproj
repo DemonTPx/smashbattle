@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdl.lib sdlmain.lib sdl_ttf.lib"
+				AdditionalDependencies="sdl.lib sdlmain.lib sdl_ttf.lib sdl_mixer.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -262,6 +262,10 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath="..\res\battle.ogg"
+				>
+			</File>
+			<File
 				RelativePath="..\res\bert.bmp"
 				>
 			</File>
@@ -282,6 +286,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\res\pause.wav"
+				>
+			</File>
+			<File
 				RelativePath="..\res\select.wav"
 				>
 			</File>
@@ -299,6 +307,10 @@
 			</File>
 			<File
 				RelativePath="..\res\title.bmp"
+				>
+			</File>
+			<File
+				RelativePath="..\res\title.ogg"
 				>
 			</File>
 			<File

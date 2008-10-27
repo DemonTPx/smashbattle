@@ -41,6 +41,7 @@ Player::Player(const char * sprite_file) {
 	shoot_delay = 10;
 
 	hitpoints = 100;
+	score = 0;
 
 	cycle_direction = CYCLE_UP;
 

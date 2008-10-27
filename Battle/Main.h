@@ -4,6 +4,9 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
+#include "Timer.h"
+#include "AudioController.h"
+
 class Main {
 public:
 	static Main * instance;

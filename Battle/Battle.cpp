@@ -45,7 +45,7 @@ const int Battle::level[SPR_COUNT] =
    0, 0, 0, 0, 0,  0, 0,-1,-1,-1, -1,-1,-1, 0, 0,  0, 0, 0, 0, 0,
   -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
   -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-   5, 5, 5, 5, 5,  5, 5, 5, 5, 5,  5, 5, 5, 5, 5,  5, 5, 5, 5, 5,
+   1, 1, 1, 1, 1,  1, 1, 1, 1, 1,  1, 1, 1, 1, 1,  1, 1, 1, 1, 1,
   -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1 };
   
 
@@ -67,30 +67,21 @@ void Battle::run() {
 
 	game_running = true;
 
-	SDL_FillRect(screen, NULL, 0);
-	draw_level(screen);
-
 	player1 = new Player("bert.bmp");
-	player1->position->x = 160;
-	player1->position->y = 256;
 	player1->key_l = SDLK_a;
 	player1->key_r = SDLK_d;
 	player1->key_u = SDLK_w;
 	player1->key_shoot = SDLK_LCTRL;
 
 	player2 = new Player("jeroen.bmp");
-	player2->position->x = 448;
-	player2->position->y = 256;
 	player2->key_l = SDLK_LEFT;
 	player2->key_r = SDLK_RIGHT;
 	player2->key_u = SDLK_UP;
 	player2->key_shoot = SDLK_KP0;
-	player2->set_sprite(SPR_L);
 
 	projectiles = new std::vector<Projectile*>(0);
 
-	frame = 0;
-	paused = false;
+	reset_game();
 
 	while (Main::running && game_running) {
 		// Event handling
@@ -99,9 +90,23 @@ void Battle::run() {
 			if(event.type == SDL_KEYDOWN) {
 				if(event.key.keysym.sym == SDLK_ESCAPE) {
 					paused = !paused;
+
+					if(paused) {
+						Main::instance->audio->pause_music();
+						if(countdown) countdown_timer->pause();
+					} else {
+						Main::instance->audio->unpause_music();
+						if(countdown) countdown_timer->unpause();
+					}
+					Main::instance->audio->play_pause();
 				}
 				if(event.key.keysym.sym == SDLK_n) {
-					if(paused) paused = false;
+					if(paused) {
+						paused = false;
+						if(countdown) countdown_timer->unpause();
+						Main::instance->audio->unpause_music();
+						Main::instance->audio->play_pause();
+					}
 				}
 				if(event.key.keysym.sym == SDLK_y) {
 					if(paused) game_running = false;
@@ -112,7 +117,17 @@ void Battle::run() {
 		}
 
 		// Processing
-		if(!paused) {
+		if(!paused && !countdown) {
+
+			if(player1->hitpoints <= 0) {
+				player2->score++;
+				reset_game();
+			}
+			if(player2->hitpoints <= 0) {
+				player1->score++;
+				reset_game();
+			}
+
 			move_player(player1);
 			move_player(player2);
 
@@ -151,16 +166,56 @@ void Battle::run() {
 		if(paused) {
 			draw_pause_screen(screen);
 		}
+		if(countdown) {
+			if(!paused)
+				handle_draw_countdown(screen);
+		}
 
 		// Flipping
 
 		Main::instance->flip();
 	}
+
+	if(!countdown)
+		Main::audio->stop_music();
+
+	delete countdown_timer;
 	
 	projectiles->clear();
 	delete projectiles;
 
 	free_images();
+}
+
+void Battle::reset_game() {
+	player1->position->x = 160;
+	player1->position->y = 320 - player1->position->h;
+	player1->is_hit = false;
+	player1->hitpoints = 100;
+	player1->shoot_start = 0;
+	player1->hit_start = 0;
+	player1->momentumx = 0;
+	player1->momentumy = 0;
+	player1->set_sprite(SPR_R);
+
+	player2->position->x = 448;
+	player2->position->y = 320 - player2->position->h;
+	player2->is_hit = false;
+	player2->hitpoints = 100;
+	player2->shoot_start = 0;
+	player2->hit_start = 0;
+	player1->momentumx = 0;
+	player1->momentumy = 0;
+	player2->set_sprite(SPR_L);
+
+	projectiles->clear();
+
+	frame = 0;
+	paused = false;
+	countdown = true;
+	countdown_sec_left = 4;
+	countdown_timer = new Timer();
+	countdown_timer->start();
 }
 
 void Battle::process_shoot(Player * p) {
@@ -319,6 +374,8 @@ void Battle::move_player(Player * p) {
 		// Start the jump
 		p->momentumy = MAX_MOMENTUM_JUMP;
 		p->is_jumping = true;
+
+		Main::instance->audio->play_jump();
 	}
 	if(!p->keydn_u && p->is_jumping) {
 		// The up key is released, so fall faster
@@ -654,16 +711,30 @@ void Battle::draw_score(SDL_Surface * screen) {
 
 	sprintf_s(str, 40, "Player1 HP: %d", player1->hitpoints);
 
-	surface = TTF_RenderText_Solid(font, str, fontColor);
+	surface = TTF_RenderText_Solid(font26, str, fontColor);
 	rect.x = 2;
 	rect.y = WINDOW_HEIGHT - surface->h - 2;
 
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 
+	SDL_FreeSurface(surface);
+
+
 	sprintf_s(str, 40, "Player2 HP: %d", player2->hitpoints);
 
-	surface = TTF_RenderText_Solid(font, str, fontColor);
+	surface = TTF_RenderText_Solid(font26, str, fontColor);
 	rect.x = WINDOW_WIDTH - surface->w - 2;
+	rect.y = WINDOW_HEIGHT - surface->h - 2;
+
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+
+	SDL_FreeSurface(surface);
+
+
+	sprintf_s(str, 40, "%02d - %02d", player1->score, player2->score);
+
+	surface = TTF_RenderText_Solid(font26, str, fontColor);
+	rect.x = (WINDOW_WIDTH - surface->w) / 2;
 	rect.y = WINDOW_HEIGHT - surface->h - 2;
 
 	SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -675,13 +746,47 @@ void Battle::draw_pause_screen(SDL_Surface * screen) {
 	SDL_Surface * surface;
 	SDL_Rect rect;
 
-	surface = TTF_RenderText_Solid(font, "QUIT GAME Y/N", fontColor);
+	surface = TTF_RenderText_Solid(font26, "QUIT GAME Y/N", fontColor);
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = (screen->h - surface->h) / 2;
 
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 
 	SDL_FreeSurface(surface);
+}
+
+void Battle::handle_draw_countdown(SDL_Surface * screen) {
+	char text[5];
+	SDL_Surface * surf;
+
+	if(countdown_timer->get_ticks() >= 1000) {
+		if(countdown_sec_left == 1) {
+			countdown = false;
+			countdown_timer->stop();
+
+			Main::audio->play_go();
+
+			Main::audio->play_music(MUSIC_BATTLE);
+
+			return;
+		}
+		countdown_sec_left--;
+		countdown_timer->start();
+
+		Main::audio->play_countdown();
+	}
+
+	if(countdown_sec_left == 4) return;
+
+	sprintf_s(text, 5, "%d", countdown_sec_left);
+
+	surf = TTF_RenderText_Solid(font52, text, fontColor);
+
+	SDL_Rect rect;
+	rect.x = (screen->w - surf->w) / 2;
+	rect.y = (screen->h - surf->h) / 2;
+	
+	SDL_BlitSurface(surf, NULL, screen, &rect);
 }
 
 void Battle::load_images() {
@@ -697,7 +802,8 @@ void Battle::load_images() {
 
 	set_clips();
 
-	font = TTF_OpenFont("slick.ttf", 26);
+	font26 = TTF_OpenFont("slick.ttf", 26);
+	font52 = TTF_OpenFont("slick.ttf", 52);
 	fontColor.r = 255;
 	fontColor.g = 255;
 	fontColor.b = 255;
@@ -709,7 +815,8 @@ void Battle::free_images() {
 
 	delete * tile_rect;
 
-	TTF_CloseFont(font);
+	TTF_CloseFont(font26);
+	TTF_CloseFont(font52);
 }
 
 void Battle::set_clips() {

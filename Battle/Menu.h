@@ -3,7 +3,8 @@
 
 class Menu {
 private:
-	TTF_Font * font;
+	TTF_Font * font26;
+	TTF_Font * font13;
 	SDL_Color fontColor;
 	SDL_Rect offset;
 	SDL_Surface * bg;

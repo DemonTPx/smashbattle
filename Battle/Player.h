@@ -47,6 +47,7 @@ public:
 	int shoot_start;
 	int shoot_delay;
 
+	int score;
 	int hitpoints;
 
 	static const int jump_height;

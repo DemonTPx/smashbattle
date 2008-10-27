@@ -16,7 +16,8 @@ const char * Menu::item[10] = {"START", "OPTIONS", "QUIT"};
 const int Menu::itemcount = 3;
 
 Menu::Menu() {
-	font = TTF_OpenFont("slick.ttf", 26);
+	font26 = TTF_OpenFont("slick.ttf", 26);
+	font13 = TTF_OpenFont("slick.ttf", 13);
 	fontColor.r = 255;
 	fontColor.g = 255;
 	fontColor.b = 255;
@@ -25,7 +26,8 @@ Menu::Menu() {
 }
 
 Menu::~Menu() {
-	TTF_CloseFont(font);
+	TTF_CloseFont(font26);
+	TTF_CloseFont(font13);
 }
 
 void Menu::run() {
@@ -37,6 +39,8 @@ void Menu::run() {
 	SDL_FreeSurface(surface);
 
 	draw();
+
+	Main::audio->play_music(MUSIC_TITLE);
 
 	while (Main::running) {
 		while(SDL_PollEvent(&event)) {
@@ -63,14 +67,17 @@ void Menu::run() {
 						break;
 					case SDLK_RETURN:
 						Main::audio->play_select();
+						Main::audio->stop_music();
 						if(selected_item == 0) {
 							Battle battle;
 							battle.run();
 							draw();
 						}
 						if(selected_item == 2) {
+							SDL_Delay(500);
 							Main::running = false;
 						}
+						Main::audio->play_music(MUSIC_TITLE);
 						break;
 				}
 			}
@@ -92,7 +99,7 @@ void Menu::draw() {
 	SDL_BlitSurface(bg, NULL, screen, NULL);
 
 	for(i = 0; i < itemcount; i++) {
-		text = TTF_RenderText_Solid(font, item[i], fontColor);
+		text = TTF_RenderText_Solid(font26, item[i], fontColor);
 		
 		if(selected_item == i) {
 			highlight = SDL_CreateRGBSurface(NULL, text->w + 10, MENU_ITEM_HEIGHT, 32, 0, 0, 0, 0);
@@ -111,6 +118,26 @@ void Menu::draw() {
 		SDL_BlitSurface(text, NULL, screen, &rect);
 		SDL_FreeSurface(text);
 	}
-
 	
+	char credit1[] = "Programming by Bert Hekman";
+	char credit2[] = "Graphics by Jeroen Groeneweg";
+	char credit3[] = "Music by Nick Perrin";
+
+	text = TTF_RenderText_Solid(font13, credit1, fontColor);
+	rect.x = (WINDOW_WIDTH - text->w) / 2;
+	rect.y = WINDOW_HEIGHT - 35;
+	SDL_BlitSurface(text, NULL, screen, &rect);
+	SDL_FreeSurface(text);
+	
+	text = TTF_RenderText_Solid(font13, credit2, fontColor);
+	rect.x = (WINDOW_WIDTH - text->w) / 2;
+	rect.y = WINDOW_HEIGHT - 25;
+	SDL_BlitSurface(text, NULL, screen, &rect);
+	SDL_FreeSurface(text);
+
+	text = TTF_RenderText_Solid(font13, credit3, fontColor);
+	rect.x = (WINDOW_WIDTH - text->w) / 2;
+	rect.y = WINDOW_HEIGHT - 15;
+	SDL_BlitSurface(text, NULL, screen, &rect);
+	SDL_FreeSurface(text);
 }
