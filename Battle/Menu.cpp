@@ -48,29 +48,29 @@ void Menu::run() {
 			if(event.type == SDL_KEYDOWN) {
 				switch(event.key.keysym.sym) {
 					case SDLK_UP:
-						Main::audio->play_select();
+						Main::audio->play(SND_SELECT);
 						selected_item--;
 						if(selected_item < 0) selected_item = itemcount - 1;
 						draw();
 						break;
 					case SDLK_DOWN:
-						Main::audio->play_select();
+						Main::audio->play(SND_SELECT);
 						selected_item++;
 						if(selected_item == itemcount) selected_item = 0;
 						draw();
 						break;
 					case SDLK_PAGEUP:
-						Main::audio->play_select();
+						Main::audio->play(SND_SELECT);
 						selected_item = 0;
 						draw();
 						break;
 					case SDLK_PAGEDOWN:
-						Main::audio->play_select();
+						Main::audio->play(SND_SELECT);
 						selected_item = itemcount - 1;
 						draw();
 						break;
 					case SDLK_RETURN:
-						Main::audio->play_select();
+						Main::audio->play(SND_SELECT);
 						Main::audio->stop_music();
 						if(selected_item == 0) {
 							Battle battle;
@@ -91,7 +91,7 @@ void Menu::run() {
 					case 1:
 					case 2:
 					case 3:
-						Main::audio->play_select();
+						Main::audio->play(SND_SELECT);
 						Main::audio->stop_music();
 						if(selected_item == 0) {
 							Battle battle;
@@ -109,14 +109,14 @@ void Menu::run() {
 			if(event.type == SDL_JOYAXISMOTION) {
 				if(event.jaxis.axis == 1) {
 					if(event.jaxis.value < -6400) {
-						Main::audio->play_select();
+						Main::audio->play(SND_SELECT);
 						selected_item--;
 						if(selected_item < 0) selected_item = itemcount - 1;
 						draw();
 						break;
 					}
 					if(event.jaxis.value > 6400) {
-						Main::audio->play_select();
+						Main::audio->play(SND_SELECT);
 						selected_item++;
 						if(selected_item == itemcount) selected_item = 0;
 						draw();

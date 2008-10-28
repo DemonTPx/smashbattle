@@ -27,8 +27,8 @@ Timer * Main::fps = NULL;
 
 AudioController * Main::audio = NULL;
 
-bool Main::music_on = false;
-bool Main::sound_on = false;
+bool Main::music_on = true;
+bool Main::sound_on = true;
 
 Main::Main() {
 	Main::instance = this;

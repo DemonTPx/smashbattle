@@ -14,6 +14,8 @@
 #define SND_HIT 12
 #define SND_BOUNCE 13
 
+#define SND_YOULOSE 18
+
 #define SND_COUNTDOWN 20
 #define SND_GO 21
 
@@ -31,16 +33,7 @@ public:
 	void pause_music();
 	void unpause_music();
 
-	void play_select();
-	void play_pause();
-
-	void play_jump();
-	void play_shoot();
-	void play_hit();
-	void play_bounce();
-	
-	void play_countdown();
-	void play_go();
+	void play(int sound);
 private:
 	Mix_Music * mus_title;
 	Mix_Music * mus_battle;
@@ -52,6 +45,8 @@ private:
 	Mix_Chunk * shoot;
 	Mix_Chunk * hit;
 	Mix_Chunk * bounce;
+
+	Mix_Chunk * youlose;
 
 	Mix_Chunk * countdown;
 	Mix_Chunk * go;

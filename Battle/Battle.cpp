@@ -74,6 +74,7 @@ void Battle::run() {
 	player1->key_l = SDLK_a;
 	player1->key_r = SDLK_d;
 	player1->key_u = SDLK_w;
+	player1->key_d = SDLK_s;
 	player1->key_run = SDLK_LSHIFT;
 	player1->key_shoot = SDLK_LCTRL;
 	player1->joystick_idx = 0;
@@ -86,6 +87,7 @@ void Battle::run() {
 	player2->key_l = SDLK_LEFT;
 	player2->key_r = SDLK_RIGHT;
 	player2->key_u = SDLK_UP;
+	player2->key_d = SDLK_DOWN;
 	player2->key_run = SDLK_RSHIFT;
 	player2->key_shoot = SDLK_RCTRL;
 	player2->joystick_idx = 1;
@@ -113,14 +115,14 @@ void Battle::run() {
 						Main::instance->audio->unpause_music();
 						if(countdown) countdown_timer->unpause();
 					}
-					Main::instance->audio->play_pause();
+					Main::instance->audio->play(SND_PAUSE);
 				}
 				if(event.key.keysym.sym == SDLK_n) {
 					if(paused) {
 						paused = false;
 						if(countdown) countdown_timer->unpause();
 						Main::instance->audio->unpause_music();
-						Main::instance->audio->play_pause();
+						Main::instance->audio->play(SND_PAUSE);
 					}
 				}
 				if(event.key.keysym.sym == SDLK_y) {
@@ -139,7 +141,7 @@ void Battle::run() {
 						Main::instance->audio->unpause_music();
 						if(countdown) countdown_timer->unpause();
 					}
-					Main::instance->audio->play_pause();
+					Main::instance->audio->play(SND_PAUSE);
 				}
 			}
 			player1->handle_input(&event);
@@ -169,18 +171,31 @@ void Battle::run() {
 				}
 			}
 			
+			// Check if any player is out of HP
 			if(player1->hitpoints <= 0) {
+				Main::audio->play(SND_YOULOSE);
+
+				if(player1->hitpoints < 0)
+					player1->hitpoints = 0;
 				player2->score++;
+
 				player1->is_hit = true;
 				player2->is_hit = false;
+
 				ended = true;
 				end_timer = new Timer();
 				end_timer->start();
 			}
 			if(player2->hitpoints <= 0) {
+				Main::audio->play(SND_YOULOSE);
+
+				if(player2->hitpoints < 0)
+					player2->hitpoints = 0;
 				player1->score++;
+
 				player1->is_hit = false;
 				player2->is_hit = true;
+
 				ended = true;
 				end_timer = new Timer();
 				end_timer->start();
@@ -243,6 +258,8 @@ void Battle::reset_game() {
 	player1->position->x = 160;
 	player1->position->y = 320 - player1->position->h;
 	player1->is_hit = false;
+	player1->is_duck_forced = false;
+	player1->duck_force_start = 0;
 	player1->hitpoints = 100;
 	player1->shoot_start = 0;
 	player1->hit_start = 0;
@@ -253,6 +270,8 @@ void Battle::reset_game() {
 	player2->position->x = 448;
 	player2->position->y = 320 - player2->position->h;
 	player2->is_hit = false;
+	player2->is_duck_forced = false;
+	player2->duck_force_start = 0;
 	player2->hitpoints = 100;
 	player2->shoot_start = 0;
 	player2->hit_start = 0;
@@ -261,7 +280,7 @@ void Battle::reset_game() {
 	player2->set_sprite(SPR_L);
 
 	Projectile * pr;
-	for(int i = 0; i < projectiles->size(); i++) {
+	for(unsigned int i = 0; i < projectiles->size(); i++) {
 		pr = projectiles->at(i);
 		delete pr;
 	}
@@ -294,17 +313,20 @@ void Battle::process_shoot(Player * p) {
 
 			pr = new Projectile("gfx/weapons.bmp", clip_weapon);
 
-			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_RUN3 || p->current_sprite == SPR_L_JUMP || p->current_sprite == SPR_R_BRAKE) {
+			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_DUCK) {
 				pr->speedx = -10;
 				pr->position->x = p->position->x - pr->position->w - 1;
 			} else {
 				pr->speedx = 10;
 				pr->position->x = p->position->x + p->position->w + 1;
 			}
-			pr->position->y = p->position->y + 12;
+			if(p->is_duck)
+				pr->position->y = p->position->y + 28;
+			else
+				pr->position->y = p->position->y + 10;
 			projectiles->push_back(pr);
 
-			Main::instance->audio->play_shoot();
+			Main::instance->audio->play(SND_SHOOT);
 		}
 	}
 }
@@ -335,6 +357,23 @@ void Battle::move_player(Player * p) {
 		maxx = MAX_MOMENTUM_HORIZ;
 	}
 
+	if(p->keydn_d) {
+		p->is_duck = true;
+		maxx = 0;
+	}
+	else {
+		p->is_duck = false;
+	}
+	
+	if(p->is_duck_forced) {
+		if(frame - p->duck_force_start > DUCK_FORCE_FRAMES) {
+			p->is_duck_forced = false;
+		} else {
+			p->is_duck = true;
+			maxx = 0;
+		}
+	}
+
 	if(p->keydn_l) {
 		// Move more to the left
 		if(p->momentumx > 0) p->momentumx -= MOMENTUM_INTERV_HORIZ;
@@ -361,15 +400,19 @@ void Battle::move_player(Player * p) {
 	// Which sprite do we want to show?
 	if(p->momentumx == 0) {
 		if(!p->keydn_l && !p->keydn_r) {
-			if((p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_WALK3) || p->current_sprite == SPR_R_BRAKE || p->current_sprite == SPR_L_JUMP) {
-				if(p->is_jumping || p->is_falling) {
+			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_DUCK) {
+				if(p->is_duck) {
+					p->set_sprite(SPR_L_DUCK);
+				} else if(p->is_jumping || p->is_falling) {
 					p->set_sprite(SPR_L_JUMP);
 				} else {
 					p->set_sprite(SPR_L);
 				}
 			}
-			if((p->current_sprite >= SPR_R && p->current_sprite <= SPR_R_WALK3) || p->current_sprite == SPR_L_BRAKE || p->current_sprite == SPR_R_JUMP) {
-				if(p->is_jumping || p->is_falling) {
+			if(p->current_sprite >= SPR_R && p->current_sprite <= SPR_R_DUCK) {
+				if(p->is_duck) {
+					p->set_sprite(SPR_R_DUCK);
+				} else if(p->is_jumping || p->is_falling) {
 					p->set_sprite(SPR_R_JUMP);
 				} else {
 					p->set_sprite(SPR_R);
@@ -381,19 +424,26 @@ void Battle::move_player(Player * p) {
 		}
 		else {
 			if(p->keydn_l && !p->keydn_r) {
-				p->set_sprite(SPR_L_WALK1);
+				if(p->is_duck)
+					p->set_sprite(SPR_L_DUCK);
+				else
+					p->set_sprite(SPR_L_WALK1);
 			}
 			if(!p->keydn_l && p->keydn_r) {
-				p->set_sprite(SPR_R_WALK1);
+				if(p->is_duck)
+					p->set_sprite(SPR_R_DUCK);
+				else
+					p->set_sprite(SPR_R_WALK1);
 			}
 		}
 		p->distance_walked = 0;
 	}
 	if(p->momentumx < 0) {
-		if(p->is_jumping || p->is_falling) {
+		if(p->is_duck) {
+			p->set_sprite(SPR_L_DUCK);
+		} else if((p->is_jumping || p->is_falling) && !p->is_duck) {
 			p->set_sprite(SPR_L_JUMP);
-		}
-		else {
+		} else {
 			if(p->is_running) {
 				if(p->current_sprite < SPR_L_RUN1 || p->current_sprite > SPR_L_RUN3) {
 					p->set_sprite(SPR_L_RUN1);
@@ -418,10 +468,11 @@ void Battle::move_player(Player * p) {
 		}
 	}
 	else if(p->momentumx > 0) {
-		if(p->is_jumping || p->is_falling) {
+		if(p->is_duck) {
+			p->set_sprite(SPR_R_DUCK);
+		} else if(p->is_jumping || p->is_falling) {
 			p->set_sprite(SPR_R_JUMP);
-		}
-		else {
+		} else {
 			if(p->is_running) {
 				if(p->current_sprite < SPR_R_RUN1 || p->current_sprite > SPR_R_RUN3) {
 					p->set_sprite(SPR_R_RUN1);
@@ -465,7 +516,7 @@ void Battle::move_player(Player * p) {
 		p->momentumy = MAX_MOMENTUM_JUMP;
 		p->is_jumping = true;
 
-		Main::instance->audio->play_jump();
+		Main::instance->audio->play(SND_JUMP);
 	}
 	if(!p->keydn_u && p->is_jumping) {
 		// The up key is released, so fall faster
@@ -564,6 +615,9 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 	r2 = p2->position->x + p2->position->w;
 	b2 = p2->position->y + p2->position->h;
 
+	if(p1->is_duck) t1 = t1 + (PLAYER_H - PLAYER_DUCK_H);
+	if(p2->is_duck) t2 = t2 + (PLAYER_H - PLAYER_DUCK_H);
+
 	// Return if not colliding
 	if(b1 <= t2) return;
 	if(t1 >= b2) return;
@@ -586,7 +640,7 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 
 	// Collision
 
-	Main::audio->play_bounce();
+	Main::audio->play(SND_BOUNCE);
 
 	// Move players out of collision zone
 	p1->position->x -= p1->last_speedx;
@@ -653,14 +707,17 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 
 	if(diffx > diffy) { // Players hit each others top
 		if(upper->keydn_u) {
-			Main::audio->play_jump();
+			Main::audio->play(SND_JUMP);
 			upper->momentumy = MAX_MOMENTUM_JUMP;
 			upper->is_falling = false;
 			upper->is_jumping = true;
 		} else {
 			upper->momentumy = 30;
 		}
+		lower->is_duck_forced = true;
+		lower->duck_force_start = frame;
 		lower->momentumy = -10;
+		lower->hitpoints -= 5;
 	} else { // Players hit each others side
 		if(momxr < -(MAX_MOMENTUM_HORIZ + MOMENTUM_INTERV_HORIZ))
 			left->momentumx = -40;
@@ -731,6 +788,8 @@ void Battle::check_player_projectile_collision(Player * p) {
 	t1 = p->position->y;
 	b1 = p->position->y + p->position->h;
 
+	if(p->is_duck) t1 = t1 + (PLAYER_H - PLAYER_DUCK_H);
+
 	/*
 	if(l1 >= WINDOW_WIDTH) l1 = l1 - WINDOW_WIDTH;
 	if(r1 >= WINDOW_WIDTH) r1 = r1 - WINDOW_WIDTH;
@@ -758,7 +817,7 @@ void Battle::check_player_projectile_collision(Player * p) {
 		p->hit_start = frame;
 		p->hitpoints -= 10;
 
-		Main::audio->play_hit();
+		Main::audio->play(SND_HIT);
 	}
 }
 
@@ -853,8 +912,8 @@ void Battle::draw_level(SDL_Surface * screen) {
 	rect.w = SPR_W;
 	rect.h = SPR_H;
 
-	//SDL_FillRect(screen, &screen->clip_rect, 0);
-	SDL_BlitSurface(background, NULL, screen, NULL);
+	SDL_FillRect(screen, &screen->clip_rect, 0);
+	//SDL_BlitSurface(background, NULL, screen, NULL);
 
 	// Draw each sprite, one by one
 	for(int i = 0; i < SPR_COUNT; i++) {
@@ -871,6 +930,37 @@ void Battle::draw_level(SDL_Surface * screen) {
 void Battle::draw_score(SDL_Surface * screen) {
 	SDL_Surface * surface;
 	SDL_Rect rect;
+	SDL_Rect rect_s;
+
+	// Health bar player 1
+	rect.x = 2;
+	rect.y = WINDOW_HEIGHT - 31;
+	rect.w = 120;
+	rect.h = 9;
+	SDL_FillRect(screen, &rect, 0);
+
+	rect_s.w = (int)(1.18 * player1->hitpoints);
+	rect_s.h = 7;
+	rect_s.x = 0;
+	rect_s.y = 0;
+	rect.x = 3;
+	rect.y = WINDOW_HEIGHT - 30;
+	SDL_BlitSurface(player1hp, &rect_s, screen, &rect);
+
+	// Health bar player 2
+	rect.x = WINDOW_WIDTH - 122;
+	rect.y = WINDOW_HEIGHT - 31;
+	rect.w = 120;
+	rect.h = 9;
+	SDL_FillRect(screen, &rect, 0);
+
+	rect_s.w = (int)(1.18 * player2->hitpoints);
+	rect_s.h = 7;
+	rect_s.x = 118 - rect_s.w;
+	rect_s.y = 0;
+	rect.x = WINDOW_WIDTH - 2 - rect_s.w;
+	rect.y = WINDOW_HEIGHT - 30;
+	SDL_BlitSurface(player2hp, &rect_s, screen, &rect);
 
 	char str[40];
 
@@ -878,7 +968,7 @@ void Battle::draw_score(SDL_Surface * screen) {
 
 	surface = TTF_RenderText_Solid(font26, str, fontColor);
 	rect.x = 2;
-	rect.y = WINDOW_HEIGHT - surface->h - 2;
+	rect.y = WINDOW_HEIGHT - surface->h;
 
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 
@@ -889,7 +979,7 @@ void Battle::draw_score(SDL_Surface * screen) {
 
 	surface = TTF_RenderText_Solid(font26, str, fontColor);
 	rect.x = WINDOW_WIDTH - surface->w - 2;
-	rect.y = WINDOW_HEIGHT - surface->h - 2;
+	rect.y = WINDOW_HEIGHT - surface->h;
 
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 
@@ -951,7 +1041,7 @@ void Battle::handle_draw_countdown(SDL_Surface * screen) {
 
 			delete countdown_timer;
 
-			Main::audio->play_go();
+			Main::audio->play(SND_GO);
 
 			Main::audio->play_music(MUSIC_BATTLE);
 
@@ -960,7 +1050,7 @@ void Battle::handle_draw_countdown(SDL_Surface * screen) {
 		countdown_sec_left--;
 		countdown_timer->start();
 
-		Main::audio->play_countdown();
+		Main::audio->play(SND_COUNTDOWN);
 	}
 
 	if(countdown_sec_left == 4) return;
@@ -986,6 +1076,14 @@ void Battle::load_images() {
 
 	surface = SDL_LoadBMP("gfx/tiles.bmp");
 	tiles = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+
+	surface = SDL_LoadBMP("gfx/player1hp.bmp");
+	player1hp = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+
+	surface = SDL_LoadBMP("gfx/player2hp.bmp");
+	player2hp = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
 
 	set_clips();

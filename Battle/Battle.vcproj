@@ -302,6 +302,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\player1hp.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\player2hp.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\sfx\select.wav"
 				>
 			</File>
@@ -327,6 +335,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\weapons.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\sfx\youlose.wav"
 				>
 			</File>
 		</Filter>

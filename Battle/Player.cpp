@@ -8,8 +8,6 @@
 
 const int Player::jump_height = 144;
 
-#define PLAYER_W 22
-#define PLAYER_H 44
 #define PLAYER_SURF_COLS 10
 #define PLAYER_SURF_COUNT 20
 
@@ -20,19 +18,25 @@ Player::Player(const char * sprite_file) {
 	current_sprite = SPR_R;
 	distance_walked = 0;
 
+	is_running = false;
+	is_duck = false;
+	is_duck_forced = false;
+	duck_force_start = 0;
+
+	is_jumping = false;
+	is_falling = false;
+
 	keydn_l = false;
 	keydn_r = false;
 	keydn_u = false;
+	keydn_d = false;
 	keydn_run = false;
 	keydn_shoot = false;
-
-	is_running = false;
-	is_jumping = false;
-	is_falling = false;
 
 	key_r = SDLK_RIGHT;
 	key_l = SDLK_LEFT;
 	key_u = SDLK_UP;
+	key_d = SDLK_DOWN;
 	key_run = SDLK_RSHIFT;
 	key_shoot = SDLK_RCTRL;
 
@@ -110,6 +114,9 @@ void Player::handle_input(SDL_Event * event) {
 		if(event->key.keysym.sym == key_u) {
 			keydn_u = true;
 		}
+		if(event->key.keysym.sym == key_d) {
+			keydn_d = true;
+		}
 		if(event->key.keysym.sym == key_run) {
 			keydn_run = true;
 		}
@@ -126,6 +133,9 @@ void Player::handle_input(SDL_Event * event) {
 		}
 		if(event->key.keysym.sym == key_u) {
 			keydn_u = false;
+		}
+		if(event->key.keysym.sym == key_d) {
+			keydn_d = false;
 		}
 		if(event->key.keysym.sym == key_run) {
 			keydn_run = false;
@@ -148,6 +158,14 @@ void Player::handle_input(SDL_Event * event) {
 				else {
 					keydn_l = false;
 					keydn_r = false;
+				}
+			}
+			if(event->jaxis.axis == 1) {
+				if(event->jaxis.value > 6400) {
+					keydn_d = true;
+				}
+				else {
+					keydn_d = false;
 				}
 			}
 		}

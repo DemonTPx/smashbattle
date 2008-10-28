@@ -61,6 +61,8 @@ private:
 
 	SDL_Surface * tiles;
 	SDL_Surface * background;
+	SDL_Surface * player1hp;
+	SDL_Surface * player2hp;
 	SDL_Rect * tile_rect[8];
 };
 
