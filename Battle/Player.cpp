@@ -8,9 +8,10 @@
 
 const int Player::jump_height = 144;
 
-#define PLAYER_W 17
-#define PLAYER_H 32
-#define PLAYER_SURF_COLS 6
+#define PLAYER_W 22
+#define PLAYER_H 44
+#define PLAYER_SURF_COLS 10
+#define PLAYER_SURF_COUNT 20
 
 Player::Player(const char * sprite_file) {
 	momentumx = 0;
@@ -60,7 +61,10 @@ Player::Player(const char * sprite_file) {
 }
 
 Player::~Player() {
-	delete *clip;
+	for(int i = 0; i < PLAYER_SURF_COUNT; i++) {
+		delete clip[i];
+	}
+	
 	delete position;
 	free_images();
 }
@@ -203,7 +207,7 @@ void Player::load_images(const char * sprite_file) {
 
 void Player::set_clips() {
 	int row_width = PLAYER_W * PLAYER_SURF_COLS;
-	for (int i = 0; i < 12; i++) {
+	for (int i = 0; i < PLAYER_SURF_COUNT; i++) {
 		clip[i] = new SDL_Rect();
 		clip[i]->w = PLAYER_W;
 		clip[i]->h = PLAYER_H;

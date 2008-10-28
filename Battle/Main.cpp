@@ -3,7 +3,6 @@
 #include "SDL/SDL_mixer.h"
 
 #include <cstdio>
-#include "crtdbg.h"
 
 #include "Timer.h"
 #include "Block.h"
@@ -135,7 +134,6 @@ int Main::run() {
 
 	clean_up();
 
-	_CrtDumpMemoryLeaks();
 	return 0;
 }
 

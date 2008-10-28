@@ -3,7 +3,6 @@
 #include "SDL/SDL_mixer.h"
 
 #include <vector>
-#include "crtdbg.h"
 
 #include "Timer.h"
 #include "AudioController.h"
@@ -79,7 +78,8 @@ void Battle::run() {
 	player1->key_shoot = SDLK_LCTRL;
 	player1->joystick_idx = 0;
 	player1->js_btn_u = 1;
-	player1->js_btn_shoot = 2;
+	player1->js_btn_run = 0;
+	player1->js_btn_shoot = 7;
 	player1->js_btn_start = 9;
 
 	player2 = new Player("gfx/jeroen.bmp");
@@ -90,6 +90,7 @@ void Battle::run() {
 	player2->key_shoot = SDLK_RCTRL;
 	player2->joystick_idx = 1;
 	player2->js_btn_u = 0;
+	player2->js_btn_run = 5;
 	player2->js_btn_shoot = 1;
 	player2->js_btn_start = 7;
 
@@ -164,6 +165,7 @@ void Battle::run() {
 				move_projectile(p);
 				if(p->hit) {
 					projectiles->erase(projectiles->begin() + idx);
+					delete p;
 				}
 			}
 			
@@ -258,6 +260,12 @@ void Battle::reset_game() {
 	player1->momentumy = 0;
 	player2->set_sprite(SPR_L);
 
+	Projectile * pr;
+	for(int i = 0; i < projectiles->size(); i++) {
+		pr = projectiles->at(i);
+		delete pr;
+	}
+
 	projectiles->clear();
 
 	frame = 0;
@@ -286,7 +294,7 @@ void Battle::process_shoot(Player * p) {
 
 			pr = new Projectile("gfx/weapons.bmp", clip_weapon);
 
-			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_WALK3 || p->current_sprite == SPR_L_JUMP || p->current_sprite == SPR_R_BRAKE) {
+			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_RUN3 || p->current_sprite == SPR_L_JUMP || p->current_sprite == SPR_R_BRAKE) {
 				pr->speedx = -10;
 				pr->position->x = p->position->x - pr->position->w - 1;
 			} else {
@@ -386,15 +394,24 @@ void Battle::move_player(Player * p) {
 			p->set_sprite(SPR_L_JUMP);
 		}
 		else {
-			if(p->current_sprite < SPR_L_WALK1 || p->current_sprite > SPR_L_WALK3) {
-				p->set_sprite(SPR_L_WALK1);
+			if(p->is_running) {
+				if(p->current_sprite < SPR_L_RUN1 || p->current_sprite > SPR_L_RUN3) {
+					p->set_sprite(SPR_L_RUN1);
+				}
+			} else {
+				if(p->current_sprite < SPR_L_WALK1 || p->current_sprite > SPR_L_WALK3) {
+					p->set_sprite(SPR_L_WALK1);
+				}
 			}
 			if(p->keydn_r) {
 				p->set_sprite(SPR_L_BRAKE);
 				p->distance_walked = 0;
 			}
 			if(p->distance_walked < -FRAME_CYCLE_DISTANCE) {
-				p->cycle_sprite_updown(SPR_L_WALK1, SPR_L_WALK3);
+				if(p->is_running)
+					p->cycle_sprite(SPR_L_RUN1, SPR_L_RUN3);
+				else
+					p->cycle_sprite(SPR_L_WALK1, SPR_L_WALK3);
 				p->distance_walked = 0;
 			}
 			p->distance_walked += speedx;
@@ -405,15 +422,24 @@ void Battle::move_player(Player * p) {
 			p->set_sprite(SPR_R_JUMP);
 		}
 		else {
-			if(p->current_sprite < SPR_R_WALK1 || p->current_sprite > SPR_R_WALK3) {
-				p->set_sprite(SPR_R_WALK1);
+			if(p->is_running) {
+				if(p->current_sprite < SPR_R_RUN1 || p->current_sprite > SPR_R_RUN3) {
+					p->set_sprite(SPR_R_RUN1);
+				}
+			} else {
+				if(p->current_sprite < SPR_R_WALK1 || p->current_sprite > SPR_R_WALK3) {
+					p->set_sprite(SPR_R_WALK1);
+				}
 			}
 			if(p->keydn_l) {
 				p->set_sprite(SPR_R_BRAKE);
 				p->distance_walked = 0;
 			}
 			if(p->distance_walked > FRAME_CYCLE_DISTANCE) {
-				p->cycle_sprite_updown(SPR_R_WALK1, SPR_R_WALK3);
+				if(p->is_running)
+					p->cycle_sprite(SPR_R_RUN1, SPR_R_RUN3);
+				else
+					p->cycle_sprite(SPR_R_WALK1, SPR_R_WALK3);
 				p->distance_walked = 0;
 			}
 			p->distance_walked += speedx;
@@ -870,7 +896,7 @@ void Battle::draw_score(SDL_Surface * screen) {
 	SDL_FreeSurface(surface);
 
 
-	sprintf_s(str, 40, "%02d:%02d", player1->score, player2->score);
+	sprintf_s(str, 40, "%02d-%02d", player1->score, player2->score);
 
 	surface = TTF_RenderText_Solid(font52, str, fontColor);
 	rect.x = (WINDOW_WIDTH - surface->w) / 2;
@@ -975,7 +1001,10 @@ void Battle::free_images() {
 	SDL_FreeSurface(tiles);
 	SDL_FreeSurface(background);
 
-	delete * tile_rect;
+	for(int i = 0; i < 8; i++) {
+		delete tile_rect[i];
+	}
+	//delete * tile_rect;
 
 	TTF_CloseFont(font26);
 	TTF_CloseFont(font52);

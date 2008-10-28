@@ -73,10 +73,8 @@ void Menu::run() {
 						Main::audio->play_select();
 						Main::audio->stop_music();
 						if(selected_item == 0) {
-							_CrtDumpMemoryLeaks();
 							Battle battle;
 							battle.run();
-							_CrtDumpMemoryLeaks();
 							draw();
 						}
 						if(selected_item == 2) {
