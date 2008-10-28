@@ -257,26 +257,30 @@ void Battle::run() {
 void Battle::reset_game() {
 	player1->position->x = 160;
 	player1->position->y = 320 - player1->position->h;
-	player1->is_hit = false;
-	player1->is_duck_forced = false;
-	player1->duck_force_start = 0;
 	player1->hitpoints = 100;
 	player1->shoot_start = 0;
+	player1->is_duck_forced = false;
+	player1->duck_force_start = 0;
+	player1->is_hit = false;
 	player1->hit_start = 0;
+	player1->is_falling = false;
+	player1->is_jumping = false;
 	player1->momentumx = 0;
 	player1->momentumy = 0;
 	player1->set_sprite(SPR_R);
 
 	player2->position->x = 448;
 	player2->position->y = 320 - player2->position->h;
-	player2->is_hit = false;
-	player2->is_duck_forced = false;
-	player2->duck_force_start = 0;
 	player2->hitpoints = 100;
 	player2->shoot_start = 0;
+	player2->is_duck_forced = false;
+	player2->duck_force_start = 0;
+	player2->is_hit = false;
 	player2->hit_start = 0;
-	player1->momentumx = 0;
-	player1->momentumy = 0;
+	player2->is_falling = false;
+	player2->is_jumping = false;
+	player2->momentumx = 0;
+	player2->momentumy = 0;
 	player2->set_sprite(SPR_L);
 
 	Projectile * pr;
