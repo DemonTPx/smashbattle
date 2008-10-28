@@ -30,14 +30,20 @@ public:
 
 	int momentumx, momentumy;
 	int last_speedx, last_speedy;
+
+	bool is_running;
+
 	bool is_jumping, is_falling;
 	int jump_start;
+
 	int current_sprite;
 	int cycle_direction;
 	int distance_walked;
 
-	bool keydn_l, keydn_r, keydn_u, keydn_shoot;
-	int key_l, key_r, key_u, key_shoot;
+	bool keydn_l, keydn_r, keydn_u, keydn_run, keydn_shoot;
+	int key_l, key_r, key_u, key_run, key_shoot;
+	int joystick_idx;
+	int js_btn_u, js_btn_run, js_btn_shoot, js_btn_start;
 
 	bool is_hit;
 	int hit_start;

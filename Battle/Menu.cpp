@@ -16,8 +16,8 @@ const char * Menu::item[10] = {"START", "OPTIONS", "QUIT"};
 const int Menu::itemcount = 3;
 
 Menu::Menu() {
-	font26 = TTF_OpenFont("slick.ttf", 26);
-	font13 = TTF_OpenFont("slick.ttf", 13);
+	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
+	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
 	fontColor.r = 255;
 	fontColor.g = 255;
 	fontColor.b = 255;
@@ -34,12 +34,12 @@ void Menu::run() {
 	SDL_Event event;
 
 	SDL_Surface * surface;
-	surface = SDL_LoadBMP("title.bmp");
+	surface = SDL_LoadBMP("gfx/title.bmp");
 	bg = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
 
 	draw();
-
+	
 	Main::audio->play_music(MUSIC_TITLE);
 
 	while (Main::running) {
@@ -48,24 +48,51 @@ void Menu::run() {
 			if(event.type == SDL_KEYDOWN) {
 				switch(event.key.keysym.sym) {
 					case SDLK_UP:
+						Main::audio->play_select();
 						selected_item--;
 						if(selected_item < 0) selected_item = itemcount - 1;
 						draw();
 						break;
 					case SDLK_DOWN:
+						Main::audio->play_select();
 						selected_item++;
 						if(selected_item == itemcount) selected_item = 0;
 						draw();
 						break;
 					case SDLK_PAGEUP:
+						Main::audio->play_select();
 						selected_item = 0;
 						draw();
 						break;
 					case SDLK_PAGEDOWN:
+						Main::audio->play_select();
 						selected_item = itemcount - 1;
 						draw();
 						break;
 					case SDLK_RETURN:
+						Main::audio->play_select();
+						Main::audio->stop_music();
+						if(selected_item == 0) {
+							_CrtDumpMemoryLeaks();
+							Battle battle;
+							battle.run();
+							_CrtDumpMemoryLeaks();
+							draw();
+						}
+						if(selected_item == 2) {
+							SDL_Delay(500);
+							Main::running = false;
+						}
+						Main::audio->play_music(MUSIC_TITLE);
+						break;
+				}
+			}
+			if(event.type == SDL_JOYBUTTONDOWN) {
+				switch(event.jbutton.button) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
 						Main::audio->play_select();
 						Main::audio->stop_music();
 						if(selected_item == 0) {
@@ -79,6 +106,24 @@ void Menu::run() {
 						}
 						Main::audio->play_music(MUSIC_TITLE);
 						break;
+				}
+			}
+			if(event.type == SDL_JOYAXISMOTION) {
+				if(event.jaxis.axis == 1) {
+					if(event.jaxis.value < -6400) {
+						Main::audio->play_select();
+						selected_item--;
+						if(selected_item < 0) selected_item = itemcount - 1;
+						draw();
+						break;
+					}
+					if(event.jaxis.value > 6400) {
+						Main::audio->play_select();
+						selected_item++;
+						if(selected_item == itemcount) selected_item = 0;
+						draw();
+						break;
+					}
 				}
 			}
 		}

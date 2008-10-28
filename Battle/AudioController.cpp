@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_mixer.h"
 
+#include "Main.h"
 #include "AudioController.h"
 
 AudioController::AudioController() {
@@ -28,16 +29,18 @@ void AudioController::close_audio() {
 }
 
 void AudioController::load_files() {
-	mus_title = Mix_LoadMUS("title.ogg");
-	mus_battle = Mix_LoadMUS("battle.ogg");
+	mus_title = Mix_LoadMUS("music/title.ogg");
+	mus_battle = Mix_LoadMUS("music/battle.ogg");
 
-	select = Mix_LoadWAV("select.wav");
-	shoot = Mix_LoadWAV("shoot.wav");
-	jump = Mix_LoadWAV("jump.wav");
-	hit = Mix_LoadWAV("hit.wav");
-	pause = Mix_LoadWAV("pause.wav");
-	countdown = Mix_LoadWAV("countdown.wav");
-	go = Mix_LoadWAV("go.wav");
+	select = Mix_LoadWAV("sfx/select.wav");
+	shoot = Mix_LoadWAV("sfx/shoot.wav");
+	jump = Mix_LoadWAV("sfx/jump.wav");
+	hit = Mix_LoadWAV("sfx/hit.wav");
+	bounce = Mix_LoadWAV("sfx/bounce.wav");
+
+	pause = Mix_LoadWAV("sfx/pause.wav");
+	countdown = Mix_LoadWAV("sfx/countdown.wav");
+	go = Mix_LoadWAV("sfx/go.wav");
 }
 
 void AudioController::close_files() {
@@ -48,12 +51,17 @@ void AudioController::close_files() {
 	Mix_FreeChunk(shoot);
 	Mix_FreeChunk(jump);
 	Mix_FreeChunk(hit);
+	Mix_FreeChunk(bounce);
+
 	Mix_FreeChunk(pause);
 	Mix_FreeChunk(countdown);
 	Mix_FreeChunk(go);
 }
 
 void AudioController::play_music(int music) {
+	if(!Main::music_on)
+		return;
+
 	Mix_HaltMusic();
 	if(music == MUSIC_TITLE) {
 		Mix_PlayMusic(mus_title, -1);
@@ -76,6 +84,9 @@ void AudioController::unpause_music() {
 }
 
 void AudioController::play_sound(Mix_Chunk * sound, int volume) {
+	if(!Main::sound_on)
+		return;
+
 	int chan;
 	chan = 0;
 	while(Mix_Playing(chan))
@@ -105,6 +116,10 @@ void AudioController::play_shoot() {
 
 void AudioController::play_hit() {
 	play_sound(hit);
+}
+
+void AudioController::play_bounce() {
+	play_sound(bounce);
 }
 
 void AudioController::play_pause() {

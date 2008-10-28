@@ -3,10 +3,10 @@
 #include "SDL/SDL_mixer.h"
 
 #include <cstdio>
+#include "crtdbg.h"
 
 #include "Timer.h"
 #include "Block.h"
-#include "Interface.h"
 #include "Menu.h"
 #include "AudioController.h"
 
@@ -27,6 +27,9 @@ bool Main::fps_cap = false;
 Timer * Main::fps = NULL;
 
 AudioController * Main::audio = NULL;
+
+bool Main::music_on = false;
+bool Main::sound_on = false;
 
 Main::Main() {
 	Main::instance = this;
@@ -62,6 +65,14 @@ bool Main::init() {
 	audio->open_audio();
 	audio->load_files();
 
+	// enable joystick throughout the game
+	SDL_JoystickEventState(SDL_ENABLE);
+	if(SDL_NumJoysticks() >= 1)
+		joystick1 = SDL_JoystickOpen(0);
+	if(SDL_NumJoysticks() >= 2)
+		joystick2 = SDL_JoystickOpen(1);
+
+
 	return true;
 }
 
@@ -76,6 +87,11 @@ void Main::clean_up() {
 	audio->close_files();
 	audio->close_audio();
 	delete audio;
+
+	if(SDL_JoystickOpened(1))
+		SDL_JoystickClose(joystick2);
+	if(SDL_JoystickOpened(0))
+		SDL_JoystickClose(joystick1);
 
 	//Quit SDL
 	SDL_Quit();
@@ -119,6 +135,7 @@ int Main::run() {
 
 	clean_up();
 
+	_CrtDumpMemoryLeaks();
 	return 0;
 }
 

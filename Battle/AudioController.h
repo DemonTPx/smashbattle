@@ -8,9 +8,14 @@
 
 #define SND_SELECT 0
 #define SND_PAUSE 1
+
 #define SND_JUMP 10
 #define SND_SHOOT 11
 #define SND_HIT 12
+#define SND_BOUNCE 13
+
+#define SND_COUNTDOWN 20
+#define SND_GO 21
 
 class AudioController {
 public:
@@ -32,6 +37,7 @@ public:
 	void play_jump();
 	void play_shoot();
 	void play_hit();
+	void play_bounce();
 	
 	void play_countdown();
 	void play_go();
@@ -45,6 +51,7 @@ private:
 	Mix_Chunk * jump;
 	Mix_Chunk * shoot;
 	Mix_Chunk * hit;
+	Mix_Chunk * bounce;
 
 	Mix_Chunk * countdown;
 	Mix_Chunk * go;

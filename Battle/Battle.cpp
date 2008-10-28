@@ -3,6 +3,7 @@
 #include "SDL/SDL_mixer.h"
 
 #include <vector>
+#include "crtdbg.h"
 
 #include "Timer.h"
 #include "AudioController.h"
@@ -21,7 +22,10 @@
 
 #define MAX_MOMENTUM_FALL 100
 #define MAX_MOMENTUM_JUMP 40
-#define MAX_MOMENTUM_HORIZ 30
+#define MAX_MOMENTUM_HORIZ 20
+#define MAX_MOMENTUM_RUN 40
+
+#define FRAME_CYCLE_DISTANCE 24
 
 #define MOMENTUM_INTERV_HORIZ 1
 #define MOMENTUM_INTERV_VERT 1
@@ -67,17 +71,27 @@ void Battle::run() {
 
 	game_running = true;
 
-	player1 = new Player("bert.bmp");
+	player1 = new Player("gfx/bert.bmp");
 	player1->key_l = SDLK_a;
 	player1->key_r = SDLK_d;
 	player1->key_u = SDLK_w;
+	player1->key_run = SDLK_LSHIFT;
 	player1->key_shoot = SDLK_LCTRL;
+	player1->joystick_idx = 0;
+	player1->js_btn_u = 1;
+	player1->js_btn_shoot = 2;
+	player1->js_btn_start = 9;
 
-	player2 = new Player("jeroen.bmp");
+	player2 = new Player("gfx/jeroen.bmp");
 	player2->key_l = SDLK_LEFT;
 	player2->key_r = SDLK_RIGHT;
 	player2->key_u = SDLK_UP;
-	player2->key_shoot = SDLK_KP0;
+	player2->key_run = SDLK_RSHIFT;
+	player2->key_shoot = SDLK_RCTRL;
+	player2->joystick_idx = 1;
+	player2->js_btn_u = 0;
+	player2->js_btn_shoot = 1;
+	player2->js_btn_start = 7;
 
 	projectiles = new std::vector<Projectile*>(0);
 
@@ -110,6 +124,21 @@ void Battle::run() {
 				}
 				if(event.key.keysym.sym == SDLK_y) {
 					if(paused) game_running = false;
+				}
+			}
+			if(event.type == SDL_JOYBUTTONDOWN) {
+				if((event.jbutton.which == player1->joystick_idx && event.jbutton.button == player1->js_btn_start) ||
+					event.jbutton.which == player2->joystick_idx && event.jbutton.button == player2->js_btn_start) {
+					paused = !paused;
+
+					if(paused) {
+						Main::instance->audio->pause_music();
+						if(countdown) countdown_timer->pause();
+					} else {
+						Main::instance->audio->unpause_music();
+						if(countdown) countdown_timer->unpause();
+					}
+					Main::instance->audio->play_pause();
 				}
 			}
 			player1->handle_input(&event);
@@ -181,6 +210,7 @@ void Battle::run() {
 		if(ended) {
 			draw_win_screen(screen);
 			if(end_timer->get_ticks() > 2000) {
+				delete end_timer;
 				reset_game();
 			}
 		}
@@ -193,7 +223,13 @@ void Battle::run() {
 	if(!countdown)
 		Main::audio->stop_music();
 
-	delete countdown_timer;
+	delete player1;
+	delete player2;
+
+	if(ended)
+		delete end_timer;
+	if(countdown)
+		delete countdown_timer;
 	
 	projectiles->clear();
 	delete projectiles;
@@ -248,7 +284,7 @@ void Battle::process_shoot(Player * p) {
 			clip_weapon->w = 6;
 			clip_weapon->h = 6;
 
-			pr = new Projectile("weapons.bmp", clip_weapon);
+			pr = new Projectile("gfx/weapons.bmp", clip_weapon);
 
 			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_WALK3 || p->current_sprite == SPR_L_JUMP || p->current_sprite == SPR_R_BRAKE) {
 				pr->speedx = -10;
@@ -267,6 +303,7 @@ void Battle::process_shoot(Player * p) {
 
 void Battle::move_player(Player * p) {
 	int speedx, speedy;
+	int maxx;
 	int momentumx_old;
 	
 	speedx = 0;
@@ -282,15 +319,25 @@ void Battle::move_player(Player * p) {
 
 	momentumx_old = p->momentumx;
 
+	if(p->keydn_run) {
+		p->is_running = true;
+		maxx = MAX_MOMENTUM_RUN;
+	} else {
+		p->is_running = false;
+		maxx = MAX_MOMENTUM_HORIZ;
+	}
+
 	if(p->keydn_l) {
 		// Move more to the left
-		if(p->momentumx > -MAX_MOMENTUM_HORIZ) p->momentumx -= MOMENTUM_INTERV_HORIZ;
 		if(p->momentumx > 0) p->momentumx -= MOMENTUM_INTERV_HORIZ;
+		if(p->momentumx >= -maxx) p->momentumx -= MOMENTUM_INTERV_HORIZ;
+		else p->momentumx += MOMENTUM_INTERV_HORIZ;
 	}
 	if(p->keydn_r) {
 		// Move more to the right
-		if(p->momentumx < MAX_MOMENTUM_HORIZ) p->momentumx += MOMENTUM_INTERV_HORIZ;
 		if(p->momentumx < 0) p->momentumx += MOMENTUM_INTERV_HORIZ;
+		if(p->momentumx <= maxx) p->momentumx += MOMENTUM_INTERV_HORIZ;
+		else p->momentumx -= MOMENTUM_INTERV_HORIZ;
 	}
 	if(!p->keydn_l && !p->keydn_r) {
 		// Slide until we're standing still
@@ -346,7 +393,7 @@ void Battle::move_player(Player * p) {
 				p->set_sprite(SPR_L_BRAKE);
 				p->distance_walked = 0;
 			}
-			if(p->distance_walked < -16) {
+			if(p->distance_walked < -FRAME_CYCLE_DISTANCE) {
 				p->cycle_sprite_updown(SPR_L_WALK1, SPR_L_WALK3);
 				p->distance_walked = 0;
 			}
@@ -365,14 +412,14 @@ void Battle::move_player(Player * p) {
 				p->set_sprite(SPR_R_BRAKE);
 				p->distance_walked = 0;
 			}
-			if(p->distance_walked > 16) {
+			if(p->distance_walked > FRAME_CYCLE_DISTANCE) {
 				p->cycle_sprite_updown(SPR_R_WALK1, SPR_R_WALK3);
 				p->distance_walked = 0;
 			}
 			p->distance_walked += speedx;
 		}
 	}
-
+	
 	if(check_collision(p->position)) {
 		// Stop if colliding with the level
 		p->position->x -= speedx;
@@ -454,10 +501,12 @@ void Battle::move_projectile(Projectile * p) {
 
 	p->position->y += p->speedy;
 	p->distance_traveled += p->speedy;
+	/*
 	if(p->position->y < 0)
 		p->position->y += WINDOW_HEIGHT;
 	if(p->position->y > WINDOW_HEIGHT)
 		p->position->y -= WINDOW_HEIGHT;
+	*/
 
 	if(check_collision(p->position)) {
 		p->speedy = 0;
@@ -473,8 +522,8 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 	// Check if there is a collision between the players and process the further movement
 	int l1, r1, t1, b1;
 	int l2, r2, t2, b2;
-	int momx1, momy1;
-	int momx2, momy2;
+	int momxl, momyl;
+	int momxr, momyr;
 	int diffx, diffy;
 	Player * upper, * lower;
 	Player * left, * right;
@@ -492,10 +541,26 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 	// Return if not colliding
 	if(b1 <= t2) return;
 	if(t1 >= b2) return;
-	if(r1 <= l2) return;
-	if(l1 >= r2) return;
+	if(r1 <= l2) {
+		if(r1 > WINDOW_WIDTH || r2 > WINDOW_WIDTH) {
+			if((r1 - WINDOW_WIDTH <= l2) && (l1 >= r2 - WINDOW_WIDTH))
+				return;
+		} else {
+			return;
+		}
+	}
+	if(l1 >= r2) {
+		if(r1 > WINDOW_WIDTH || r2 > WINDOW_WIDTH) {
+			if((r1 - WINDOW_WIDTH <= l2) && (l1 >= r2 - WINDOW_WIDTH))
+				return;
+		} else {
+			return;
+		}
+	}
 
 	// Collision
+
+	Main::audio->play_bounce();
 
 	// Move players out of collision zone
 	p1->position->x -= p1->last_speedx;
@@ -505,11 +570,6 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 	p2->position->y += p2->last_speedy;
 
 	// Bounce back
-	momx1 = p1->momentumx;
-	momy1 = p1->momentumy;
-
-	momx2 = p2->momentumx;
-	momy2 = p2->momentumy;
 
 	if(t1 < t2) { // p1 above p2
 		diffy = b1 - t2;
@@ -520,22 +580,70 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 		upper = p2;
 		lower = p1;
 	}
-	if(l1 < l2) { // p1 at the left of p2
+
+	/*
+	if(r1 > WINDOW_WIDTH) {
+		l1 -= WINDOW_WIDTH;
+		r1 -= WINDOW_WIDTH;
+	}
+	if(r2 > WINDOW_WIDTH) {
+		l2 -= WINDOW_WIDTH;
+		r2 -= WINDOW_WIDTH;
+	}
+	*/
+	
+	bool p1_clip = false;
+	bool p2_clip= false;
+	
+	if(r1 > WINDOW_WIDTH) {
+		p1_clip = true;
+	}
+	if(r2 > WINDOW_WIDTH) {
+		p2_clip = true;
+	}
+
+	if(p1->momentumx > p2->momentumx) { // p1 at the left of p2
 		diffx = r1 - l2;
+		if(p1_clip) diffx -= WINDOW_WIDTH;
 		left = p1;
 		right = p2;
+
+		momxl = p1->momentumx;
+		momyl = p1->momentumy;
+
+		momxr = p2->momentumx;
+		momyr = p2->momentumy;
 	} else { // p1 at the right of p2, or at the same level
 		diffx = r2 - l1;
 		left = p2;
 		right = p1;
+
+		momxl = p2->momentumx;
+		momyl = p2->momentumy;
+
+		momxr = p1->momentumx;
+		momyr = p1->momentumy;
 	}
 
 	if(diffx > diffy) { // Players hit each others top
-		upper->momentumy = 30;
+		if(upper->keydn_u) {
+			Main::audio->play_jump();
+			upper->momentumy = MAX_MOMENTUM_JUMP;
+			upper->is_falling = false;
+			upper->is_jumping = true;
+		} else {
+			upper->momentumy = 30;
+		}
 		lower->momentumy = -10;
 	} else { // Players hit each others side
-		left->momentumx = -20;
-		right->momentumx = 20;
+		if(momxr < -(MAX_MOMENTUM_HORIZ + MOMENTUM_INTERV_HORIZ))
+			left->momentumx = -40;
+		else
+			left->momentumx = -20;
+		if(momxl > (MAX_MOMENTUM_HORIZ + MOMENTUM_INTERV_HORIZ))
+			right->momentumx = 40;
+		else
+			right->momentumx = 20;
 		upper->momentumy = lower->momentumy;
 	}
 	
@@ -638,14 +746,35 @@ bool Battle::check_collision(SDL_Rect * rect) {
 	t = rect->y;
 	b = rect->y + rect->h - 1;
 
-	if(l >= WINDOW_WIDTH) l = l - WINDOW_WIDTH;
-	if(r >= WINDOW_WIDTH) r = r - WINDOW_WIDTH;
-
 	//if(t >= WINDOW_HEIGHT) t = t - WINDOW_HEIGHT;
 	//if(b >= WINDOW_HEIGHT) b = b - WINDOW_HEIGHT;
 
 	if(t < 0) t = 0;
-	if(b > WINDOW_HEIGHT) b = WINDOW_HEIGHT;
+	if(b >= WINDOW_HEIGHT) b = WINDOW_HEIGHT - 1;
+
+
+	if(r >= WINDOW_WIDTH) {
+		for(int x = 0; x < r - WINDOW_WIDTH; x++) {
+			if(level[level_pos(x, t)] != -1)
+				return true;
+			if(level[level_pos(x, b)] != -1)
+				return true;
+		}
+		
+		r = WINDOW_WIDTH - 1;
+	}
+
+	for(int x = l; x < r; x++) {
+		if(r > WINDOW_WIDTH)
+			break;
+
+		if(level[level_pos(x, t)] != -1)
+			return true;
+		if(level[level_pos(x, b)] != -1)
+			return true;
+	}
+
+	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
 
 	for(int y = t; y < b; y++) {
 		if(level[level_pos(l, y)] != -1)
@@ -654,12 +783,7 @@ bool Battle::check_collision(SDL_Rect * rect) {
 			return true;
 	}
 
-	for(int x = l; x < r; x++) {
-		if(level[level_pos(x, t)] != -1)
-			return true;
-		if(level[level_pos(x, b)] != -1)
-			return true;
-	}
+
 	/*
 	if(level[level_pos(l, t)] != -1)
 		return true;
@@ -682,11 +806,9 @@ bool Battle::check_bottom(SDL_Rect * rect) {
 	t = rect->y;
 	b = rect->y + rect->h - 1;
 
-	if(l >= WINDOW_WIDTH) l = l - WINDOW_WIDTH;
-	if(r >= WINDOW_WIDTH) r = r - WINDOW_WIDTH;
+	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
+	if(r >= WINDOW_WIDTH) r -= WINDOW_WIDTH;
 
-	if(t >= WINDOW_HEIGHT) t = t - WINDOW_HEIGHT;
-	if(b >= WINDOW_HEIGHT) b = b - WINDOW_HEIGHT;
 	if(level[level_pos(l, b + 1)] != -1)
 		return false;
 	if(level[level_pos(r, b + 1)] != -1)
@@ -801,6 +923,8 @@ void Battle::handle_draw_countdown(SDL_Surface * screen) {
 			countdown = false;
 			countdown_timer->stop();
 
+			delete countdown_timer;
+
 			Main::audio->play_go();
 
 			Main::audio->play_music(MUSIC_BATTLE);
@@ -830,18 +954,18 @@ void Battle::handle_draw_countdown(SDL_Surface * screen) {
 void Battle::load_images() {
 	SDL_Surface * surface;
 	
-	surface = SDL_LoadBMP("bg.bmp");
+	surface = SDL_LoadBMP("gfx/bg.bmp");
 	background = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
 
-	surface = SDL_LoadBMP("tiles.bmp");
+	surface = SDL_LoadBMP("gfx/tiles.bmp");
 	tiles = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
 
 	set_clips();
 
-	font26 = TTF_OpenFont("slick.ttf", 26);
-	font52 = TTF_OpenFont("slick.ttf", 52);
+	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
+	font52 = TTF_OpenFont("fonts/slick.ttf", 52);
 	fontColor.r = 255;
 	fontColor.g = 255;
 	fontColor.b = 255;

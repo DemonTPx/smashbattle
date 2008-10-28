@@ -22,15 +22,24 @@ Player::Player(const char * sprite_file) {
 	keydn_l = false;
 	keydn_r = false;
 	keydn_u = false;
+	keydn_run = false;
 	keydn_shoot = false;
 
+	is_running = false;
 	is_jumping = false;
 	is_falling = false;
 
 	key_r = SDLK_RIGHT;
 	key_l = SDLK_LEFT;
 	key_u = SDLK_UP;
-	key_shoot = SDLK_KP0;
+	key_run = SDLK_RSHIFT;
+	key_shoot = SDLK_RCTRL;
+
+	joystick_idx = 0;
+	js_btn_u = 0;
+	js_btn_run = 0;
+	js_btn_shoot = 1;
+	js_btn_start = 2;
 
 	is_hit = false;
 	hit_start = 0;
@@ -97,6 +106,9 @@ void Player::handle_input(SDL_Event * event) {
 		if(event->key.keysym.sym == key_u) {
 			keydn_u = true;
 		}
+		if(event->key.keysym.sym == key_run) {
+			keydn_run = true;
+		}
 		if(event->key.keysym.sym == key_shoot) {
 			keydn_shoot = true;
 		}
@@ -111,8 +123,55 @@ void Player::handle_input(SDL_Event * event) {
 		if(event->key.keysym.sym == key_u) {
 			keydn_u = false;
 		}
+		if(event->key.keysym.sym == key_run) {
+			keydn_run = false;
+		}
 		if(event->key.keysym.sym == key_shoot) {
 			keydn_shoot = false;
+		}
+	}
+	if(event->type == SDL_JOYAXISMOTION) {
+		if(event->jaxis.which == joystick_idx) {
+			if(event->jaxis.axis == 0) {
+				if(event->jaxis.value < -6400) {
+					keydn_l = true;
+					keydn_r = false;
+				}
+				else if(event->jaxis.value > 6400) {
+					keydn_l = false;
+					keydn_r = true;
+				}
+				else {
+					keydn_l = false;
+					keydn_r = false;
+				}
+			}
+		}
+	}
+	if(event->type == SDL_JOYBUTTONDOWN) {
+		if(event->jbutton.which == joystick_idx) {
+			if(event->jbutton.button == js_btn_u) {
+				keydn_u = true;
+			}
+			if(event->jbutton.button == js_btn_run) {
+				keydn_run = true;
+			}
+			if(event->jbutton.button == js_btn_shoot) {
+				keydn_shoot = true;
+			}
+		}
+	}
+	if(event->type == SDL_JOYBUTTONUP) {
+		if(event->jbutton.which == joystick_idx) {
+			if(event->jbutton.button == js_btn_u) {
+				keydn_u = false;
+			}
+			if(event->jbutton.button == js_btn_run) {
+				keydn_run = false;
+			}
+			if(event->jbutton.button == js_btn_shoot) {
+				keydn_shoot = false;
+			}
 		}
 	}
 }

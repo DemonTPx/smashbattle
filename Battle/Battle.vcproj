@@ -258,63 +258,75 @@
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;ogg"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\res\battle.ogg"
+				RelativePath=".\music\battle.ogg"
 				>
 			</File>
 			<File
-				RelativePath="..\res\bert.bmp"
+				RelativePath=".\gfx\bert.bmp"
 				>
 			</File>
 			<File
-				RelativePath="..\res\bg.bmp"
+				RelativePath=".\gfx\bg.bmp"
 				>
 			</File>
 			<File
-				RelativePath="..\res\cube.bmp"
+				RelativePath=".\sfx\countdown.wav"
 				>
 			</File>
 			<File
-				RelativePath="..\res\hit.wav"
+				RelativePath=".\gfx\cube.bmp"
 				>
 			</File>
 			<File
-				RelativePath="..\res\jeroen.bmp"
+				RelativePath=".\sfx\go.wav"
 				>
 			</File>
 			<File
-				RelativePath="..\res\pause.wav"
+				RelativePath=".\sfx\hit.wav"
 				>
 			</File>
 			<File
-				RelativePath="..\res\select.wav"
+				RelativePath=".\gfx\jeroen.bmp"
 				>
 			</File>
 			<File
-				RelativePath="..\res\shoot.wav"
+				RelativePath=".\sfx\jump.wav"
 				>
 			</File>
 			<File
-				RelativePath="..\res\slick.ttf"
+				RelativePath=".\sfx\pause.wav"
 				>
 			</File>
 			<File
-				RelativePath="..\res\tiles.bmp"
+				RelativePath=".\sfx\select.wav"
 				>
 			</File>
 			<File
-				RelativePath="..\res\title.bmp"
+				RelativePath=".\sfx\shoot.wav"
 				>
 			</File>
 			<File
-				RelativePath="..\res\title.ogg"
+				RelativePath=".\fonts\slick.ttf"
 				>
 			</File>
 			<File
-				RelativePath="..\res\weapons.bmp"
+				RelativePath=".\gfx\tiles.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\title.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\music\title.ogg"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\weapons.bmp"
 				>
 			</File>
 		</Filter>
