@@ -55,3 +55,4 @@ bool Timer::is_started() {
 bool Timer::is_paused() {
 	return paused;
 }
+

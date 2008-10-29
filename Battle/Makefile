@@ -8,10 +8,10 @@ EXECUTABLE=battle
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJS)
-        $(CC) $(LDFLAGS) $(OBJS) -o battle
+	$(CC) $(LDFLAGS) $(OBJS) -o battle
 
 .cpp.o:
-        $(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-        -rm -rf *.o battle
+	-rm -rf *.o battle

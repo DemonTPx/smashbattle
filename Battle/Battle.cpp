@@ -14,7 +14,7 @@
 #include "Battle.h"
 
 #ifndef WIN32
-#define sprintf_s snprint
+#define sprintf_s snprintf
 #endif
 
 #define SPR_W 32
