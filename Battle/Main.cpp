@@ -74,6 +74,7 @@ bool Main::init() {
 	if(SDL_NumJoysticks() >= 2)
 		joystick2 = SDL_JoystickOpen(1);
 
+	load_controlschemes();
 
 	return true;
 }
@@ -152,4 +153,43 @@ int main(int argc, char* args[]) {
 	}
 	Main main;
 	return main.run();
+}
+
+void Main::load_controlschemes() {
+	//TODO: load these from a file
+	controls1.use_keyboard = true;
+	controls1.kb_left = SDLK_a;
+	controls1.kb_right = SDLK_d;
+	controls1.kb_up = SDLK_w;
+	controls1.kb_down = SDLK_s;
+	controls1.kb_jump = SDLK_w;
+	controls1.kb_run = SDLK_LSHIFT;
+	controls1.kb_shoot = SDLK_LCTRL;
+	controls1.use_joystick = true;
+	controls1.use_axis_x = true;
+	controls1.use_axis_up = false;
+	controls1.use_axis_down = true;
+	controls1.joystick_idx = 0;
+	controls1.js_jump = 2;
+	controls1.js_run = 3;
+	controls1.js_shoot = 5;
+	controls1.js_start = 9;
+
+	controls2.use_keyboard = true;
+	controls2.kb_left = SDLK_LEFT;
+	controls2.kb_right = SDLK_RIGHT;
+	controls2.kb_up = SDLK_UP;
+	controls2.kb_down = SDLK_DOWN;
+	controls2.kb_jump = SDLK_UP;
+	controls2.kb_run = SDLK_RSHIFT;
+	controls2.kb_shoot = SDLK_RCTRL;
+	controls2.use_joystick = true;
+	controls2.use_axis_x = true;
+	controls2.use_axis_up = false;
+	controls2.use_axis_down = true;
+	controls2.joystick_idx = 1;
+	controls2.js_jump = 2;
+	controls2.js_run = 3;
+	controls2.js_shoot = 5;
+	controls2.js_start = 9;
 }

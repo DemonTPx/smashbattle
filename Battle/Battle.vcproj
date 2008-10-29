@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CharacterSelect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>
@@ -229,6 +233,10 @@
 			</File>
 			<File
 				RelativePath=".\Block.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CharacterSelect.h"
 				>
 			</File>
 			<File
@@ -319,6 +327,14 @@
 			</File>
 			<File
 				RelativePath=".\fonts\slick.ttf"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\steven.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\tedje.bmp"
 				>
 			</File>
 			<File

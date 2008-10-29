@@ -34,10 +34,38 @@
 
 #define DUCK_FORCE_FRAMES 10
 
+struct ControlScheme {
+	bool use_keyboard;
+	int kb_left;
+	int kb_right;
+	int kb_up;
+	int kb_down;
+	int kb_jump;
+	int kb_run;
+	int kb_shoot;
+	int kb_start;
+
+	bool use_joystick;
+	int joystick_idx;
+	bool use_axis_x;
+	bool use_axis_up;
+	bool use_axis_down;
+	int js_left;
+	int js_right;
+	int js_jump;
+	int js_down;
+	int js_run;
+	int js_shoot;
+	int js_start;
+};
+
 class Player {
 public:
-	Player(const char * sprite_file);
+	Player(const char * name, const char * sprite_file);
 	~Player();
+
+	char * name;
+
 	SDL_Rect * position;
 	SDL_Surface * sprites;
 	SDL_Rect * clip[20];
@@ -58,9 +86,11 @@ public:
 	int distance_walked;
 
 	bool keydn_l, keydn_r, keydn_u, keydn_d, keydn_run, keydn_shoot;
-	int key_l, key_r, key_u, key_d, key_run, key_shoot;
-	int joystick_idx;
-	int js_btn_u, js_btn_run, js_btn_shoot, js_btn_start;
+	//int key_l, key_r, key_u, key_d, key_run, key_shoot;
+	//int joystick_idx;
+	//int js_btn_u, js_btn_run, js_btn_shoot, js_btn_start;
+
+	ControlScheme controls;
 
 	bool is_hit;
 	int hit_start;

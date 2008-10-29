@@ -11,7 +11,9 @@ const int Player::jump_height = 144;
 #define PLAYER_SURF_COLS 10
 #define PLAYER_SURF_COUNT 20
 
-Player::Player(const char * sprite_file) {
+Player::Player(const char * name, const char * sprite_file) {
+	this->name = (char*)name;
+
 	momentumx = 0;
 	momentumy = 0;
 
@@ -33,6 +35,7 @@ Player::Player(const char * sprite_file) {
 	keydn_run = false;
 	keydn_shoot = false;
 
+	/*
 	key_r = SDLK_RIGHT;
 	key_l = SDLK_LEFT;
 	key_u = SDLK_UP;
@@ -45,6 +48,25 @@ Player::Player(const char * sprite_file) {
 	js_btn_run = 0;
 	js_btn_shoot = 1;
 	js_btn_start = 2;
+	*/
+	controls.use_keyboard = true;
+	controls.kb_right = SDLK_RIGHT;
+	controls.kb_left = SDLK_LEFT;
+	controls.kb_jump = SDLK_UP;
+	controls.kb_down = SDLK_DOWN;
+	controls.kb_run = SDLK_RSHIFT;
+	controls.kb_shoot = SDLK_RCTRL;
+	controls.kb_start = SDLK_ESCAPE;
+
+	controls.use_joystick = true;
+	controls.use_axis_x = true;
+	controls.use_axis_up = false;
+	controls.use_axis_down = false;
+	controls.joystick_idx = 0;
+	controls.js_jump = 0;
+	controls.js_run = 0;
+	controls.js_shoot = 1;
+	controls.js_start = 2;
 
 	is_hit = false;
 	hit_start = 0;
@@ -104,95 +126,105 @@ void Player::show(SDL_Surface * screen) {
 }
 
 void Player::handle_input(SDL_Event * event) {
-	if(event->type == SDL_KEYDOWN) {
-		if(event->key.keysym.sym == key_r) {
-			keydn_r = true;
-		}
-		if(event->key.keysym.sym == key_l) {
-			keydn_l = true;
-		}
-		if(event->key.keysym.sym == key_u) {
-			keydn_u = true;
-		}
-		if(event->key.keysym.sym == key_d) {
-			keydn_d = true;
-		}
-		if(event->key.keysym.sym == key_run) {
-			keydn_run = true;
-		}
-		if(event->key.keysym.sym == key_shoot) {
-			keydn_shoot = true;
-		}
-	}
-	if(event->type == SDL_KEYUP) {
-		if(event->key.keysym.sym == key_r) {
-			keydn_r = false;
-		}
-		if(event->key.keysym.sym == key_l) {
-			keydn_l = false;
-		}
-		if(event->key.keysym.sym == key_u) {
-			keydn_u = false;
-		}
-		if(event->key.keysym.sym == key_d) {
-			keydn_d = false;
-		}
-		if(event->key.keysym.sym == key_run) {
-			keydn_run = false;
-		}
-		if(event->key.keysym.sym == key_shoot) {
-			keydn_shoot = false;
-		}
-	}
-	if(event->type == SDL_JOYAXISMOTION) {
-		if(event->jaxis.which == joystick_idx) {
-			if(event->jaxis.axis == 0) {
-				if(event->jaxis.value < -6400) {
-					keydn_l = true;
-					keydn_r = false;
-				}
-				else if(event->jaxis.value > 6400) {
-					keydn_l = false;
-					keydn_r = true;
-				}
-				else {
-					keydn_l = false;
-					keydn_r = false;
-				}
+	if(controls.use_keyboard) {
+		if(event->type == SDL_KEYDOWN) {
+			if(event->key.keysym.sym == controls.kb_right) {
+				keydn_r = true;
 			}
-			if(event->jaxis.axis == 1) {
-				if(event->jaxis.value > 6400) {
-					keydn_d = true;
-				}
-				else {
-					keydn_d = false;
-				}
+			if(event->key.keysym.sym == controls.kb_left) {
+				keydn_l = true;
 			}
-		}
-	}
-	if(event->type == SDL_JOYBUTTONDOWN) {
-		if(event->jbutton.which == joystick_idx) {
-			if(event->jbutton.button == js_btn_u) {
+			if(event->key.keysym.sym == controls.kb_jump) {
 				keydn_u = true;
 			}
-			if(event->jbutton.button == js_btn_run) {
+			if(event->key.keysym.sym == controls.kb_down) {
+				keydn_d = true;
+			}
+			if(event->key.keysym.sym == controls.kb_run) {
 				keydn_run = true;
 			}
-			if(event->jbutton.button == js_btn_shoot) {
+			if(event->key.keysym.sym == controls.kb_shoot) {
 				keydn_shoot = true;
 			}
 		}
-	}
-	if(event->type == SDL_JOYBUTTONUP) {
-		if(event->jbutton.which == joystick_idx) {
-			if(event->jbutton.button == js_btn_u) {
+		if(event->type == SDL_KEYUP) {
+			if(event->key.keysym.sym == controls.kb_right) {
+				keydn_r = false;
+			}
+			if(event->key.keysym.sym == controls.kb_left) {
+				keydn_l = false;
+			}
+			if(event->key.keysym.sym == controls.kb_jump) {
 				keydn_u = false;
 			}
-			if(event->jbutton.button == js_btn_run) {
+			if(event->key.keysym.sym == controls.kb_down) {
+				keydn_d = false;
+			}
+			if(event->key.keysym.sym == controls.kb_run) {
 				keydn_run = false;
 			}
-			if(event->jbutton.button == js_btn_shoot) {
+			if(event->key.keysym.sym == controls.kb_shoot) {
 				keydn_shoot = false;
+			}
+		}
+	}
+	if(controls.use_joystick) {
+		if(event->jaxis.which == controls.joystick_idx) {
+			if(event->type == SDL_JOYAXISMOTION) {
+				if(controls.use_axis_x && event->jaxis.axis == 0) {
+					if(event->jaxis.value < -6400) {
+						keydn_l = true;
+						keydn_r = false;
+					}
+					else if(event->jaxis.value > 6400) {
+						keydn_l = false;
+						keydn_r = true;
+					}
+					else {
+						keydn_l = false;
+						keydn_r = false;
+					}
+				}
+				if(event->jaxis.axis == 1) {
+					if(controls.use_axis_down && event->jaxis.value > 6400) {
+						keydn_d = true;
+						if(controls.use_axis_up) keydn_u = false;
+					}
+					else if(controls.use_axis_up && event->jaxis.value > 6400) {
+						keydn_u = true;
+						if(controls.use_axis_down) keydn_d = false;
+					}
+					else {
+						if(controls.use_axis_up) keydn_u = false;
+						if(controls.use_axis_down) keydn_d = false;
+					}
+				}
+			}
+			if(event->type == SDL_JOYBUTTONDOWN) {
+				if(event->jbutton.which == controls.joystick_idx) {
+					if(event->jbutton.button == controls.js_jump) {
+						keydn_u = true;
+					}
+					if(event->jbutton.button == controls.js_run) {
+						keydn_run = true;
+					}
+					if(event->jbutton.button == controls.js_shoot) {
+						keydn_shoot = true;
+					}
+				}
+			}
+			if(event->type == SDL_JOYBUTTONUP) {
+				if(event->jbutton.which == controls.joystick_idx) {
+					if(event->jbutton.button == controls.js_jump) {
+						keydn_u = false;
+					}
+					if(event->jbutton.button == controls.js_run) {
+						keydn_run = false;
+					}
+					if(event->jbutton.button == controls.js_shoot) {
+						keydn_shoot = false;
+					}
+				}
 			}
 		}
 	}

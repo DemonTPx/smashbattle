@@ -8,6 +8,8 @@
 #include "AudioController.h"
 #include "Main.h"
 
+#include "CharacterSelect.h"
+
 #include "Player.h"
 #include "Projectile.h"
 
@@ -54,7 +56,14 @@ const int Battle::level[SPR_COUNT] =
   -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
    1, 1, 1, 1, 1,  1, 1, 1, 1, 1,  1, 1, 1, 1, 1,  1, 1, 1, 1, 1,
   -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1 };
-  
+
+const int Battle::CHARACTER_COUNT = 4;
+const Character Battle::characters[Battle::CHARACTER_COUNT] = {
+	{"Bert", "gfx/bert.bmp"},
+	{"Jeroen", "gfx/jeroen.bmp"},
+	{"Steven", "gfx/steven.bmp"},
+	{"Tedje", "gfx/tedje.bmp"},
+};
 
 Battle::Battle() {
 
@@ -74,31 +83,17 @@ void Battle::run() {
 
 	game_running = true;
 
-	player1 = new Player("gfx/bert.bmp");
-	player1->key_l = SDLK_a;
-	player1->key_r = SDLK_d;
-	player1->key_u = SDLK_w;
-	player1->key_d = SDLK_s;
-	player1->key_run = SDLK_LSHIFT;
-	player1->key_shoot = SDLK_LCTRL;
-	player1->joystick_idx = 0;
-	player1->js_btn_u = 2;
-	player1->js_btn_run = 3;
-	player1->js_btn_shoot = 5;
-	player1->js_btn_start = 9;
+	CharacterSelect * character_select;
+	character_select = new CharacterSelect();
+	character_select->run();
 
-	player2 = new Player("gfx/jeroen.bmp");
-	player2->key_l = SDLK_LEFT;
-	player2->key_r = SDLK_RIGHT;
-	player2->key_u = SDLK_UP;
-	player2->key_d = SDLK_DOWN;
-	player2->key_run = SDLK_RSHIFT;
-	player2->key_shoot = SDLK_RCTRL;
-	player2->joystick_idx = 1;
-	player2->js_btn_u = 2;
-	player2->js_btn_run = 3;
-	player2->js_btn_shoot = 5;
-	player2->js_btn_start = 9;
+	player1 = new Player(character_select->name1, character_select->file1);
+	player1->controls = Main::instance->controls1;
+
+	player2 = new Player(character_select->name2, character_select->file2);
+	player2->controls = Main::instance->controls2;
+
+	delete character_select;
 
 	projectiles = new std::vector<Projectile*>(0);
 
@@ -110,6 +105,7 @@ void Battle::run() {
 			Main::instance->handle_event(&event);
 			if(event.type == SDL_KEYDOWN) {
 				if(event.key.keysym.sym == SDLK_ESCAPE) {
+					// TODO: use control schemes for this
 					paused = !paused;
 
 					if(paused) {
@@ -134,8 +130,12 @@ void Battle::run() {
 				}
 			}
 			if(event.type == SDL_JOYBUTTONDOWN) {
-				if((event.jbutton.which == player1->joystick_idx && event.jbutton.button == player1->js_btn_start) ||
-					event.jbutton.which == player2->joystick_idx && event.jbutton.button == player2->js_btn_start) {
+				if((player1->controls.use_joystick &&
+					event.jbutton.which == player1->controls.joystick_idx &&
+					event.jbutton.button == player1->controls.js_start) ||
+					(player2->controls.use_joystick &&
+					event.jbutton.which == player2->controls.joystick_idx &&
+					event.jbutton.button == player2->controls.js_start)) {
 					paused = !paused;
 
 					if(paused) {

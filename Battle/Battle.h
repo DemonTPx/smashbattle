@@ -5,12 +5,20 @@
 #include "Projectile.h"
 #include <vector>
 
+struct Character {
+	char * name;
+	char * filename;
+};
+
 class Battle {
 public:
 	Battle();
 	~Battle();
 	void run();
 	static const int level[];
+
+	static const int CHARACTER_COUNT;
+	static const Character characters[];
 private:
 	bool game_running;
 

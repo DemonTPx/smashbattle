@@ -5,6 +5,7 @@
 
 #include "Timer.h"
 #include "AudioController.h"
+#include "Player.h"
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
@@ -35,13 +36,19 @@ public:
 	SDL_Joystick * joystick1;
 	SDL_Joystick * joystick2;
 
+	ControlScheme controls1;
+	ControlScheme controls2;
+
 	Main();
 	~Main();
 	int run();
 	void flip();
 	void handle_event(SDL_Event * event);
+private:
 	bool init();
 	void clean_up();
+
+	void load_controlschemes();
 };
 
 #endif
