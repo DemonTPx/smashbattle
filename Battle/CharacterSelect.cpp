@@ -53,7 +53,7 @@ void CharacterSelect::run() {
 					}
 					else if(event.key.keysym.sym == controls2.kb_right && !ready2) {
 						select2 += 1;
-						if(select2 >= Battle::CHARACTER_COUNT - 1) select2 = 0;
+						if(select2 >= Battle::CHARACTER_COUNT) select2 = 0;
 					}
 					else if(event.key.keysym.sym == controls2.kb_shoot || 
 						event.key.keysym.sym == controls2.kb_run ||
@@ -70,7 +70,7 @@ void CharacterSelect::run() {
 					}
 					if(event.jbutton.button == controls1.js_right && !ready1) {
 						select1 += 1;
-						if(select1 >= Battle::CHARACTER_COUNT - 1) select1 = 0;
+						if(select1 >= Battle::CHARACTER_COUNT) select1 = 0;
 					}
 					if(event.jbutton.button == controls1.js_jump ||
 						event.jbutton.button == controls1.js_run ||
@@ -85,7 +85,7 @@ void CharacterSelect::run() {
 					}
 					if(event.jbutton.button == controls2.js_right && !ready2) {
 						select2 += 1;
-						if(select2 >= Battle::CHARACTER_COUNT - 1) select2 = 0;
+						if(select2 >= Battle::CHARACTER_COUNT) select2 = 0;
 					}
 					if(event.jbutton.button == controls2.js_jump ||
 						event.jbutton.button == controls2.js_run ||
@@ -102,7 +102,7 @@ void CharacterSelect::run() {
 					}
 					else if(event.jaxis.value > 6400 && !ready1) {
 						select1 += 1;
-						if(select1 >= Battle::CHARACTER_COUNT - 1) select1 = 0;
+						if(select1 >= Battle::CHARACTER_COUNT) select1 = 0;
 					}
 				}
 				if(controls2.use_joystick && event.jbutton.which == controls2.joystick_idx) {
@@ -112,7 +112,7 @@ void CharacterSelect::run() {
 					}
 					else if(event.jaxis.value > 6400 && !ready2) {
 						select2 += 1;
-						if(select2 >= Battle::CHARACTER_COUNT - 1) select2 = 0;
+						if(select2 >= Battle::CHARACTER_COUNT) select2 = 0;
 					}
 				}
 			}
