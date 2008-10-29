@@ -32,11 +32,11 @@ void CharacterSelect::run() {
 			Main::instance->handle_event(&event);
 			if(event.type == SDL_KEYDOWN) {
 				if(controls1.use_keyboard) {
-					if(event.key.keysym.sym == controls1.kb_left) {
+					if(event.key.keysym.sym == controls1.kb_left && !ready1) {
 						select1 -= 1;
 						if(select1 < 0) select1 = Battle::CHARACTER_COUNT - 1;
 					}
-					else if(event.key.keysym.sym == controls1.kb_right) {
+					else if(event.key.keysym.sym == controls1.kb_right && !ready1) {
 						select1 += 1;
 						if(select1 >= Battle::CHARACTER_COUNT) select1 = 0;
 					}
@@ -47,11 +47,11 @@ void CharacterSelect::run() {
 					}
 				}
 				if(controls2.use_keyboard) {
-					if(event.key.keysym.sym == controls2.kb_left) {
+					if(event.key.keysym.sym == controls2.kb_left && !ready2) {
 						select2 -= 1;
 						if(select2 < 0) select2 = Battle::CHARACTER_COUNT - 1;
 					}
-					else if(event.key.keysym.sym == controls2.kb_right) {
+					else if(event.key.keysym.sym == controls2.kb_right && !ready2) {
 						select2 += 1;
 						if(select2 >= Battle::CHARACTER_COUNT - 1) select2 = 0;
 					}
@@ -64,11 +64,11 @@ void CharacterSelect::run() {
 			}
 			if(event.type == SDL_JOYBUTTONDOWN) {
 				if(controls1.use_joystick && event.jbutton.which == controls1.joystick_idx) {
-					if(event.jbutton.button == controls1.js_left) {
+					if(event.jbutton.button == controls1.js_left && !ready1) {
 						select1 -= 1;
 						if(select1 < 0) select1 = Battle::CHARACTER_COUNT - 1;
 					}
-					if(event.jbutton.button == controls1.js_right) {
+					if(event.jbutton.button == controls1.js_right && !ready1) {
 						select1 += 1;
 						if(select1 >= Battle::CHARACTER_COUNT - 1) select1 = 0;
 					}
@@ -79,11 +79,11 @@ void CharacterSelect::run() {
 					}
 				}
 				if(controls2.use_joystick && event.jbutton.which == controls2.joystick_idx) {
-					if(event.jbutton.button == controls2.js_left) {
+					if(event.jbutton.button == controls2.js_left && !ready2) {
 						select2 -= 1;
 						if(select2 < 0) select2 = Battle::CHARACTER_COUNT - 1;
 					}
-					if(event.jbutton.button == controls2.js_right) {
+					if(event.jbutton.button == controls2.js_right && !ready2) {
 						select2 += 1;
 						if(select2 >= Battle::CHARACTER_COUNT - 1) select2 = 0;
 					}
@@ -96,21 +96,21 @@ void CharacterSelect::run() {
 			}
 			if(event.type == SDL_JOYAXISMOTION) {
 				if(controls1.use_joystick && event.jbutton.which == controls1.joystick_idx) {
-					if(event.jaxis.value < -6400) {
+					if(event.jaxis.value < -6400 && !ready1) {
 						select1 -= 1;
 						if(select1 < 0) select1 = Battle::CHARACTER_COUNT - 1;
 					}
-					else if(event.jaxis.value > 6400) {
+					else if(event.jaxis.value > 6400 && !ready1) {
 						select1 += 1;
 						if(select1 >= Battle::CHARACTER_COUNT - 1) select1 = 0;
 					}
 				}
 				if(controls2.use_joystick && event.jbutton.which == controls2.joystick_idx) {
-					if(event.jaxis.value < -6400) {
+					if(event.jaxis.value < -6400 && !ready2) {
 						select2 -= 1;
 						if(select2 < 0) select2 = Battle::CHARACTER_COUNT - 1;
 					}
-					else if(event.jaxis.value > 6400) {
+					else if(event.jaxis.value > 6400 && !ready2) {
 						select2 += 1;
 						if(select2 >= Battle::CHARACTER_COUNT - 1) select2 = 0;
 					}
