@@ -4,7 +4,7 @@
 class Projectile {
 public:
 	Projectile();
-	Projectile(const char * sprite_file, SDL_Rect * clip);
+	Projectile(SDL_Surface * surface, SDL_Rect * clip);
 	~Projectile();
 
 	SDL_Rect * position;
@@ -17,10 +17,7 @@ public:
 	bool hit;
 	
 	void show(SDL_Surface * screen);
-
-	void load_images(const char * sprite_file);
 private:
-	void free_images();
 };
 
 #endif

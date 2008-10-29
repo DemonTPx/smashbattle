@@ -316,10 +316,10 @@ void Battle::process_shoot(Player * p) {
 			clip_weapon = new SDL_Rect();
 			clip_weapon->x = 0;
 			clip_weapon->y = 0;
-			clip_weapon->w = 6;
-			clip_weapon->h = 6;
+			clip_weapon->w = 8;
+			clip_weapon->h = 8;
 
-			pr = new Projectile("gfx/weapons.bmp", clip_weapon);
+			pr = new Projectile(weapons, clip_weapon);
 
 			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_DUCK) {
 				pr->speedx = -10;
@@ -331,7 +331,7 @@ void Battle::process_shoot(Player * p) {
 			if(p->is_duck)
 				pr->position->y = p->position->y + 28;
 			else
-				pr->position->y = p->position->y + 10;
+				pr->position->y = p->position->y + 8;
 			projectiles->push_back(pr);
 
 			Main::instance->audio->play(SND_SHOOT);
@@ -1077,6 +1077,7 @@ void Battle::handle_draw_countdown(SDL_Surface * screen) {
 
 void Battle::load_images() {
 	SDL_Surface * surface;
+	Uint32 colorkey;
 	
 	surface = SDL_LoadBMP("gfx/bg.bmp");
 	background = SDL_DisplayFormat(surface);
@@ -1084,6 +1085,12 @@ void Battle::load_images() {
 
 	surface = SDL_LoadBMP("gfx/tiles.bmp");
 	tiles = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+
+	surface = SDL_LoadBMP("gfx/weapons.bmp");
+	weapons = SDL_DisplayFormat(surface);
+	colorkey = SDL_MapRGB(weapons->format, 255, 255, 255);
+	SDL_SetColorKey(weapons, SDL_SRCCOLORKEY, colorkey); 
 	SDL_FreeSurface(surface);
 
 	surface = SDL_LoadBMP("gfx/player1hp.bmp");
@@ -1104,8 +1111,13 @@ void Battle::load_images() {
 }
 
 void Battle::free_images() {
-	SDL_FreeSurface(tiles);
 	SDL_FreeSurface(background);
+	SDL_FreeSurface(tiles);
+
+	SDL_FreeSurface(weapons);
+
+	SDL_FreeSurface(player1hp);
+	SDL_FreeSurface(player2hp);
 
 	for(int i = 0; i < 8; i++) {
 		delete tile_rect[i];

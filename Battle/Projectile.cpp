@@ -15,7 +15,7 @@ Projectile::Projectile() {
 	position = new SDL_Rect();
 }
 
-Projectile::Projectile(const char * sprite_file, SDL_Rect * clip) {
+Projectile::Projectile(SDL_Surface * surface, SDL_Rect * clip) {
 	speedx = 0;
 	speedy = 0;
 	distance_traveled = 0;
@@ -23,7 +23,7 @@ Projectile::Projectile(const char * sprite_file, SDL_Rect * clip) {
 	hit = false;
 
 	this->clip = clip;
-	load_images(sprite_file);
+	sprite = surface;
 
 	position = new SDL_Rect();
 	position->x = 0;
@@ -33,8 +33,6 @@ Projectile::Projectile(const char * sprite_file, SDL_Rect * clip) {
 }
 
 Projectile::~Projectile() {
-	free_images();
-
 	delete position;
 	delete clip;
 }
@@ -59,23 +57,4 @@ void Projectile::show(SDL_Surface * screen) {
 		rect.y = position->y;
 		SDL_BlitSurface(sprite, clip, screen, &rect);
 	}
-}
-
-void Projectile::load_images(const char * sprite_file) {
-	SDL_Surface * loaded;
-	Uint32 colorkey;
-	
-	loaded = SDL_LoadBMP(sprite_file);
-	if(loaded == NULL) {
-
-	}
-	sprite = SDL_DisplayFormat(loaded);
-	SDL_FreeSurface(loaded);
-
-	colorkey = SDL_MapRGB(sprite->format, 0, 255, 255); 
-	SDL_SetColorKey(sprite, SDL_SRCCOLORKEY, colorkey);
-}
-
-void Projectile::free_images() {
-	SDL_FreeSurface(sprite);
 }
