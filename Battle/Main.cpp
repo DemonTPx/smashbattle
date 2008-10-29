@@ -16,6 +16,8 @@ const int Main::FRAMES_PER_SECOND = 60;
 Main * Main::instance = NULL;
 
 SDL_Surface * Main::screen = NULL;
+int Main::flags = SDL_SWSURFACE;
+
 TTF_Font * Main::font = NULL;
 
 bool Main::running = false;
@@ -43,8 +45,9 @@ Main::~Main() {
 bool Main::init() {
 	//Start SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
-
-	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, SDL_SWSURFACE);
+	
+	
+	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
 	SDL_ShowCursor(0);
 
 	fps_cap = true;
@@ -115,6 +118,9 @@ void Main::handle_event(SDL_Event * event) {
 				running = false;
 			}
 		}
+		if(event->key.keysym.sym == SDLK_F10) {
+			SDL_WM_ToggleFullScreen(screen);
+		}
 	}
 }
 
@@ -139,6 +145,11 @@ int Main::run() {
 
 
 int main(int argc, char* args[]) {
+	if(argc > 1) {
+		if(strcmp(args[1], "-f") == 0) {
+			Main::flags |= SDL_FULLSCREEN;
+		}
+	}
 	Main main;
 	return main.run();
 }

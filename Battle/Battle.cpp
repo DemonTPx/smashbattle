@@ -13,6 +13,10 @@
 
 #include "Battle.h"
 
+#ifndef WIN32
+#define sprintf_s snprint
+#endif
+
 #define SPR_W 32
 #define SPR_H 32
 #define SPR_COLS 20
@@ -78,9 +82,9 @@ void Battle::run() {
 	player1->key_run = SDLK_LSHIFT;
 	player1->key_shoot = SDLK_LCTRL;
 	player1->joystick_idx = 0;
-	player1->js_btn_u = 1;
-	player1->js_btn_run = 0;
-	player1->js_btn_shoot = 7;
+	player1->js_btn_u = 2;
+	player1->js_btn_run = 3;
+	player1->js_btn_shoot = 5;
 	player1->js_btn_start = 9;
 
 	player2 = new Player("gfx/jeroen.bmp");
@@ -91,10 +95,10 @@ void Battle::run() {
 	player2->key_run = SDLK_RSHIFT;
 	player2->key_shoot = SDLK_RCTRL;
 	player2->joystick_idx = 1;
-	player2->js_btn_u = 0;
-	player2->js_btn_run = 5;
-	player2->js_btn_shoot = 1;
-	player2->js_btn_start = 7;
+	player2->js_btn_u = 2;
+	player2->js_btn_run = 3;
+	player2->js_btn_shoot = 5;
+	player2->js_btn_start = 9;
 
 	projectiles = new std::vector<Projectile*>(0);
 
@@ -1021,9 +1025,9 @@ void Battle::draw_win_screen(SDL_Surface * screen) {
 	char * text;
 
 	if(player1->hitpoints == 0) 
-		text = "Player 2 wins";
+		text = (char*)"Player 2 wins";
 	if(player2->hitpoints == 0)
-		text = "Player 1 wins";
+		text = (char*)"Player 1 wins";
 
 	surface = TTF_RenderText_Solid(font26, text, fontColor);
 	rect.x = (screen->w - surface->w) / 2;

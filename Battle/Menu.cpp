@@ -83,6 +83,8 @@ void Menu::run() {
 						}
 						Main::audio->play_music(MUSIC_TITLE);
 						break;
+					default:
+						break;
 				}
 			}
 			if(event.type == SDL_JOYBUTTONDOWN) {

@@ -14,6 +14,8 @@ public:
 	static Main * instance;
 
 	static SDL_Surface * screen;
+	static int flags;
+
 	static TTF_Font * font;
 
 	static bool running;
