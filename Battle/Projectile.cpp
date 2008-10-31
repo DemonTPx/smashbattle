@@ -12,6 +12,8 @@ Projectile::Projectile() {
 	distance_traveled = 0;
 	hit = false;
 
+	damage = 0;
+
 	position = new SDL_Rect();
 }
 
@@ -21,6 +23,8 @@ Projectile::Projectile(SDL_Surface * surface, SDL_Rect * clip) {
 	distance_traveled = 0;
 	max_distance = WINDOW_WIDTH >> 1;
 	hit = false;
+
+	damage = 0;
 
 	this->clip = clip;
 	sprite = surface;

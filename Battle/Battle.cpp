@@ -321,6 +321,7 @@ void Battle::process_shoot(Player * p) {
 			clip_weapon->h = 8;
 
 			pr = new Projectile(weapons, clip_weapon);
+			pr->damage = 10;
 
 			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_DUCK) {
 				pr->speedx = -10;
@@ -348,8 +349,9 @@ void Battle::move_player(Player * p) {
 	
 	speedx = 0;
 	speedy = 0;
-
+	
 	if(p->is_hit) {
+		// The player has been hit long enough
 		if(frame > p->hit_start + p->hit_delay) {
 			p->is_hit = false;
 		}
@@ -358,7 +360,8 @@ void Battle::move_player(Player * p) {
 	speedx = SPEED_HORIZ;
 
 	momentumx_old = p->momentumx;
-
+	
+	// Are we running?
 	if(p->keydn_run) {
 		p->is_running = true;
 		maxx = MAX_MOMENTUM_RUN;
@@ -366,7 +369,8 @@ void Battle::move_player(Player * p) {
 		p->is_running = false;
 		maxx = MAX_MOMENTUM_HORIZ;
 	}
-
+	
+	// Are we ducking?
 	if(p->keydn_d) {
 		p->is_duck = true;
 	}
@@ -374,6 +378,7 @@ void Battle::move_player(Player * p) {
 		p->is_duck = false;
 	}
 	
+	// Are we forced to being ducked?
 	if(p->is_duck_forced) {
 		if(frame - p->duck_force_start > DUCK_FORCE_FRAMES) {
 			p->is_duck_forced = false;
@@ -382,14 +387,17 @@ void Battle::move_player(Player * p) {
 		}
 	}
 
+	// Force the player to duck when bumping the head
 	if(!p->is_duck && check_collision(p->position)) {
 		p->is_duck = true;
 	}
 
 	if(p->is_duck) {
 		if(p->is_jumping || p->is_falling) {
+			// The player can move when jumping and ducking at the same time
 			maxx = MAX_MOMENTUM_HORIZ_DUCKJUMP;
 		} else {
+			// The player cannot move when ducking and standing on the ground
 			maxx = 0;
 		}
 	}
@@ -419,6 +427,7 @@ void Battle::move_player(Player * p) {
 
 	// Which sprite do we want to show?
 	if(p->momentumx == 0) {
+		// Standing still
 		if(!p->keydn_l && !p->keydn_r) {
 			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_DUCK) {
 				if(p->is_duck) {
@@ -459,6 +468,7 @@ void Battle::move_player(Player * p) {
 		p->distance_walked = 0;
 	}
 	if(p->momentumx < 0) {
+		// Moving left
 		if(p->is_duck) {
 			p->set_sprite(SPR_L_DUCK);
 		} else if((p->is_jumping || p->is_falling) && !p->is_duck) {
@@ -488,6 +498,7 @@ void Battle::move_player(Player * p) {
 		}
 	}
 	else if(p->momentumx > 0) {
+		// Moving right
 		if(p->is_duck) {
 			p->set_sprite(SPR_R_DUCK);
 		} else if(p->is_jumping || p->is_falling) {
@@ -522,6 +533,7 @@ void Battle::move_player(Player * p) {
 	rect.w = p->position->w;
 	rect.h = p->position->h;
 	if(p->is_duck) {
+		// If the player is ducking, the top should be lower
 		rect.y = p->position->y + (PLAYER_H - PLAYER_DUCK_H);
 		rect.h = PLAYER_DUCK_H;
 	}
@@ -539,7 +551,9 @@ void Battle::move_player(Player * p) {
 	if(p->position->x <= 0)
 		p->position->x += WINDOW_WIDTH;
 	
+
 	// Jumping
+
 	if(p->keydn_u && !p->is_falling && !p->is_jumping) {
 		// Start the jump
 		p->momentumy = MAX_MOMENTUM_JUMP;
@@ -575,10 +589,12 @@ void Battle::move_player(Player * p) {
 	rect.w = p->position->w;
 	rect.h = p->position->h;
 	if(p->is_duck) {
+		// If the player is ducking, the top should be lower
 		rect.y = p->position->y + (PLAYER_H - PLAYER_DUCK_H);
 		rect.h = PLAYER_DUCK_H;
 	}
 
+	// Did we hit something?
 	if(check_collision(&rect)) {
 		p->position->y += speedy;
 
@@ -596,7 +612,7 @@ void Battle::move_player(Player * p) {
 	}
 
 	if(!p->is_jumping && !p->is_falling && check_bottom(p->position)) {
-		// fall when there is no bottom
+		// start falling when there is no bottom
 		p->is_falling = true;
 	}
 }
@@ -853,7 +869,7 @@ void Battle::check_player_projectile_collision(Player * p) {
 		pr->hit = true;
 		p->is_hit = true;
 		p->hit_start = frame;
-		p->hitpoints -= 10;
+		p->hitpoints -= pr->damage;
 
 		Main::audio->play(SND_HIT);
 	}

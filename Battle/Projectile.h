@@ -15,6 +15,8 @@ public:
 	int distance_traveled;
 	int max_distance;
 	bool hit;
+
+	int damage;
 	
 	void show(SDL_Surface * screen);
 private:
