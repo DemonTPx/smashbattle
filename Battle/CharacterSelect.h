@@ -19,6 +19,8 @@ private:
 	void load_sprites();
 	void free_sprites();
 
+	void select(int * select, int direction);
+
 	int select1, select2;
 
 	std::vector<SDL_Surface*> * character_sprites;

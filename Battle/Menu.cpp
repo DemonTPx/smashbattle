@@ -71,7 +71,6 @@ void Menu::run() {
 						break;
 					case SDLK_RETURN:
 						Main::audio->play(SND_SELECT);
-						Main::audio->stop_music();
 						if(selected_item == 0) {
 							Battle battle;
 							battle.run();
@@ -94,17 +93,16 @@ void Menu::run() {
 					case 2:
 					case 3:
 						Main::audio->play(SND_SELECT);
-						Main::audio->stop_music();
 						if(selected_item == 0) {
 							Battle battle;
 							battle.run();
 							draw();
+							Main::audio->play_music(MUSIC_TITLE);
 						}
 						if(selected_item == 2) {
 							SDL_Delay(500);
 							Main::running = false;
 						}
-						Main::audio->play_music(MUSIC_TITLE);
 						break;
 				}
 			}
@@ -127,9 +125,9 @@ void Menu::run() {
 				}
 			}
 		}
-
 		Main::instance->flip();
 	}
+	Main::audio->stop_music();
 }
 
 void Menu::draw() {
