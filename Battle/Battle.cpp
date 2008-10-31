@@ -28,6 +28,7 @@
 #define MAX_MOMENTUM_FALL 100
 #define MAX_MOMENTUM_JUMP 40
 #define MAX_MOMENTUM_HORIZ 20
+#define MAX_MOMENTUM_HORIZ_DUCKJUMP 10
 #define MAX_MOMENTUM_RUN 40
 
 #define FRAME_CYCLE_DISTANCE 24
@@ -343,6 +344,7 @@ void Battle::move_player(Player * p) {
 	int speedx, speedy;
 	int maxx;
 	int momentumx_old;
+	SDL_Rect rect;
 	
 	speedx = 0;
 	speedy = 0;
@@ -367,7 +369,6 @@ void Battle::move_player(Player * p) {
 
 	if(p->keydn_d) {
 		p->is_duck = true;
-		maxx = 0;
 	}
 	else {
 		p->is_duck = false;
@@ -378,6 +379,17 @@ void Battle::move_player(Player * p) {
 			p->is_duck_forced = false;
 		} else {
 			p->is_duck = true;
+		}
+	}
+
+	if(!p->is_duck && check_collision(p->position)) {
+		p->is_duck = true;
+	}
+
+	if(p->is_duck) {
+		if(p->is_jumping || p->is_falling) {
+			maxx = MAX_MOMENTUM_HORIZ_DUCKJUMP;
+		} else {
 			maxx = 0;
 		}
 	}
@@ -504,8 +516,17 @@ void Battle::move_player(Player * p) {
 			p->distance_walked += speedx;
 		}
 	}
+
+	rect.x = p->position->x;
+	rect.y = p->position->y;
+	rect.w = p->position->w;
+	rect.h = p->position->h;
+	if(p->is_duck) {
+		rect.y = p->position->y + (PLAYER_H - PLAYER_DUCK_H);
+		rect.h = PLAYER_DUCK_H;
+	}
 	
-	if(check_collision(p->position)) {
+	if(check_collision(&rect)) {
 		// Stop if colliding with the level
 		p->position->x -= speedx;
 		p->momentumx = 0;
@@ -549,7 +570,16 @@ void Battle::move_player(Player * p) {
 	p->position->y -= speedy;
 	p->last_speedy = speedy;
 
-	if(check_collision(p->position)) {
+	rect.x = p->position->x;
+	rect.y = p->position->y;
+	rect.w = p->position->w;
+	rect.h = p->position->h;
+	if(p->is_duck) {
+		rect.y = p->position->y + (PLAYER_H - PLAYER_DUCK_H);
+		rect.h = PLAYER_DUCK_H;
+	}
+
+	if(check_collision(&rect)) {
 		p->position->y += speedy;
 
 		if(p->is_jumping) {
@@ -972,9 +1002,9 @@ void Battle::draw_score(SDL_Surface * screen) {
 
 	char str[40];
 
-	sprintf_s(str, 40, "Player1 HP: %d", player1->hitpoints);
+	//sprintf_s(str, 40, "%s", player1->name);
 
-	surface = TTF_RenderText_Solid(font26, str, fontColor);
+	surface = TTF_RenderText_Solid(font26, player1->name, fontColor);
 	rect.x = 2;
 	rect.y = WINDOW_HEIGHT - surface->h;
 
@@ -983,9 +1013,9 @@ void Battle::draw_score(SDL_Surface * screen) {
 	SDL_FreeSurface(surface);
 
 
-	sprintf_s(str, 40, "Player2 HP: %d", player2->hitpoints);
+	//sprintf_s(str, 40, "%s", player2->hitpoints);
 
-	surface = TTF_RenderText_Solid(font26, str, fontColor);
+	surface = TTF_RenderText_Solid(font26, player2->name, fontColor);
 	rect.x = WINDOW_WIDTH - surface->w - 2;
 	rect.y = WINDOW_HEIGHT - surface->h;
 
@@ -1003,6 +1033,13 @@ void Battle::draw_score(SDL_Surface * screen) {
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 
 	SDL_FreeSurface(surface);
+	
+	rect.x = 220 - PLAYER_W;
+	rect.y = 450;
+	SDL_BlitSurface(player1->sprites, player1->clip[SPR_R], screen, &rect);
+	rect.x = 420;
+	rect.y = 450;
+	SDL_BlitSurface(player2->sprites, player2->clip[SPR_L], screen, &rect);
 }
 
 void Battle::draw_pause_screen(SDL_Surface * screen) {
