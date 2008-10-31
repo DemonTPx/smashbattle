@@ -76,6 +76,8 @@ Player::Player(const char * name, const char * sprite_file) {
 	shoot_start = 0;
 	shoot_delay = 10;
 
+	bullets = 10;
+
 	hitpoints = 100;
 	score = 0;
 

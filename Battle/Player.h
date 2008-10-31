@@ -100,6 +100,8 @@ public:
 	int shoot_start;
 	int shoot_delay;
 
+	int bullets;
+
 	int score;
 	int hitpoints;
 

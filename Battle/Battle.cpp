@@ -12,6 +12,9 @@
 
 #include "Player.h"
 #include "Projectile.h"
+#include "PowerUp.h"
+#include "AmmoPowerUp.h"
+#include "HealthPowerUp.h"
 
 #include "Battle.h"
 
@@ -97,6 +100,7 @@ void Battle::run() {
 	delete character_select;
 
 	projectiles = new std::vector<Projectile*>(0);
+	powerups = new std::vector<PowerUp*>(0);
 
 	reset_game();
 
@@ -175,6 +179,11 @@ void Battle::run() {
 					delete p;
 				}
 			}
+
+			generate_powerup(false);
+
+			check_player_powerup_collision(player1);
+			check_player_powerup_collision(player2);
 			
 			// Check if any player is out of HP
 			if(player1->hitpoints <= 0) {
@@ -216,6 +225,11 @@ void Battle::run() {
 		player2->show(screen);
 
 		draw_score(screen);
+
+		for(unsigned int idx = 0; idx < powerups->size(); idx++) {
+			PowerUp * p = powerups->at(idx);
+			p->show(screen);
+		}
 
 		for(unsigned int idx = 0; idx < projectiles->size(); idx++) {
 			Projectile * p = projectiles->at(idx);
@@ -268,6 +282,7 @@ void Battle::reset_game() {
 	player1->duck_force_start = 0;
 	player1->is_hit = false;
 	player1->hit_start = 0;
+	player1->bullets = 20;
 	player1->is_falling = false;
 	player1->is_jumping = false;
 	player1->momentumx = 0;
@@ -282,11 +297,14 @@ void Battle::reset_game() {
 	player2->duck_force_start = 0;
 	player2->is_hit = false;
 	player2->hit_start = 0;
+	player2->bullets = 20;
 	player2->is_falling = false;
 	player2->is_jumping = false;
 	player2->momentumx = 0;
 	player2->momentumy = 0;
 	player2->set_sprite(SPR_L);
+
+	srand(SDL_GetTicks());
 
 	Projectile * pr;
 	for(unsigned int i = 0; i < projectiles->size(); i++) {
@@ -295,6 +313,44 @@ void Battle::reset_game() {
 	}
 
 	projectiles->clear();
+
+	PowerUp * pu;
+	for(unsigned int i = 0; i < powerups->size(); i++) {
+		pu = powerups->at(i);
+		delete pu;
+	}
+
+	powerups->clear();
+/*
+	SDL_Rect * rect, * pos;
+	rect = new SDL_Rect();
+	rect->x = 16;
+	rect->y = 0;
+	rect->w = 16;
+	rect->h = 16;
+	pos = new SDL_Rect();
+	pos->x = 50;
+	pos->y = 80;
+	pos->w = 8;
+	pos->h = 8;
+	pu = new AmmoPowerUp(powerup, rect, pos, 5);
+	powerups->push_back(pu);
+	rect = new SDL_Rect();
+	rect->x = 0;
+	rect->y = 0;
+	rect->w = 16;
+	rect->h = 16;
+	pos = new SDL_Rect();
+	pos->x = 500;
+	pos->y = 80;
+	pos->w = 8;
+	pos->h = 8;
+	pu = new HealthPowerUp(powerup, rect, pos, 20);
+	powerups->push_back(pu);*/
+	
+
+	generate_powerup(true);
+	generate_powerup(true);
 
 	frame = 0;
 	paused = false;
@@ -309,7 +365,7 @@ void Battle::reset_game() {
 
 void Battle::process_shoot(Player * p) {
 	if(p->keydn_shoot) {
-		if(frame > p->shoot_start + p->shoot_delay) {
+		if(frame > p->shoot_start + p->shoot_delay && p->bullets > 0) {
 			p->shoot_start = frame;
 			Projectile * pr;
 			SDL_Rect * clip_weapon;
@@ -336,9 +392,66 @@ void Battle::process_shoot(Player * p) {
 				pr->position->y = p->position->y + 8;
 			projectiles->push_back(pr);
 
+			p->bullets -= 1;
+
 			Main::instance->audio->play(SND_SHOOT);
 		}
 	}
+}
+
+void Battle::generate_powerup(bool force) {
+	int r;
+	int row, col;
+	if(!force) {
+		r = rand();
+		if(r % 500 != 0) return;
+	}
+	PowerUp * pu;
+	SDL_Rect * rect, * pos;
+
+	pos = new SDL_Rect();
+
+	bool done;
+	done = false;
+	while(!done) {
+		row = rand() % SPR_ROWS - 1;
+		col = rand() % SPR_COLS;
+		if(level[row * SPR_COLS + col] == -1 && level[(row + 1) * SPR_COLS + col] != -1) {
+			done = true;
+			for(unsigned int idx = 0; idx < powerups->size(); idx++) {
+				if(powerups->at(idx)->position->x == (col * SPR_W) + 8 &&
+					powerups->at(idx)->position->y == (row * SPR_H) + 16) {
+					done = false;
+				}
+			}
+		}
+	}
+
+	pos = new SDL_Rect;
+	pos->w = 16;
+	pos->h = 16;
+	pos->x = (col * SPR_W) + 8;
+	pos->y = (row * SPR_H) + 16;
+	
+	r = rand() % 3;
+	if(r == 0) {
+		rect = new SDL_Rect();
+		rect->x = 16;
+		rect->y = 0;
+		rect->w = 16;
+		rect->h = 16;
+		pu = new AmmoPowerUp(powerup, rect, pos, 20);
+	}
+	if(r == 1 || r == 2) {
+		rect = new SDL_Rect();
+		rect->x = 0;
+		rect->y = 0;
+		rect->w = 16;
+		rect->h = 16;
+		pu = new HealthPowerUp(powerup, rect, pos, 25);
+	}
+
+	powerups->push_back(pu);
 }
 
 void Battle::move_player(Player * p) {
@@ -875,6 +988,40 @@ void Battle::check_player_projectile_collision(Player * p) {
 	}
 }
 
+void Battle::check_player_powerup_collision(Player * p) {
+	PowerUp * pu;
+	int l1, r1, t1, b1;
+	int l2, r2, t2, b2;
+
+	if(p->is_hit) return;
+	
+	l1 = p->position->x;
+	r1 = p->position->x + p->position->w;
+	t1 = p->position->y;
+	b1 = p->position->y + p->position->h;
+
+	if(p->is_duck) t1 = t1 + (PLAYER_H - PLAYER_DUCK_H);
+
+	for(unsigned int idx = 0; idx < powerups->size(); idx++) {
+		pu = powerups->at(idx);
+		l2 = pu->position->x;
+		r2 = pu->position->x + pu->position->w;
+		t2 = pu->position->y;
+		b2 = pu->position->y + pu->position->h;
+
+		if(l1 > r2) continue;
+		if(r1 < l2) continue;
+		if(t1 > b2) continue;
+		if(b1 < t2) continue;
+
+		pu->got_powerup(p);
+		powerups->erase(powerups->begin() + idx);
+		delete pu;
+
+		Main::audio->play(SND_PAUSE);
+	}
+}
+
 bool Battle::check_collision(SDL_Rect * rect) {
 	// Check if the rect is colliding with the level
 	int l, r, t, b;
@@ -1018,41 +1165,33 @@ void Battle::draw_score(SDL_Surface * screen) {
 
 	char str[40];
 
-	//sprintf_s(str, 40, "%s", player1->name);
-
-	surface = TTF_RenderText_Solid(font26, player1->name, fontColor);
+	sprintf_s(str, 40, "%s %d", player1->name, player1->bullets);
+	surface = TTF_RenderText_Solid(font26, str, fontColor);
 	rect.x = 2;
 	rect.y = WINDOW_HEIGHT - surface->h;
-
 	SDL_BlitSurface(surface, NULL, screen, &rect);
-
 	SDL_FreeSurface(surface);
 
-
-	//sprintf_s(str, 40, "%s", player2->hitpoints);
-
-	surface = TTF_RenderText_Solid(font26, player2->name, fontColor);
+	sprintf_s(str, 40, "%s %d", player2->name, player2->bullets);
+	surface = TTF_RenderText_Solid(font26, str, fontColor);
 	rect.x = WINDOW_WIDTH - surface->w - 2;
 	rect.y = WINDOW_HEIGHT - surface->h;
-
 	SDL_BlitSurface(surface, NULL, screen, &rect);
-
 	SDL_FreeSurface(surface);
 
-
+	// Show score
 	sprintf_s(str, 40, "%02d-%02d", player1->score, player2->score);
-
 	surface = TTF_RenderText_Solid(font52, str, fontColor);
 	rect.x = (WINDOW_WIDTH - surface->w) / 2;
 	rect.y = WINDOW_HEIGHT - surface->h + 2;
-
 	SDL_BlitSurface(surface, NULL, screen, &rect);
-
 	SDL_FreeSurface(surface);
-	
+
+	// Show player avatars
 	rect.x = 220 - PLAYER_W;
 	rect.y = 450;
 	SDL_BlitSurface(player1->sprites, player1->clip[SPR_R], screen, &rect);
+
 	rect.x = 420;
 	rect.y = 450;
 	SDL_BlitSurface(player2->sprites, player2->clip[SPR_L], screen, &rect);
@@ -1146,6 +1285,12 @@ void Battle::load_images() {
 	SDL_SetColorKey(weapons, SDL_SRCCOLORKEY, colorkey); 
 	SDL_FreeSurface(surface);
 
+	surface = SDL_LoadBMP("gfx/powerups.bmp");
+	powerup = SDL_DisplayFormat(surface);
+	colorkey = SDL_MapRGB(powerup->format, 255, 255, 255);
+	SDL_SetColorKey(powerup, SDL_SRCCOLORKEY, colorkey); 
+	SDL_FreeSurface(surface);
+
 	surface = SDL_LoadBMP("gfx/player1hp.bmp");
 	player1hp = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
@@ -1168,6 +1313,7 @@ void Battle::free_images() {
 	SDL_FreeSurface(tiles);
 
 	SDL_FreeSurface(weapons);
+	SDL_FreeSurface(powerup);
 
 	SDL_FreeSurface(player1hp);
 	SDL_FreeSurface(player2hp);

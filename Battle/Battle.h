@@ -3,6 +3,7 @@
 
 #include "Player.h"
 #include "Projectile.h"
+#include "PowerUp.h"
 #include <vector>
 
 struct Character {
@@ -36,8 +37,11 @@ private:
 	
 	void process_shoot(Player * p);
 
+	void generate_powerup(bool force);
+
 	void check_player_collision(Player * p1, Player * p2);
 	void check_player_projectile_collision(Player * p);
+	void check_player_powerup_collision(Player * p);
 	bool check_collision(SDL_Rect * rect);
 	bool check_bottom(SDL_Rect * rect);
 
@@ -62,6 +66,7 @@ private:
 	int frame;
 
 	std::vector<Projectile*> * projectiles;
+	std::vector<PowerUp*> * powerups;
 	
 	TTF_Font * font26;
 	TTF_Font * font52;
@@ -70,6 +75,7 @@ private:
 	SDL_Surface * tiles;
 	SDL_Surface * background;
 	SDL_Surface * weapons;
+	SDL_Surface * powerup;
 	SDL_Surface * player1hp;
 	SDL_Surface * player2hp;
 	SDL_Rect * tile_rect[8];

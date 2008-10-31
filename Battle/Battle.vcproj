@@ -178,6 +178,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\AmmoPowerUp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\AudioController.cpp"
 				>
 			</File>
@@ -191,6 +195,10 @@
 			</File>
 			<File
 				RelativePath=".\CharacterSelect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HealthPowerUp.cpp"
 				>
 			</File>
 			<File
@@ -224,6 +232,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\AmmoPowerUp.h"
+				>
+			</File>
+			<File
 				RelativePath=".\AudioController.h"
 				>
 			</File>
@@ -240,6 +252,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HealthPowerUp.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.h"
 				>
 			</File>
@@ -249,6 +265,10 @@
 			</File>
 			<File
 				RelativePath=".\Player.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PowerUp.h"
 				>
 			</File>
 			<File
@@ -315,6 +335,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\player2hp.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\powerups.bmp"
 				>
 			</File>
 			<File
