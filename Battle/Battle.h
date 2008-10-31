@@ -67,6 +67,8 @@ private:
 
 	std::vector<Projectile*> * projectiles;
 	std::vector<PowerUp*> * powerups;
+
+	bool bullets_unlimited;
 	
 	TTF_Font * font26;
 	TTF_Font * font52;

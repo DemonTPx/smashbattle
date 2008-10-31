@@ -102,6 +102,8 @@ void Battle::run() {
 	projectiles = new std::vector<Projectile*>(0);
 	powerups = new std::vector<PowerUp*>(0);
 
+	bullets_unlimited = true;
+
 	reset_game();
 
 	while (Main::running && game_running) {
@@ -321,36 +323,6 @@ void Battle::reset_game() {
 	}
 
 	powerups->clear();
-/*
-	SDL_Rect * rect, * pos;
-	rect = new SDL_Rect();
-	rect->x = 16;
-	rect->y = 0;
-	rect->w = 16;
-	rect->h = 16;
-	pos = new SDL_Rect();
-	pos->x = 50;
-	pos->y = 80;
-	pos->w = 8;
-	pos->h = 8;
-	pu = new AmmoPowerUp(powerup, rect, pos, 5);
-	powerups->push_back(pu);
-	rect = new SDL_Rect();
-	rect->x = 0;
-	rect->y = 0;
-	rect->w = 16;
-	rect->h = 16;
-	pos = new SDL_Rect();
-	pos->x = 500;
-	pos->y = 80;
-	pos->w = 8;
-	pos->h = 8;
-	pu = new HealthPowerUp(powerup, rect, pos, 20);
-	powerups->push_back(pu);*/
-	
-
-	generate_powerup(true);
-	generate_powerup(true);
 
 	frame = 0;
 	paused = false;
@@ -365,7 +337,7 @@ void Battle::reset_game() {
 
 void Battle::process_shoot(Player * p) {
 	if(p->keydn_shoot) {
-		if(frame > p->shoot_start + p->shoot_delay && p->bullets > 0) {
+		if(frame > p->shoot_start + p->shoot_delay && (bullets_unlimited ||  p->bullets > 0)) {
 			p->shoot_start = frame;
 			Projectile * pr;
 			SDL_Rect * clip_weapon;
@@ -392,7 +364,8 @@ void Battle::process_shoot(Player * p) {
 				pr->position->y = p->position->y + 8;
 			projectiles->push_back(pr);
 
-			p->bullets -= 1;
+			if(!bullets_unlimited)
+				p->bullets -= 1;
 
 			Main::instance->audio->play(SND_SHOOT);
 		}
@@ -434,7 +407,7 @@ void Battle::generate_powerup(bool force) {
 	pos->y = (row * SPR_H) + 16;
 	
 	r = rand() % 3;
-	if(r == 0) {
+	if(r == 0 && !bullets_unlimited) {
 		rect = new SDL_Rect();
 		rect->x = 16;
 		rect->y = 0;
@@ -442,7 +415,7 @@ void Battle::generate_powerup(bool force) {
 		rect->h = 16;
 		pu = new AmmoPowerUp(powerup, rect, pos, 20);
 	}
-	if(r == 1 || r == 2) {
+	if(bullets_unlimited || r == 1 || r == 2) {
 		rect = new SDL_Rect();
 		rect->x = 0;
 		rect->y = 0;
@@ -1165,15 +1138,17 @@ void Battle::draw_score(SDL_Surface * screen) {
 
 	char str[40];
 
-	sprintf_s(str, 40, "%s %d", player1->name, player1->bullets);
-	surface = TTF_RenderText_Solid(font26, str, fontColor);
+	//sprintf_s(str, 40, "%s %d", player1->name, player1->bullets);
+	//surface = TTF_RenderText_Solid(font26, str, fontColor);
+	surface = TTF_RenderText_Solid(font26, player1->name, fontColor);
 	rect.x = 2;
 	rect.y = WINDOW_HEIGHT - surface->h;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	sprintf_s(str, 40, "%s %d", player2->name, player2->bullets);
-	surface = TTF_RenderText_Solid(font26, str, fontColor);
+	//sprintf_s(str, 40, "%s %d", player2->name, player2->bullets);
+	//surface = TTF_RenderText_Solid(font26, str, fontColor);
+	surface = TTF_RenderText_Solid(font26, player2->name, fontColor);
 	rect.x = WINDOW_WIDTH - surface->w - 2;
 	rect.y = WINDOW_HEIGHT - surface->h;
 	SDL_BlitSurface(surface, NULL, screen, &rect);

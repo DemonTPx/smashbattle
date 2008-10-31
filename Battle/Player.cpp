@@ -244,7 +244,7 @@ void Player::load_images(const char * sprite_file) {
 	sprites = SDL_DisplayFormat(loaded);
 	SDL_FreeSurface(loaded);
 
-	colorkey = SDL_MapRGB(sprites->format, 255, 255, 255); 
+	colorkey = SDL_MapRGB(sprites->format, 0, 255, 255); 
 	SDL_SetColorKey(sprites, SDL_SRCCOLORKEY, colorkey);
 
 	rect.w = PLAYER_W;

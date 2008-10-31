@@ -16,6 +16,14 @@ private:
 	void load_fonts();
 	void free_fonts();
 
+	void load_sprites();
+	void free_sprites();
+
+	int select1, select2;
+
+	std::vector<SDL_Surface*> * character_sprites;
+	SDL_Rect * clip_avatar, * clip_left, * clip_right;
+
 	TTF_Font * font26;
 	TTF_Font * font13;
 	SDL_Color fontColor;
