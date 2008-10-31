@@ -61,12 +61,13 @@ const int Battle::level[SPR_COUNT] =
    1, 1, 1, 1, 1,  1, 1, 1, 1, 1,  1, 1, 1, 1, 1,  1, 1, 1, 1, 1,
   -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1 };
 
-const int Battle::CHARACTER_COUNT = 4;
+const int Battle::CHARACTER_COUNT = 5;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{"Bert", "gfx/bert.bmp"},
 	{"Jeroen", "gfx/jeroen.bmp"},
 	{"Steven", "gfx/steven.bmp"},
 	{"Tedje", "gfx/tedje.bmp"},
+	{"Okke", "gfx/okke.bmp"},
 };
 
 Battle::Battle() {
@@ -110,30 +111,68 @@ void Battle::run() {
 		// Event handling
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
-			if(event.type == SDL_KEYDOWN) {
-				if(event.key.keysym.sym == SDLK_ESCAPE) {
-					// TODO: use control schemes for this
-					paused = !paused;
-
-					if(paused) {
-						Main::instance->audio->pause_music();
-						if(countdown) countdown_timer->pause();
-					} else {
-						Main::instance->audio->unpause_music();
-						if(countdown) countdown_timer->unpause();
+			if(paused) {
+				if(event.type == SDL_KEYDOWN) {
+					if(event.key.keysym.sym == pause_player->controls.kb_down ||
+						event.key.keysym.sym == pause_player->controls.kb_up) {
+							pause_quit = !pause_quit;
 					}
-					Main::instance->audio->play(SND_PAUSE);
+					if(event.key.keysym.sym == pause_player->controls.kb_shoot ||
+						event.key.keysym.sym == pause_player->controls.kb_run ||
+						(pause_player->controls.kb_jump != pause_player->controls.kb_up &&
+						event.key.keysym.sym == pause_player->controls.kb_jump)) {
+							if(pause_quit) {
+								game_running = false;
+							} else {
+								paused = false;
+								Main::instance->audio->unpause_music();
+								if(countdown) countdown_timer->unpause();
+							}
+					}
 				}
-				if(event.key.keysym.sym == SDLK_n) {
-					if(paused) {
-						paused = false;
-						if(countdown) countdown_timer->unpause();
-						Main::instance->audio->unpause_music();
+				if(event.type == SDL_JOYAXISMOTION) {
+					if(event.jaxis.which == pause_player->controls.joystick_idx && event.jaxis.axis == 1) {
+						if(event.jaxis.value < -6400 || event.jaxis.value > 6400) {
+							pause_quit = !pause_quit;
+						}
+					}
+				}
+				if(event.type == SDL_JOYBUTTONDOWN) {
+					if(event.jbutton.which == pause_player->controls.joystick_idx &&
+						(event.jbutton.button == pause_player->controls.js_run ||
+						event.jbutton.button == pause_player->controls.js_jump ||
+						event.jbutton.button == pause_player->controls.js_shoot ||
+						event.jbutton.button == pause_player->controls.js_start)) {
+							if(pause_quit) {
+								game_running = false;
+							} else {
+								paused = false;
+								Main::instance->audio->unpause_music();
+								if(countdown) countdown_timer->unpause();
+							}
+					}
+				}
+			}
+			if(event.type == SDL_KEYDOWN) {
+				if(event.key.keysym.sym == player1->controls.kb_start || event.key.keysym.sym == player2->controls.kb_start) {
+					if(!(paused && event.key.keysym.sym != pause_player->controls.kb_start)) {
+
+						paused = !paused;
+
+						if(paused) {
+							if(event.key.keysym.sym == player1->controls.kb_start)
+								pause_player = player1;
+							else if(event.key.keysym.sym == player2->controls.kb_start)
+								pause_player = player2;
+							pause_quit = false;
+							Main::instance->audio->pause_music();
+							if(countdown) countdown_timer->pause();
+						} else {
+							Main::instance->audio->unpause_music();
+							if(countdown) countdown_timer->unpause();
+						}
 						Main::instance->audio->play(SND_PAUSE);
 					}
-				}
-				if(event.key.keysym.sym == SDLK_y) {
-					if(paused) game_running = false;
 				}
 			}
 			if(event.type == SDL_JOYBUTTONDOWN) {
@@ -146,6 +185,11 @@ void Battle::run() {
 					paused = !paused;
 
 					if(paused) {
+						if(event.jbutton.which == player1->controls.joystick_idx)
+							pause_player = player1;
+						else
+							pause_player = player2;
+						pause_quit = false;
 						Main::instance->audio->pause_music();
 						if(countdown) countdown_timer->pause();
 					} else {
@@ -991,7 +1035,7 @@ void Battle::check_player_powerup_collision(Player * p) {
 		powerups->erase(powerups->begin() + idx);
 		delete pu;
 
-		Main::audio->play(SND_PAUSE);
+		Main::audio->play(SND_ITEM);
 	}
 }
 
@@ -1175,13 +1219,53 @@ void Battle::draw_score(SDL_Surface * screen) {
 void Battle::draw_pause_screen(SDL_Surface * screen) {
 	SDL_Surface * surface;
 	SDL_Rect rect;
+	Uint32 color;
+	
+	if(pause_player == player1)
+		color = 0xff0000;
+	else
+		color = 0x0000ff;
 
-	surface = TTF_RenderText_Solid(font26, "QUIT GAME Y/N", fontColor);
+	rect.x = (screen->w / 2) - 82;
+	rect.y = (screen->h / 2) - 32;
+	rect.w = 164;
+	rect.h = 84;
+
+	SDL_FillRect(screen, &rect, color);
+
+	rect.x += 2;
+	rect.y += 2;
+	rect.w -= 4;
+	rect.h -= 4;
+
+	SDL_FillRect(screen, &rect, 0);
+
+	surface = TTF_RenderText_Solid(font26, "PAUSE", fontColor);
 	rect.x = (screen->w - surface->w) / 2;
-	rect.y = (screen->h - surface->h) / 2;
+	rect.y = (screen->h / 2) - surface->h - 5;
 
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 
+	SDL_FreeSurface(surface);
+
+	rect.x = (screen->w / 2) - 76;
+	rect.y = (screen->h / 2) + 3;
+	rect.w = 152;
+	rect.h = 20;
+	if(!pause_quit)
+		rect.y = (screen->h / 2) + 23;
+	SDL_FillRect(screen, &rect, color);
+
+	surface = TTF_RenderText_Solid(font26, "RESUME", fontColor);
+	rect.x = (screen->w - surface->w) / 2 ;
+	rect.y = (screen->h / 2) + 25;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	surface = TTF_RenderText_Solid(font26, "QUIT", fontColor);
+	rect.x = (screen->w - surface->w) / 2 ;
+	rect.y = (screen->h / 2) + 5;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 }
 

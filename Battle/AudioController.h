@@ -8,11 +8,14 @@
 
 #define SND_SELECT 0
 #define SND_PAUSE 1
+#define SND_SELECT_CHARACTER 5
 
 #define SND_JUMP 10
 #define SND_SHOOT 11
 #define SND_HIT 12
 #define SND_BOUNCE 13
+
+#define SND_ITEM 15
 
 #define SND_YOULOSE 18
 
@@ -41,10 +44,14 @@ private:
 	Mix_Chunk * select;
 	Mix_Chunk * pause;
 	
+	Mix_Chunk * select_character;
+	
 	Mix_Chunk * jump;
 	Mix_Chunk * shoot;
 	Mix_Chunk * hit;
 	Mix_Chunk * bounce;
+	
+	Mix_Chunk * item;
 
 	Mix_Chunk * youlose;
 

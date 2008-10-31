@@ -55,6 +55,8 @@ private:
 	Player * player2;
 
 	bool paused;
+	Player * pause_player;
+	int pause_quit;
 	
 	bool ended;
 	Timer * end_timer;

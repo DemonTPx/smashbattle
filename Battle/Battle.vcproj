@@ -318,11 +318,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sfx\item.wav"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\jeroen.bmp"
 				>
 			</File>
 			<File
 				RelativePath=".\sfx\jump.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\okke.bmp"
 				>
 			</File>
 			<File
@@ -343,6 +351,10 @@
 			</File>
 			<File
 				RelativePath=".\sfx\select.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\sfx\select_character.wav"
 				>
 			</File>
 			<File

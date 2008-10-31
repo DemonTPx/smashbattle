@@ -34,11 +34,15 @@ void AudioController::load_files() {
 
 	select = Mix_LoadWAV("sfx/select.wav");
 	pause = Mix_LoadWAV("sfx/pause.wav");
+	
+	select_character = Mix_LoadWAV("sfx/select_character.wav");
 
 	shoot = Mix_LoadWAV("sfx/shoot.wav");
 	jump = Mix_LoadWAV("sfx/jump.wav");
 	hit = Mix_LoadWAV("sfx/hit.wav");
 	bounce = Mix_LoadWAV("sfx/bounce.wav");
+
+	item = Mix_LoadWAV("sfx/item.wav");
 
 	youlose = Mix_LoadWAV("sfx/youlose.wav");
 
@@ -53,10 +57,14 @@ void AudioController::close_files() {
 	Mix_FreeChunk(select);
 	Mix_FreeChunk(pause);
 
+	Mix_FreeChunk(select_character);
+
 	Mix_FreeChunk(shoot);
 	Mix_FreeChunk(jump);
 	Mix_FreeChunk(hit);
 	Mix_FreeChunk(bounce);
+
+	Mix_FreeChunk(item);
 
 	Mix_FreeChunk(youlose);
 
@@ -116,6 +124,9 @@ void AudioController::play(int sound) {
 		case SND_PAUSE:
 			play_sound(pause, 50);
 			break;
+		case SND_SELECT_CHARACTER:
+			play_sound(select_character, 50);
+			break;
 		case SND_JUMP:
 			play_sound(jump);
 			break;
@@ -127,6 +138,9 @@ void AudioController::play(int sound) {
 			break;
 		case SND_BOUNCE:
 			play_sound(bounce);
+			break;
+		case SND_ITEM:
+			play_sound(item, 75);
 			break;
 		case SND_YOULOSE:
 			play_sound(youlose);

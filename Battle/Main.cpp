@@ -165,6 +165,7 @@ void Main::load_controlschemes() {
 	controls1.kb_jump = SDLK_w;
 	controls1.kb_run = SDLK_LSHIFT;
 	controls1.kb_shoot = SDLK_LCTRL;
+	controls1.kb_start = SDLK_ESCAPE;
 	controls1.use_joystick = true;
 	controls1.use_axis_x = true;
 	controls1.use_axis_up = false;
@@ -183,6 +184,7 @@ void Main::load_controlschemes() {
 	controls2.kb_jump = SDLK_UP;
 	controls2.kb_run = SDLK_RSHIFT;
 	controls2.kb_shoot = SDLK_RCTRL;
+	controls2.kb_start = SDLK_RETURN;
 	controls2.use_joystick = true;
 	controls2.use_axis_x = true;
 	controls2.use_axis_up = false;

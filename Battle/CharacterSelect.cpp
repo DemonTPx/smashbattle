@@ -8,7 +8,7 @@
 
 #include "CharacterSelect.h"
 
-#define CHARACTERS_PER_LINE 4
+#define CHARACTERS_PER_LINE 5
 #define CHARACTER_WIDTH 44
 #define CHARACTER_SPACING 4
 
@@ -31,6 +31,8 @@ void CharacterSelect::run() {
 	ready1 = false;
 	ready2 = false;
 
+	ready = false;
+
 	controls1 = Main::instance->controls1;
 	controls2 = Main::instance->controls2;
 
@@ -40,7 +42,9 @@ void CharacterSelect::run() {
 	else
 		select2 = Battle::CHARACTER_COUNT;
 
-	while (Main::running && (!ready1 || !ready2)) {
+	frame = 0;
+
+	while (Main::running && !ready) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
 			if(event.type == SDL_KEYDOWN) {
@@ -59,6 +63,12 @@ void CharacterSelect::run() {
 						(controls1.kb_up != controls1.kb_jump &&
 						event.key.keysym.sym == controls1.kb_jump)) {
 							ready1 = !ready1;
+							if(ready1) {
+								flicker1 = true;
+								flicker1_start = frame;
+								flicker1_frame = 0;
+							}
+							Main::audio->play(SND_SELECT_CHARACTER);
 					}
 				}
 				// Keyboard 2
@@ -76,6 +86,12 @@ void CharacterSelect::run() {
 						(controls2.kb_up != controls2.kb_jump &&
 						event.key.keysym.sym == controls2.kb_jump)) {
 							ready2 = !ready2;
+							if(ready2) {
+								flicker2 = true;
+								flicker2_start = frame;
+								flicker2_frame = 0;
+							}
+							Main::audio->play(SND_SELECT_CHARACTER);
 					}
 				}
 			}
@@ -90,6 +106,12 @@ void CharacterSelect::run() {
 						event.jbutton.button == controls1.js_run ||
 						event.jbutton.button == controls1.js_shoot) {
 							ready1 = !ready1;
+							if(ready1) {
+								flicker1 = true;
+								flicker1_start = frame;
+								flicker1_frame = 0;
+							}
+							Main::audio->play(SND_SELECT_CHARACTER);
 					}
 				}
 				// Joystick 2 Buttons
@@ -102,6 +124,12 @@ void CharacterSelect::run() {
 						event.jbutton.button == controls2.js_run ||
 						event.jbutton.button == controls2.js_shoot) {
 							ready2 = !ready2;
+							if(ready2) {
+								flicker2 = true;
+								flicker2_start = frame;
+								flicker2_frame = 0;
+							}
+							Main::audio->play(SND_SELECT_CHARACTER);
 					}
 				}
 			}
@@ -137,6 +165,9 @@ void CharacterSelect::run() {
 			}
 		}
 
+		if(ready1 && ready2 && !flicker1 && !flicker2)
+			ready = true;
+
 		name1 = Battle::characters[select1].name;
 		name2 = Battle::characters[select2].name;
 
@@ -145,6 +176,7 @@ void CharacterSelect::run() {
 
 		draw();
 
+		frame++;
 		Main::instance->flip();
 	}
 
@@ -194,6 +226,8 @@ void CharacterSelect::draw() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
 	SDL_Rect rect, rect_b;
+	SDL_Rect * clip;
+	Uint32 color;
 
 	screen = Main::instance->screen;
 
@@ -213,17 +247,35 @@ void CharacterSelect::draw() {
 		rect.x = rect_b.x + CHARACTER_SPACING;
 		rect.y = rect_b.y + CHARACTER_SPACING;
 
+		clip = clip_avatar;
+
+		color = 0;
+
 		if(select1 == idx) {
-			SDL_FillRect(screen, &rect_b, 0xff0000);
+			color = 0xff0000;
+			if(ready1 && flicker1) {
+				if(flicker1_frame > 0x20)
+					flicker1 = false;
+				if(flicker1_frame & 0x4)
+					color = 0xffffff;
+				flicker1_frame++;
+			}
+			if(ready1) clip = clip_avatar_selected;
 		}
 		if(select2 == idx) {
-			SDL_FillRect(screen, &rect_b, 0x0000ff);
+			color = 0x0000ff;
+			if(ready2 && flicker2) {
+				if(flicker2_frame > 0x20)
+					flicker2 = false;
+				if(flicker2_frame & 0x4)
+					color = 0xffffff;
+				flicker2_frame++;
+			}
+			if(ready2) clip = clip_avatar_selected;
 		}
-		if(select1 == idx && select2 == idx) {
-			SDL_FillRect(screen, &rect_b, 0xff00ff);
-		}
+		SDL_FillRect(screen, &rect_b, color);
 
-		SDL_BlitSurface(character_sprites->at(idx), clip_avatar, screen, &rect);
+		SDL_BlitSurface(character_sprites->at(idx), clip, screen, &rect);
 
 		rect_b.x += clip_avatar->w + (CHARACTER_SPACING * 2);
 	}
@@ -302,6 +354,12 @@ void CharacterSelect::load_sprites() {
 	clip_avatar->y = 0;
 	clip_avatar->w = 44;
 	clip_avatar->h = 44;
+
+	clip_avatar_selected = new SDL_Rect();
+	clip_avatar_selected->x = 220;
+	clip_avatar_selected->y = 44;
+	clip_avatar_selected->w = 44;
+	clip_avatar_selected->h = 44;
 	
 	clip_left = new SDL_Rect();
 	clip_left->x = 0;
@@ -322,4 +380,9 @@ void CharacterSelect::free_sprites() {
 		character_sprites->erase(character_sprites->begin() + idx);
 	}
 	delete character_sprites;
+
+	delete clip_avatar;
+	delete clip_avatar_selected;
+	delete clip_left;
+	delete clip_right;
 }
