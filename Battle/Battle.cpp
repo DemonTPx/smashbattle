@@ -203,11 +203,6 @@ void Battle::run() {
 			process_shoot(player1);
 			process_shoot(player2);
 
-			check_player_collision(player1, player2);
-
-			check_player_projectile_collision(player1);
-			check_player_projectile_collision(player2);
-
 			for(unsigned int idx = 0; idx < projectiles->size(); idx++) {
 				Projectile * p = projectiles->at(idx);
 				move_projectile(p);
@@ -216,6 +211,11 @@ void Battle::run() {
 					delete p;
 				}
 			}
+
+			check_player_collision(player1, player2);
+
+			check_player_projectile_collision(player1);
+			check_player_projectile_collision(player2);
 
 			generate_powerup(false);
 
