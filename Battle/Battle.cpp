@@ -141,8 +141,7 @@ void Battle::run() {
 					if(event.jbutton.which == pause_player->controls.joystick_idx &&
 						(event.jbutton.button == pause_player->controls.js_run ||
 						event.jbutton.button == pause_player->controls.js_jump ||
-						event.jbutton.button == pause_player->controls.js_shoot ||
-						event.jbutton.button == pause_player->controls.js_start)) {
+						event.jbutton.button == pause_player->controls.js_shoot)) {
 							if(pause_quit) {
 								game_running = false;
 							} else {
