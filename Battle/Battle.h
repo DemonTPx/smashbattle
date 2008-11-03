@@ -11,17 +11,27 @@ struct Character {
 	char * filename;
 };
 
+struct Stage {
+	char * name;
+	char * author;
+	char * filename;
+};
+
 class Battle {
 public:
 	Battle();
 	~Battle();
 	void run();
-	static const int level[];
 
 	static const int CHARACTER_COUNT;
 	static const Character characters[];
+	static const int STAGE_COUNT;
+	static const Stage stages[];
+	static SDL_Surface * create_level_thumbnail(const char * filename);
 private:
 	bool game_running;
+
+	void load_level(const char * filename);
 
 	void reset_game();
 	
@@ -50,6 +60,8 @@ private:
 	void load_images();
 	void free_images();
 	void set_clips();
+	
+	int level[300];
 
 	Player * player1;
 	Player * player2;

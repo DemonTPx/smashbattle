@@ -310,6 +310,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\four.stg"
+				>
+			</File>
+			<File
 				RelativePath=".\sfx\go.wav"
 				>
 			</File>
@@ -331,6 +335,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\okke.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\one.stg"
 				>
 			</File>
 			<File
@@ -374,6 +382,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\three.stg"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\tiles.bmp"
 				>
 			</File>
@@ -383,6 +395,10 @@
 			</File>
 			<File
 				RelativePath=".\music\title.ogg"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\two.stg"
 				>
 			</File>
 			<File

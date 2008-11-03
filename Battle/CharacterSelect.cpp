@@ -8,14 +8,20 @@
 
 #include "CharacterSelect.h"
 
-#define CHARACTERS_PER_LINE 5
-#define CHARACTER_WIDTH 44
-#define CHARACTER_SPACING 4
+#define CHARACTERS_PER_LINE	5
+#define CHARACTER_WIDTH		44
+#define CHARACTER_SPACING	4
 
-#define DIRECTION_LEFT 0
-#define DIRECTION_RIGHT 1
-#define DIRECTION_UP 2
-#define DIRECTION_DOWN 3
+#define STAGES_PER_LINE	4
+#define STAGE_WIDTH		44
+#define STAGE_HEIGHT	34
+#define STAGE_SPACING	4
+
+#define DIRECTION_NONE	0
+#define DIRECTION_LEFT	1
+#define DIRECTION_RIGHT	2
+#define DIRECTION_UP	3
+#define DIRECTION_DOWN	4
 
 CharacterSelect::CharacterSelect() {
 
@@ -41,6 +47,9 @@ void CharacterSelect::run() {
 		select2 = CHARACTERS_PER_LINE - 1;
 	else
 		select2 = Battle::CHARACTER_COUNT;
+	
+	stage = 0;
+	select_stage(DIRECTION_NONE);
 
 	frame = 0;
 
@@ -50,46 +59,78 @@ void CharacterSelect::run() {
 			if(event.type == SDL_KEYDOWN) {
 				// Keyboard 1
 				if(controls1.use_keyboard) {
-					if(event.key.keysym.sym == controls1.kb_left && !ready1)
-						select(&select1, DIRECTION_LEFT);
-					else if(event.key.keysym.sym == controls1.kb_right && !ready1)
-						select(&select1, DIRECTION_RIGHT);
-					if(event.key.keysym.sym == controls1.kb_up && !ready1)
-						select(&select1, DIRECTION_UP);
-					else if(event.key.keysym.sym == controls1.kb_down && !ready1)
-						select(&select1, DIRECTION_DOWN);
+					if(event.key.keysym.sym == controls1.kb_left)
+						if(!ready1)
+							select(&select1, DIRECTION_LEFT);
+						else
+							select_stage(DIRECTION_LEFT);
+					else if(event.key.keysym.sym == controls1.kb_right)
+						if(!ready1)
+							select(&select1, DIRECTION_RIGHT);
+						else
+							select_stage(DIRECTION_RIGHT);
+					if(event.key.keysym.sym == controls1.kb_up)
+						if(!ready1)
+							select(&select1, DIRECTION_UP);
+						else
+							select_stage(DIRECTION_UP);
+					else if(event.key.keysym.sym == controls1.kb_down)
+						if(!ready1)
+							select(&select1, DIRECTION_DOWN);
+						else
+							select_stage(DIRECTION_DOWN);
 					else if(event.key.keysym.sym == controls1.kb_shoot || 
 						event.key.keysym.sym == controls1.kb_run ||
 						(controls1.kb_up != controls1.kb_jump &&
 						event.key.keysym.sym == controls1.kb_jump)) {
-							ready1 = !ready1;
-							if(ready1) {
+							if(!ready1) {
+								ready1 = true;
 								flicker1 = true;
 								flicker1_start = frame;
 								flicker1_frame = 0;
+							} else {
+								if(ready1 && ready2) {
+									ready = true;
+								}
 							}
 							Main::audio->play(SND_SELECT_CHARACTER);
 					}
 				}
 				// Keyboard 2
 				if(controls2.use_keyboard) {
-					if(event.key.keysym.sym == controls2.kb_left && !ready2)
-						select(&select2, DIRECTION_LEFT);
-					else if(event.key.keysym.sym == controls2.kb_right && !ready2)
-						select(&select2, DIRECTION_RIGHT);
-					if(event.key.keysym.sym == controls2.kb_up && !ready1) 
-						select(&select2, DIRECTION_UP);
-					else if(event.key.keysym.sym == controls2.kb_down && !ready1)
-						select(&select2, DIRECTION_DOWN);
+					if(event.key.keysym.sym == controls2.kb_left)
+						if(!ready2)
+							select(&select2, DIRECTION_LEFT);
+						else
+							select_stage(DIRECTION_LEFT);
+					else if(event.key.keysym.sym == controls2.kb_right)
+						if(!ready2)
+							select(&select2, DIRECTION_RIGHT);
+						else
+							select_stage(DIRECTION_RIGHT);
+					if(event.key.keysym.sym == controls2.kb_up)
+						if(!ready2)
+							select(&select2, DIRECTION_UP);
+						else
+							select_stage(DIRECTION_UP);
+					else if(event.key.keysym.sym == controls2.kb_down)
+						if(!ready2)
+							select(&select2, DIRECTION_DOWN);
+						else
+							select_stage(DIRECTION_DOWN);
 					else if(event.key.keysym.sym == controls2.kb_shoot || 
 						event.key.keysym.sym == controls2.kb_run ||
 						(controls2.kb_up != controls2.kb_jump &&
 						event.key.keysym.sym == controls2.kb_jump)) {
-							ready2 = !ready2;
-							if(ready2) {
+							if(!ready2) {
+								ready2 = true;
 								flicker2 = true;
 								flicker2_start = frame;
 								flicker2_frame = 0;
+							} else {
+								if(ready1 && ready2) {
+									ready = true;
+								}
 							}
 							Main::audio->play(SND_SELECT_CHARACTER);
 					}
@@ -98,36 +139,56 @@ void CharacterSelect::run() {
 			if(event.type == SDL_JOYBUTTONDOWN) {
 				// Joystick 1 Buttons
 				if(controls1.use_joystick && event.jbutton.which == controls1.joystick_idx) {
-					if(event.jbutton.button == controls1.js_left && !ready1)
-						select(&select1, DIRECTION_LEFT);
-					if(event.jbutton.button == controls1.js_right && !ready1)
-						select(&select1, DIRECTION_RIGHT);
+					if(event.jbutton.button == controls1.js_left)
+						if(!ready1)
+							select(&select1, DIRECTION_LEFT);
+						else
+							select_stage(DIRECTION_LEFT);
+					if(event.jbutton.button == controls1.js_right)
+						if(!ready1)
+							select(&select1, DIRECTION_RIGHT);
+						else
+							select_stage(DIRECTION_RIGHT);
 					if(event.jbutton.button == controls1.js_jump ||
 						event.jbutton.button == controls1.js_run ||
 						event.jbutton.button == controls1.js_shoot) {
-							ready1 = !ready1;
-							if(ready1) {
+							if(!ready1) {
+								ready1 = true;
 								flicker1 = true;
 								flicker1_start = frame;
 								flicker1_frame = 0;
+							} else {
+								if(ready1 && ready2) {
+									ready = true;
+								}
 							}
 							Main::audio->play(SND_SELECT_CHARACTER);
 					}
 				}
 				// Joystick 2 Buttons
 				if(controls2.use_joystick && event.jbutton.which == controls2.joystick_idx) {
-					if(event.jbutton.button == controls2.js_left && !ready2)
-						select(&select2, DIRECTION_LEFT);
-					if(event.jbutton.button == controls2.js_right && !ready2)
-						select(&select2, DIRECTION_RIGHT);
+					if(event.jbutton.button == controls2.js_left)
+						if(!ready2)
+							select(&select2, DIRECTION_LEFT);
+						else
+							select_stage(DIRECTION_LEFT);
+					if(event.jbutton.button == controls2.js_right)
+						if(!ready2)
+							select(&select2, DIRECTION_LEFT);
+						else
+							select_stage(DIRECTION_LEFT);
 					if(event.jbutton.button == controls2.js_jump ||
 						event.jbutton.button == controls2.js_run ||
 						event.jbutton.button == controls2.js_shoot) {
-							ready2 = !ready2;
-							if(ready2) {
+							if(!ready2) {
+								ready2 = true;
 								flicker2 = true;
 								flicker2_start = frame;
 								flicker2_frame = 0;
+							} else {
+								if(ready1 && ready2) {
+									ready = true;
+								}
 							}
 							Main::audio->play(SND_SELECT_CHARACTER);
 					}
@@ -137,36 +198,57 @@ void CharacterSelect::run() {
 				// Joystick 1 Axis
 				if(controls1.use_joystick && event.jbutton.which == controls1.joystick_idx) {
 					if(event.jaxis.axis == 0) {
-						if(event.jaxis.value < -6400 && !ready1)
-							select(&select1, DIRECTION_LEFT);
-						else if(event.jaxis.value > 6400 && !ready1)
-							select(&select1, DIRECTION_RIGHT);
+						if(event.jaxis.value < -6400)
+							if(!ready1)
+								select(&select1, DIRECTION_LEFT);
+							else
+								select_stage(DIRECTION_LEFT);
+						else if(event.jaxis.value > 6400)
+							if(!ready1)
+								select(&select1, DIRECTION_RIGHT);
+							else
+								select_stage(DIRECTION_RIGHT);
 					} else {
-						if(event.jaxis.value < -6400 && !ready1)
-							select(&select1, DIRECTION_UP);
-						else if(event.jaxis.value > 6400 && !ready1)
-							select(&select1, DIRECTION_DOWN);
+						if(event.jaxis.value < -6400)
+							if(!ready1)
+								select(&select1, DIRECTION_UP);
+							else
+								select_stage(DIRECTION_UP);
+						else if(event.jaxis.value > 6400)
+							if(!ready1)
+								select(&select1, DIRECTION_DOWN);
+							else
+								select_stage(DIRECTION_DOWN);
 					}
 				}
 				// Joystick 2 Axis
 				if(controls2.use_joystick && event.jbutton.which == controls2.joystick_idx) {
 					if(event.jaxis.axis == 0) {
-						if(event.jaxis.value < -6400 && !ready2)
-							select(&select2, DIRECTION_LEFT);
-						else if(event.jaxis.value > 6400 && !ready2)
-							select(&select2, DIRECTION_RIGHT);
+						if(event.jaxis.value < -6400)
+							if(!ready2)
+								select(&select2, DIRECTION_LEFT);
+							else
+								select_stage(DIRECTION_LEFT);
+						else if(event.jaxis.value > 6400)
+							if(!ready2)
+								select(&select2, DIRECTION_RIGHT);
+							else
+								select_stage(DIRECTION_RIGHT);
 					} else {
-						if(event.jaxis.value < -6400 && !ready1)
-							select(&select2, DIRECTION_UP);
-						else if(event.jaxis.value > 6400 && !ready1)
-							select(&select2, DIRECTION_DOWN);
+						if(event.jaxis.value < -6400)
+							if(!ready2)
+								select(&select2, DIRECTION_UP);
+							else
+								select_stage(DIRECTION_UP);
+						else if(event.jaxis.value > 6400)
+							if(!ready2)
+								select(&select2, DIRECTION_DOWN);
+							else
+								select_stage(DIRECTION_DOWN);
 					}
 				}
 			}
 		}
-
-		if(ready1 && ready2 && !flicker1 && !flicker2)
-			ready = true;
 
 		name1 = Battle::characters[select1].name;
 		name2 = Battle::characters[select2].name;
@@ -222,6 +304,33 @@ void CharacterSelect::select(int * select, int direction) {
 	}
 }
 
+void CharacterSelect::select_stage(int direction) {
+	switch(direction) {
+		case DIRECTION_LEFT:
+			if(stage % STAGES_PER_LINE == 0)
+				stage += STAGES_PER_LINE;
+			stage--;
+			break;
+		case DIRECTION_RIGHT:
+			if(stage % STAGES_PER_LINE == STAGES_PER_LINE - 1)
+				stage -= STAGES_PER_LINE;
+			stage++;
+			break;
+		case DIRECTION_UP:
+			stage -= STAGES_PER_LINE;
+			break;
+		case DIRECTION_DOWN:
+			stage += STAGES_PER_LINE;
+			break;
+	}
+
+	if(stage < 0) stage += Battle::STAGE_COUNT;
+	if(stage >= Battle::STAGE_COUNT) stage -= Battle::STAGE_COUNT;
+
+	stage_name = Battle::stages[stage].name;
+	stage_author = Battle::stages[stage].author;
+}
+
 void CharacterSelect::draw() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
@@ -232,6 +341,8 @@ void CharacterSelect::draw() {
 	screen = Main::instance->screen;
 
 	SDL_FillRect(screen, NULL, 0);
+
+	// PLAYERS
 
 	rect_b.x = (screen->clip_rect.w - ((clip_avatar->w + (CHARACTER_SPACING * 2)) * CHARACTERS_PER_LINE)) / 2;
 	rect_b.y = 20;
@@ -317,6 +428,48 @@ void CharacterSelect::draw() {
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 	}
+	
+	// STAGES
+
+	surface = TTF_RenderText_Solid(font26, stage_name, fontColor);
+	rect.x = (screen->w - surface->w) / 2;
+	rect.y = 160;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	rect_b.x = (screen->w - ((STAGE_WIDTH + (STAGE_SPACING * 2)) * STAGES_PER_LINE)) / 2;
+	rect_b.y = 180;
+	rect_b.w = STAGE_WIDTH + (STAGE_SPACING * 2);
+	rect_b.h = STAGE_HEIGHT + (STAGE_SPACING * 2);
+
+	for(int idx = 0; idx < Battle::STAGE_COUNT; idx++) {
+		if(idx > 0 && idx % STAGES_PER_LINE == 0) {
+			rect_b.x = (screen->w - ((STAGE_WIDTH + (STAGE_SPACING * 2)) * STAGES_PER_LINE)) / 2;
+			rect_b.y += rect_b.h;
+		}
+
+		rect.x = rect_b.x + STAGE_SPACING;
+		rect.y = rect_b.y + STAGE_SPACING;
+
+		color = 0;
+
+		if(stage == idx) {
+			color = 0xff0000;
+			/*
+			if(flicker_stage) {
+				if(flicker_stage_frame > 0x20)
+					flicker_stage = false;
+				if(flicker_stage_frame & 0x4)
+					color = 0xffffff;
+				flicker_stage_frame++;
+			}*/
+		}
+		SDL_FillRect(screen, &rect_b, color);
+
+		SDL_BlitSurface(stage_thumbs->at(idx), NULL, screen, &rect);
+
+		rect_b.x += STAGE_WIDTH + (STAGE_SPACING * 2);
+	}
 }
 
 void CharacterSelect::load_fonts() {
@@ -372,6 +525,14 @@ void CharacterSelect::load_sprites() {
 	clip_right->y = PLAYER_H;
 	clip_right->w = PLAYER_W;
 	clip_right->h = PLAYER_H;
+	
+
+	stage_thumbs = new std::vector<SDL_Surface*>(0);
+
+	for(int idx = 0; idx < Battle::STAGE_COUNT; idx++) {
+		sprites = Battle::create_level_thumbnail(Battle::stages[idx].filename);
+		stage_thumbs->push_back(sprites);
+	}
 }
 
 void CharacterSelect::free_sprites() {
@@ -380,6 +541,12 @@ void CharacterSelect::free_sprites() {
 		character_sprites->erase(character_sprites->begin() + idx);
 	}
 	delete character_sprites;
+
+	for(unsigned int idx = 0; idx < stage_thumbs->size(); idx++) {
+		SDL_FreeSurface(stage_thumbs->at(idx));
+		stage_thumbs->erase(stage_thumbs->begin() + idx);
+	}
+	delete stage_thumbs;
 
 	delete clip_avatar;
 	delete clip_avatar_selected;

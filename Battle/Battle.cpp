@@ -3,6 +3,8 @@
 #include "SDL/SDL_mixer.h"
 
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 #include "Timer.h"
 #include "AudioController.h"
@@ -42,25 +44,6 @@
 #define SPEED_HORIZ 2
 #define SPEED_VERT 2
 
-const int Battle::level[SPR_COUNT] = 
-{ -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-   0, 0, 0, 0, 0,  0, 0,-1,-1,-1, -1,-1,-1, 0, 0,  0, 0, 0, 0, 0,
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1, -1, 0, 0, 0, 0,  0, 0, 0, 0,-1, -1,-1,-1,-1,-1,
-   0, 0, 0,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1, 0, 0, 0,
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-  
-   0, 0, 0, 0, 0,  0, 0,-1,-1,-1, -1,-1,-1, 0, 0,  0, 0, 0, 0, 0,
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
-   1, 1, 1, 1, 1,  1, 1, 1, 1, 1,  1, 1, 1, 1, 1,  1, 1, 1, 1, 1,
-  -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1 };
-
 const int Battle::CHARACTER_COUNT = 5;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{"Bert", "gfx/bert.bmp"},
@@ -68,6 +51,13 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{"Steven", "gfx/steven.bmp"},
 	{"Tedje", "gfx/tedje.bmp"},
 	{"Okke", "gfx/okke.bmp"},
+};
+const int Battle::STAGE_COUNT = 4;
+const Stage Battle::stages[Battle::STAGE_COUNT] = {
+	{"Battle Arena one", "Bert Hekman", "stage/one.stg"},
+	{"Battle Arena two", "Bert Hekman", "stage/two.stg"},
+	{"Battle Arena three", "Bert Hekman", "stage/three.stg"},
+	{"Battle Arena four", "Bert Hekman", "stage/four.stg"},
 };
 
 Battle::Battle() {
@@ -97,6 +87,8 @@ void Battle::run() {
 
 	player2 = new Player(character_select->name2, character_select->file2);
 	player2->controls = Main::instance->controls2;
+
+	load_level(stages[character_select->stage].filename);
 
 	delete character_select;
 
@@ -1129,8 +1121,10 @@ void Battle::draw_level(SDL_Surface * screen) {
 	rect.w = SPR_W;
 	rect.h = SPR_H;
 
-	SDL_FillRect(screen, &screen->clip_rect, 0);
-	//SDL_BlitSurface(background, NULL, screen, NULL);
+	if(background == NULL)
+		SDL_FillRect(screen, &screen->clip_rect, 0);
+	else
+		SDL_BlitSurface(background, NULL, screen, NULL);
 
 	// Draw each sprite, one by one
 	for(int i = 0; i < SPR_COUNT; i++) {
@@ -1325,17 +1319,106 @@ void Battle::handle_draw_countdown(SDL_Surface * screen) {
 	SDL_FreeSurface(surf);
 }
 
+void Battle::load_level(const char * filename) {
+	std::ifstream ifs;
+	char name[20], author[20], tiles_file[30], bg_file[30];
+	char tiles_file_full[35], bg_file_full[35];
+	char l[1];
+	SDL_Surface * surface;
+
+	ifs.open(filename);
+	ifs.setf(std::ios_base::binary);
+	
+	ifs.read(name, 20);
+	ifs.read(author, 20);
+	ifs.read(tiles_file, 30);
+	ifs.read(bg_file, 30);
+
+	for(int i = 0; i < SPR_COUNT; i++) {
+		ifs.read(l, 1);
+		level[i] = (int)l[0];
+	}
+
+	ifs.close();
+
+	strcpy_s(tiles_file_full, 5, "gfx/\0");
+	strcat_s(tiles_file_full, 30, tiles_file);
+
+	surface = SDL_LoadBMP(tiles_file_full);
+	tiles = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+
+	if(bg_file[0] != 0) {
+		strcpy_s(bg_file_full, 5, "gfx/\0");
+		strcat_s(bg_file_full, 30, bg_file);
+
+		surface = SDL_LoadBMP(bg_file_full);
+		background = SDL_DisplayFormat(surface);
+		SDL_FreeSurface(surface);
+	} else {
+		background = NULL;
+	}
+}
+
+SDL_Surface * Battle::create_level_thumbnail(const char * filename) {
+	std::ifstream ifs;
+	char name[20], author[20], tiles_file[30], bg_file[30];
+	char l[1];
+	SDL_Surface * surface;
+	SDL_Rect rect;
+	Uint32 fillColor;
+	int maxx;
+
+	ifs.open(filename);
+	ifs.setf(std::ios_base::binary);
+	
+	ifs.read(name, 20);
+	ifs.read(author, 20);
+	ifs.read(tiles_file, 30);
+	ifs.read(bg_file, 30);
+
+	surface = SDL_CreateRGBSurface(NULL, SPR_COLS * 2 + 4, SPR_ROWS * 2 + 4, 32, 0, 0, 0, 0);
+	SDL_FillRect(surface, NULL, 0x888888);
+	rect.x = 2;
+	rect.y = 2;
+	rect.w = SPR_COLS * 2;
+	rect.h = SPR_ROWS * 2;
+	SDL_FillRect(surface, &rect, 0);
+	rect.x = 2;
+	rect.y = 2;
+	rect.w = 2;
+	rect.h = 2;
+	fillColor = 0xff0000;
+	maxx = SPR_COLS * 2 + 2;
+
+	for(int i = 0; i < SPR_COUNT; i++) {
+		ifs.read(l, 1);
+		if(l[0] != -1) {
+			SDL_FillRect(surface, &rect, fillColor);
+		}
+		rect.x += 2;
+		if(rect.x >= maxx) {
+			rect.x = 2;
+			rect.y += 2;
+		}
+	}
+
+	ifs.close();
+
+	return surface;
+}
+
 void Battle::load_images() {
 	SDL_Surface * surface;
 	Uint32 colorkey;
 	
-	surface = SDL_LoadBMP("gfx/bg.bmp");
-	background = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
+	//surface = SDL_LoadBMP("gfx/bg.bmp");
+	//background = SDL_DisplayFormat(surface);
+	//SDL_FreeSurface(surface);
 
-	surface = SDL_LoadBMP("gfx/tiles.bmp");
-	tiles = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
+	//surface = SDL_LoadBMP("gfx/tiles.bmp");
+	//tiles = SDL_DisplayFormat(surface);
+	//SDL_FreeSurface(surface);
 
 	surface = SDL_LoadBMP("gfx/weapons.bmp");
 	weapons = SDL_DisplayFormat(surface);
@@ -1367,7 +1450,8 @@ void Battle::load_images() {
 }
 
 void Battle::free_images() {
-	SDL_FreeSurface(background);
+	if(background != NULL)
+		SDL_FreeSurface(background);
 	SDL_FreeSurface(tiles);
 
 	SDL_FreeSurface(weapons);
