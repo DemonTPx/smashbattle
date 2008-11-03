@@ -4,6 +4,39 @@
 #include "Main.h"
 #include "AudioController.h"
 
+const char * AudioController::music_files[MUSICFILES] = {
+	"music/title.ogg",
+	"music/battle.ogg"
+};
+
+const char * AudioController::sound_files[SOUNDFILES] = {
+	"sfx/select.wav",
+	"sfx/pause.wav",
+	"sfx/select_character.wav",
+	"sfx/jump.wav",
+	"sfx/shoot.wav",
+	"sfx/hit.wav",
+	"sfx/bounce.wav",
+	"sfx/item.wav",
+	"sfx/youlose.wav",
+	"sfx/countdown.wav",
+	"sfx/go.wav"
+};
+
+const int AudioController::soundvolume[SOUNDFILES] = {
+	50, //select
+	50, //pause
+	50, //select_character
+	100, //jump
+	100, //shoot
+	100, //hit
+	100, //bounce
+	75, //item
+	100, //youlose
+	100, //countdown
+	100 //go
+};
+
 AudioController::AudioController() {
 }
 
@@ -29,60 +62,37 @@ void AudioController::close_audio() {
 }
 
 void AudioController::load_files() {
-	mus_title = Mix_LoadMUS("music/title.ogg");
-	mus_battle = Mix_LoadMUS("music/battle.ogg");
+	for(int i = 0; i < MUSICFILES; i++) {
+		music[i] = Mix_LoadMUS(music_files[i]);
+	}
 
-	select = Mix_LoadWAV("sfx/select.wav");
-	pause = Mix_LoadWAV("sfx/pause.wav");
-	
-	select_character = Mix_LoadWAV("sfx/select_character.wav");
-
-	shoot = Mix_LoadWAV("sfx/shoot.wav");
-	jump = Mix_LoadWAV("sfx/jump.wav");
-	hit = Mix_LoadWAV("sfx/hit.wav");
-	bounce = Mix_LoadWAV("sfx/bounce.wav");
-
-	item = Mix_LoadWAV("sfx/item.wav");
-
-	youlose = Mix_LoadWAV("sfx/youlose.wav");
-
-	countdown = Mix_LoadWAV("sfx/countdown.wav");
-	go = Mix_LoadWAV("sfx/go.wav");
+	for(int i = 0; i < SOUNDFILES; i++) {
+		sound[i] = Mix_LoadWAV(sound_files[i]);
+	}
 }
 
 void AudioController::close_files() {
-	Mix_FreeMusic(mus_title);
-	Mix_FreeMusic(mus_battle);
+	for(int i = 0; i < MUSICFILES; i++) {
+		Mix_FreeMusic(music[i]);
+	}
 
-	Mix_FreeChunk(select);
-	Mix_FreeChunk(pause);
-
-	Mix_FreeChunk(select_character);
-
-	Mix_FreeChunk(shoot);
-	Mix_FreeChunk(jump);
-	Mix_FreeChunk(hit);
-	Mix_FreeChunk(bounce);
-
-	Mix_FreeChunk(item);
-
-	Mix_FreeChunk(youlose);
-
-	Mix_FreeChunk(countdown);
-	Mix_FreeChunk(go);
+	for(int i = 0; i < SOUNDFILES; i++) {
+		Mix_FreeChunk(sound[i]);
+	}
 }
 
 void AudioController::play_music(int music) {
 	if(!Main::music_on)
 		return;
 
+	if(music < 0 || music >= MUSICFILES)
+		return;
+
+	if(this->music[music] == NULL)
+		return;
+
 	Mix_HaltMusic();
-	if(music == MUSIC_TITLE) {
-		Mix_PlayMusic(mus_title, -1);
-	}
-	if(music == MUSIC_BATTLE) {
-		Mix_PlayMusic(mus_battle, -1);
-	}
+	Mix_PlayMusic(this->music[music], -1);
 }
 
 void AudioController::stop_music() {
@@ -97,60 +107,24 @@ void AudioController::unpause_music() {
 	Mix_ResumeMusic();
 }
 
-void AudioController::play_sound(Mix_Chunk * sound, int volume) {
-	if(!Main::sound_on)
-		return;
-
-	int chan;
-	chan = 0;
-	while(Mix_Playing(chan))
-		chan++;
-	Mix_PlayChannel(chan, sound, 0);
-	Mix_Volume(chan, volume);
-}
-
-void AudioController::play_sound(Mix_Chunk * sound) {
-	play_sound(sound, 100);
-}
-
 // TODO: change these functions into something with constantes like:
 // play_sound(SND_JUMP);
 
 void AudioController::play(int sound) {
-	switch(sound) {
-		case SND_SELECT:
-			play_sound(select, 50);
-			break;
-		case SND_PAUSE:
-			play_sound(pause, 50);
-			break;
-		case SND_SELECT_CHARACTER:
-			play_sound(select_character, 50);
-			break;
-		case SND_JUMP:
-			play_sound(jump);
-			break;
-		case SND_SHOOT:
-			play_sound(shoot);
-			break;
-		case SND_HIT:
-			play_sound(hit);
-			break;
-		case SND_BOUNCE:
-			play_sound(bounce);
-			break;
-		case SND_ITEM:
-			play_sound(item, 75);
-			break;
-		case SND_YOULOSE:
-			play_sound(youlose);
-			break;
-		case SND_COUNTDOWN:
-			play_sound(countdown);
-			break;
-		case SND_GO:
-			play_sound(go);
-			break;
-	}
-}
+	if(!Main::sound_on)
+		return;
 
+	if(sound < 0 || sound >= SOUNDFILES)
+		return;
+
+	if(this->sound[sound] == NULL)
+		return;
+	
+	int chan;
+
+	chan = 0;
+	while(Mix_Playing(chan))
+		chan++;
+	Mix_PlayChannel(chan, this->sound[sound], 0);
+	Mix_Volume(chan, soundvolume[sound]);
+}

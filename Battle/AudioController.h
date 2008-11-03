@@ -3,24 +3,28 @@
 
 #include "SDL/SDL_mixer.h"
 
+#define MUSICFILES 2
+
 #define MUSIC_TITLE 0
 #define MUSIC_BATTLE 1
 
+#define SOUNDFILES 11
+
 #define SND_SELECT 0
 #define SND_PAUSE 1
-#define SND_SELECT_CHARACTER 5
+#define SND_SELECT_CHARACTER 2
 
-#define SND_JUMP 10
-#define SND_SHOOT 11
-#define SND_HIT 12
-#define SND_BOUNCE 13
+#define SND_JUMP 3
+#define SND_SHOOT 4
+#define SND_HIT 5
+#define SND_BOUNCE 6
 
-#define SND_ITEM 15
+#define SND_ITEM 7
 
-#define SND_YOULOSE 18
+#define SND_YOULOSE 8
 
-#define SND_COUNTDOWN 20
-#define SND_GO 21
+#define SND_COUNTDOWN 9
+#define SND_GO 10
 
 class AudioController {
 public:
@@ -38,28 +42,13 @@ public:
 
 	void play(int sound);
 private:
-	Mix_Music * mus_title;
-	Mix_Music * mus_battle;
+	Mix_Music * music[MUSICFILES];
+	Mix_Chunk * sound[SOUNDFILES];
 
-	Mix_Chunk * select;
-	Mix_Chunk * pause;
-	
-	Mix_Chunk * select_character;
-	
-	Mix_Chunk * jump;
-	Mix_Chunk * shoot;
-	Mix_Chunk * hit;
-	Mix_Chunk * bounce;
-	
-	Mix_Chunk * item;
 
-	Mix_Chunk * youlose;
-
-	Mix_Chunk * countdown;
-	Mix_Chunk * go;
-
-	void play_sound(Mix_Chunk * sound);
-	void play_sound(Mix_Chunk * sound, int volume);
+	static const char * music_files[];
+	static const char * sound_files[];
+	static const int soundvolume[];
 };
 
 #endif
