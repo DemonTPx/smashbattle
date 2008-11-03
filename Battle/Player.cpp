@@ -34,6 +34,7 @@ Player::Player(const char * name, const char * sprite_file) {
 	keydn_d = false;
 	keydn_run = false;
 	keydn_shoot = false;
+	keydn_bomb = false;
 
 	/*
 	key_r = SDLK_RIGHT;
@@ -56,6 +57,7 @@ Player::Player(const char * name, const char * sprite_file) {
 	controls.kb_down = SDLK_DOWN;
 	controls.kb_run = SDLK_RSHIFT;
 	controls.kb_shoot = SDLK_RCTRL;
+	controls.kb_bomb = SDLK_RALT;
 	controls.kb_start = SDLK_ESCAPE;
 
 	controls.use_joystick = true;
@@ -66,6 +68,7 @@ Player::Player(const char * name, const char * sprite_file) {
 	controls.js_jump = 0;
 	controls.js_run = 0;
 	controls.js_shoot = 1;
+	controls.js_bomb = 3;
 	controls.js_start = 2;
 
 	is_hit = false;
@@ -77,6 +80,7 @@ Player::Player(const char * name, const char * sprite_file) {
 	shoot_delay = 10;
 
 	bullets = 10;
+	bombs = 3;
 
 	hitpoints = 100;
 	score = 0;
@@ -148,6 +152,9 @@ void Player::handle_input(SDL_Event * event) {
 			if(event->key.keysym.sym == controls.kb_shoot) {
 				keydn_shoot = true;
 			}
+			if(event->key.keysym.sym == controls.kb_bomb) {
+				keydn_bomb = true;
+			}
 		}
 		if(event->type == SDL_KEYUP) {
 			if(event->key.keysym.sym == controls.kb_right) {
@@ -167,6 +174,9 @@ void Player::handle_input(SDL_Event * event) {
 			}
 			if(event->key.keysym.sym == controls.kb_shoot) {
 				keydn_shoot = false;
+			}
+			if(event->key.keysym.sym == controls.kb_bomb) {
+				keydn_bomb = false;
 			}
 		}
 	}
@@ -213,6 +223,9 @@ void Player::handle_input(SDL_Event * event) {
 					if(event->jbutton.button == controls.js_shoot) {
 						keydn_shoot = true;
 					}
+					if(event->jbutton.button == controls.js_bomb) {
+						keydn_bomb = true;
+					}
 				}
 			}
 			if(event->type == SDL_JOYBUTTONUP) {
@@ -225,6 +238,9 @@ void Player::handle_input(SDL_Event * event) {
 					}
 					if(event->jbutton.button == controls.js_shoot) {
 						keydn_shoot = false;
+					}
+					if(event->jbutton.button == controls.js_bomb) {
+						keydn_bomb = false;
 					}
 				}
 			}

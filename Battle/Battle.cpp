@@ -17,6 +17,7 @@
 #include "PowerUp.h"
 #include "AmmoPowerUp.h"
 #include "HealthPowerUp.h"
+#include "BombPowerUp.h"
 
 #include "Battle.h"
 
@@ -93,6 +94,7 @@ void Battle::run() {
 	delete character_select;
 
 	projectiles = new std::vector<Projectile*>(0);
+	bombs = new std::vector<Bomb*>(0);
 	powerups = new std::vector<PowerUp*>(0);
 
 	bullets_unlimited = true;
@@ -212,6 +214,11 @@ void Battle::run() {
 				}
 			}
 
+			for(unsigned int idx = 0; idx < bombs->size(); idx++) {
+				Bomb * b = bombs->at(idx);
+				move_bomb(b);
+			}
+
 			check_player_collision(player1, player2);
 
 			check_player_projectile_collision(player1);
@@ -268,6 +275,11 @@ void Battle::run() {
 			p->show(screen);
 		}
 
+		for(unsigned int idx = 0; idx < bombs->size(); idx++) {
+			Bomb * b = bombs->at(idx);
+			b->show(screen);
+		}
+
 		for(unsigned int idx = 0; idx < projectiles->size(); idx++) {
 			Projectile * p = projectiles->at(idx);
 			p->show(screen);
@@ -303,9 +315,31 @@ void Battle::run() {
 		delete end_timer;
 	if(countdown)
 		delete countdown_timer;
-	
+
+	// Clear vectors
+	Projectile * pr;
+	for(unsigned int i = 0; i < projectiles->size(); i++) {
+		pr = projectiles->at(i);
+		delete pr;
+	}
 	projectiles->clear();
 	delete projectiles;
+
+	Bomb * b;
+	for(unsigned int i = 0; i < bombs->size(); i++) {
+		b = bombs->at(i);
+		delete b;
+	}
+	bombs->clear();
+	delete bombs;
+
+	PowerUp * pu;
+	for(unsigned int i = 0; i < powerups->size(); i++) {
+		pu = powerups->at(i);
+		delete pu;
+	}
+	powerups->clear();
+	delete powerups;
 
 	free_images();
 }
@@ -350,6 +384,14 @@ void Battle::reset_game() {
 	}
 
 	projectiles->clear();
+
+	Bomb * b;
+	for(unsigned int i = 0; i < bombs->size(); i++) {
+		b = bombs->at(i);
+		delete b;
+	}
+
+	bombs->clear();
 
 	PowerUp * pu;
 	for(unsigned int i = 0; i < powerups->size(); i++) {
@@ -405,6 +447,23 @@ void Battle::process_shoot(Player * p) {
 			Main::instance->audio->play(SND_SHOOT);
 		}
 	}
+	if(p->keydn_bomb) {
+		if(frame > p->shoot_start + p->shoot_delay && p->bombs > 0) {
+			p->shoot_start = frame;
+			Bomb * b;
+
+			b = new Bomb(surface_bombs);
+			b->damage = 50;
+			b->owner = p;
+			b->position->x = p->position->x + (p->position->w - p->position->w) / 2;
+			b->position->y = p->position->y + (p->position->h - b->position->h);
+			bombs->push_back(b);
+
+			p->bombs -= 1;
+
+			Main::instance->audio->play(SND_SHOOT);
+		}
+	}
 }
 
 void Battle::generate_powerup(bool force) {
@@ -413,6 +472,7 @@ void Battle::generate_powerup(bool force) {
 	if(!force) {
 		r = rand();
 		if(r % 500 != 0) return;
+		if(powerups->size() >= 2) return;
 	}
 	PowerUp * pu;
 	SDL_Rect * rect, * pos;
@@ -441,7 +501,7 @@ void Battle::generate_powerup(bool force) {
 	pos->x = (col * SPR_W) + 8;
 	pos->y = (row * SPR_H) + 16;
 	
-	r = rand() % 3;
+	r = rand() % 4;
 	if(r == 0 && !bullets_unlimited) {
 		rect = new SDL_Rect();
 		rect->x = 16;
@@ -457,6 +517,14 @@ void Battle::generate_powerup(bool force) {
 		rect->w = 16;
 		rect->h = 16;
 		pu = new HealthPowerUp(powerup, rect, pos, 25);
+	}
+	if(r == 3) {
+		rect = new SDL_Rect();
+		rect->x = 16;
+		rect->y = 0;
+		rect->w = 16;
+		rect->h = 16;
+		pu = new BombPowerUp(powerup, rect, pos, 1);
 	}
 
 	powerups->push_back(pu);
@@ -767,6 +835,26 @@ void Battle::move_projectile(Projectile * p) {
 
 	if(p->distance_traveled > p->max_distance || p->distance_traveled < -p->max_distance) {
 		p->hit = true;
+	}
+}
+
+void Battle::move_bomb(Bomb * b) {
+	int speed;
+
+	speed = (int)(b->speedy / 10);
+
+	if(speed != 0) {
+		b->position->y += speed;
+
+		if(check_collision(b->position)) {
+			b->position->y -= speed;
+			b->speedy = 0;
+		}
+	}
+	
+	if(check_bottom(b->position)) {
+		if(b->speedy > -MAX_MOMENTUM_FALL)
+			b->speedy += 2;
 	}
 }
 
@@ -1424,6 +1512,12 @@ void Battle::load_images() {
 	SDL_SetColorKey(weapons, SDL_SRCCOLORKEY, colorkey); 
 	SDL_FreeSurface(surface);
 
+	surface = SDL_LoadBMP("gfx/bomb.bmp");
+	surface_bombs = SDL_DisplayFormat(surface);
+	colorkey = SDL_MapRGB(surface_bombs->format, 0, 255, 255);
+	SDL_SetColorKey(surface_bombs, SDL_SRCCOLORKEY, colorkey); 
+	SDL_FreeSurface(surface);
+
 	surface = SDL_LoadBMP("gfx/powerups.bmp");
 	powerup = SDL_DisplayFormat(surface);
 	colorkey = SDL_MapRGB(powerup->format, 255, 255, 255);
@@ -1453,6 +1547,7 @@ void Battle::free_images() {
 	SDL_FreeSurface(tiles);
 
 	SDL_FreeSurface(weapons);
+	SDL_FreeSurface(surface_bombs);
 	SDL_FreeSurface(powerup);
 
 	SDL_FreeSurface(player1hp);

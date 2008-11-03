@@ -48,6 +48,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4996,4312"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -123,6 +124,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4996,4312"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -194,6 +196,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Bomb.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BombPowerUp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CharacterSelect.cpp"
 				>
 			</File>
@@ -248,6 +258,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Bomb.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BombPowerUp.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CharacterSelect.h"
 				>
 			</File>
@@ -299,6 +317,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\bg.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\bomb.bmp"
 				>
 			</File>
 			<File

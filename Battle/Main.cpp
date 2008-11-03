@@ -165,6 +165,7 @@ void Main::load_controlschemes() {
 	controls1.kb_jump = SDLK_w;
 	controls1.kb_run = SDLK_LSHIFT;
 	controls1.kb_shoot = SDLK_LCTRL;
+	controls1.kb_bomb = SDLK_LALT;
 	controls1.kb_start = SDLK_ESCAPE;
 	controls1.use_joystick = true;
 	controls1.use_axis_x = true;
@@ -174,6 +175,7 @@ void Main::load_controlschemes() {
 	controls1.js_jump = 2;
 	controls1.js_run = 3;
 	controls1.js_shoot = 5;
+	controls1.js_bomb = 7;
 	controls1.js_start = 9;
 
 	controls2.use_keyboard = true;
@@ -184,6 +186,7 @@ void Main::load_controlschemes() {
 	controls2.kb_jump = SDLK_UP;
 	controls2.kb_run = SDLK_RSHIFT;
 	controls2.kb_shoot = SDLK_RCTRL;
+	controls2.kb_bomb = SDLK_RALT;
 	controls2.kb_start = SDLK_RETURN;
 	controls2.use_joystick = true;
 	controls2.use_axis_x = true;
@@ -193,5 +196,6 @@ void Main::load_controlschemes() {
 	controls2.js_jump = 2;
 	controls2.js_run = 3;
 	controls2.js_shoot = 5;
+	controls2.js_bomb = 7;
 	controls2.js_start = 9;
 }

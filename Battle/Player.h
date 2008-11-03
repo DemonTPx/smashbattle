@@ -43,6 +43,7 @@ struct ControlScheme {
 	int kb_jump;
 	int kb_run;
 	int kb_shoot;
+	int kb_bomb;
 	int kb_start;
 
 	bool use_joystick;
@@ -56,6 +57,7 @@ struct ControlScheme {
 	int js_down;
 	int js_run;
 	int js_shoot;
+	int js_bomb;
 	int js_start;
 };
 
@@ -85,10 +87,7 @@ public:
 	int cycle_direction;
 	int distance_walked;
 
-	bool keydn_l, keydn_r, keydn_u, keydn_d, keydn_run, keydn_shoot;
-	//int key_l, key_r, key_u, key_d, key_run, key_shoot;
-	//int joystick_idx;
-	//int js_btn_u, js_btn_run, js_btn_shoot, js_btn_start;
+	bool keydn_l, keydn_r, keydn_u, keydn_d, keydn_run, keydn_shoot, keydn_bomb;
 
 	ControlScheme controls;
 
@@ -101,6 +100,7 @@ public:
 	int shoot_delay;
 
 	int bullets;
+	int bombs;
 
 	int score;
 	int hitpoints;

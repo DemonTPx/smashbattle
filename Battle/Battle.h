@@ -3,6 +3,7 @@
 
 #include "Player.h"
 #include "Projectile.h"
+#include "Bomb.h"
 #include "PowerUp.h"
 #include <vector>
 
@@ -44,6 +45,7 @@ private:
 	
 	void move_player(Player * p);
 	void move_projectile(Projectile * p);
+	void move_bomb(Bomb * b);
 	
 	void process_shoot(Player * p);
 
@@ -80,6 +82,7 @@ private:
 	int frame;
 
 	std::vector<Projectile*> * projectiles;
+	std::vector<Bomb*> * bombs;
 	std::vector<PowerUp*> * powerups;
 
 	bool bullets_unlimited;
@@ -91,6 +94,7 @@ private:
 	SDL_Surface * tiles;
 	SDL_Surface * background;
 	SDL_Surface * weapons;
+	SDL_Surface * surface_bombs;
 	SDL_Surface * powerup;
 	SDL_Surface * player1hp;
 	SDL_Surface * player2hp;
