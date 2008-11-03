@@ -46,18 +46,18 @@
 
 const int Battle::CHARACTER_COUNT = 5;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
-	{"Bert", "gfx/bert.bmp"},
-	{"Jeroen", "gfx/jeroen.bmp"},
-	{"Steven", "gfx/steven.bmp"},
-	{"Tedje", "gfx/tedje.bmp"},
-	{"Okke", "gfx/okke.bmp"},
+	{(char*)"Bert", (char*)"gfx/bert.bmp"},
+	{(char*)"Jeroen", (char*)"gfx/jeroen.bmp"},
+	{(char*)"Steven", (char*)"gfx/steven.bmp"},
+	{(char*)"Tedje", (char*)"gfx/tedje.bmp"},
+	{(char*)"Okke", (char*)"gfx/okke.bmp"},
 };
 const int Battle::STAGE_COUNT = 4;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
-	{"Battle Arena one", "Bert Hekman", "stage/one.stg"},
-	{"Battle Arena two", "Bert Hekman", "stage/two.stg"},
-	{"Battle Arena three", "Bert Hekman", "stage/three.stg"},
-	{"Battle Arena four", "Bert Hekman", "stage/four.stg"},
+	{(char*)"Battle Arena one", (char*)"Bert Hekman", (char*)"stage/one.stg"},
+	{(char*)"Battle Arena two", (char*)"Bert Hekman", (char*)"stage/two.stg"},
+	{(char*)"Battle Arena three", (char*)"Bert Hekman", (char*)"stage/three.stg"},
+	{(char*)"Battle Arena four", (char*)"Bert Hekman", (char*)"stage/four.stg"},
 };
 
 Battle::Battle() {
@@ -1326,8 +1326,7 @@ void Battle::load_level(const char * filename) {
 	char l[1];
 	SDL_Surface * surface;
 
-	ifs.open(filename);
-	ifs.setf(std::ios_base::binary);
+	ifs.open(filename, std::ifstream::binary);
 	
 	ifs.read(name, 20);
 	ifs.read(author, 20);
@@ -1341,16 +1340,16 @@ void Battle::load_level(const char * filename) {
 
 	ifs.close();
 
-	strcpy_s(tiles_file_full, 5, "gfx/\0");
-	strcat_s(tiles_file_full, 30, tiles_file);
+	strncpy(tiles_file_full, "gfx/\0", 5);
+	strncat(tiles_file_full, tiles_file, 30);
 
 	surface = SDL_LoadBMP(tiles_file_full);
 	tiles = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
 
 	if(bg_file[0] != 0) {
-		strcpy_s(bg_file_full, 5, "gfx/\0");
-		strcat_s(bg_file_full, 30, bg_file);
+		strncpy(bg_file_full, "gfx/\0", 5);
+		strncat(bg_file_full, bg_file, 30);
 
 		surface = SDL_LoadBMP(bg_file_full);
 		background = SDL_DisplayFormat(surface);
@@ -1369,8 +1368,7 @@ SDL_Surface * Battle::create_level_thumbnail(const char * filename) {
 	Uint32 fillColor;
 	int maxx;
 
-	ifs.open(filename);
-	ifs.setf(std::ios_base::binary);
+	ifs.open(filename, std::ifstream::binary);
 	
 	ifs.read(name, 20);
 	ifs.read(author, 20);
