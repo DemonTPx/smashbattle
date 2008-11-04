@@ -122,6 +122,12 @@ void Main::handle_event(SDL_Event * event) {
 		if(event->key.keysym.sym == SDLK_F10) {
 			SDL_WM_ToggleFullScreen(screen);
 		}
+		if(event->key.keysym.sym == SDLK_F11) {
+			music_on = !music_on;
+			sound_on = !sound_on;
+			if(!music_on)
+				audio->stop_music();
+		}
 	}
 }
 

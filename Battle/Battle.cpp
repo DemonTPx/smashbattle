@@ -45,13 +45,14 @@
 #define SPEED_HORIZ 2
 #define SPEED_VERT 2
 
-const int Battle::CHARACTER_COUNT = 5;
+const int Battle::CHARACTER_COUNT = 6;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Bert", (char*)"gfx/bert.bmp"},
 	{(char*)"Jeroen", (char*)"gfx/jeroen.bmp"},
 	{(char*)"Steven", (char*)"gfx/steven.bmp"},
 	{(char*)"Tedje", (char*)"gfx/tedje.bmp"},
 	{(char*)"Okke", (char*)"gfx/okke.bmp"},
+	{(char*)"Jeremy", (char*)"gfx/jeremy.bmp"},
 };
 const int Battle::STAGE_COUNT = 5;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
@@ -218,6 +219,10 @@ void Battle::run() {
 			for(unsigned int idx = 0; idx < bombs->size(); idx++) {
 				Bomb * b = bombs->at(idx);
 				move_bomb(b);
+				if(b->done) {
+					bombs->erase(bombs->begin() + idx);
+					delete b;
+				}
 			}
 
 			check_player_collision(player1, player2);
@@ -229,6 +234,14 @@ void Battle::run() {
 
 			check_player_powerup_collision(player1);
 			check_player_powerup_collision(player2);
+
+			// Players die when they fall into the pit :)
+			if(player1->position->y + player1->position->h > 14 * SPR_H) {
+				player1->hitpoints = 0;
+			}
+			if(player2->position->y + player2->position->h > 14 * SPR_H) {
+				player2->hitpoints = 0;
+			}
 			
 			// Check if any player is out of HP
 			if(player1->hitpoints <= 0) {
@@ -346,7 +359,8 @@ void Battle::run() {
 }
 
 void Battle::reset_game() {
-	player1->position->x = 160;
+	// Reset player 1
+	player1->position->x = 160 + ((SPR_W - player1->position->w) / 2);
 	player1->position->y = 320 - player1->position->h;
 	player1->hitpoints = 100;
 	player1->shoot_start = 0;
@@ -355,13 +369,15 @@ void Battle::reset_game() {
 	player1->is_hit = false;
 	player1->hit_start = 0;
 	player1->bullets = 20;
+	player1->bombs = 3;
 	player1->is_falling = false;
 	player1->is_jumping = false;
 	player1->momentumx = 0;
 	player1->momentumy = 0;
 	player1->set_sprite(SPR_R);
 
-	player2->position->x = 448;
+	// Reset player 2
+	player2->position->x = 448 + ((SPR_W - player2->position->w) / 2);
 	player2->position->y = 320 - player2->position->h;
 	player2->hitpoints = 100;
 	player2->shoot_start = 0;
@@ -370,6 +386,7 @@ void Battle::reset_game() {
 	player2->is_hit = false;
 	player2->hit_start = 0;
 	player2->bullets = 20;
+	player2->bombs = 3;
 	player2->is_falling = false;
 	player2->is_jumping = false;
 	player2->momentumx = 0;
@@ -455,6 +472,10 @@ void Battle::process_shoot(Player * p) {
 
 			b = new Bomb(surface_bombs);
 			b->damage = 50;
+			b->time = 120;
+			b->frame_start = frame;
+			b->frame_change_start = frame;
+			b->frame_change_count = 12;
 			b->owner = p;
 			b->position->x = p->position->x + (p->position->w - p->position->w) / 2;
 			b->position->y = p->position->y + (p->position->h - b->position->h);
@@ -842,20 +863,46 @@ void Battle::move_projectile(Projectile * p) {
 void Battle::move_bomb(Bomb * b) {
 	int speed;
 
-	speed = (int)(b->speedy / 10);
+	if(!b->exploded) {
+		// Move the bomb
+		speed = (int)(b->speedy / 10);
 
-	if(speed != 0) {
-		b->position->y += speed;
+		if(speed != 0) {
+			b->position->y += speed;
 
-		if(check_collision(b->position)) {
-			b->position->y -= speed;
-			b->speedy = 0;
+			if(check_collision(b->position)) {
+				b->position->y -= speed;
+				b->speedy = 0;
+			}
 		}
-	}
-	
-	if(check_bottom(b->position)) {
-		if(b->speedy > -MAX_MOMENTUM_FALL)
-			b->speedy += 2;
+		
+		// Check if the bomb is on the floor, fall if not
+		if(check_bottom(b->position)) {
+			if(b->speedy > -MAX_MOMENTUM_FALL)
+				b->speedy += 2;
+		}
+
+		// Animate bomb
+		if(frame - b->frame_change_start >= b->frame_change_count) {
+			b->current_frame = b->current_frame == b->FRAME_NORMAL ? b->FRAME_FLASH : b->FRAME_NORMAL;
+			b->frame_change_start = frame;
+		}
+
+		// Explode
+		if(frame - b->frame_start >= b->time) {
+			b->exploded = true;
+			
+			Player * other;
+			SDL_Rect * rect;
+			other = b->owner == player1 ? player2 : player1;
+			rect = b->get_damage_rect();
+			if(is_intersecting(other->position, rect)) {
+				other->hitpoints -= b->damage;
+				other->is_hit = true;
+				other->hit_start = frame;
+			}
+			delete rect;
+		}
 	}
 }
 
@@ -1119,6 +1166,28 @@ void Battle::check_player_powerup_collision(Player * p) {
 	}
 }
 
+bool Battle::is_intersecting(SDL_Rect * one, SDL_Rect * two) {
+	int l1, r1, t1, b1;
+	int l2, r2, t2, b2;
+
+	l1 = one->x;
+	r1 = one->x + one->w;
+	t1 = one->y;
+	b1 = one->y + one->h;
+
+	l2 = two->x;
+	r2 = two->x + two->w;
+	t2 = two->y;
+	b2 = two->y + two->h;
+
+	if(l1 > r2) return false;
+	if(r1 < l2) return false;
+	if(t1 > b2) return false;
+	if(b1 < t2) return false;
+
+	return true;
+}
+
 bool Battle::check_collision(SDL_Rect * rect) {
 	// Check if the rect is colliding with the level
 	int l, r, t, b;
@@ -1133,6 +1202,8 @@ bool Battle::check_collision(SDL_Rect * rect) {
 	//if(b >= WINDOW_HEIGHT) b = b - WINDOW_HEIGHT;
 
 	if(t < 0) t = 0;
+	if(b < 0) b = 0;
+	if(t >= WINDOW_HEIGHT) t = WINDOW_HEIGHT - 1;
 	if(b >= WINDOW_HEIGHT) b = WINDOW_HEIGHT - 1;
 
 

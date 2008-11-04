@@ -57,6 +57,8 @@ private:
 	bool check_collision(SDL_Rect * rect);
 	bool check_bottom(SDL_Rect * rect);
 
+	bool is_intersecting(SDL_Rect * one, SDL_Rect * two);
+
 	int level_pos(int x, int y);
 	
 	void load_images();

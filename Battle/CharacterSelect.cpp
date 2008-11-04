@@ -8,7 +8,7 @@
 
 #include "CharacterSelect.h"
 
-#define CHARACTERS_PER_LINE	5
+#define CHARACTERS_PER_LINE	3
 #define CHARACTER_WIDTH		44
 #define CHARACTER_SPACING	4
 
