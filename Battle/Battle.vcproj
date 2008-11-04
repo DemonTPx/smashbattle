@@ -308,6 +308,18 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath=".\stage\8bithill.stg"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\8bithill_bg.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\8bithill_sprites.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\music\battle.ogg"
 				>
 			</File>

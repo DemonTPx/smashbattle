@@ -53,12 +53,13 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Tedje", (char*)"gfx/tedje.bmp"},
 	{(char*)"Okke", (char*)"gfx/okke.bmp"},
 };
-const int Battle::STAGE_COUNT = 4;
+const int Battle::STAGE_COUNT = 5;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
 	{(char*)"Battle Arena one", (char*)"Bert Hekman", (char*)"stage/one.stg"},
 	{(char*)"Battle Arena two", (char*)"Bert Hekman", (char*)"stage/two.stg"},
 	{(char*)"Battle Arena three", (char*)"Bert Hekman", (char*)"stage/three.stg"},
 	{(char*)"Battle Arena four", (char*)"Bert Hekman", (char*)"stage/four.stg"},
+	{(char*)"8-bit hill", (char*)"Jeroen Groeneweg", (char*)"stage/8bithill.stg"},
 };
 
 Battle::Battle() {
@@ -1553,7 +1554,7 @@ void Battle::free_images() {
 	SDL_FreeSurface(player1hp);
 	SDL_FreeSurface(player2hp);
 
-	for(int i = 0; i < 8; i++) {
+	for(int i = 0; i < 16; i++) {
 		delete tile_rect[i];
 	}
 	//delete * tile_rect;
@@ -1563,8 +1564,8 @@ void Battle::free_images() {
 }
 
 void Battle::set_clips() {
-	int count = 8;
-	int cols = 8;
+	int count = 16;
+	int cols = 16;
 	int row_width = SPR_W * cols;
 
 	for (int i = 0; i < count; i++) {

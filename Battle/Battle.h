@@ -98,7 +98,7 @@ private:
 	SDL_Surface * powerup;
 	SDL_Surface * player1hp;
 	SDL_Surface * player2hp;
-	SDL_Rect * tile_rect[8];
+	SDL_Rect * tile_rect[16];
 };
 
 #endif
