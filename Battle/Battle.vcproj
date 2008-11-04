@@ -320,6 +320,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\anton.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\music\battle.ogg"
 				>
 			</File>

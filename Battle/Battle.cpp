@@ -45,7 +45,7 @@
 #define SPEED_HORIZ 2
 #define SPEED_VERT 2
 
-const int Battle::CHARACTER_COUNT = 7;
+const int Battle::CHARACTER_COUNT = 8;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Bert", (char*)"gfx/bert.bmp"},
 	{(char*)"Jeroen", (char*)"gfx/jeroen.bmp"},
@@ -54,6 +54,7 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Okke", (char*)"gfx/okke.bmp"},
 	{(char*)"Jeremy", (char*)"gfx/jeremy.bmp"},
 	{(char*)"Marcel", (char*)"gfx/marcel.bmp"},
+	{(char*)"Anton", (char*)"gfx/anton.bmp"},
 };
 const int Battle::STAGE_COUNT = 5;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
