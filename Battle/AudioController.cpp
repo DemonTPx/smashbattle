@@ -4,6 +4,8 @@
 #include "Main.h"
 #include "AudioController.h"
 
+#define AUDIO_CHANNELS 8
+
 const char * AudioController::music_files[MUSICFILES] = {
 	"music/title.ogg",
 	"music/battle.ogg"
@@ -53,7 +55,7 @@ bool AudioController::open_audio() {
 		return false;
 
 
-	Mix_AllocateChannels(16);
+	Mix_AllocateChannels(AUDIO_CHANNELS);
 	return true;
 }
 
@@ -125,6 +127,11 @@ void AudioController::play(int sound) {
 	chan = 0;
 	while(Mix_Playing(chan))
 		chan++;
+	
+	// Do not play the sound when we are out of channels
+	if(chan >= AUDIO_CHANNELS)
+		return;
+
 	Mix_PlayChannel(chan, this->sound[sound], 0);
 	Mix_Volume(chan, soundvolume[sound]);
 }
