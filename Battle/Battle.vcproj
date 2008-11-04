@@ -372,6 +372,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\marcel.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\okke.bmp"
 				>
 			</File>

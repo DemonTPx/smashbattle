@@ -7,7 +7,6 @@ const int Bomb::FRAME_COUNT = 3;
 const int Bomb::FRAME_NORMAL = 0;
 const int Bomb::FRAME_FLASH = 1;
 const int Bomb::FRAME_EXPLOSION = 2;
-const int Bomb::FRAME_EXPLOSION2 = 3;
 
 Bomb::Bomb() {
 	damage = 0;
@@ -66,22 +65,25 @@ void Bomb::show(SDL_Surface * screen) {
 		if(flicker_frame % 12 >= 6) return;
 	}
 
-	if(current_frame == FRAME_EXPLOSION2) return;
 	if(current_frame == FRAME_EXPLOSION) {
-		rect.x += explosion_offset_x;
-		rect.y += explosion_offset_y;
+		rect.x = position->x + explosion_offset_x;
+		rect.y = position->y + explosion_offset_y;
 	}
 
 	SDL_BlitSurface(sprite, clip[current_frame], screen, &rect);
 
 	// If the bomb is going out the side of the screen, we want it to
 	// appear on the other side.
-	if(position->x >= screen->w - clip[current_frame]->w) {
+	if(current_frame == FRAME_EXPLOSION) {
+		rect.x = position->x + explosion_offset_x;
+		rect.y = position->y + explosion_offset_y;
+	}
+	if(rect.x >= screen->w - clip[current_frame]->w) {
 		rect.x = rect.x - screen->w;
 		rect.y = rect.y;
 		SDL_BlitSurface(sprite, clip[current_frame], screen, &rect);
 	}
-	if(position->x <= 0) {
+	else if(rect.x <= 0) {
 		rect.x = rect.x + screen->w;
 		rect.y = rect.y;
 		SDL_BlitSurface(sprite, clip[current_frame], screen, &rect);

@@ -35,7 +35,6 @@ public:
 	static const int FRAME_NORMAL;
 	static const int FRAME_FLASH;
 	static const int FRAME_EXPLOSION;
-	static const int FRAME_EXPLOSION2;
 	
 	void show(SDL_Surface * screen);
 	SDL_Rect * get_damage_rect();

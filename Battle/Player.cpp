@@ -131,6 +131,20 @@ void Player::show(SDL_Surface * screen) {
 	}
 }
 
+SDL_Rect * Player::get_rect() {
+	SDL_Rect * rect;
+	rect = new SDL_Rect();
+	rect->x = position->x;
+	rect->y = position->y;
+	rect->w = PLAYER_W;
+	rect->h = PLAYER_H;
+	if(is_duck) {
+		rect->y = rect->y + (PLAYER_H - PLAYER_DUCK_H);
+		rect->h = PLAYER_DUCK_H;
+	}
+	return rect;
+}
+
 void Player::handle_input(SDL_Event * event) {
 	if(controls.use_keyboard) {
 		if(event->type == SDL_KEYDOWN) {

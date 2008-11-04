@@ -112,7 +112,7 @@ public:
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);
 	void cycle_sprite_updown(int first, int last);
-
+	SDL_Rect * get_rect();
 private:
 	void load_images(const char * sprite_file);
 	void free_images();

@@ -45,7 +45,7 @@
 #define SPEED_HORIZ 2
 #define SPEED_VERT 2
 
-const int Battle::CHARACTER_COUNT = 6;
+const int Battle::CHARACTER_COUNT = 7;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Bert", (char*)"gfx/bert.bmp"},
 	{(char*)"Jeroen", (char*)"gfx/jeroen.bmp"},
@@ -53,6 +53,7 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Tedje", (char*)"gfx/tedje.bmp"},
 	{(char*)"Okke", (char*)"gfx/okke.bmp"},
 	{(char*)"Jeremy", (char*)"gfx/jeremy.bmp"},
+	{(char*)"Marcel", (char*)"gfx/marcel.bmp"},
 };
 const int Battle::STAGE_COUNT = 5;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
@@ -472,7 +473,7 @@ void Battle::process_shoot(Player * p) {
 
 			b = new Bomb(surface_bombs);
 			b->damage = 50;
-			b->time = 120;
+			b->time = 60;
 			b->frame_start = frame;
 			b->frame_change_start = frame;
 			b->frame_change_count = 12;
@@ -499,8 +500,6 @@ void Battle::generate_powerup(bool force) {
 	PowerUp * pu;
 	SDL_Rect * rect, * pos;
 
-	pos = new SDL_Rect();
-
 	bool done;
 	done = false;
 	while(!done) {
@@ -517,39 +516,50 @@ void Battle::generate_powerup(bool force) {
 		}
 	}
 
-	pos = new SDL_Rect;
+	pos = new SDL_Rect();
 	pos->w = 16;
 	pos->h = 16;
 	pos->x = (col * SPR_W) + 8;
 	pos->y = (row * SPR_H) + 16;
 	
 	r = rand() % 4;
-	if(r == 0 && !bullets_unlimited) {
-		rect = new SDL_Rect();
-		rect->x = 16;
-		rect->y = 0;
-		rect->w = 16;
-		rect->h = 16;
-		pu = new AmmoPowerUp(powerup, rect, pos, 20);
-	}
-	if(bullets_unlimited || r == 1 || r == 2) {
-		rect = new SDL_Rect();
-		rect->x = 0;
-		rect->y = 0;
-		rect->w = 16;
-		rect->h = 16;
-		pu = new HealthPowerUp(powerup, rect, pos, 25);
-	}
-	if(r == 3) {
-		rect = new SDL_Rect();
-		rect->x = 16;
-		rect->y = 0;
-		rect->w = 16;
-		rect->h = 16;
-		pu = new BombPowerUp(powerup, rect, pos, 1);
+	switch(r) {
+		case 0:
+			if(!bullets_unlimited) {
+				rect = new SDL_Rect();
+				rect->x = 16;
+				rect->y = 0;
+				rect->w = 16;
+				rect->h = 16;
+				pu = new AmmoPowerUp(powerup, rect, pos, 20);
+				break;
+			}
+		case 1:
+		case 2:
+		case 3:
+			rect = new SDL_Rect();
+			rect->x = 0;
+			rect->y = 0;
+			rect->w = 16;
+			rect->h = 16;
+			pu = new HealthPowerUp(powerup, rect, pos, 25);
+			break;
+		case 4:
+			rect = new SDL_Rect();
+			rect->x = 16;
+			rect->y = 0;
+			rect->w = 16;
+			rect->h = 16;
+			pu = new BombPowerUp(powerup, rect, pos, 1);
+			break;
+		default:
+			delete pos;
+			pu = NULL;
+			break;
 	}
 
-	powerups->push_back(pu);
+	if(pu != NULL)
+		powerups->push_back(pu);
 }
 
 void Battle::move_player(Player * p) {
@@ -908,6 +918,8 @@ void Battle::move_bomb(Bomb * b) {
 
 void Battle::check_player_collision(Player * p1, Player * p2) {
 	// Check if there is a collision between the players and process the further movement
+	SDL_Rect * rect1, * rect2;
+	bool intersecting;
 	int l1, r1, t1, b1;
 	int l2, r2, t2, b2;
 	int momxl, momyl;
@@ -916,40 +928,26 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 	Player * upper, * lower;
 	Player * left, * right;
 
-	l1 = p1->position->x;
-	t1 = p1->position->y;
-	r1 = p1->position->x + p1->position->w;
-	b1 = p1->position->y + p1->position->h;
-
-	l2 = p2->position->x;
-	t2 = p2->position->y;
-	r2 = p2->position->x + p2->position->w;
-	b2 = p2->position->y + p2->position->h;
-
-	if(p1->is_duck) t1 = t1 + (PLAYER_H - PLAYER_DUCK_H);
-	if(p2->is_duck) t2 = t2 + (PLAYER_H - PLAYER_DUCK_H);
-
 	// Return if not colliding
-	if(b1 <= t2) return;
-	if(t1 >= b2) return;
-	if(r1 <= l2) {
-		if(r1 > WINDOW_WIDTH || r2 > WINDOW_WIDTH) {
-			if((r1 - WINDOW_WIDTH <= l2) && (l1 >= r2 - WINDOW_WIDTH))
-				return;
-		} else {
-			return;
-		}
-	}
-	if(l1 >= r2) {
-		if(r1 > WINDOW_WIDTH || r2 > WINDOW_WIDTH) {
-			if((r1 - WINDOW_WIDTH <= l2) && (l1 >= r2 - WINDOW_WIDTH))
-				return;
-		} else {
-			return;
-		}
+	rect1 = player1->get_rect();
+	rect2 = player2->get_rect();
+	intersecting = is_intersecting(rect1, rect2);
+	if(!intersecting) {
+		delete rect1;
+		delete rect2;
+		return;
 	}
 
 	// Collision
+	l1 = rect1->x;
+	t1 = rect1->y;
+	r1 = rect1->x + rect1->w;
+	b1 = rect1->y + rect1->h;
+
+	l2 = rect2->x;
+	t2 = rect2->y;
+	r2 = rect2->x + rect2->w;
+	b2 = rect2->y + rect2->h;
 
 	Main::audio->play(SND_BOUNCE);
 
@@ -961,7 +959,6 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 	p2->position->y += p2->last_speedy;
 
 	// Bounce back
-
 	if(t1 < t2) { // p1 above p2
 		diffy = b1 - t2;
 		upper = p1;
@@ -971,30 +968,22 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 		upper = p2;
 		lower = p1;
 	}
-
-	/*
-	if(r1 > WINDOW_WIDTH) {
-		l1 -= WINDOW_WIDTH;
-		r1 -= WINDOW_WIDTH;
-	}
-	if(r2 > WINDOW_WIDTH) {
-		l2 -= WINDOW_WIDTH;
-		r2 -= WINDOW_WIDTH;
-	}
-	*/
 	
 	bool p1_clip = false;
-	bool p2_clip= false;
+	bool p2_clip = false;
 	
-	if(r1 > WINDOW_WIDTH) {
+	if(r1 >= WINDOW_WIDTH) {
 		p1_clip = true;
 	}
-	if(r2 > WINDOW_WIDTH) {
+	if(r2 >= WINDOW_WIDTH) {
 		p2_clip = true;
 	}
 
 	if(p1->momentumx > p2->momentumx) { // p1 at the left of p2
 		diffx = r1 - l2;
+		if((p1_clip && !p2_clip) || !p1_clip && p2_clip) {
+			diffx -= WINDOW_WIDTH;
+		}
 		if(p1_clip) diffx -= WINDOW_WIDTH;
 		left = p1;
 		right = p2;
@@ -1006,6 +995,9 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 		momyr = p2->momentumy;
 	} else { // p1 at the right of p2, or at the same level
 		diffx = r2 - l1;
+		if((p1_clip && !p2_clip) || !p1_clip && p2_clip) {
+			diffx -= WINDOW_WIDTH;
+		}
 		left = p2;
 		right = p1;
 
@@ -1041,151 +1033,51 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 		upper->momentumy = lower->momentumy;
 	}
 	
-	/*
-	// Default bouncing speed
-	if(p1->momentumx < 0) base1 = 5;
-	else if(p1->momentumx > 0) base1 = -5;
-	else base1 = 0;
-
-	if(p2->momentumx < 0) base2 = 5;
-	else if(p2->momentumx > 0) base2 = -5;
-	else base2 = 0;
-
-	p1->momentumx = -(momx1 / 2) + (momx2 / 2) + base1;
-	p1->momentumy = -(momy1 / 2);
-
-	p2->momentumx = -(momx2 / 2) + (momx1 / 2) + base2;
-	p2->momentumy = -(momy2 / 2);
-
-
-	if(b1 > t2 && b1 < b2) {
-		// Player 1 is above player 2
-		diffy = b1 - t2;
-		if(l1 < l2) {
-			diffx = r1 - l2;
-		} else {
-			diffx = r2 - l1;
-		}
-		if(diffy < diffx) {
-			// Hit from above (hit more of the width than the height)
-			p1->momentumy += 20;
-		}
-	}
-	if(b2 > t1 && b2 < b1) {
-		// Player 1 is above player 2
-		diffy = b2 - t1;
-		if(l2 < l1) {
-			diffx = r2 - l1;
-		} else {
-			diffx = r1 - l2;
-		}
-		if(diffy < diffx) {
-			// Hit from above (hit more of the width than the height)
-			p2->momentumy += 20;
-		}
-	}
-	*/
+	delete rect1;
+	delete rect2;
 }
 
 void Battle::check_player_projectile_collision(Player * p) {
 	Projectile * pr;
-	int l1, r1, t1, b1;
-	int l2, r2, t2, b2;
+	SDL_Rect * rect;
 
 	if(p->is_hit) return;
 	
-	l1 = p->position->x;
-	r1 = p->position->x + p->position->w;
-	t1 = p->position->y;
-	b1 = p->position->y + p->position->h;
-
-	if(p->is_duck) t1 = t1 + (PLAYER_H - PLAYER_DUCK_H);
-
-	/*
-	if(l1 >= WINDOW_WIDTH) l1 = l1 - WINDOW_WIDTH;
-	if(r1 >= WINDOW_WIDTH) r1 = r1 - WINDOW_WIDTH;
-
-	if(t1 >= WINDOW_HEIGHT) t1 = t1 - WINDOW_HEIGHT;
-	if(b1 >= WINDOW_HEIGHT) b1 = b1 - WINDOW_HEIGHT;
-
-	if(t1 < 0) t1 = 0;
-	if(b1 > WINDOW_HEIGHT) b1 = WINDOW_HEIGHT; */
+	rect = p->get_rect();
 
 	for(unsigned int idx = 0; idx < projectiles->size(); idx++) {
 		pr = projectiles->at(idx);
-		l2 = pr->position->x;
-		r2 = pr->position->x + pr->position->w;
-		t2 = pr->position->y;
-		b2 = pr->position->y + pr->position->h;
+		if(is_intersecting(rect, pr->position)) {
+			pr->hit = true;
+			p->is_hit = true;
+			p->hit_start = frame;
+			p->hitpoints -= pr->damage;
 
-		if(l1 > r2) continue;
-		if(r1 < l2) continue;
-		if(t1 > b2) continue;
-		if(b1 < t2) continue;
-
-		pr->hit = true;
-		p->is_hit = true;
-		p->hit_start = frame;
-		p->hitpoints -= pr->damage;
-
-		Main::audio->play(SND_HIT);
+			Main::audio->play(SND_HIT);
+		}
 	}
+
+	delete rect;
 }
 
 void Battle::check_player_powerup_collision(Player * p) {
 	PowerUp * pu;
-	int l1, r1, t1, b1;
-	int l2, r2, t2, b2;
-
-	if(p->is_hit) return;
-	
-	l1 = p->position->x;
-	r1 = p->position->x + p->position->w;
-	t1 = p->position->y;
-	b1 = p->position->y + p->position->h;
-
-	if(p->is_duck) t1 = t1 + (PLAYER_H - PLAYER_DUCK_H);
+	SDL_Rect * rect;
+	rect = p->get_rect();
 
 	for(unsigned int idx = 0; idx < powerups->size(); idx++) {
 		pu = powerups->at(idx);
-		l2 = pu->position->x;
-		r2 = pu->position->x + pu->position->w;
-		t2 = pu->position->y;
-		b2 = pu->position->y + pu->position->h;
 
-		if(l1 > r2) continue;
-		if(r1 < l2) continue;
-		if(t1 > b2) continue;
-		if(b1 < t2) continue;
+		if(is_intersecting(rect, pu->position)) {
+			pu->got_powerup(p);
+			powerups->erase(powerups->begin() + idx);
+			delete pu;
 
-		pu->got_powerup(p);
-		powerups->erase(powerups->begin() + idx);
-		delete pu;
-
-		Main::audio->play(SND_ITEM);
+			Main::audio->play(SND_ITEM);
+		}
 	}
-}
 
-bool Battle::is_intersecting(SDL_Rect * one, SDL_Rect * two) {
-	int l1, r1, t1, b1;
-	int l2, r2, t2, b2;
-
-	l1 = one->x;
-	r1 = one->x + one->w;
-	t1 = one->y;
-	b1 = one->y + one->h;
-
-	l2 = two->x;
-	r2 = two->x + two->w;
-	t2 = two->y;
-	b2 = two->y + two->h;
-
-	if(l1 > r2) return false;
-	if(r1 < l2) return false;
-	if(t1 > b2) return false;
-	if(b1 < t2) return false;
-
-	return true;
+	delete rect;
 }
 
 bool Battle::check_collision(SDL_Rect * rect) {
@@ -1197,9 +1089,6 @@ bool Battle::check_collision(SDL_Rect * rect) {
 
 	t = rect->y;
 	b = rect->y + rect->h - 1;
-
-	//if(t >= WINDOW_HEIGHT) t = t - WINDOW_HEIGHT;
-	//if(b >= WINDOW_HEIGHT) b = b - WINDOW_HEIGHT;
 
 	if(t < 0) t = 0;
 	if(b < 0) b = 0;
@@ -1237,16 +1126,6 @@ bool Battle::check_collision(SDL_Rect * rect) {
 			return true;
 	}
 
-
-	/*
-	if(level[level_pos(l, t)] != -1)
-		return true;
-	if(level[level_pos(l, b)] != -1)
-		return true;
-	if(level[level_pos(r, t)] != -1)
-		return true;
-	if(level[level_pos(r, b)] != -1)
-		return true;*/
 	return false;
 }
 
@@ -1268,6 +1147,52 @@ bool Battle::check_bottom(SDL_Rect * rect) {
 	if(level[level_pos(r, b + 1)] != -1)
 		return false;
 	return true;
+}
+
+bool Battle::is_intersecting(SDL_Rect * one, SDL_Rect * two) {
+	bool intersect;
+	int l1, r1, t1, b1;
+	int l2, r2, t2, b2;
+
+ 	l1 = one->x;
+	r1 = one->x + one->w;
+	t1 = one->y;
+	b1 = one->y + one->h;
+
+	l2 = two->x;
+	r2 = two->x + two->w;
+	t2 = two->y;
+	b2 = two->y + two->h;
+
+	// Normal collision
+	intersect = true;
+	if(l1 > r2) intersect = false;
+	if(r1 < l2) intersect = false;
+	if(t1 > b2) intersect = false;
+	if(b1 < t2) intersect = false;
+	if(intersect) return true;
+
+	// Collisions that go through the sides
+	if(r1 >= WINDOW_WIDTH && r2 < WINDOW_WIDTH) {
+		l1 -= WINDOW_WIDTH;
+		r1 -= WINDOW_WIDTH;
+		intersect = true;
+		if(l1 > r2) intersect = false;
+		if(r1 < l2) intersect = false;
+		if(t1 > b2) intersect = false;
+		if(b1 < t2) intersect = false;
+	}
+	else if(r2 >= WINDOW_WIDTH && r1 < WINDOW_WIDTH) {
+		l2 -= WINDOW_WIDTH;
+		r2 -= WINDOW_WIDTH;
+		intersect = true;
+		if(l1 > r2) intersect = false;
+		if(r1 < l2) intersect = false;
+		if(t1 > b2) intersect = false;
+		if(b1 < t2) intersect = false;
+	}
+
+	return intersect;
 }
 
 int Battle::level_pos(int x, int y) {
