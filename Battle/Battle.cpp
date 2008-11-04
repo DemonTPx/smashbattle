@@ -56,13 +56,12 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Marcel", (char*)"gfx/marcel.bmp"},
 	{(char*)"Anton", (char*)"gfx/anton.bmp"},
 };
-const int Battle::STAGE_COUNT = 5;
+const int Battle::STAGE_COUNT = 4;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
 	{(char*)"Battle Arena one", (char*)"Bert Hekman", (char*)"stage/one.stg"},
 	{(char*)"Battle Arena two", (char*)"Bert Hekman", (char*)"stage/two.stg"},
 	{(char*)"Battle Arena three", (char*)"Bert Hekman", (char*)"stage/three.stg"},
 	{(char*)"Battle Arena four", (char*)"Bert Hekman", (char*)"stage/four.stg"},
-	{(char*)"8-bit hill", (char*)"Jeroen Groeneweg", (char*)"stage/8bithill.stg"},
 };
 
 Battle::Battle() {
@@ -87,10 +86,10 @@ void Battle::run() {
 	character_select = new CharacterSelect();
 	character_select->run();
 
-	player1 = new Player(character_select->name1, character_select->file1);
+	player1 = new Player(character_select->name1, 1, character_select->file1);
 	player1->controls = Main::instance->controls1;
 
-	player2 = new Player(character_select->name2, character_select->file2);
+	player2 = new Player(character_select->name2, 2, character_select->file2);
 	player2->controls = Main::instance->controls2;
 
 	load_level(stages[character_select->stage].filename);

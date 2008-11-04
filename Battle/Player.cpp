@@ -11,8 +11,9 @@ const int Player::jump_height = 144;
 #define PLAYER_SURF_COLS 10
 #define PLAYER_SURF_COUNT 20
 
-Player::Player(const char * name, const char * sprite_file) {
+Player::Player(const char * name, const int number, const char * sprite_file) {
 	this->name = (char*)name;
+	this->number = (int)number;
 
 	momentumx = 0;
 	momentumy = 0;
@@ -96,6 +97,7 @@ Player::~Player() {
 	for(int i = 0; i < PLAYER_SURF_COUNT; i++) {
 		delete clip[i];
 	}
+	delete marker_clip;
 	
 	delete position;
 	free_images();
@@ -128,6 +130,12 @@ void Player::show(SDL_Surface * screen) {
 		rect.x = position->x + WINDOW_WIDTH;
 		rect.y = position->y;
 		SDL_BlitSurface(sprites, clip[current_sprite], screen, &rect);
+	}
+
+	if(position->y + position->h <= 0) {
+		rect.x = position->x + ((PLAYER_W - marker_clip->w) / 2);
+		rect.y = 0;
+		SDL_BlitSurface(marker, marker_clip, screen, &rect);
 	}
 }
 
@@ -277,6 +285,13 @@ void Player::load_images(const char * sprite_file) {
 	colorkey = SDL_MapRGB(sprites->format, 0, 255, 255); 
 	SDL_SetColorKey(sprites, SDL_SRCCOLORKEY, colorkey);
 
+	loaded = SDL_LoadBMP("gfx/pmarkers.bmp");
+	marker = SDL_DisplayFormat(loaded);
+	SDL_FreeSurface(loaded);
+
+	colorkey = SDL_MapRGB(marker->format, 0, 255, 255);
+	SDL_SetColorKey(marker, SDL_SRCCOLORKEY, colorkey);
+
 	rect.w = PLAYER_W;
 	rect.h = PLAYER_H;
 
@@ -296,10 +311,17 @@ void Player::set_clips() {
 		clip[i]->x = (i * PLAYER_W) % row_width;
 		clip[i]->y = (int)(i / PLAYER_SURF_COLS) * PLAYER_H;
 	}
+
+	marker_clip = new SDL_Rect();
+	marker_clip->x = 16 * (number - 1);
+	marker_clip->y = 0;
+	marker_clip->w = 16;
+	marker_clip->h = 20;
 }
 
 void Player::free_images() {
 	SDL_FreeSurface(sprites);
+	SDL_FreeSurface(marker);
 }
 
 void Player::set_sprite(int sprite) {

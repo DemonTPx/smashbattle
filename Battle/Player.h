@@ -63,14 +63,17 @@ struct ControlScheme {
 
 class Player {
 public:
-	Player(const char * name, const char * sprite_file);
+	Player(const char * name, const int number, const char * sprite_file);
 	~Player();
 
 	char * name;
+	int number;
 
 	SDL_Rect * position;
 	SDL_Surface * sprites;
 	SDL_Rect * clip[20];
+	SDL_Surface * marker;
+	SDL_Rect * marker_clip;
 
 	int momentumx, momentumy;
 	int last_speedx, last_speedy;

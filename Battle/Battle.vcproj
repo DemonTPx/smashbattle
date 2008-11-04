@@ -404,6 +404,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\pmarkers.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\powerups.bmp"
 				>
 			</File>
