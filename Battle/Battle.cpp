@@ -1167,6 +1167,9 @@ bool Battle::check_bottom(SDL_Rect * rect) {
 	t = rect->y;
 	b = rect->y + rect->h - 1;
 
+	// Above the screen is no bottom
+	if(b < 0) return true;
+
 	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
 	if(r >= WINDOW_WIDTH) r -= WINDOW_WIDTH;
 
