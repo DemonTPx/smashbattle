@@ -539,7 +539,6 @@ void Battle::generate_powerup(bool force) {
 			}
 		case 1:
 		case 2:
-		case 3:
 			rect = new SDL_Rect();
 			rect->x = 0;
 			rect->y = 0;
@@ -547,7 +546,7 @@ void Battle::generate_powerup(bool force) {
 			rect->h = 16;
 			pu = new HealthPowerUp(powerup, rect, pos, 25);
 			break;
-		case 4:
+		case 3:
 			rect = new SDL_Rect();
 			rect->x = 16;
 			rect->y = 0;
