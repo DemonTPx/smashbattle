@@ -19,6 +19,7 @@ const char * AudioController::sound_files[SOUNDFILES] = {
 	"sfx/shoot.wav",
 	"sfx/hit.wav",
 	"sfx/bounce.wav",
+	"sfx/explode.wav",
 	"sfx/item.wav",
 	"sfx/youlose.wav",
 	"sfx/countdown.wav",
@@ -33,6 +34,7 @@ const int AudioController::soundvolume[SOUNDFILES] = {
 	100, //shoot
 	100, //hit
 	100, //bounce
+	100, //explode
 	75, //item
 	100, //youlose
 	100, //countdown

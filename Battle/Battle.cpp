@@ -231,6 +231,9 @@ void Battle::run() {
 			check_player_projectile_collision(player1);
 			check_player_projectile_collision(player2);
 
+			check_player_bomb_collision(player1);
+			check_player_bomb_collision(player2);
+
 			generate_powerup(false);
 
 			check_player_powerup_collision(player1);
@@ -472,7 +475,7 @@ void Battle::process_shoot(Player * p) {
 			Bomb * b;
 
 			b = new Bomb(surface_bombs);
-			b->damage = 50;
+			b->damage = 25;
 			b->time = 60;
 			b->frame_start = frame;
 			b->frame_change_start = frame;
@@ -901,6 +904,8 @@ void Battle::move_bomb(Bomb * b) {
 		// Explode
 		if(frame - b->frame_start >= b->time) {
 			b->exploded = true;
+
+			Main::audio->play(SND_EXPLODE);
 			
 			Player * other;
 			SDL_Rect * rect;
@@ -1053,6 +1058,30 @@ void Battle::check_player_projectile_collision(Player * p) {
 			p->hit_start = frame;
 			p->hitpoints -= pr->damage;
 
+			Main::audio->play(SND_HIT);
+		}
+	}
+
+	delete rect;
+}
+
+void Battle::check_player_bomb_collision(Player * p) {
+	Bomb * b;
+	SDL_Rect * rect;
+
+	if(p->is_hit) return;
+	
+	rect = p->get_rect();
+
+	for(unsigned int idx = 0; idx < bombs->size(); idx++) {
+		b = bombs->at(idx);
+		if(!b->exploded && p != b->owner && is_intersecting(rect, b->position)) {
+			b->exploded = true;
+			Main::audio->play(SND_EXPLODE);
+
+			p->is_hit = true;
+			p->hit_start = frame;
+			p->hitpoints -= b->damage;
 			Main::audio->play(SND_HIT);
 		}
 	}
@@ -1281,6 +1310,32 @@ void Battle::draw_score(SDL_Surface * screen) {
 	surface = TTF_RenderText_Solid(font52, str, fontColor);
 	rect.x = (WINDOW_WIDTH - surface->w) / 2;
 	rect.y = WINDOW_HEIGHT - surface->h + 2;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	// Show bomb ammount
+	rect_s.x = 16;
+	rect_s.y = 0;
+	rect_s.w = 16;
+	rect_s.h = 16;
+	rect.x = 150;
+	rect.y = 460;
+	SDL_BlitSurface(surface_bombs, &rect_s, screen, &rect);
+	rect.x = 474;
+	rect.y = 460;
+	SDL_BlitSurface(surface_bombs, &rect_s, screen, &rect);
+
+	sprintf_s(str, 2, "%01d", player1->bombs);
+	surface = TTF_RenderText_Solid(font26, str, fontColor);
+	rect.x = 180 - surface->w;
+	rect.y = 460;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	sprintf_s(str, 2, "%01d", player2->bombs);
+	surface = TTF_RenderText_Solid(font26, str, fontColor);
+	rect.x = 460;
+	rect.y = 460;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 

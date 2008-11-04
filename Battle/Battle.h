@@ -53,6 +53,7 @@ private:
 
 	void check_player_collision(Player * p1, Player * p2);
 	void check_player_projectile_collision(Player * p);
+	void check_player_bomb_collision(Player * p);
 	void check_player_powerup_collision(Player * p);
 	bool check_collision(SDL_Rect * rect);
 	bool check_bottom(SDL_Rect * rect);

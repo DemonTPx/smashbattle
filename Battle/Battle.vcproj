@@ -344,6 +344,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sfx\explode.wav"
+				>
+			</File>
+			<File
 				RelativePath=".\stage\four.stg"
 				>
 			</File>
