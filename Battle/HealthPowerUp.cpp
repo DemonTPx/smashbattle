@@ -8,7 +8,7 @@ HealthPowerUp::HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * 
 	this->hp = hp;
 }
 
-HealthPowerUp::~HealthPowerUp() {
+void HealthPowerUp::cleanup() {
 	delete clip;
 	delete position;
 }

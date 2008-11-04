@@ -354,6 +354,7 @@ void Battle::run() {
 	PowerUp * pu;
 	for(unsigned int i = 0; i < powerups->size(); i++) {
 		pu = powerups->at(i);
+		pu->cleanup();
 		delete pu;
 	}
 	powerups->clear();

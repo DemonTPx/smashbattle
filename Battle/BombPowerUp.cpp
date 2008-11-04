@@ -8,7 +8,7 @@ BombPowerUp::BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * posi
 	this->ammount = ammount;
 }
 
-BombPowerUp::~BombPowerUp() {
+void BombPowerUp::cleanup() {
 	delete clip;
 	delete position;
 }

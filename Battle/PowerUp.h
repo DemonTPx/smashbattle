@@ -6,6 +6,8 @@
 
 class PowerUp {
 public:
+	virtual void cleanup() = 0;
+
 	virtual void got_powerup(Player *) = 0;
 	virtual void show(SDL_Surface *) = 0;
 

@@ -4,7 +4,7 @@
 class HealthPowerUp : public PowerUp {
 public:
 	HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp);
-	~HealthPowerUp();
+	void cleanup();
 
 	void got_powerup(Player *);
 	void show(SDL_Surface *);

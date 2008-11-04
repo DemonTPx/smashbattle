@@ -4,7 +4,7 @@
 class BombPowerUp : public PowerUp {
 public:
 	BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount);
-	~BombPowerUp();
+	void cleanup();
 
 	void got_powerup(Player *);
 	void show(SDL_Surface *);
