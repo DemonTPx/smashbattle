@@ -41,6 +41,8 @@ private:
 	void draw_score(SDL_Surface * screen);
 	void draw_win_screen(SDL_Surface * screen);
 
+	void handle_pause_input(SDL_Event * event);
+
 	void handle_draw_countdown(SDL_Surface * screen);
 	
 	void move_player(Player * p);

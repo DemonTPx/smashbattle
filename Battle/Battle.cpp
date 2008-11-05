@@ -108,93 +108,7 @@ void Battle::run() {
 		// Event handling
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
-			if(paused) {
-				if(event.type == SDL_KEYDOWN) {
-					if(event.key.keysym.sym == pause_player->controls.kb_down ||
-						event.key.keysym.sym == pause_player->controls.kb_up) {
-							pause_quit = !pause_quit;
-					}
-					if(event.key.keysym.sym == pause_player->controls.kb_shoot ||
-						event.key.keysym.sym == pause_player->controls.kb_run ||
-						(pause_player->controls.kb_jump != pause_player->controls.kb_up &&
-						event.key.keysym.sym == pause_player->controls.kb_jump)) {
-							if(pause_quit) {
-								game_running = false;
-							} else {
-								paused = false;
-								Main::instance->audio->unpause_music();
-								if(countdown) countdown_timer->unpause();
-							}
-					}
-				}
-				if(event.type == SDL_JOYAXISMOTION) {
-					if(event.jaxis.which == pause_player->controls.joystick_idx && event.jaxis.axis == 1) {
-						if(event.jaxis.value < -6400 || event.jaxis.value > 6400) {
-							pause_quit = !pause_quit;
-						}
-					}
-				}
-				if(event.type == SDL_JOYBUTTONDOWN) {
-					if(event.jbutton.which == pause_player->controls.joystick_idx &&
-						(event.jbutton.button == pause_player->controls.js_run ||
-						event.jbutton.button == pause_player->controls.js_jump ||
-						event.jbutton.button == pause_player->controls.js_shoot)) {
-							if(pause_quit) {
-								game_running = false;
-							} else {
-								paused = false;
-								Main::instance->audio->unpause_music();
-								if(countdown) countdown_timer->unpause();
-							}
-					}
-				}
-			}
-			if(event.type == SDL_KEYDOWN) {
-				if(event.key.keysym.sym == player1->controls.kb_start || event.key.keysym.sym == player2->controls.kb_start) {
-					if(!(paused && event.key.keysym.sym != pause_player->controls.kb_start)) {
-
-						paused = !paused;
-
-						if(paused) {
-							if(event.key.keysym.sym == player1->controls.kb_start)
-								pause_player = player1;
-							else if(event.key.keysym.sym == player2->controls.kb_start)
-								pause_player = player2;
-							pause_quit = false;
-							Main::instance->audio->pause_music();
-							if(countdown) countdown_timer->pause();
-						} else {
-							Main::instance->audio->unpause_music();
-							if(countdown) countdown_timer->unpause();
-						}
-						Main::instance->audio->play(SND_PAUSE);
-					}
-				}
-			}
-			if(event.type == SDL_JOYBUTTONDOWN) {
-				if((player1->controls.use_joystick &&
-					event.jbutton.which == player1->controls.joystick_idx &&
-					event.jbutton.button == player1->controls.js_start) ||
-					(player2->controls.use_joystick &&
-					event.jbutton.which == player2->controls.joystick_idx &&
-					event.jbutton.button == player2->controls.js_start)) {
-					paused = !paused;
-
-					if(paused) {
-						if(event.jbutton.which == player1->controls.joystick_idx)
-							pause_player = player1;
-						else
-							pause_player = player2;
-						pause_quit = false;
-						Main::instance->audio->pause_music();
-						if(countdown) countdown_timer->pause();
-					} else {
-						Main::instance->audio->unpause_music();
-						if(countdown) countdown_timer->unpause();
-					}
-					Main::instance->audio->play(SND_PAUSE);
-				}
-			}
+			handle_pause_input(&event);
 			player1->handle_input(&event);
 			player2->handle_input(&event);
 		}
@@ -234,10 +148,10 @@ void Battle::run() {
 			check_player_bomb_collision(player1);
 			check_player_bomb_collision(player2);
 
-			generate_powerup(false);
-
 			check_player_powerup_collision(player1);
 			check_player_powerup_collision(player2);
+
+			generate_powerup(false);
 
 			// Players die when they fall into the pit :)
 			if(player1->position->y + player1->position->h > 14 * SPR_H) {
@@ -433,6 +347,89 @@ void Battle::reset_game() {
 	countdown_timer->start();
 
 	Main::audio->stop_music();
+}
+
+void Battle::handle_pause_input(SDL_Event * event) {
+	if(paused) {
+		if(event->type == SDL_KEYDOWN) {
+			if(event->key.keysym.sym == pause_player->controls.kb_down ||
+				event->key.keysym.sym == pause_player->controls.kb_up) {
+					pause_quit = !pause_quit;
+			}
+			if(event->key.keysym.sym == pause_player->controls.kb_shoot ||
+				event->key.keysym.sym == pause_player->controls.kb_run ||
+				(pause_player->controls.kb_jump != pause_player->controls.kb_up &&
+				event->key.keysym.sym == pause_player->controls.kb_jump)) {
+					if(pause_quit) {
+						game_running = false;
+					} else {
+						paused = false;
+						Main::instance->audio->unpause_music();
+						if(countdown) countdown_timer->unpause();
+					}
+			}
+			if(event->key.keysym.sym == pause_player->controls.kb_start) {
+				paused = false;
+				Main::instance->audio->unpause_music();
+				if(countdown) countdown_timer->unpause();
+			}
+		}
+		if(event->type == SDL_JOYAXISMOTION) {
+			if(event->jaxis.which == pause_player->controls.joystick_idx && event->jaxis.axis == 1) {
+				if(event->jaxis.value < -6400 || event->jaxis.value > 6400) {
+					pause_quit = !pause_quit;
+				}
+			}
+		}
+		if(event->type == SDL_JOYBUTTONDOWN) {
+			if(event->jbutton.which == pause_player->controls.joystick_idx &&
+				(event->jbutton.button == pause_player->controls.js_run ||
+				event->jbutton.button == pause_player->controls.js_jump ||
+				event->jbutton.button == pause_player->controls.js_shoot)) {
+					if(pause_quit) {
+						game_running = false;
+					} else {
+						paused = false;
+						Main::instance->audio->unpause_music();
+						if(countdown) countdown_timer->unpause();
+					}
+			}
+		}
+	} else {
+		if(event->type == SDL_KEYDOWN) {
+			if(event->key.keysym.sym == player1->controls.kb_start || event->key.keysym.sym == player2->controls.kb_start) {
+				if(!(paused && event->key.keysym.sym != pause_player->controls.kb_start)) {
+					paused = true;
+					if(event->key.keysym.sym == player1->controls.kb_start)
+						pause_player = player1;
+					else if(event->key.keysym.sym == player2->controls.kb_start)
+						pause_player = player2;
+					pause_quit = false;
+					Main::instance->audio->pause_music();
+					if(countdown) countdown_timer->pause();
+					Main::instance->audio->play(SND_PAUSE);
+				}
+			}
+		}
+		if(event->type == SDL_JOYBUTTONDOWN) {
+			if((player1->controls.use_joystick &&
+				event->jbutton.which == player1->controls.joystick_idx &&
+				event->jbutton.button == player1->controls.js_start) ||
+				(player2->controls.use_joystick &&
+				event->jbutton.which == player2->controls.joystick_idx &&
+				event->jbutton.button == player2->controls.js_start)) {
+					paused = true;
+					if(event->key.keysym.sym == player1->controls.kb_start)
+						pause_player = player1;
+					else if(event->key.keysym.sym == player2->controls.kb_start)
+						pause_player = player2;
+					pause_quit = false;
+					Main::instance->audio->pause_music();
+					if(countdown) countdown_timer->pause();
+					Main::instance->audio->play(SND_PAUSE);
+			}
+		}
+	}
 }
 
 void Battle::process_shoot(Player * p) {
