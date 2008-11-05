@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DoubleDamagePowerUp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HealthPowerUp.cpp"
 				>
 			</File>
@@ -267,6 +271,10 @@
 			</File>
 			<File
 				RelativePath=".\CharacterSelect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DoubleDamagePowerUp.h"
 				>
 			</File>
 			<File
@@ -333,6 +341,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\cube.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\donja.bmp"
 				>
 			</File>
 			<File

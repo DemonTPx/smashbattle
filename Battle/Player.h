@@ -79,6 +79,7 @@ public:
 
 	int bullets;
 	int bombs;
+	int doubledamagebullets;
 
 	int score;
 	int hitpoints;

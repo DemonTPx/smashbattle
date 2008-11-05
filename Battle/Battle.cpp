@@ -18,6 +18,7 @@
 #include "AmmoPowerUp.h"
 #include "HealthPowerUp.h"
 #include "BombPowerUp.h"
+#include "DoubleDamagePowerUp.h"
 
 #include "Battle.h"
 
@@ -289,6 +290,7 @@ void Battle::reset_game() {
 	player1->hit_start = 0;
 	player1->bullets = 20;
 	player1->bombs = 3;
+	player1->doubledamagebullets = 2;
 	player1->is_falling = false;
 	player1->is_jumping = false;
 	player1->momentumx = 0;
@@ -306,6 +308,7 @@ void Battle::reset_game() {
 	player2->hit_start = 0;
 	player2->bullets = 20;
 	player2->bombs = 3;
+	player2->doubledamagebullets = 2;
 	player2->is_falling = false;
 	player2->is_jumping = false;
 	player2->momentumx = 0;
@@ -443,15 +446,24 @@ void Battle::process_shoot(Player * p) {
 			p->shoot_start = frame;
 			Projectile * pr;
 			SDL_Rect * clip_weapon;
+			bool doubledamage;
+
+			doubledamage = (p->doubledamagebullets > 0);
 
 			clip_weapon = new SDL_Rect();
-			clip_weapon->x = 0;
+			if(!doubledamage)
+				clip_weapon->x = 0;
+			else
+				clip_weapon->x = 8;
 			clip_weapon->y = 0;
 			clip_weapon->w = 8;
 			clip_weapon->h = 8;
 
 			pr = new Projectile(weapons, clip_weapon);
-			pr->damage = 10;
+			if(!doubledamage)
+				pr->damage = 10;
+			else
+				pr->damage = 20;
 
 			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_DUCK) {
 				pr->speedx = -10;
@@ -466,8 +478,12 @@ void Battle::process_shoot(Player * p) {
 				pr->position->y = p->position->y + 8;
 			projectiles->push_back(pr);
 
-			if(!bullets_unlimited)
-				p->bullets -= 1;
+			if(!doubledamage) {
+				if(!bullets_unlimited)
+					p->bullets--;
+			} else {
+				p->doubledamagebullets--;
+			}
 
 			Main::instance->audio->play(SND_SHOOT);
 		}
@@ -528,7 +544,7 @@ void Battle::generate_powerup(bool force) {
 	pos->x = (col * SPR_W) + 8;
 	pos->y = (row * SPR_H) + 16;
 	
-	r = rand() % 4;
+	r = rand() % 5;
 	switch(r) {
 		case 0:
 			if(!bullets_unlimited) {
@@ -556,6 +572,14 @@ void Battle::generate_powerup(bool force) {
 			rect->w = 16;
 			rect->h = 16;
 			pu = new BombPowerUp(powerup, rect, pos, 1);
+			break;
+		case 4:
+			rect = new SDL_Rect();
+			rect->x = 48;
+			rect->y = 0;
+			rect->w = 16;
+			rect->h = 16;
+			pu = new DoubleDamagePowerUp(powerup, rect, pos, 5);
 			break;
 		default:
 			delete pos;
@@ -1262,6 +1286,7 @@ void Battle::draw_score(SDL_Surface * screen) {
 	SDL_Surface * surface;
 	SDL_Rect rect;
 	SDL_Rect rect_s;
+	int ammount;
 
 	// Health bar player 1
 	rect.x = 2;
@@ -1344,6 +1369,54 @@ void Battle::draw_score(SDL_Surface * screen) {
 	rect.y = 460;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
+	
+	// Ammo type and ammount
+	rect_s.x = 0;
+	rect_s.y = 0;
+	rect_s.w = 8;
+	rect_s.h = 8;
+	rect.x = 120;
+	rect.y = 464;
+	if(player1->doubledamagebullets > 0) rect_s.x = 8;
+	SDL_BlitSurface(weapons, &rect_s, screen, &rect);
+
+	if(player1->doubledamagebullets > 0) ammount = player1->doubledamagebullets;
+	else {
+		if(!bullets_unlimited) ammount = player1->bullets;
+		else ammount = 0;
+	}
+
+	if(ammount != 0) {
+		sprintf_s(str, 2, "%01d", ammount);
+		surface = TTF_RenderText_Solid(font26, str, fontColor);
+		rect.x = 144 - surface->w;
+		rect.y = 460;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+	}
+
+	rect_s.x = 0;
+	rect_s.y = 0;
+	rect_s.w = 8;
+	rect_s.h = 8;
+	rect.x = 514;
+	rect.y = 464;
+	if(player2->doubledamagebullets > 0) rect_s.x = 8;
+	SDL_BlitSurface(weapons, &rect_s, screen, &rect);
+
+	if(player2->doubledamagebullets > 0) ammount = player2->doubledamagebullets;
+	else {
+		if(!bullets_unlimited) ammount = player2->bullets;
+		else ammount = 0;
+	}
+	if(ammount != 0) {
+		sprintf_s(str, 2, "%01d", ammount);
+		surface = TTF_RenderText_Solid(font26, str, fontColor);
+		rect.x = 496;
+		rect.y = 460;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+	}
 
 	// Show player avatars
 	rect.x = 220 - PLAYER_W;
@@ -1566,7 +1639,7 @@ void Battle::load_images() {
 
 	surface = SDL_LoadBMP("gfx/weapons.bmp");
 	weapons = SDL_DisplayFormat(surface);
-	colorkey = SDL_MapRGB(weapons->format, 255, 255, 255);
+	colorkey = SDL_MapRGB(weapons->format, 0, 255, 255);
 	SDL_SetColorKey(weapons, SDL_SRCCOLORKEY, colorkey); 
 	SDL_FreeSurface(surface);
 
@@ -1578,7 +1651,7 @@ void Battle::load_images() {
 
 	surface = SDL_LoadBMP("gfx/powerups.bmp");
 	powerup = SDL_DisplayFormat(surface);
-	colorkey = SDL_MapRGB(powerup->format, 255, 255, 255);
+	colorkey = SDL_MapRGB(powerup->format, 0, 255, 255);
 	SDL_SetColorKey(powerup, SDL_SRCCOLORKEY, colorkey); 
 	SDL_FreeSurface(surface);
 

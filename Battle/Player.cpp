@@ -39,20 +39,6 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 	keydn_shoot = false;
 	keydn_bomb = false;
 
-	/*
-	key_r = SDLK_RIGHT;
-	key_l = SDLK_LEFT;
-	key_u = SDLK_UP;
-	key_d = SDLK_DOWN;
-	key_run = SDLK_RSHIFT;
-	key_shoot = SDLK_RCTRL;
-
-	joystick_idx = 0;
-	js_btn_u = 0;
-	js_btn_run = 0;
-	js_btn_shoot = 1;
-	js_btn_start = 2;
-	*/
 	controls.use_keyboard = true;
 	controls.kb_right = SDLK_RIGHT;
 	controls.kb_left = SDLK_LEFT;
@@ -84,6 +70,7 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 
 	bullets = 10;
 	bombs = 3;
+	doubledamagebullets = 0;
 
 	hitpoints = 100;
 	score = 0;
