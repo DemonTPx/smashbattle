@@ -375,18 +375,17 @@ void Battle::handle_pause_input(SDL_Event * event) {
 				if(countdown) countdown_timer->unpause();
 			}
 		}
-		if(event->type == SDL_JOYAXISMOTION) {
-			if(event->jaxis.which == pause_player->controls.joystick_idx && event->jaxis.axis == 1) {
+		if(event->type == SDL_JOYAXISMOTION && event->jbutton.which == pause_player->controls.joystick_idx) {
+			if(event->jaxis.axis == 1) {
 				if(event->jaxis.value < -6400 || event->jaxis.value > 6400) {
 					pause_quit = !pause_quit;
 				}
 			}
 		}
-		if(event->type == SDL_JOYBUTTONDOWN) {
-			if(event->jbutton.which == pause_player->controls.joystick_idx &&
-				(event->jbutton.button == pause_player->controls.js_run ||
+		if(event->type == SDL_JOYBUTTONDOWN && event->jbutton.which == pause_player->controls.joystick_idx) {
+			if(event->jbutton.button == pause_player->controls.js_run ||
 				event->jbutton.button == pause_player->controls.js_jump ||
-				event->jbutton.button == pause_player->controls.js_shoot)) {
+				event->jbutton.button == pause_player->controls.js_shoot) {
 					if(pause_quit) {
 						game_running = false;
 					} else {
@@ -394,6 +393,11 @@ void Battle::handle_pause_input(SDL_Event * event) {
 						Main::instance->audio->unpause_music();
 						if(countdown) countdown_timer->unpause();
 					}
+			}
+			if(event->jbutton.button == pause_player->controls.js_start) {
+				paused = false;
+				Main::instance->audio->unpause_music();
+				if(countdown) countdown_timer->unpause();
 			}
 		}
 	} else {
@@ -403,7 +407,7 @@ void Battle::handle_pause_input(SDL_Event * event) {
 					paused = true;
 					if(event->key.keysym.sym == player1->controls.kb_start)
 						pause_player = player1;
-					else if(event->key.keysym.sym == player2->controls.kb_start)
+					else
 						pause_player = player2;
 					pause_quit = false;
 					Main::instance->audio->pause_music();
@@ -422,7 +426,7 @@ void Battle::handle_pause_input(SDL_Event * event) {
 					paused = true;
 					if(event->jbutton.which == player1->controls.joystick_idx)
 						pause_player = player1;
-					else if(event->jbutton.which == player2->controls.joystick_idx)
+					else
 						pause_player = player2;
 					pause_quit = false;
 					Main::instance->audio->pause_music();
