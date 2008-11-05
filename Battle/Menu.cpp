@@ -2,6 +2,8 @@
 #include "SDL/SDL_ttf.h"
 #include "SDL/SDL_mixer.h"
 
+#include <vector>
+
 #include "Timer.h"
 #include "AudioController.h"
 #include "Main.h"
@@ -12,122 +14,36 @@
 #define MENU_TOP_OFFSET 200
 #define MENU_ITEM_HEIGHT 26
 
-const char * Menu::item[10] = {"START", "OPTIONS", "QUIT"};
-const int Menu::itemcount = 3;
+const int Menu::ITEMCOUNT = 3;
+const char * Menu::item[ITEMCOUNT] = {"START", "OPTIONS", "QUIT"};
 
 Menu::Menu() {
-	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
-	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
-	fontColor.r = 255;
-	fontColor.g = 255;
-	fontColor.b = 255;
-
-	selected_item = 0;
 }
 
 Menu::~Menu() {
-	TTF_CloseFont(font26);
-	TTF_CloseFont(font13);
 }
 
 void Menu::run() {
 	SDL_Event event;
 
-	SDL_Surface * surface;
-	surface = SDL_LoadBMP("gfx/title.bmp");
-	bg = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
-
-	draw();
+	init();
 	
 	Main::audio->play_music(MUSIC_TITLE);
 
 	while (Main::running) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
-			if(event.type == SDL_KEYDOWN) {
-				switch(event.key.keysym.sym) {
-					case SDLK_UP:
-						Main::audio->play(SND_SELECT);
-						selected_item--;
-						if(selected_item < 0) selected_item = itemcount - 1;
-						draw();
-						break;
-					case SDLK_DOWN:
-						Main::audio->play(SND_SELECT);
-						selected_item++;
-						if(selected_item == itemcount) selected_item = 0;
-						draw();
-						break;
-					case SDLK_PAGEUP:
-						Main::audio->play(SND_SELECT);
-						selected_item = 0;
-						draw();
-						break;
-					case SDLK_PAGEDOWN:
-						Main::audio->play(SND_SELECT);
-						selected_item = itemcount - 1;
-						draw();
-						break;
-					case SDLK_RETURN:
-						Main::audio->play(SND_SELECT);
-						if(selected_item == 0) {
-							Battle battle;
-							battle.run();
-							draw();
-						}
-						if(selected_item == 2) {
-							SDL_Delay(500);
-							Main::running = false;
-						}
-						Main::audio->play_music(MUSIC_TITLE);
-						break;
-					default:
-						break;
-				}
-			}
-			if(event.type == SDL_JOYBUTTONDOWN) {
-				switch(event.jbutton.button) {
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-						Main::audio->play(SND_SELECT);
-						if(selected_item == 0) {
-							Battle battle;
-							battle.run();
-							draw();
-							Main::audio->play_music(MUSIC_TITLE);
-						}
-						if(selected_item == 2) {
-							SDL_Delay(500);
-							Main::running = false;
-						}
-						break;
-				}
-			}
-			if(event.type == SDL_JOYAXISMOTION) {
-				if(event.jaxis.axis == 1) {
-					if(event.jaxis.value < -6400) {
-						Main::audio->play(SND_SELECT);
-						selected_item--;
-						if(selected_item < 0) selected_item = itemcount - 1;
-						draw();
-						break;
-					}
-					if(event.jaxis.value > 6400) {
-						Main::audio->play(SND_SELECT);
-						selected_item++;
-						if(selected_item == itemcount) selected_item = 0;
-						draw();
-						break;
-					}
-				}
-			}
+			handle_input(&event);
+
 		}
+		
+		draw();
+
 		Main::instance->flip();
 	}
 	Main::audio->stop_music();
+
+	cleanup();
 }
 
 void Menu::draw() {
@@ -138,49 +54,231 @@ void Menu::draw() {
 
 	screen = Main::instance->screen;
 
-	//SDL_FillRect(screen, NULL, 0);
 	SDL_BlitSurface(bg, NULL, screen, NULL);
 
-	for(i = 0; i < itemcount; i++) {
-		text = TTF_RenderText_Solid(font26, item[i], fontColor);
+	for(i = 0; i < ITEMCOUNT; i++) {
+		text = surf_items->at(i);
 		
 		if(selected_item == i) {
 			highlight = SDL_CreateRGBSurface(NULL, text->w + 10, MENU_ITEM_HEIGHT, 32, 0, 0, 0, 0);
 			SDL_FillRect(highlight, NULL, 0x444488);
-
-			rect.x = ((screen->w - text->w) / 2) - 5;
-			rect.y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) - 3;
+			
+			rect.x = surf_items_clip->at(i)->x - 5;
+			rect.y = surf_items_clip->at(i)->y - 3;
 
 			SDL_BlitSurface(highlight, NULL, screen, &rect);
 			SDL_FreeSurface(highlight);
 		}
 
-		rect.x = (screen->w - text->w) / 2;
-		rect.y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT);
-
-		SDL_BlitSurface(text, NULL, screen, &rect);
-		SDL_FreeSurface(text);
+		SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 	}
-	
-	char credit1[] = "Programming by Bert Hekman";
-	char credit2[] = "Graphics by Jeroen Groeneweg";
-	char credit3[] = "Music by Nick Perrin";
 
-	text = TTF_RenderText_Solid(font13, credit1, fontColor);
-	rect.x = (WINDOW_WIDTH - text->w) / 2;
+	rect.x = (WINDOW_WIDTH - credits->at(0)->w) / 2;
 	rect.y = WINDOW_HEIGHT - 35;
-	SDL_BlitSurface(text, NULL, screen, &rect);
-	SDL_FreeSurface(text);
+	SDL_BlitSurface(credits->at(0), NULL, screen, &rect);
 	
-	text = TTF_RenderText_Solid(font13, credit2, fontColor);
-	rect.x = (WINDOW_WIDTH - text->w) / 2;
+	rect.x = (WINDOW_WIDTH - credits->at(1)->w) / 2;
 	rect.y = WINDOW_HEIGHT - 25;
-	SDL_BlitSurface(text, NULL, screen, &rect);
-	SDL_FreeSurface(text);
+	SDL_BlitSurface(credits->at(1), NULL, screen, &rect);
 
-	text = TTF_RenderText_Solid(font13, credit3, fontColor);
-	rect.x = (WINDOW_WIDTH - text->w) / 2;
+	rect.x = (WINDOW_WIDTH - credits->at(2)->w) / 2;
 	rect.y = WINDOW_HEIGHT - 15;
-	SDL_BlitSurface(text, NULL, screen, &rect);
-	SDL_FreeSurface(text);
+	SDL_BlitSurface(credits->at(2), NULL, screen, &rect);
+}
+
+void Menu::handle_input(SDL_Event * event) {
+	ControlScheme player1, player2;
+	int button;
+
+	player1 = Main::instance->controls1;
+	player2 = Main::instance->controls2;
+
+	// Keyboard
+	if(event->type == SDL_KEYDOWN) {
+		button = event->key.keysym.sym;
+		// Player 1
+		if(player1.use_keyboard) {
+			if(button == player1.kb_up) {
+				select_up();
+			}
+			if(button == player1.kb_down) {
+				select_down();
+			}
+			if((button == player1.kb_jump && player1.kb_jump != player1.kb_up) ||
+				button == player1.kb_run ||
+				button == player1.kb_shoot ||
+				button == player1.kb_bomb ||
+				button == player1.kb_start) {
+					select();
+			}
+		}
+		// Player 2
+		if(player2.use_keyboard) {
+			if(button == player2.kb_up) {
+				select_up();
+			}
+			if(button == player2.kb_down) {
+				select_down();
+			}
+			if((button == player2.kb_jump && player2.kb_jump != player2.kb_up) ||
+				button == player2.kb_run ||
+				button == player2.kb_shoot ||
+				button == player2.kb_bomb ||
+				button == player2.kb_start) {
+					select();
+			}
+		}
+	}
+
+	// Joystick button
+	if(event->type == SDL_JOYBUTTONDOWN) {
+		button = event->jbutton.button;
+		// Player 1
+		if(player1.use_joystick && event->jbutton.which == player1.joystick_idx) {
+			if(button == player1.js_run ||
+				button == player1.js_jump ||
+				button == player1.js_shoot ||
+				button == player1.js_bomb ||
+				button == player1.js_start) {
+					select();
+			}
+		}
+		// Player 2
+		if(player2.use_joystick && event->jbutton.which == player2.joystick_idx) {
+			if(button == player2.js_run ||
+				button == player2.js_jump ||
+				button == player2.js_shoot ||
+				button == player2.js_bomb ||
+				button == player2.js_start) {
+					select();
+			}
+		}
+	}
+
+	// Joystick axis
+	if(event->type == SDL_JOYAXISMOTION) {
+		// Player 1
+		if(player1.use_joystick && event->jaxis.which == player1.joystick_idx) {
+			if(event->jaxis.axis == 1) {
+				if(event->jaxis.value < -6400) {
+					select_up();
+				}
+				if(event->jaxis.value > 6400) {
+					select_down();
+				}
+			}
+		}
+		// Player 2
+		if(player2.use_joystick && event->jaxis.which == player2.joystick_idx) {
+			if(event->jaxis.axis == 1) {
+				if(event->jaxis.value < -6400) {
+					select_up();
+				}
+				if(event->jaxis.value > 6400) {
+					select_down();
+				}
+			}
+		}
+	}
+}
+
+void Menu::select() {
+	Main::audio->play(SND_SELECT);
+	switch(selected_item) {
+		case 0:
+			Battle * battle;
+			battle = new Battle();
+			battle->run();
+			delete battle;
+			draw();
+			break;
+		case 2:
+			SDL_Delay(500);
+			Main::running = false;
+			break;
+	}
+	Main::audio->play_music(MUSIC_TITLE);
+}
+
+void Menu::select_up() {
+	Main::audio->play(SND_SELECT);
+
+	selected_item--;
+
+	if(selected_item < 0) {
+		selected_item = ITEMCOUNT - 1;
+	}
+}
+
+void Menu::select_down() {
+	Main::audio->play(SND_SELECT);
+
+	selected_item++;
+
+	if(selected_item == ITEMCOUNT) {
+		selected_item = 0;
+	}
+}
+
+void Menu::init() {
+	SDL_Surface * surface;
+	SDL_Rect * rect;
+
+	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
+	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
+	fontColor.r = 255;
+	fontColor.g = 255;
+	fontColor.b = 255;
+
+	selected_item = 0;
+
+	surface = SDL_LoadBMP("gfx/title.bmp");
+	bg = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+
+	surf_items = new std::vector<SDL_Surface*>(0);
+	surf_items_clip = new std::vector<SDL_Rect*>(0);
+	for(int i = 0; i < ITEMCOUNT; i++) {
+		surface = TTF_RenderText_Solid(font26, item[i], fontColor);
+		surf_items->push_back(surface);
+
+		rect = new SDL_Rect();
+		rect->x = (WINDOW_WIDTH - surface->w) / 2;
+		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT);
+		surf_items_clip->push_back(rect);
+	}
+
+	credits = new std::vector<SDL_Surface*>(0);
+	surface = TTF_RenderText_Solid(font13, "Programming by Bert Hekman", fontColor);
+	credits->push_back(surface);
+	surface = TTF_RenderText_Solid(font13, "Graphics by Jeroen Groeneweg", fontColor);
+	credits->push_back(surface);
+	surface = TTF_RenderText_Solid(font13, "Music by Nick Perrin", fontColor);
+	credits->push_back(surface);
+
+}
+
+void Menu::cleanup() {
+	TTF_CloseFont(font26);
+	TTF_CloseFont(font13);
+
+	for(unsigned int i = 0; i < surf_items->size(); i++) {
+		SDL_FreeSurface(surf_items->at(i));
+	}
+	surf_items->clear();
+	delete surf_items;
+
+	for(unsigned int i = 0; i < surf_items_clip->size(); i++) {
+		delete surf_items_clip->at(i);
+	}
+	surf_items_clip->clear();
+	delete surf_items_clip;
+
+	for(unsigned int i = 0; i < credits->size(); i++) {
+		SDL_FreeSurface(credits->at(i));
+	}
+	credits->clear();
+	delete credits;
+
+	SDL_FreeSurface(bg);
 }

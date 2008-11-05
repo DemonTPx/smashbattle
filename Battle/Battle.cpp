@@ -333,6 +333,7 @@ void Battle::reset_game() {
 	PowerUp * pu;
 	for(unsigned int i = 0; i < powerups->size(); i++) {
 		pu = powerups->at(i);
+		pu->cleanup();
 		delete pu;
 	}
 
@@ -419,9 +420,9 @@ void Battle::handle_pause_input(SDL_Event * event) {
 				event->jbutton.which == player2->controls.joystick_idx &&
 				event->jbutton.button == player2->controls.js_start)) {
 					paused = true;
-					if(event->key.keysym.sym == player1->controls.kb_start)
+					if(event->jbutton.which == player1->controls.joystick_idx)
 						pause_player = player1;
-					else if(event->key.keysym.sym == player2->controls.kb_start)
+					else if(event->jbutton.which == player2->controls.joystick_idx)
 						pause_player = player2;
 					pause_quit = false;
 					Main::instance->audio->pause_music();
@@ -1096,8 +1097,9 @@ void Battle::check_player_powerup_collision(Player * p) {
 
 		if(is_intersecting(rect, pu->position)) {
 			pu->got_powerup(p);
-			powerups->erase(powerups->begin() + idx);
+			pu->cleanup();
 			delete pu;
+			powerups->erase(powerups->begin() + idx);
 
 			Main::audio->play(SND_ITEM);
 		}
