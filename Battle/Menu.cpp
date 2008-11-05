@@ -228,7 +228,8 @@ void Menu::handle_input(SDL_Event * event) {
 					if(cursor_direction & DIRECTION_RIGHT)
 						cursor_direction ^= DIRECTION_RIGHT;
 				}
-			} else {
+			}
+			if(event->jaxis.axis == 1) {
 				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
 					cursor_direction |= DIRECTION_UP;
 				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
@@ -254,7 +255,8 @@ void Menu::handle_input(SDL_Event * event) {
 					if(cursor_direction & DIRECTION_RIGHT)
 						cursor_direction ^= DIRECTION_RIGHT;
 				}
-			} else {
+			}
+			if(event->jaxis.axis == 1) {
 				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
 					cursor_direction |= DIRECTION_UP;
 				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)

@@ -86,6 +86,10 @@ void CharacterSelect::run() {
 }
 
 void CharacterSelect::handle_input(SDL_Event * event) {
+	int old_direction1, old_direction2;
+	old_direction1 = cursor1_direction;
+	old_direction2 = cursor2_direction;
+
 	if(event->type == SDL_KEYDOWN) {
 		// Keyboard 1
 		if(controls1.use_keyboard) {
@@ -213,9 +217,9 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 						cursor1_direction ^= DIRECTION_LEFT;
 					if(cursor1_direction & DIRECTION_RIGHT)
 						cursor1_direction ^= DIRECTION_RIGHT;
-					cursor1_first = true;
 				}
-			} else {
+			} 
+			if(event->jaxis.axis == 1) {
 				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
 					cursor1_direction |= DIRECTION_UP;
 				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
@@ -225,7 +229,6 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 						cursor1_direction ^= DIRECTION_UP;
 					if(cursor1_direction & DIRECTION_DOWN)
 						cursor1_direction ^= DIRECTION_DOWN;
-					cursor1_first = true;
 				}
 			}
 		}
@@ -241,9 +244,9 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 						cursor2_direction ^= DIRECTION_LEFT;
 					if(cursor2_direction & DIRECTION_RIGHT)
 						cursor2_direction ^= DIRECTION_RIGHT;
-					cursor2_first = true;
 				}
-			} else {
+			}
+			if(event->jaxis.axis == 1) {
 				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
 					cursor2_direction |= DIRECTION_UP;
 				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
@@ -253,10 +256,16 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 						cursor2_direction ^= DIRECTION_UP;
 					if(cursor2_direction & DIRECTION_DOWN)
 						cursor2_direction ^= DIRECTION_DOWN;
-					cursor2_first = true;
 				}
 			}
 		}
+	}
+
+	if(cursor1_direction != old_direction1) {
+		cursor1_first = true;
+	}
+	if(cursor2_direction != old_direction2) {
+		cursor2_first = true;
 	}
 }
 
