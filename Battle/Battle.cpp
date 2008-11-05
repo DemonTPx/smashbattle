@@ -377,7 +377,7 @@ void Battle::handle_pause_input(SDL_Event * event) {
 		}
 		if(event->type == SDL_JOYAXISMOTION && event->jbutton.which == pause_player->controls.joystick_idx) {
 			if(event->jaxis.axis == 1) {
-				if(event->jaxis.value < -6400 || event->jaxis.value > 6400) {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD || event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
 					pause_quit = !pause_quit;
 				}
 			}

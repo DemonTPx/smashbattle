@@ -13,6 +13,11 @@
 
 const int Main::FRAMES_PER_SECOND = 60;
 
+const int Main::CONTROLS_REPEAT_DELAY = 30;
+const int Main::CONTROLS_REPEAT_SPEED = 10;
+
+const int Main::JOYSTICK_AXIS_THRESHOLD = 6400;
+
 Main * Main::instance = NULL;
 
 SDL_Surface * Main::screen = NULL;

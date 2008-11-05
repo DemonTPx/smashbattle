@@ -20,8 +20,8 @@
 #define DIRECTION_NONE	0
 #define DIRECTION_LEFT	1
 #define DIRECTION_RIGHT	2
-#define DIRECTION_UP	3
-#define DIRECTION_DOWN	4
+#define DIRECTION_UP	4
+#define DIRECTION_DOWN	8
 
 CharacterSelect::CharacterSelect() {
 
@@ -29,7 +29,6 @@ CharacterSelect::CharacterSelect() {
 
 void CharacterSelect::run() {
 	SDL_Event event;
-	ControlScheme controls1, controls2;
 
 	load_fonts();
 	load_sprites();
@@ -41,6 +40,13 @@ void CharacterSelect::run() {
 
 	controls1 = Main::instance->controls1;
 	controls2 = Main::instance->controls2;
+	
+	cursor1_direction = DIRECTION_NONE;
+	cursor1_first = true;
+	cursor1_enter = false;
+	cursor2_direction = DIRECTION_NONE;
+	cursor2_first = true;
+	cursor2_enter = false;
 
 	select1 = 0;
 	if(Battle::CHARACTER_COUNT >= CHARACTERS_PER_LINE)
@@ -56,199 +62,10 @@ void CharacterSelect::run() {
 	while (Main::running && !ready) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
-			if(event.type == SDL_KEYDOWN) {
-				// Keyboard 1
-				if(controls1.use_keyboard) {
-					if(event.key.keysym.sym == controls1.kb_left)
-						if(!ready1)
-							select(&select1, DIRECTION_LEFT);
-						else
-							select_stage(DIRECTION_LEFT);
-					else if(event.key.keysym.sym == controls1.kb_right)
-						if(!ready1)
-							select(&select1, DIRECTION_RIGHT);
-						else
-							select_stage(DIRECTION_RIGHT);
-					if(event.key.keysym.sym == controls1.kb_up)
-						if(!ready1)
-							select(&select1, DIRECTION_UP);
-						else
-							select_stage(DIRECTION_UP);
-					else if(event.key.keysym.sym == controls1.kb_down)
-						if(!ready1)
-							select(&select1, DIRECTION_DOWN);
-						else
-							select_stage(DIRECTION_DOWN);
-					else if(event.key.keysym.sym == controls1.kb_shoot || 
-						event.key.keysym.sym == controls1.kb_run ||
-						(controls1.kb_up != controls1.kb_jump &&
-						event.key.keysym.sym == controls1.kb_jump)) {
-							if(!ready1) {
-								ready1 = true;
-								flicker1 = true;
-								flicker1_start = frame;
-								flicker1_frame = 0;
-							} else {
-								if(ready1 && ready2) {
-									ready = true;
-								}
-							}
-							Main::audio->play(SND_SELECT_CHARACTER);
-					}
-				}
-				// Keyboard 2
-				if(controls2.use_keyboard) {
-					if(event.key.keysym.sym == controls2.kb_left)
-						if(!ready2)
-							select(&select2, DIRECTION_LEFT);
-						else
-							select_stage(DIRECTION_LEFT);
-					else if(event.key.keysym.sym == controls2.kb_right)
-						if(!ready2)
-							select(&select2, DIRECTION_RIGHT);
-						else
-							select_stage(DIRECTION_RIGHT);
-					if(event.key.keysym.sym == controls2.kb_up)
-						if(!ready2)
-							select(&select2, DIRECTION_UP);
-						else
-							select_stage(DIRECTION_UP);
-					else if(event.key.keysym.sym == controls2.kb_down)
-						if(!ready2)
-							select(&select2, DIRECTION_DOWN);
-						else
-							select_stage(DIRECTION_DOWN);
-					else if(event.key.keysym.sym == controls2.kb_shoot || 
-						event.key.keysym.sym == controls2.kb_run ||
-						(controls2.kb_up != controls2.kb_jump &&
-						event.key.keysym.sym == controls2.kb_jump)) {
-							if(!ready2) {
-								ready2 = true;
-								flicker2 = true;
-								flicker2_start = frame;
-								flicker2_frame = 0;
-							} else {
-								if(ready1 && ready2) {
-									ready = true;
-								}
-							}
-							Main::audio->play(SND_SELECT_CHARACTER);
-					}
-				}
-			}
-			if(event.type == SDL_JOYBUTTONDOWN) {
-				// Joystick 1 Buttons
-				if(controls1.use_joystick && event.jbutton.which == controls1.joystick_idx) {
-					if(event.jbutton.button == controls1.js_left)
-						if(!ready1)
-							select(&select1, DIRECTION_LEFT);
-						else
-							select_stage(DIRECTION_LEFT);
-					if(event.jbutton.button == controls1.js_right)
-						if(!ready1)
-							select(&select1, DIRECTION_RIGHT);
-						else
-							select_stage(DIRECTION_RIGHT);
-					if(event.jbutton.button == controls1.js_jump ||
-						event.jbutton.button == controls1.js_run ||
-						event.jbutton.button == controls1.js_shoot) {
-							if(!ready1) {
-								ready1 = true;
-								flicker1 = true;
-								flicker1_start = frame;
-								flicker1_frame = 0;
-							} else {
-								if(ready1 && ready2) {
-									ready = true;
-								}
-							}
-							Main::audio->play(SND_SELECT_CHARACTER);
-					}
-				}
-				// Joystick 2 Buttons
-				if(controls2.use_joystick && event.jbutton.which == controls2.joystick_idx) {
-					if(event.jbutton.button == controls2.js_left)
-						if(!ready2)
-							select(&select2, DIRECTION_LEFT);
-						else
-							select_stage(DIRECTION_LEFT);
-					if(event.jbutton.button == controls2.js_right)
-						if(!ready2)
-							select(&select2, DIRECTION_LEFT);
-						else
-							select_stage(DIRECTION_LEFT);
-					if(event.jbutton.button == controls2.js_jump ||
-						event.jbutton.button == controls2.js_run ||
-						event.jbutton.button == controls2.js_shoot) {
-							if(!ready2) {
-								ready2 = true;
-								flicker2 = true;
-								flicker2_start = frame;
-								flicker2_frame = 0;
-							} else {
-								if(ready1 && ready2) {
-									ready = true;
-								}
-							}
-							Main::audio->play(SND_SELECT_CHARACTER);
-					}
-				}
-			}
-			if(event.type == SDL_JOYAXISMOTION) {
-				// Joystick 1 Axis
-				if(controls1.use_joystick && event.jbutton.which == controls1.joystick_idx) {
-					if(event.jaxis.axis == 0) {
-						if(event.jaxis.value < -6400)
-							if(!ready1)
-								select(&select1, DIRECTION_LEFT);
-							else
-								select_stage(DIRECTION_LEFT);
-						else if(event.jaxis.value > 6400)
-							if(!ready1)
-								select(&select1, DIRECTION_RIGHT);
-							else
-								select_stage(DIRECTION_RIGHT);
-					} else {
-						if(event.jaxis.value < -6400)
-							if(!ready1)
-								select(&select1, DIRECTION_UP);
-							else
-								select_stage(DIRECTION_UP);
-						else if(event.jaxis.value > 6400)
-							if(!ready1)
-								select(&select1, DIRECTION_DOWN);
-							else
-								select_stage(DIRECTION_DOWN);
-					}
-				}
-				// Joystick 2 Axis
-				if(controls2.use_joystick && event.jbutton.which == controls2.joystick_idx) {
-					if(event.jaxis.axis == 0) {
-						if(event.jaxis.value < -6400)
-							if(!ready2)
-								select(&select2, DIRECTION_LEFT);
-							else
-								select_stage(DIRECTION_LEFT);
-						else if(event.jaxis.value > 6400)
-							if(!ready2)
-								select(&select2, DIRECTION_RIGHT);
-							else
-								select_stage(DIRECTION_RIGHT);
-					} else {
-						if(event.jaxis.value < -6400)
-							if(!ready2)
-								select(&select2, DIRECTION_UP);
-							else
-								select_stage(DIRECTION_UP);
-						else if(event.jaxis.value > 6400)
-							if(!ready2)
-								select(&select2, DIRECTION_DOWN);
-							else
-								select_stage(DIRECTION_DOWN);
-					}
-				}
-			}
+			handle_input(&event);
 		}
+
+		process_cursors();
 
 		name1 = Battle::characters[select1].name;
 		name2 = Battle::characters[select2].name;
@@ -268,28 +85,263 @@ void CharacterSelect::run() {
 	free_fonts();
 }
 
+void CharacterSelect::handle_input(SDL_Event * event) {
+	if(event->type == SDL_KEYDOWN) {
+		// Keyboard 1
+		if(controls1.use_keyboard) {
+			if(event->key.keysym.sym == controls1.kb_left)
+				cursor1_direction |= DIRECTION_LEFT;
+			if(event->key.keysym.sym == controls1.kb_right)
+				cursor1_direction |= DIRECTION_RIGHT;
+			if(event->key.keysym.sym == controls1.kb_up)
+				cursor1_direction |= DIRECTION_UP;
+			if(event->key.keysym.sym == controls1.kb_down)
+				cursor1_direction |= DIRECTION_DOWN;
+			else if(event->key.keysym.sym == controls1.kb_shoot || 
+				event->key.keysym.sym == controls1.kb_run ||
+				(controls1.kb_up != controls1.kb_jump &&
+				event->key.keysym.sym == controls1.kb_jump)) {
+					cursor1_enter = true;
+			}
+		}
+		// Keyboard 2
+		if(controls2.use_keyboard) {
+			if(event->key.keysym.sym == controls2.kb_left)
+				cursor2_direction |= DIRECTION_LEFT;
+			if(event->key.keysym.sym == controls2.kb_right)
+				cursor2_direction |= DIRECTION_RIGHT;
+			if(event->key.keysym.sym == controls2.kb_up)
+				cursor2_direction |= DIRECTION_UP;
+			if(event->key.keysym.sym == controls2.kb_down)
+				cursor2_direction |= DIRECTION_DOWN;
+			else if(event->key.keysym.sym == controls2.kb_shoot || 
+				event->key.keysym.sym == controls2.kb_run ||
+				(controls2.kb_up != controls2.kb_jump &&
+				event->key.keysym.sym == controls2.kb_jump)) {
+					cursor2_enter = true;
+			}
+		}
+	}
+	if(event->type == SDL_KEYUP) {
+		// Keyboard 1
+		if(controls1.use_keyboard) {
+			if(event->key.keysym.sym == controls1.kb_left && cursor1_direction & DIRECTION_LEFT)
+				cursor1_direction ^= DIRECTION_LEFT;
+			if(event->key.keysym.sym == controls1.kb_right && cursor1_direction & DIRECTION_RIGHT)
+				cursor1_direction ^= DIRECTION_RIGHT;
+			if(event->key.keysym.sym == controls1.kb_up && cursor1_direction & DIRECTION_UP)
+				cursor1_direction ^= DIRECTION_UP;
+			if(event->key.keysym.sym == controls1.kb_down && cursor1_direction & DIRECTION_DOWN)
+				cursor1_direction ^= DIRECTION_DOWN;
+			else if(event->key.keysym.sym == controls1.kb_shoot || 
+				event->key.keysym.sym == controls1.kb_run ||
+				(controls1.kb_up != controls1.kb_jump &&
+				event->key.keysym.sym == controls1.kb_jump)) {
+					cursor1_enter = false;
+			}
+		}
+		// Keyboard 2
+		if(controls2.use_keyboard) {
+			if(event->key.keysym.sym == controls2.kb_left && cursor2_direction & DIRECTION_LEFT)
+				cursor2_direction ^= DIRECTION_LEFT;
+			if(event->key.keysym.sym == controls2.kb_right && cursor2_direction & DIRECTION_RIGHT)
+				cursor2_direction ^= DIRECTION_RIGHT;
+			if(event->key.keysym.sym == controls2.kb_up && cursor2_direction & DIRECTION_UP)
+				cursor2_direction ^= DIRECTION_UP;
+			if(event->key.keysym.sym == controls2.kb_down && cursor2_direction & DIRECTION_DOWN)
+				cursor2_direction ^= DIRECTION_DOWN;
+			else if(event->key.keysym.sym == controls2.kb_shoot || 
+				event->key.keysym.sym == controls2.kb_run ||
+				(controls2.kb_up != controls2.kb_jump &&
+				event->key.keysym.sym == controls2.kb_jump)) {
+					cursor2_enter = false;
+			}
+		}
+	}
+	if(event->type == SDL_JOYBUTTONDOWN) {
+		// Joystick 1 Buttons
+		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
+			if(event->jbutton.button == controls1.js_left)
+				cursor1_direction |= DIRECTION_LEFT;
+			if(event->jbutton.button == controls1.js_right)
+				cursor1_direction |= DIRECTION_RIGHT;
+			if(event->jbutton.button == controls1.js_jump ||
+				event->jbutton.button == controls1.js_run ||
+				event->jbutton.button == controls1.js_shoot) {
+					cursor1_enter = true;
+			}
+		}
+		// Joystick 2 Buttons
+		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
+			if(event->jbutton.button == controls2.js_left)
+				cursor2_direction |= DIRECTION_LEFT;
+			if(event->jbutton.button == controls2.js_right)
+				cursor2_direction |= DIRECTION_RIGHT;
+			if(event->jbutton.button == controls2.js_jump ||
+				event->jbutton.button == controls2.js_run ||
+				event->jbutton.button == controls2.js_shoot) {
+					cursor2_enter = true;
+			}
+		}
+	}
+	if(event->type == SDL_JOYBUTTONUP) {
+		// Joystick 1 Buttons
+		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
+			if(event->jbutton.button == controls1.js_left && cursor1_direction & DIRECTION_LEFT)
+				cursor1_direction ^= DIRECTION_LEFT;
+			if(event->jbutton.button == controls1.js_right && cursor1_direction & DIRECTION_RIGHT)
+				cursor1_direction ^= DIRECTION_RIGHT;
+		}
+		// Joystick 2 Buttons
+		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
+			if(event->jbutton.button == controls2.js_left && cursor2_direction & DIRECTION_LEFT)
+				cursor2_direction ^= DIRECTION_LEFT;
+			if(event->jbutton.button == controls2.js_right && cursor2_direction & DIRECTION_RIGHT)
+				cursor2_direction ^= DIRECTION_RIGHT;
+		}
+	}
+	if(event->type == SDL_JOYAXISMOTION) {
+		// Joystick 1 Axis
+		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
+			if(event->jaxis.axis == 0) {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor1_direction |= DIRECTION_LEFT;
+				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor1_direction |= DIRECTION_RIGHT;
+				else {
+					if(cursor1_direction & DIRECTION_LEFT)
+						cursor1_direction ^= DIRECTION_LEFT;
+					if(cursor1_direction & DIRECTION_RIGHT)
+						cursor1_direction ^= DIRECTION_RIGHT;
+					cursor1_first = true;
+				}
+			} else {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor1_direction |= DIRECTION_UP;
+				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor1_direction |= DIRECTION_DOWN;
+				else {
+					if(cursor1_direction & DIRECTION_UP)
+						cursor1_direction ^= DIRECTION_UP;
+					if(cursor1_direction & DIRECTION_DOWN)
+						cursor1_direction ^= DIRECTION_DOWN;
+					cursor1_first = true;
+				}
+			}
+		}
+		// Joystick 2 Axis
+		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
+			if(event->jaxis.axis == 0) {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor2_direction |= DIRECTION_LEFT;
+				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor2_direction |= DIRECTION_RIGHT;
+				else {
+					if(cursor2_direction & DIRECTION_LEFT)
+						cursor2_direction ^= DIRECTION_LEFT;
+					if(cursor2_direction & DIRECTION_RIGHT)
+						cursor2_direction ^= DIRECTION_RIGHT;
+					cursor2_first = true;
+				}
+			} else {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor2_direction |= DIRECTION_UP;
+				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor2_direction |= DIRECTION_DOWN;
+				else {
+					if(cursor2_direction & DIRECTION_UP)
+						cursor2_direction ^= DIRECTION_UP;
+					if(cursor2_direction & DIRECTION_DOWN)
+						cursor2_direction ^= DIRECTION_DOWN;
+					cursor2_first = true;
+				}
+			}
+		}
+	}
+}
+
+void CharacterSelect::process_cursors() {
+	int delay;
+
+	if(cursor1_enter) {
+		cursor1_enter = false;
+		if(ready1 && ready2) {
+			ready = true;
+		}
+		if(!ready1) {
+			ready1 = true;
+			flicker1 = true;
+			flicker1_frame = 0;
+		}
+	}
+
+	if(cursor1_direction != 0) {
+		if(cursor1_first)
+			delay = 0;
+		else
+			delay = Main::CONTROLS_REPEAT_SPEED;
+		if(frame - cursor1_direction_start > delay) {
+			cursor1_direction_start = frame;
+			cursor1_first = false;
+			if(!ready1) {
+				select(&select1, cursor1_direction);
+			}
+			if(ready1 && ready2) {
+				select_stage(cursor1_direction);
+			}
+		}
+	}
+
+	if(cursor2_enter) {
+		cursor2_enter = false;
+		if(ready1 && ready2) {
+			ready = true;
+		}
+		if(!ready2) {
+			ready2 = true;
+			flicker2 = true;
+			flicker2_frame = 0;
+		}
+	}
+
+	if(cursor2_direction != DIRECTION_NONE) {
+		if(cursor2_first)
+			delay = 0;
+		else
+			delay = Main::CONTROLS_REPEAT_SPEED;
+		if(frame - cursor2_direction_start > delay) {
+			cursor2_direction_start = frame;
+			cursor2_first = false;
+			if(!ready2) {
+				select(&select2, cursor2_direction);
+			}
+			if(ready1 && ready2) {
+				select_stage(cursor2_direction);
+			}
+		}
+	}
+}
+
 void CharacterSelect::select(int * select, int direction) {
 	int * other;
 
 	other = (select == &select1) ? &select2 : &select1;
 
-	switch(direction) {
-		case DIRECTION_LEFT:
-			if(*select % CHARACTERS_PER_LINE == 0)
-				*select += CHARACTERS_PER_LINE;
-			*select -= 1;
-			break;
-		case DIRECTION_RIGHT:
-			if(*select % CHARACTERS_PER_LINE == CHARACTERS_PER_LINE - 1)
-				*select -= CHARACTERS_PER_LINE;
-			*select += 1;
-			break;
-		case DIRECTION_UP:
-			*select -= CHARACTERS_PER_LINE;
-			break;
-		case DIRECTION_DOWN:
+	if(direction & DIRECTION_LEFT) {
+		if(*select % CHARACTERS_PER_LINE == 0)
 			*select += CHARACTERS_PER_LINE;
-			break;
+		*select -= 1;
+	}
+	if(direction & DIRECTION_RIGHT) {
+		if(*select % CHARACTERS_PER_LINE == CHARACTERS_PER_LINE - 1)
+			*select -= CHARACTERS_PER_LINE;
+		*select += 1;
+	}
+	if(direction & DIRECTION_UP) {
+		*select -= CHARACTERS_PER_LINE;
+	}
+	if(direction & DIRECTION_DOWN) {
+		*select += CHARACTERS_PER_LINE;
 	}
 
 	while(*select < Battle::CHARACTER_COUNT) {
@@ -305,23 +357,21 @@ void CharacterSelect::select(int * select, int direction) {
 }
 
 void CharacterSelect::select_stage(int direction) {
-	switch(direction) {
-		case DIRECTION_LEFT:
-			if(stage % STAGES_PER_LINE == 0)
-				stage += STAGES_PER_LINE;
-			stage--;
-			break;
-		case DIRECTION_RIGHT:
-			if(stage % STAGES_PER_LINE == STAGES_PER_LINE - 1)
-				stage -= STAGES_PER_LINE;
-			stage++;
-			break;
-		case DIRECTION_UP:
-			stage -= STAGES_PER_LINE;
-			break;
-		case DIRECTION_DOWN:
+	if(direction & DIRECTION_LEFT) {
+		if(stage % STAGES_PER_LINE == 0)
 			stage += STAGES_PER_LINE;
-			break;
+		stage--;
+	}
+	if(direction & DIRECTION_RIGHT) {
+		if(stage % STAGES_PER_LINE == STAGES_PER_LINE - 1)
+			stage -= STAGES_PER_LINE;
+		stage++;
+	}
+	if(direction & DIRECTION_UP) {
+		stage -= STAGES_PER_LINE;
+	}
+	if(direction & DIRECTION_DOWN) {
+		stage += STAGES_PER_LINE;
 	}
 
 	if(stage < 0) stage += Battle::STAGE_COUNT;
@@ -453,7 +503,7 @@ void CharacterSelect::draw() {
 
 		color = 0;
 
-		if(stage == idx) {
+		if((ready1 && ready2) && stage == idx) {
 			color = 0xff0000;
 			/*
 			if(flicker_stage) {

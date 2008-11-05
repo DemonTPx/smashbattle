@@ -1,6 +1,8 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include "Main.h"
+
 #define FACE_LEFT 0
 #define FACE_RIGHT 1
 
@@ -33,33 +35,6 @@
 #define PLAYER_DUCK_H 26
 
 #define DUCK_FORCE_FRAMES 10
-
-struct ControlScheme {
-	bool use_keyboard;
-	int kb_left;
-	int kb_right;
-	int kb_up;
-	int kb_down;
-	int kb_jump;
-	int kb_run;
-	int kb_shoot;
-	int kb_bomb;
-	int kb_start;
-
-	bool use_joystick;
-	int joystick_idx;
-	bool use_axis_x;
-	bool use_axis_up;
-	bool use_axis_down;
-	int js_left;
-	int js_right;
-	int js_jump;
-	int js_down;
-	int js_run;
-	int js_shoot;
-	int js_bomb;
-	int js_start;
-};
 
 class Player {
 public:

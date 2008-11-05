@@ -4,6 +4,7 @@
 
 #include <vector>
 
+#include "Main.h"
 #include "Timer.h"
 #include "AudioController.h"
 #include "Main.h"
@@ -13,6 +14,12 @@
 
 #define MENU_TOP_OFFSET 200
 #define MENU_ITEM_HEIGHT 26
+
+#define DIRECTION_NONE	0
+#define DIRECTION_LEFT	1
+#define DIRECTION_RIGHT	2
+#define DIRECTION_UP	4
+#define DIRECTION_DOWN	8
 
 const int Menu::ITEMCOUNT = 3;
 const char * Menu::item[ITEMCOUNT] = {"START", "OPTIONS", "QUIT"};
@@ -27,19 +34,30 @@ void Menu::run() {
 	SDL_Event event;
 
 	init();
+
+	controls1 = Main::instance->controls1;
+	controls2 = Main::instance->controls2;
 	
 	Main::audio->play_music(MUSIC_TITLE);
+
+	frame = 0;
+
+	cursor_direction = 0;
+	cursor_direction_start = 0;
+	cursor_enter = false;
+	cursor_first = false;
 
 	while (Main::running) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
 			handle_input(&event);
-
 		}
+		process_cursor();
 		
 		draw();
 
 		Main::instance->flip();
+		frame++;
 	}
 	Main::audio->stop_music();
 
@@ -87,96 +105,196 @@ void Menu::draw() {
 }
 
 void Menu::handle_input(SDL_Event * event) {
-	ControlScheme player1, player2;
-	int button;
+	int old_direction;
+	old_direction = cursor_direction;
 
-	player1 = Main::instance->controls1;
-	player2 = Main::instance->controls2;
-
-	// Keyboard
 	if(event->type == SDL_KEYDOWN) {
-		button = event->key.keysym.sym;
-		// Player 1
-		if(player1.use_keyboard) {
-			if(button == player1.kb_up) {
-				select_up();
-			}
-			if(button == player1.kb_down) {
-				select_down();
-			}
-			if((button == player1.kb_jump && player1.kb_jump != player1.kb_up) ||
-				button == player1.kb_run ||
-				button == player1.kb_shoot ||
-				button == player1.kb_bomb ||
-				button == player1.kb_start) {
-					select();
+		// Keyboard 1
+		if(controls1.use_keyboard) {
+			if(event->key.keysym.sym == controls1.kb_left)
+				cursor_direction |= DIRECTION_LEFT;
+			if(event->key.keysym.sym == controls1.kb_right)
+				cursor_direction |= DIRECTION_RIGHT;
+			if(event->key.keysym.sym == controls1.kb_up)
+				cursor_direction |= DIRECTION_UP;
+			if(event->key.keysym.sym == controls1.kb_down)
+				cursor_direction |= DIRECTION_DOWN;
+			else if(event->key.keysym.sym == controls1.kb_shoot || 
+				event->key.keysym.sym == controls1.kb_run ||
+				event->key.keysym.sym == controls1.kb_start ||
+				(controls1.kb_up != controls1.kb_jump &&
+				event->key.keysym.sym == controls1.kb_jump)) {
+					cursor_enter = true;
 			}
 		}
-		// Player 2
-		if(player2.use_keyboard) {
-			if(button == player2.kb_up) {
-				select_up();
-			}
-			if(button == player2.kb_down) {
-				select_down();
-			}
-			if((button == player2.kb_jump && player2.kb_jump != player2.kb_up) ||
-				button == player2.kb_run ||
-				button == player2.kb_shoot ||
-				button == player2.kb_bomb ||
-				button == player2.kb_start) {
-					select();
+		// Keyboard 2
+		if(controls2.use_keyboard) {
+			if(event->key.keysym.sym == controls2.kb_left)
+				cursor_direction |= DIRECTION_LEFT;
+			if(event->key.keysym.sym == controls2.kb_right)
+				cursor_direction |= DIRECTION_RIGHT;
+			if(event->key.keysym.sym == controls2.kb_up)
+				cursor_direction |= DIRECTION_UP;
+			if(event->key.keysym.sym == controls2.kb_down)
+				cursor_direction |= DIRECTION_DOWN;
+			else if(event->key.keysym.sym == controls2.kb_shoot || 
+				event->key.keysym.sym == controls2.kb_run ||
+				event->key.keysym.sym == controls2.kb_start ||
+				(controls2.kb_up != controls2.kb_jump &&
+				event->key.keysym.sym == controls2.kb_jump)) {
+					cursor_enter = true;
 			}
 		}
 	}
-
-	// Joystick button
+	if(event->type == SDL_KEYUP) {
+		// Keyboard 1
+		if(controls1.use_keyboard) {
+			if(event->key.keysym.sym == controls1.kb_left && cursor_direction & DIRECTION_LEFT)
+				cursor_direction ^= DIRECTION_LEFT;
+			if(event->key.keysym.sym == controls1.kb_right && cursor_direction & DIRECTION_RIGHT)
+				cursor_direction ^= DIRECTION_RIGHT;
+			if(event->key.keysym.sym == controls1.kb_up && cursor_direction & DIRECTION_UP)
+				cursor_direction ^= DIRECTION_UP;
+			if(event->key.keysym.sym == controls1.kb_down && cursor_direction & DIRECTION_DOWN)
+				cursor_direction ^= DIRECTION_DOWN;
+		}
+		// Keyboard 2
+		if(controls2.use_keyboard) {
+			if(event->key.keysym.sym == controls2.kb_left && cursor_direction & DIRECTION_LEFT)
+				cursor_direction ^= DIRECTION_LEFT;
+			if(event->key.keysym.sym == controls2.kb_right && cursor_direction & DIRECTION_RIGHT)
+				cursor_direction ^= DIRECTION_RIGHT;
+			if(event->key.keysym.sym == controls2.kb_up && cursor_direction & DIRECTION_UP)
+				cursor_direction ^= DIRECTION_UP;
+			if(event->key.keysym.sym == controls2.kb_down && cursor_direction & DIRECTION_DOWN)
+				cursor_direction ^= DIRECTION_DOWN;
+		}
+	}
 	if(event->type == SDL_JOYBUTTONDOWN) {
-		button = event->jbutton.button;
-		// Player 1
-		if(player1.use_joystick && event->jbutton.which == player1.joystick_idx) {
-			if(button == player1.js_run ||
-				button == player1.js_jump ||
-				button == player1.js_shoot ||
-				button == player1.js_bomb ||
-				button == player1.js_start) {
-					select();
+		// Joystick 1 Buttons
+		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
+			if(event->jbutton.button == controls1.js_left)
+				cursor_direction |= DIRECTION_LEFT;
+			if(event->jbutton.button == controls1.js_right)
+				cursor_direction |= DIRECTION_RIGHT;
+			if(event->jbutton.button == controls1.js_jump ||
+				event->jbutton.button == controls1.js_run ||
+				event->jbutton.button == controls1.js_shoot ||
+				event->jbutton.button == controls1.js_start) {
+					cursor_enter = true;
 			}
 		}
-		// Player 2
-		if(player2.use_joystick && event->jbutton.which == player2.joystick_idx) {
-			if(button == player2.js_run ||
-				button == player2.js_jump ||
-				button == player2.js_shoot ||
-				button == player2.js_bomb ||
-				button == player2.js_start) {
-					select();
+		// Joystick 2 Buttons
+		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
+			if(event->jbutton.button == controls2.js_left)
+				cursor_direction |= DIRECTION_LEFT;
+			if(event->jbutton.button == controls2.js_right)
+				cursor_direction |= DIRECTION_RIGHT;
+			if(event->jbutton.button == controls2.js_jump ||
+				event->jbutton.button == controls2.js_run ||
+				event->jbutton.button == controls2.js_shoot ||
+				event->jbutton.button == controls2.js_start) {
+					cursor_enter = true;
 			}
 		}
 	}
-
-	// Joystick axis
+	if(event->type == SDL_JOYBUTTONUP) {
+		// Joystick 1 Buttons
+		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
+			if(event->jbutton.button == controls1.js_left && cursor_direction & DIRECTION_LEFT)
+				cursor_direction ^= DIRECTION_LEFT;
+			if(event->jbutton.button == controls1.js_right && cursor_direction & DIRECTION_RIGHT)
+				cursor_direction ^= DIRECTION_RIGHT;
+		}
+		// Joystick 2 Buttons
+		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
+			if(event->jbutton.button == controls2.js_left && cursor_direction & DIRECTION_LEFT)
+				cursor_direction ^= DIRECTION_LEFT;
+			if(event->jbutton.button == controls2.js_right && cursor_direction & DIRECTION_RIGHT)
+				cursor_direction ^= DIRECTION_RIGHT;
+		}
+	}
 	if(event->type == SDL_JOYAXISMOTION) {
-		// Player 1
-		if(player1.use_joystick && event->jaxis.which == player1.joystick_idx) {
-			if(event->jaxis.axis == 1) {
-				if(event->jaxis.value < -6400) {
-					select_up();
+		// Joystick 1 Axis
+		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
+			if(event->jaxis.axis == 0) {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor_direction |= DIRECTION_LEFT;
+				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor_direction |= DIRECTION_RIGHT;
+				else {
+					if(cursor_direction & DIRECTION_LEFT)
+						cursor_direction ^= DIRECTION_LEFT;
+					if(cursor_direction & DIRECTION_RIGHT)
+						cursor_direction ^= DIRECTION_RIGHT;
 				}
-				if(event->jaxis.value > 6400) {
-					select_down();
+			} else {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor_direction |= DIRECTION_UP;
+				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor_direction |= DIRECTION_DOWN;
+				else {
+					if(cursor_direction & DIRECTION_UP)
+						cursor_direction ^= DIRECTION_UP;
+					if(cursor_direction & DIRECTION_DOWN)
+						cursor_direction ^= DIRECTION_DOWN;
 				}
 			}
 		}
-		// Player 2
-		if(player2.use_joystick && event->jaxis.which == player2.joystick_idx) {
-			if(event->jaxis.axis == 1) {
-				if(event->jaxis.value < -6400) {
-					select_up();
+		// Joystick 2 Axis
+		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
+			if(event->jaxis.axis == 0) {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor_direction |= DIRECTION_LEFT;
+				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor_direction |= DIRECTION_RIGHT;
+				else {
+					if(cursor_direction & DIRECTION_LEFT)
+						cursor_direction ^= DIRECTION_LEFT;
+					if(cursor_direction & DIRECTION_RIGHT)
+						cursor_direction ^= DIRECTION_RIGHT;
 				}
-				if(event->jaxis.value > 6400) {
-					select_down();
+			} else {
+				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor_direction |= DIRECTION_UP;
+				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
+					cursor_direction |= DIRECTION_DOWN;
+				else {
+					if(cursor_direction & DIRECTION_UP)
+						cursor_direction ^= DIRECTION_UP;
+					if(cursor_direction & DIRECTION_DOWN)
+						cursor_direction ^= DIRECTION_DOWN;
 				}
+			}
+		}
+	}
+	if(old_direction != cursor_direction) {
+		cursor_first = true;
+	}
+}
+
+
+void Menu::process_cursor() {
+	int delay;
+
+	if(cursor_enter) {
+		cursor_enter = false;
+		select();
+	}
+
+	if(cursor_direction != 0) {
+		if(cursor_first)
+			delay = 0;
+		else
+			delay = Main::CONTROLS_REPEAT_SPEED;
+		if(frame - cursor_direction_start > delay) {
+			cursor_direction_start = frame;
+			cursor_first = false;
+			if(cursor_direction & DIRECTION_UP) {
+				select_up();
+			}
+			if(cursor_direction & DIRECTION_DOWN) {
+				select_down();
 			}
 		}
 	}

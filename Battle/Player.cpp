@@ -1,6 +1,8 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
 
+#include "Main.h"
+
 #include "Player.h"
 
 #define WINDOW_WIDTH 640
@@ -206,11 +208,11 @@ void Player::handle_input(SDL_Event * event) {
 		if(event->jaxis.which == controls.joystick_idx) {
 			if(event->type == SDL_JOYAXISMOTION) {
 				if(controls.use_axis_x && event->jaxis.axis == 0) {
-					if(event->jaxis.value < -6400) {
+					if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD) {
 						keydn_l = true;
 						keydn_r = false;
 					}
-					else if(event->jaxis.value > 6400) {
+					else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
 						keydn_l = false;
 						keydn_r = true;
 					}
@@ -220,11 +222,11 @@ void Player::handle_input(SDL_Event * event) {
 					}
 				}
 				if(event->jaxis.axis == 1) {
-					if(controls.use_axis_down && event->jaxis.value > 6400) {
+					if(controls.use_axis_down && event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
 						keydn_d = true;
 						if(controls.use_axis_up) keydn_u = false;
 					}
-					else if(controls.use_axis_up && event->jaxis.value > 6400) {
+					else if(controls.use_axis_up && event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
 						keydn_u = true;
 						if(controls.use_axis_down) keydn_d = false;
 					}
