@@ -1,8 +1,8 @@
 CC=g++
 CFLAGS=-c -Wall
 LDFLAGS=-lSDL -lSDL_ttf -lSDL_mixer -lstdc++
-SRCS=AudioController.cpp Battle.cpp Main.cpp Menu.cpp Player.cpp Projectile.cpp Timer.cpp CharacterSelect.cpp AmmoPowerUp.cpp HealthPowerUp.cpp BombPowerUp.cpp Bomb.cpp
-OBJS=AudioController.o Battle.o Main.o Menu.o Player.o Projectile.o Timer.o CharacterSelect.o AmmoPowerUp.o HealthPowerUp.o BombPowerUp.o Bomb.o
+SRCS=AudioController.cpp Battle.cpp Main.cpp Menu.cpp Player.cpp Projectile.cpp Timer.cpp CharacterSelect.cpp AmmoPowerUp.cpp HealthPowerUp.cpp BombPowerUp.cpp Bomb.cpp DoubleDamagePowerUp.cpp
+OBJS=AudioController.o Battle.o Main.o Menu.o Player.o Projectile.o Timer.o CharacterSelect.o AmmoPowerUp.o HealthPowerUp.o BombPowerUp.o Bomb.o DoubleDamagePowerUp.o
 EXECUTABLE=battle
 
 all: $(EXECUTABLE)

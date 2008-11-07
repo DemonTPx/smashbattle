@@ -332,7 +332,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\blastbowl.stg"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\bomb.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\commongrounds.stg"
 				>
 			</File>
 			<File
@@ -348,11 +356,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sfx\explode.wav"
+				RelativePath=".\stage\ducknhunt.stg"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\four.stg"
+				RelativePath=".\sfx\explode.wav"
 				>
 			</File>
 			<File
@@ -388,11 +396,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\one.stg"
+				RelativePath=".\sfx\pause.wav"
 				>
 			</File>
 			<File
-				RelativePath=".\sfx\pause.wav"
+				RelativePath=".\stage\pitfall.stg"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\pitofdeath.stg"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\platformalley.stg"
 				>
 			</File>
 			<File
@@ -405,6 +421,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\pmarkers.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\pogostick.stg"
 				>
 			</File>
 			<File
@@ -436,10 +456,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\three.stg"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\tiles.bmp"
 				>
 			</File>
@@ -452,7 +468,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\two.stg"
+				RelativePath=".\stage\trainingdojo.stg"
 				>
 			</File>
 			<File

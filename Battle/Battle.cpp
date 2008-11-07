@@ -57,12 +57,16 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Marcel", (char*)"gfx/marcel.bmp"},
 	{(char*)"Anton", (char*)"gfx/anton.bmp"},
 };
-const int Battle::STAGE_COUNT = 4;
+const int Battle::STAGE_COUNT = 8;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
-	{(char*)"Battle Arena one", (char*)"Bert Hekman", (char*)"stage/one.stg"},
-	{(char*)"Battle Arena two", (char*)"Bert Hekman", (char*)"stage/two.stg"},
-	{(char*)"Battle Arena three", (char*)"Bert Hekman", (char*)"stage/three.stg"},
-	{(char*)"Battle Arena four", (char*)"Bert Hekman", (char*)"stage/four.stg"},
+	{(char*)"Training Dojo", (char*)"Bert Hekman", (char*)"stage/trainingdojo.stg"},
+	{(char*)"Common Grounds", (char*)"Bert Hekman", (char*)"stage/commongrounds.stg"},
+	{(char*)"Platform Alley", (char*)"Bert Hekman", (char*)"stage/platformalley.stg"},
+	{(char*)"Pogostick", (char*)"Bert Hekman", (char*)"stage/pogostick.stg"},
+	{(char*)"Pitfall", (char*)"Bert Hekman", (char*)"stage/pitfall.stg"},
+	{(char*)"Blast Bowl", (char*)"Bert Hekman", (char*)"stage/blastbowl.stg"},
+	{(char*)"Pit of Death", (char*)"Bert Hekman", (char*)"stage/pitofdeath.stg"},
+	{(char*)"Duck and Hunt", (char*)"Bert Hekman", (char*)"stage/ducknhunt.stg"},
 };
 
 Battle::Battle() {
