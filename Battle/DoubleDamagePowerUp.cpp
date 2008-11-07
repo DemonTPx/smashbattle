@@ -15,8 +15,8 @@ void DoubleDamagePowerUp::cleanup() {
 
 void DoubleDamagePowerUp::got_powerup(Player * p) {
 	p->doubledamagebullets += ammo;
-	if(p->doubledamagebullets > 20)
-		p->doubledamagebullets = 20;
+	if(p->doubledamagebullets > 9)
+		p->doubledamagebullets = 9;
 }
 
 void DoubleDamagePowerUp::show(SDL_Surface * screen) {

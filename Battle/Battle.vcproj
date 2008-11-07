@@ -216,6 +216,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InstantKillBulletPowerUp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>
@@ -279,6 +283,10 @@
 			</File>
 			<File
 				RelativePath=".\HealthPowerUp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InstantKillBulletPowerUp.h"
 				>
 			</File>
 			<File

@@ -19,6 +19,7 @@
 #include "HealthPowerUp.h"
 #include "BombPowerUp.h"
 #include "DoubleDamagePowerUp.h"
+#include "InstantKillBulletPowerUp.h"
 
 #include "Battle.h"
 
@@ -295,6 +296,7 @@ void Battle::reset_game() {
 	player1->bullets = 20;
 	player1->bombs = 3;
 	player1->doubledamagebullets = 2;
+	player1->instantkillbullets = 0;
 	player1->is_falling = false;
 	player1->is_jumping = false;
 	player1->momentumx = 0;
@@ -313,6 +315,7 @@ void Battle::reset_game() {
 	player2->bullets = 20;
 	player2->bombs = 3;
 	player2->doubledamagebullets = 2;
+	player2->instantkillbullets = 0;
 	player2->is_falling = false;
 	player2->is_jumping = false;
 	player2->momentumx = 0;
@@ -451,20 +454,26 @@ void Battle::process_shoot(Player * p) {
 			Projectile * pr;
 			SDL_Rect * clip_weapon;
 			bool doubledamage;
+			bool instantkill;
 
 			doubledamage = (p->doubledamagebullets > 0);
+			instantkill = (p->instantkillbullets > 0);
 
 			clip_weapon = new SDL_Rect();
-			if(!doubledamage)
-				clip_weapon->x = 0;
-			else
+			if(instantkill)
+				clip_weapon->x = 16;
+			else if(doubledamage)
 				clip_weapon->x = 8;
+			else
+				clip_weapon->x = 0;
 			clip_weapon->y = 0;
 			clip_weapon->w = 8;
 			clip_weapon->h = 8;
 
 			pr = new Projectile(weapons, clip_weapon);
-			if(!doubledamage)
+			if(instantkill)
+				pr->damage = 100;
+			else if(doubledamage)
 				pr->damage = 10;
 			else
 				pr->damage = 20;
@@ -481,13 +490,13 @@ void Battle::process_shoot(Player * p) {
 			else
 				pr->position->y = p->position->y + 8;
 			projectiles->push_back(pr);
-
-			if(!doubledamage) {
-				if(!bullets_unlimited)
-					p->bullets--;
-			} else {
+			
+			if(instantkill)
+				p->instantkillbullets--;
+			else if(doubledamage)
 				p->doubledamagebullets--;
-			}
+			else if(!bullets_unlimited)
+				p->bullets--;
 
 			Main::instance->audio->play(SND_SHOOT);
 		}
@@ -518,13 +527,14 @@ void Battle::process_shoot(Player * p) {
 void Battle::generate_powerup(bool force) {
 	int r;
 	int row, col;
+	PowerUp * pu;
+	SDL_Rect * rect, * pos;
+	
 	if(!force) {
 		r = rand();
 		if(r % 500 != 0) return;
-		if(powerups->size() >= 2) return;
 	}
-	PowerUp * pu;
-	SDL_Rect * rect, * pos;
+	if(powerups->size() >= 2) return;
 
 	bool done;
 	done = false;
@@ -548,7 +558,7 @@ void Battle::generate_powerup(bool force) {
 	pos->x = (col * SPR_W) + 8;
 	pos->y = (row * SPR_H) + 16;
 	
-	r = rand() % 5;
+	r = rand() % 6;
 	switch(r) {
 		case 0:
 			if(!bullets_unlimited) {
@@ -584,6 +594,14 @@ void Battle::generate_powerup(bool force) {
 			rect->w = 16;
 			rect->h = 16;
 			pu = new DoubleDamagePowerUp(powerup, rect, pos, 5);
+			break;
+		case 5:
+			rect = new SDL_Rect();
+			rect->x = 64;
+			rect->y = 0;
+			rect->w = 16;
+			rect->h = 16;
+			pu = new InstantKillBulletPowerUp(powerup, rect, pos, 1);
 			break;
 		default:
 			delete pos;
@@ -1382,16 +1400,18 @@ void Battle::draw_score(SDL_Surface * screen) {
 	rect.x = 120;
 	rect.y = 464;
 	if(player1->doubledamagebullets > 0) rect_s.x = 8;
+	if(player1->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(weapons, &rect_s, screen, &rect);
 
-	if(player1->doubledamagebullets > 0) ammount = player1->doubledamagebullets;
+	if(player1->instantkillbullets > 0) ammount = player1->instantkillbullets;
+	else if(player1->doubledamagebullets > 0) ammount = player1->doubledamagebullets;
 	else {
 		if(!bullets_unlimited) ammount = player1->bullets;
 		else ammount = 0;
 	}
 
 	if(ammount != 0) {
-		sprintf_s(str, 2, "%01d", ammount);
+		sprintf_s(str, 3, "%02d", ammount);
 		surface = TTF_RenderText_Solid(font26, str, fontColor);
 		rect.x = 144 - surface->w;
 		rect.y = 460;
@@ -1406,15 +1426,17 @@ void Battle::draw_score(SDL_Surface * screen) {
 	rect.x = 514;
 	rect.y = 464;
 	if(player2->doubledamagebullets > 0) rect_s.x = 8;
+	if(player2->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(weapons, &rect_s, screen, &rect);
 
-	if(player2->doubledamagebullets > 0) ammount = player2->doubledamagebullets;
+	if(player2->instantkillbullets > 0) ammount = player2->instantkillbullets;
+	else if(player2->doubledamagebullets > 0) ammount = player2->doubledamagebullets;
 	else {
 		if(!bullets_unlimited) ammount = player2->bullets;
 		else ammount = 0;
 	}
 	if(ammount != 0) {
-		sprintf_s(str, 2, "%01d", ammount);
+		sprintf_s(str, 3, "%02d", ammount);
 		surface = TTF_RenderText_Solid(font26, str, fontColor);
 		rect.x = 496;
 		rect.y = 460;

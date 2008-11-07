@@ -80,6 +80,7 @@ public:
 	int bullets;
 	int bombs;
 	int doubledamagebullets;
+	int instantkillbullets;
 
 	int score;
 	int hitpoints;
