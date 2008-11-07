@@ -223,19 +223,25 @@ void Battle::run() {
 			p->show(screen);
 		}
 		
-		if(paused) {
-			draw_pause_screen(screen);
+		if(ended) {
+			draw_win_screen(screen);
+			
+			if(paused && !end_timer->is_paused())
+				end_timer->pause();
+			if(!paused && end_timer->is_paused())
+				end_timer->unpause();
+
+			if(end_timer->get_ticks() > 2000) {
+				delete end_timer;
+				reset_game();
+			}
 		}
 		if(countdown) {
 			if(!paused)
 				handle_draw_countdown(screen);
 		}
-		if(ended) {
-			draw_win_screen(screen);
-			if(end_timer->get_ticks() > 2000) {
-				delete end_timer;
-				reset_game();
-			}
+		if(paused) {
+			draw_pause_screen(screen);
 		}
 
 		// Flipping
@@ -474,9 +480,9 @@ void Battle::process_shoot(Player * p) {
 			if(instantkill)
 				pr->damage = 100;
 			else if(doubledamage)
-				pr->damage = 10;
-			else
 				pr->damage = 20;
+			else
+				pr->damage = 10;
 
 			if(p->current_sprite >= SPR_L && p->current_sprite <= SPR_L_DUCK) {
 				pr->speedx = -10;
@@ -1411,7 +1417,7 @@ void Battle::draw_score(SDL_Surface * screen) {
 	}
 
 	if(ammount != 0) {
-		sprintf_s(str, 3, "%02d", ammount);
+		sprintf_s(str, 2, "%01d", ammount);
 		surface = TTF_RenderText_Solid(font26, str, fontColor);
 		rect.x = 144 - surface->w;
 		rect.y = 460;
@@ -1436,7 +1442,7 @@ void Battle::draw_score(SDL_Surface * screen) {
 		else ammount = 0;
 	}
 	if(ammount != 0) {
-		sprintf_s(str, 3, "%02d", ammount);
+		sprintf_s(str, 2, "%01d", ammount);
 		surface = TTF_RenderText_Solid(font26, str, fontColor);
 		rect.x = 496;
 		rect.y = 460;
