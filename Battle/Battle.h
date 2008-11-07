@@ -79,6 +79,7 @@ private:
 	
 	bool ended;
 	Timer * end_timer;
+	int end_avatar_start_frame;
 
 	bool countdown;
 	int countdown_sec_left;

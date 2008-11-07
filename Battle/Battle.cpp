@@ -181,6 +181,7 @@ void Battle::run() {
 				ended = true;
 				end_timer = new Timer();
 				end_timer->start();
+				end_avatar_start_frame = frame;
 			}
 			if(player2->hitpoints <= 0) {
 				Main::audio->play(SND_YOULOSE);
@@ -195,6 +196,7 @@ void Battle::run() {
 				ended = true;
 				end_timer = new Timer();
 				end_timer->start();
+				end_avatar_start_frame = frame;
 			}
 		}
 		
@@ -535,14 +537,14 @@ void Battle::generate_powerup(bool force) {
 	int row, col;
 	PowerUp * pu;
 	SDL_Rect * rect, * pos;
-	
+	bool done;
+
+	if(powerups->size() >= 2) return;
 	if(!force) {
 		r = rand();
 		if(r % 500 != 0) return;
 	}
-	if(powerups->size() >= 2) return;
 
-	bool done;
 	done = false;
 	while(!done) {
 		row = rand() % SPR_ROWS - 1;
@@ -1496,17 +1498,17 @@ void Battle::draw_pause_screen(SDL_Surface * screen) {
 	rect.y = (screen->h / 2) + 3;
 	rect.w = 152;
 	rect.h = 20;
-	if(!pause_quit)
+	if(pause_quit)
 		rect.y = (screen->h / 2) + 23;
 	SDL_FillRect(screen, &rect, color);
 
-	surface = TTF_RenderText_Solid(font26, "RESUME", fontColor);
+	surface = TTF_RenderText_Solid(font26, "QUIT", fontColor);
 	rect.x = (screen->w - surface->w) / 2 ;
 	rect.y = (screen->h / 2) + 25;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	surface = TTF_RenderText_Solid(font26, "QUIT", fontColor);
+	surface = TTF_RenderText_Solid(font26, "RESUME", fontColor);
 	rect.x = (screen->w - surface->w) / 2 ;
 	rect.y = (screen->h / 2) + 5;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -1516,19 +1518,36 @@ void Battle::draw_pause_screen(SDL_Surface * screen) {
 void Battle::draw_win_screen(SDL_Surface * screen) {
 	SDL_Surface * surface;
 	SDL_Rect rect;
+	SDL_Rect clip_avatar;
+	Player * winner;
 
 	char * text;
 
-	if(player1->hitpoints == 0) 
+	if(player1->hitpoints == 0) {
+		winner = player2;
 		text = (char*)"Player 2 wins";
-	if(player2->hitpoints == 0)
+	}
+	if(player2->hitpoints == 0) {
+		winner = player1;
 		text = (char*)"Player 1 wins";
+	}
 
 	surface = TTF_RenderText_Solid(font26, text, fontColor);
-	rect.x = (screen->w - surface->w) / 2;
+	rect.x = ((screen->w - surface->w) / 2) + 28;
 	rect.y = (screen->h - surface->h) / 2;
 
 	SDL_BlitSurface(surface, NULL, screen, &rect);
+	
+	rect.x = rect.x - 56;
+	rect.y = (screen->h - 44) / 2;
+	clip_avatar.x = 220;
+	clip_avatar.y = 0;
+	clip_avatar.w = 44;
+	clip_avatar.h = 44;
+	if((frame - end_avatar_start_frame) % 40 < 20)
+		clip_avatar.y = 44;
+
+	SDL_BlitSurface(winner->sprites, &clip_avatar, screen, &rect);
 
 	SDL_FreeSurface(surface);
 }
