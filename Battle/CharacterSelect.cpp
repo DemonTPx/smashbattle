@@ -276,11 +276,13 @@ void CharacterSelect::process_cursors() {
 		cursor1_enter = false;
 		if(ready1 && ready2) {
 			ready = true;
+			Main::audio->play(SND_SELECT_CHARACTER);
 		}
 		if(!ready1) {
 			ready1 = true;
 			flicker1 = true;
 			flicker1_frame = 0;
+			Main::audio->play(SND_SELECT_CHARACTER);
 		}
 	}
 
@@ -294,9 +296,11 @@ void CharacterSelect::process_cursors() {
 			cursor1_first = false;
 			if(!ready1) {
 				select(&select1, cursor1_direction);
+				Main::audio->play(SND_SELECT);
 			}
 			if(ready1 && ready2) {
 				select_stage(cursor1_direction);
+				Main::audio->play(SND_SELECT);
 			}
 		}
 	}
@@ -305,11 +309,13 @@ void CharacterSelect::process_cursors() {
 		cursor2_enter = false;
 		if(ready1 && ready2) {
 			ready = true;
+			Main::audio->play(SND_SELECT_CHARACTER);
 		}
 		if(!ready2) {
 			ready2 = true;
 			flicker2 = true;
 			flicker2_frame = 0;
+			Main::audio->play(SND_SELECT_CHARACTER);
 		}
 	}
 
@@ -323,9 +329,11 @@ void CharacterSelect::process_cursors() {
 			cursor2_first = false;
 			if(!ready2) {
 				select(&select2, cursor2_direction);
+				Main::audio->play(SND_SELECT);
 			}
 			if(ready1 && ready2) {
 				select_stage(cursor2_direction);
+				Main::audio->play(SND_SELECT);
 			}
 		}
 	}
