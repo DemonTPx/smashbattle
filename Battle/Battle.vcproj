@@ -228,6 +228,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Options.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OptionsScreen.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Player.cpp"
 				>
 			</File>
@@ -295,6 +303,14 @@
 			</File>
 			<File
 				RelativePath=".\Menu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Options.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OptionsScreen.h"
 				>
 			</File>
 			<File
