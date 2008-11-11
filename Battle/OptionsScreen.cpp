@@ -67,7 +67,7 @@ void OptionsScreen::draw() {
 		item = items->at(i);
 		text = item->surf_name;
 		
-		if(selected_item == i) {
+		if(selected_item == (int)i) {
 			highlight = SDL_CreateRGBSurface(NULL, text->w + 10, menu_item_height, 32, 0, 0, 0, 0);
 			SDL_FillRect(highlight, NULL, 0x444488);
 			

@@ -10,25 +10,25 @@ Options::Options() {
 	OptionItem * item;
 
 	item = new OptionItem();
-	item->name = "Controls Player 1";
+	item->name = (char*)"Controls Player 1";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = "Controls Player 2";
+	item->name = (char*)"Controls Player 2";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = "Sound and music";
+	item->name = (char*)"Sound and music";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = "Return";
+	item->name = (char*)"Return";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);

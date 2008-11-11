@@ -8,31 +8,31 @@ AudioOptions::AudioOptions() {
 	OptionItem * item;
 
 	item = new OptionItem();
-	item->name = "Audio";
+	item->name = (char*)"Audio";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back("off");
-	item->options->push_back("20");
-	item->options->push_back("40");
-	item->options->push_back("60");
-	item->options->push_back("80");
-	item->options->push_back("100");
+	item->options->push_back((char*)"off");
+	item->options->push_back((char*)"20");
+	item->options->push_back((char*)"40");
+	item->options->push_back((char*)"60");
+	item->options->push_back((char*)"80");
+	item->options->push_back((char*)"100");
 	item->selected = Main::instance->audio->sound_volume / 20;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = "Music";
+	item->name = (char*)"Music";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back("off");
-	item->options->push_back("20");
-	item->options->push_back("40");
-	item->options->push_back("60");
-	item->options->push_back("80");
-	item->options->push_back("100");
+	item->options->push_back((char*)"off");
+	item->options->push_back((char*)"20");
+	item->options->push_back((char*)"40");
+	item->options->push_back((char*)"60");
+	item->options->push_back((char*)"80");
+	item->options->push_back((char*)"100");
 	item->selected = Main::instance->audio->music_volume / 20;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = "Return";
+	item->name = (char*)"Return";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
