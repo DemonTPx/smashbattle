@@ -31,11 +31,22 @@ protected:
 		CENTER,
 		RIGHT
 	} align;
+	
+	int menu_item_height;
+	int menu_top_offset;
+	int menu_left_offset;
+	int menu_options_left_offset;
+
+	TTF_Font * font26;
+	TTF_Font * font13;
+	SDL_Color fontColor;
 
 	void init();
 	void cleanup();
 
 	void add_item(OptionItem *);
+
+	void reload_controls();
 
 	virtual void item_selected();
 	virtual void selection_changed();
@@ -45,16 +56,8 @@ private:
 	std::vector<SDL_Surface *> * surf_items;
 	std::vector<SDL_Rect *> * surf_items_clip;
 
-	TTF_Font * font26;
-	TTF_Font * font13;
-	SDL_Color fontColor;
-
 	int frame;
 
-	int menu_item_height;
-	int menu_top_offset;
-	int menu_left_offset;
-	int menu_options_left_offset;
 	int screen_w, screen_h;
 
 	void draw();

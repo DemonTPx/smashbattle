@@ -317,6 +317,8 @@ void Menu::select() {
 			options = new Options();
 			options->run();
 			delete options;
+			controls1 = Main::instance->controls1;
+			controls2 = Main::instance->controls2;
 			break;
 		case 2:
 			SDL_Delay(500);

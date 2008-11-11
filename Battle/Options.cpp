@@ -3,6 +3,7 @@
 #include "SDL/SDL_mixer.h"
 
 #include "AudioOptions.h"
+#include "ControlsOptions.h"
 
 #include "Options.h"
 
@@ -42,6 +43,20 @@ void Options::run() {
 
 void Options::item_selected() {
 	switch(selected_item) {
+		case 0:
+			ControlsOptions * controlsoptions1;
+			controlsoptions1 = new ControlsOptions(&Main::instance->controls1);
+			controlsoptions1->run();
+			delete controlsoptions1;
+			reload_controls();
+			break;
+		case 1:
+			ControlsOptions * controlsoptions2;
+			controlsoptions2 = new ControlsOptions(&Main::instance->controls2);
+			controlsoptions2->run();
+			delete controlsoptions2;
+			reload_controls();
+			break;
 		case 2:
 			AudioOptions * audiooptions;
 			audiooptions = new AudioOptions();

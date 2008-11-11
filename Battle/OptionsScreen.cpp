@@ -16,6 +16,11 @@ OptionsScreen::OptionsScreen() {
 	items = new std::vector<OptionItem*>(0);
 
 	align = LEFT;
+
+	menu_item_height = 26;
+	menu_top_offset = 30;
+	menu_left_offset = 20;
+	menu_options_left_offset = 250;
 }
 
 void OptionsScreen::run() {
@@ -23,8 +28,7 @@ void OptionsScreen::run() {
 
 	init();
 
-	controls1 = Main::instance->controls1;
-	controls2 = Main::instance->controls2;
+	reload_controls();
 
 	frame = 0;
 
@@ -368,6 +372,11 @@ void OptionsScreen::add_item(OptionItem * item) {
 	items->push_back(item);
 }
 
+void OptionsScreen::reload_controls() {
+	controls1 = Main::instance->controls1;
+	controls2 = Main::instance->controls2;
+}
+
 void OptionsScreen::item_selected() { }
 void OptionsScreen::selection_changed() { }
 
@@ -383,15 +392,11 @@ void OptionsScreen::init() {
 	fontColor.g = 255;
 	fontColor.b = 255;
 
-	selected_item = 0;
+	if(selected_item < 0 || selected_item >= (int)items->size())
+		selected_item = 0;
 
 	screen_w = Main::instance->screen->w;
 	screen_h = Main::instance->screen->h;
-
-	menu_item_height = 26;
-	menu_top_offset = 30;
-	menu_left_offset = 20;
-	menu_options_left_offset = 250;
 
 	for(unsigned int i = 0; i < items->size(); i++) {
 		item = items->at(i);
@@ -453,6 +458,7 @@ void OptionsScreen::cleanup() {
 			items->at(i)->options->clear();
 			delete items->at(i)->options;
 		}
+		delete items->at(i)->rect_name;
 		delete items->at(i);
 	}
 	items->clear();

@@ -214,7 +214,7 @@ void Player::handle_input(SDL_Event * event) {
 						keydn_d = true;
 						if(controls.use_axis_up) keydn_u = false;
 					}
-					else if(controls.use_axis_up && event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
+					else if(controls.use_axis_up && event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD) {
 						keydn_u = true;
 						if(controls.use_axis_down) keydn_d = false;
 					}
@@ -226,8 +226,17 @@ void Player::handle_input(SDL_Event * event) {
 			}
 			if(event->type == SDL_JOYBUTTONDOWN) {
 				if(event->jbutton.which == controls.joystick_idx) {
-					if(event->jbutton.button == controls.js_jump) {
+					if(!controls.use_axis_up && event->jbutton.button == controls.js_jump) {
 						keydn_u = true;
+					}
+					if(!controls.use_axis_down && event->jbutton.button == controls.js_down) {
+						keydn_d = true;
+					}
+					if(!controls.use_axis_x && event->jbutton.button == controls.js_left) {
+						keydn_l = true;
+					}
+					if(!controls.use_axis_x && event->jbutton.button == controls.js_right) {
+						keydn_r = true;
 					}
 					if(event->jbutton.button == controls.js_run) {
 						keydn_run = true;
@@ -242,8 +251,17 @@ void Player::handle_input(SDL_Event * event) {
 			}
 			if(event->type == SDL_JOYBUTTONUP) {
 				if(event->jbutton.which == controls.joystick_idx) {
-					if(event->jbutton.button == controls.js_jump) {
+					if(!controls.use_axis_up && event->jbutton.button == controls.js_jump) {
 						keydn_u = false;
+					}
+					if(!controls.use_axis_down && event->jbutton.button == controls.js_down) {
+						keydn_d = false;
+					}
+					if(!controls.use_axis_x && event->jbutton.button == controls.js_left) {
+						keydn_l = false;
+					}
+					if(!controls.use_axis_x && event->jbutton.button == controls.js_right) {
+						keydn_r = false;
 					}
 					if(event->jbutton.button == controls.js_run) {
 						keydn_run = false;

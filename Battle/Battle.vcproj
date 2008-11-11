@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ControlsOptions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DoubleDamagePowerUp.cpp"
 				>
 			</File>
@@ -291,6 +295,10 @@
 			</File>
 			<File
 				RelativePath=".\CharacterSelect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ControlsOptions.h"
 				>
 			</File>
 			<File

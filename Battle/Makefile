@@ -8,6 +8,7 @@ SRCS=AudioController.cpp\
 	OptionsScreen.cpp\
 	Options.cpp\
 	AudioOptions.cpp\
+	ControlsOptions.cpp\
 	Player.cpp\
 	Projectile.cpp\
 	Timer.cpp\
@@ -25,6 +26,7 @@ OBJS=AudioController.o\
 	OptionsScreen.o\
 	Options.o\
 	AudioOptions.o\
+	ControlsOptions.o\
 	Player.o\
 	Projectile.o\
 	Timer.o\
