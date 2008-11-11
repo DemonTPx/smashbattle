@@ -8,6 +8,10 @@
 
 #include "CharacterSelect.h"
 
+#ifndef WIN32
+#define sprintf_s snprintf
+#endif
+
 #define CHARACTERS_PER_LINE	4
 #define CHARACTER_WIDTH		44
 #define CHARACTER_SPACING	4
