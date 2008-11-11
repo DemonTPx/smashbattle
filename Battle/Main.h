@@ -61,9 +61,6 @@ public:
 
 	static AudioController * audio;
 
-	static bool music_on;
-	static bool sound_on;
-
 	SDL_Joystick * joystick1;
 	SDL_Joystick * joystick2;
 
@@ -79,7 +76,10 @@ private:
 	bool init();
 	void clean_up();
 
-	void load_controlschemes();
+	void load_options();
+	void save_options();
+
+	void set_default_controlschemes();
 };
 
 #endif

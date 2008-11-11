@@ -3,6 +3,8 @@
 #include "SDL/SDL_mixer.h"
 
 #include <cstdio>
+#include <iostream>
+#include <fstream>
 
 #include "Timer.h"
 #include "Block.h"
@@ -33,9 +35,6 @@ bool Main::fps_cap = false;
 Timer * Main::fps = NULL;
 
 AudioController * Main::audio = NULL;
-
-bool Main::music_on = true;
-bool Main::sound_on = true;
 
 Main::Main() {
 	Main::instance = this;
@@ -78,8 +77,6 @@ bool Main::init() {
 		joystick1 = SDL_JoystickOpen(0);
 	if(SDL_NumJoysticks() >= 2)
 		joystick2 = SDL_JoystickOpen(1);
-
-	load_controlschemes();
 
 	return true;
 }
@@ -127,12 +124,6 @@ void Main::handle_event(SDL_Event * event) {
 		if(event->key.keysym.sym == SDLK_F10) {
 			SDL_WM_ToggleFullScreen(screen);
 		}
-		if(event->key.keysym.sym == SDLK_F11) {
-			music_on = !music_on;
-			sound_on = !sound_on;
-			if(!music_on)
-				audio->stop_music();
-		}
 	}
 }
 
@@ -142,6 +133,8 @@ int Main::run() {
 	frame_delay = 1000 / FRAMES_PER_SECOND;
 	frame = 0;
 
+	load_options();
+
 	Menu * menu;
 	menu = new Menu();
 
@@ -149,6 +142,8 @@ int Main::run() {
 	menu->run();
 
 	delete menu;
+
+	save_options();
 
 	clean_up();
 
@@ -166,7 +161,149 @@ int main(int argc, char* args[]) {
 	return main.run();
 }
 
-void Main::load_controlschemes() {
+void Main::load_options() {
+	union {
+		int i;
+		char c[4];
+	} val;
+	char c[1];
+	std::ifstream file;
+	ControlScheme * controls;
+
+	file.open("options.dat", std::ifstream::in | std::ifstream::binary);
+
+	if(file.eof() || file.fail()) {
+		audio->sound_volume = 100;
+		audio->music_volume = 100;
+		set_default_controlschemes();
+		file.close();
+		return;
+	}
+
+	file.read(val.c, 4);
+	audio->sound_volume = val.i;
+	file.read(val.c, 4);
+	audio->music_volume = val.i;
+
+	for(int i = 0; i < 2; i++) {
+		if(i == 0) controls = &controls1;
+		if(i == 1) controls = &controls2;
+
+		file.read(c, 1);
+		controls->use_keyboard = (c[0] == 1);
+		file.read(val.c, 4);
+		controls->kb_left = val.i;
+		file.read(val.c, 4);
+		controls->kb_right = val.i;
+		file.read(val.c, 4);
+		controls->kb_up = val.i;
+		file.read(val.c, 4);
+		controls->kb_down = val.i;
+		file.read(val.c, 4);
+		controls->kb_jump = val.i;
+		file.read(val.c, 4);
+		controls->kb_run = val.i;
+		file.read(val.c, 4);
+		controls->kb_shoot = val.i;
+		file.read(val.c, 4);
+		controls->kb_bomb = val.i;
+		file.read(val.c, 4);
+		controls->kb_start = val.i;
+		file.read(c, 1);
+		controls->use_joystick = (c[0] == 1);
+		file.read(c, 1);
+		controls->use_axis_x = (c[0] == 1);
+		file.read(c, 1);
+		controls->use_axis_up = (c[0] == 1);
+		file.read(c, 1);
+		controls->use_axis_down = (c[0] == 1);
+		file.read(val.c, 4);
+		controls->joystick_idx = val.i;
+		file.read(val.c, 4);
+		controls->js_jump = val.i;
+		file.read(val.c, 4);
+		controls->js_run = val.i;
+		file.read(val.c, 4);
+		controls->js_shoot = val.i;
+		file.read(val.c, 4);
+		controls->js_bomb = val.i;
+		file.read(val.c, 4);
+		controls->js_start = val.i;
+	}
+	file.close();
+}
+
+void Main::save_options() {
+	union {
+		int i;
+		char c[4];
+	} val;
+	char c[1];
+	std::ofstream file;
+	ControlScheme * controls;
+
+	file.open("options.dat", std::ofstream::out | std::ofstream::binary | std::ofstream::trunc);
+
+	if(file.fail()) {
+		file.close();
+	}
+
+	val.i = audio->sound_volume;
+	file.write(val.c, 4);
+	val.i = audio->music_volume;
+	file.write(val.c, 4);
+	
+
+	for(int i = 0; i < 2; i++) {
+		if(i == 0) controls = &controls1;
+		if(i == 1) controls = &controls2;
+
+		c[0] = controls->use_keyboard ? 1 : 0;
+		file.write(c, 1);
+		val.i = controls->kb_left;
+		file.write(val.c, 4);
+		val.i = controls->kb_right;
+		file.write(val.c, 4);
+		val.i = controls->kb_up;
+		file.write(val.c, 4);
+		val.i = controls->kb_down;
+		file.write(val.c, 4);
+		val.i = controls->kb_jump;
+		file.write(val.c, 4);
+		val.i = controls->kb_run;
+		file.write(val.c, 4);
+		val.i = controls->kb_shoot;
+		file.write(val.c, 4);
+		val.i = controls->kb_bomb;
+		file.write(val.c, 4);
+		val.i = controls->kb_start;
+		file.write(val.c, 4);
+		c[0] = controls->use_joystick ? 1 : 0;
+		file.write(c, 1);
+		c[0] = controls->use_axis_x ? 1 : 0;
+		file.write(c, 1);
+		c[0] = controls->use_axis_up ? 1 : 0;
+		file.write(c, 1);
+		c[0] = controls->use_axis_down ? 1 : 0;
+		file.write(c, 1);
+		val.i = controls->joystick_idx;
+		file.write(val.c, 4);
+		val.i = controls->js_jump;
+		file.write(val.c, 4);
+		val.i = controls->js_run;
+		file.write(val.c, 4);
+		val.i = controls->js_shoot;
+		file.write(val.c, 4);
+		val.i = controls->js_bomb;
+		file.write(val.c, 4);
+		val.i = controls->js_start;
+		file.write(val.c, 4);
+	}
+
+	file.close();
+}
+
+void Main::set_default_controlschemes() {
 	//TODO: load these from a file
 	controls1.use_keyboard = true;
 	controls1.kb_left = SDLK_a;

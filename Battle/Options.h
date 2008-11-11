@@ -7,7 +7,6 @@ public:
 	Options();
 
 	void run();
-	void exit_options();
 	void item_selected();
 };
 

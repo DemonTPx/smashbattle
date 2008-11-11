@@ -42,6 +42,8 @@ const int AudioController::soundvolume[SOUNDFILES] = {
 };
 
 AudioController::AudioController() {
+	sound_volume = 100;
+	music_volume = 100;
 }
 
 AudioController::~AudioController() {
@@ -86,7 +88,7 @@ void AudioController::close_files() {
 }
 
 void AudioController::play_music(int music) {
-	if(!Main::music_on)
+	if(music_volume == 0)
 		return;
 
 	if(music < 0 || music >= MUSICFILES)
@@ -96,6 +98,7 @@ void AudioController::play_music(int music) {
 		return;
 
 	Mix_HaltMusic();
+	Mix_VolumeMusic(music_volume);
 	Mix_PlayMusic(this->music[music], -1);
 }
 
@@ -115,7 +118,7 @@ void AudioController::unpause_music() {
 // play_sound(SND_JUMP);
 
 void AudioController::play(int sound) {
-	if(!Main::sound_on)
+	if(sound_volume == 0)
 		return;
 
 	if(sound < 0 || sound >= SOUNDFILES)
@@ -125,6 +128,7 @@ void AudioController::play(int sound) {
 		return;
 	
 	int chan;
+	int volume;
 
 	chan = 0;
 	while(Mix_Playing(chan))
@@ -134,6 +138,8 @@ void AudioController::play(int sound) {
 	if(chan >= AUDIO_CHANNELS)
 		return;
 
+	volume = (int)(((double)sound_volume / 100) * soundvolume[sound]);
+
+	Mix_Volume(chan, volume);
 	Mix_PlayChannel(chan, this->sound[sound], 0);
-	Mix_Volume(chan, soundvolume[sound]);
 }

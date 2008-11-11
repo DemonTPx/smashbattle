@@ -8,6 +8,11 @@ struct OptionItem {
 	char * name;
 	std::vector<char *> * options;
 	unsigned int selected;
+
+	SDL_Surface * surf_name;
+	SDL_Rect * rect_name;
+	std::vector<SDL_Surface *> * surf_options;
+	std::vector<SDL_Rect *> * rect_options;
 };
 
 class OptionsScreen {
@@ -33,6 +38,7 @@ protected:
 	void add_item(OptionItem *);
 
 	virtual void item_selected();
+	virtual void selection_changed();
 private:	
 	ControlScheme controls1, controls2;
 
@@ -48,6 +54,7 @@ private:
 	int menu_item_height;
 	int menu_top_offset;
 	int menu_left_offset;
+	int menu_options_left_offset;
 	int screen_w, screen_h;
 
 	void draw();

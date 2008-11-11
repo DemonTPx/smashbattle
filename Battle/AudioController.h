@@ -42,6 +42,9 @@ public:
 	void unpause_music();
 
 	void play(int sound);
+
+	int sound_volume;
+	int music_volume;
 private:
 	Mix_Music * music[MUSICFILES];
 	Mix_Chunk * sound[SOUNDFILES];

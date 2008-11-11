@@ -2,6 +2,8 @@
 #include "SDL/SDL_ttf.h"
 #include "SDL/SDL_mixer.h"
 
+#include "AudioOptions.h"
+
 #include "Options.h"
 
 Options::Options() {
@@ -31,19 +33,21 @@ Options::Options() {
 	item->selected = 0;
 	add_item(item);
 
-	OptionsScreen::align = CENTER;
+	OptionsScreen::align = LEFT;
 }
 
 void Options::run() {
 	OptionsScreen::run();
 }
 
-void Options::exit_options() {
-	OptionsScreen::running = false;
-}
-
 void Options::item_selected() {
 	switch(selected_item) {
+		case 2:
+			AudioOptions * audiooptions;
+			audiooptions = new AudioOptions();
+			audiooptions->run();
+			delete audiooptions;
+			break;
 		case 3:
 			running = false;
 			break;

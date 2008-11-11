@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AudioOptions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Battle.cpp"
 				>
 			</File>
@@ -263,6 +267,10 @@
 			</File>
 			<File
 				RelativePath=".\AudioController.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AudioOptions.h"
 				>
 			</File>
 			<File

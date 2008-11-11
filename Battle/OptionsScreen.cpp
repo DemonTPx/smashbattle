@@ -52,10 +52,11 @@ void OptionsScreen::run() {
 }
 
 void OptionsScreen::draw() {
-	unsigned int i;
+	unsigned int i, j;
 	SDL_Surface * text, * highlight;
 	SDL_Rect rect;
 	SDL_Surface * screen;
+	OptionItem * item;
 
 	screen = Main::instance->screen;
 
@@ -63,20 +64,39 @@ void OptionsScreen::draw() {
 	//SDL_BlitSurface(bg, NULL, screen, NULL);
 
 	for(i = 0; i < items->size(); i++) {
-		text = surf_items->at(i);
+		item = items->at(i);
+		text = item->surf_name;
 		
 		if(selected_item == i) {
 			highlight = SDL_CreateRGBSurface(NULL, text->w + 10, menu_item_height, 32, 0, 0, 0, 0);
 			SDL_FillRect(highlight, NULL, 0x444488);
 			
-			rect.x = surf_items_clip->at(i)->x - 5;
-			rect.y = surf_items_clip->at(i)->y - 3;
+			rect.x = item->rect_name->x - 5;
+			rect.y = item->rect_name->y - 3;
 
 			SDL_BlitSurface(highlight, NULL, screen, &rect);
 			SDL_FreeSurface(highlight);
 		}
 
-		SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
+		SDL_BlitSurface(text, NULL, screen, item->rect_name);
+
+		if(item->options != NULL) {
+			for(j = 0; j < item->options->size(); j++) {
+				text = item->surf_options->at(j);
+				if(item->selected == j) {
+					highlight = SDL_CreateRGBSurface(NULL, text->w + 10, menu_item_height, 32, 0, 0, 0, 0);
+					SDL_FillRect(highlight, NULL, 0x444488);
+				
+					rect.x = item->rect_options->at(j)->x - 5;
+					rect.y = item->rect_options->at(j)->y - 3;
+
+					SDL_BlitSurface(highlight, NULL, screen, &rect);
+					SDL_FreeSurface(highlight);
+				}
+
+				SDL_BlitSurface(text, NULL, screen, item->rect_options->at(j));
+			}
+		}
 	}
 }
 
@@ -317,12 +337,14 @@ void OptionsScreen::select_left() {
 	item = items->at(selected_item);
 	if(item->options == NULL) return;
 	
-	count = item->options->size();
+	count = (unsigned int)item->options->size();
 
 	if(item->selected == 0)
 		item->selected = count - 1;
 	else
 		item->selected--;
+
+	selection_changed();
 }
 
 void OptionsScreen::select_right() {
@@ -332,12 +354,14 @@ void OptionsScreen::select_right() {
 	item = items->at(selected_item);
 	if(item->options == NULL) return;
 	
-	count = item->options->size();
+	count = (unsigned int)item->options->size();
 
 	if(item->selected == (count - 1))
 		item->selected = 0;
 	else
 		item->selected++;
+	
+	selection_changed();
 }
 
 void OptionsScreen::add_item(OptionItem * item) {
@@ -345,10 +369,13 @@ void OptionsScreen::add_item(OptionItem * item) {
 }
 
 void OptionsScreen::item_selected() { }
+void OptionsScreen::selection_changed() { }
 
 void OptionsScreen::init() {
 	SDL_Surface * surface;
 	SDL_Rect * rect;
+	OptionItem * item;
+	int x;
 
 	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
 	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
@@ -364,23 +391,45 @@ void OptionsScreen::init() {
 	menu_item_height = 26;
 	menu_top_offset = 30;
 	menu_left_offset = 20;
+	menu_options_left_offset = 250;
 
-	surf_items = new std::vector<SDL_Surface*>(0);
-	surf_items_clip = new std::vector<SDL_Rect*>(0);
 	for(unsigned int i = 0; i < items->size(); i++) {
-		surface = TTF_RenderText_Solid(font26, items->at(i)->name, fontColor);
-		surf_items->push_back(surface);
+		item = items->at(i);
+		
+		item->surf_name = TTF_RenderText_Solid(font26, item->name, fontColor);
 
-		rect = new SDL_Rect();
+		item->rect_name = new SDL_Rect();
+
+		item->rect_name->y = menu_top_offset + (i * menu_item_height) - 3;
 		if(align == LEFT) {
-			rect->x = menu_left_offset;
+			item->rect_name->x = menu_left_offset;
 		} else if(align == CENTER) {
-			rect->x = (screen_w - surface->w) / 2;
+			item->rect_name->x = (screen_w - item->surf_name->w) / 2;
 		} else {
-			rect->x = screen_w - surface->w - menu_left_offset;
+			item->rect_name->x = screen_w - item->surf_name->w - menu_left_offset;
 		}
-		rect->y = menu_top_offset + (i * menu_item_height) - 3;
-		surf_items_clip->push_back(rect);
+
+		x = menu_options_left_offset;
+
+		if(item->options != NULL) {
+			item->surf_options = new std::vector<SDL_Surface *>(0);
+			item->rect_options = new std::vector<SDL_Rect *>(0);
+			for(unsigned int j = 0; j < item->options->size(); j++) {
+				surface = TTF_RenderText_Solid(font26, item->options->at(j), fontColor);
+				item->surf_options->push_back(surface);
+
+				rect = new SDL_Rect();
+				rect->x = x;
+				rect->y = menu_top_offset + (i * menu_item_height) - 3;
+
+				item->rect_options->push_back(rect);
+
+				x += surface->w + 10;
+			}
+		} else {
+			item->surf_options = NULL;
+			item->rect_options = NULL;
+		}
 	}
 }
 
@@ -389,20 +438,23 @@ void OptionsScreen::cleanup() {
 	TTF_CloseFont(font13);
 
 	for(unsigned int i = 0; i < items->size(); i++) {
+		if(items->at(i)->options != NULL) {
+			for(unsigned int j = 0; j < items->at(i)->options->size(); j++) {
+				SDL_FreeSurface(items->at(i)->surf_options->at(j));
+				delete(items->at(i)->rect_options->at(j));
+			}
+			
+			items->at(i)->surf_options->clear();
+			delete items->at(i)->surf_options;
+
+			items->at(i)->rect_options->clear();
+			delete items->at(i)->rect_options;
+
+			items->at(i)->options->clear();
+			delete items->at(i)->options;
+		}
 		delete items->at(i);
 	}
 	items->clear();
 	delete items;
-
-	for(unsigned int i = 0; i < surf_items->size(); i++) {
-		SDL_FreeSurface(surf_items->at(i));
-	}
-	surf_items->clear();
-	delete surf_items;
-
-	for(unsigned int i = 0; i < surf_items_clip->size(); i++) {
-		delete surf_items_clip->at(i);
-	}
-	surf_items_clip->clear();
-	delete surf_items_clip;
 }
