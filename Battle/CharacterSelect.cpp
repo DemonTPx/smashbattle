@@ -606,7 +606,7 @@ void CharacterSelect::draw() {
 		left += 20;
 
 		strcpy(text, "-\0");
-		if(ruleset.bullets > -1) itoa(ruleset.bullets, text, 10);
+		if(ruleset.bullets > -1) sprintf_s(text, 5, "%d", ruleset.bullets);
 		surface = TTF_RenderText_Solid(font26, text, fontColor);
 		rect.x = left; rect.y = top;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -620,7 +620,7 @@ void CharacterSelect::draw() {
 		left += 20;
 
 		strcpy(text, "-\0");
-		if(ruleset.doubledamagebullets > -1) itoa(ruleset.doubledamagebullets, text, 10);
+		if(ruleset.doubledamagebullets > -1) sprintf_s(text, 5, "%d", ruleset.doubledamagebullets);
 		surface = TTF_RenderText_Solid(font26, text, fontColor);
 		rect.x = left; rect.y = top;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -634,7 +634,7 @@ void CharacterSelect::draw() {
 		left += 20;
 
 		strcpy(text, "-\0");
-		if(ruleset.instantkillbullets > -1) itoa(ruleset.instantkillbullets, text, 10);
+		if(ruleset.instantkillbullets > -1) sprintf_s(text, 5, "%d", ruleset.instantkillbullets);
 		surface = TTF_RenderText_Solid(font26, text, fontColor);
 		rect.x = left; rect.y = top;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -648,7 +648,7 @@ void CharacterSelect::draw() {
 		left += 20;
 
 		strcpy(text, "-\0");
-		if(ruleset.bombs > -1) itoa(ruleset.bombs, text, 10);
+		if(ruleset.bombs > -1) sprintf_s(text, 5, "%d", ruleset.bombs);
 		surface = TTF_RenderText_Solid(font26, text, fontColor);
 		rect.x = left; rect.y = top;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
