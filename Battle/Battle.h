@@ -7,6 +7,8 @@
 #include "PowerUp.h"
 #include <vector>
 
+#define BULLETS_UNLIMITED -1
+
 struct Character {
 	char * name;
 	char * filename;
@@ -16,6 +18,21 @@ struct Stage {
 	char * name;
 	char * author;
 	char * filename;
+};
+
+struct RuleSet {
+	char * name;
+	int bullets;
+	int doubledamagebullets;
+	int instantkillbullets;
+	int bombs;
+	int healthpowerups;
+	int bulletpowerups;
+	int doubledamagepowerups;
+	int instantkillpowerups;
+	int bombpowerups;
+	int powerup_rate;
+	int powerup_max;
 };
 
 class Battle {
@@ -28,7 +45,18 @@ public:
 	static const Character characters[];
 	static const int STAGE_COUNT;
 	static const Stage stages[];
+	static const int RULESET_COUNT;
+	static const RuleSet rulesets[];
 	static SDL_Surface * create_level_thumbnail(const char * filename);
+
+	SDL_Surface * tiles;
+	SDL_Surface * background;
+	SDL_Surface * weapons;
+	SDL_Surface * surface_bombs;
+	SDL_Surface * powerup;
+	SDL_Surface * player1hp;
+	SDL_Surface * player2hp;
+	SDL_Rect * tile_rect[16];
 private:
 	bool game_running;
 
@@ -91,20 +119,11 @@ private:
 	std::vector<Bomb*> * bombs;
 	std::vector<PowerUp*> * powerups;
 
-	bool bullets_unlimited;
+	RuleSet ruleset;
 	
 	TTF_Font * font26;
 	TTF_Font * font52;
 	SDL_Color fontColor;
-
-	SDL_Surface * tiles;
-	SDL_Surface * background;
-	SDL_Surface * weapons;
-	SDL_Surface * surface_bombs;
-	SDL_Surface * powerup;
-	SDL_Surface * player1hp;
-	SDL_Surface * player2hp;
-	SDL_Rect * tile_rect[16];
 };
 
 #endif

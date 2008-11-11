@@ -57,7 +57,7 @@ void OptionsScreen::run() {
 
 void OptionsScreen::draw() {
 	unsigned int i, j;
-	SDL_Surface * text, * highlight;
+	SDL_Surface * text;
 	SDL_Rect rect;
 	SDL_Surface * screen;
 	OptionItem * item;
@@ -72,14 +72,11 @@ void OptionsScreen::draw() {
 		text = item->surf_name;
 		
 		if(selected_item == (int)i) {
-			highlight = SDL_CreateRGBSurface(NULL, text->w + 10, menu_item_height, 32, 0, 0, 0, 0);
-			SDL_FillRect(highlight, NULL, 0x444488);
-			
 			rect.x = item->rect_name->x - 5;
 			rect.y = item->rect_name->y - 3;
-
-			SDL_BlitSurface(highlight, NULL, screen, &rect);
-			SDL_FreeSurface(highlight);
+			rect.w = text->w + 10;
+			rect.h = menu_item_height;
+			SDL_FillRect(screen, &rect, 0x444488);
 		}
 
 		SDL_BlitSurface(text, NULL, screen, item->rect_name);
@@ -88,14 +85,11 @@ void OptionsScreen::draw() {
 			for(j = 0; j < item->options->size(); j++) {
 				text = item->surf_options->at(j);
 				if(item->selected == j) {
-					highlight = SDL_CreateRGBSurface(NULL, text->w + 10, menu_item_height, 32, 0, 0, 0, 0);
-					SDL_FillRect(highlight, NULL, 0x444488);
-				
 					rect.x = item->rect_options->at(j)->x - 5;
 					rect.y = item->rect_options->at(j)->y - 3;
-
-					SDL_BlitSurface(highlight, NULL, screen, &rect);
-					SDL_FreeSurface(highlight);
+					rect.w = text->w + 10;
+					rect.h = menu_item_height;
+					SDL_FillRect(screen, &rect, 0x444488);
 				}
 
 				SDL_BlitSurface(text, NULL, screen, item->rect_options->at(j));

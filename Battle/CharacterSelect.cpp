@@ -23,8 +23,8 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-CharacterSelect::CharacterSelect() {
-
+CharacterSelect::CharacterSelect(Battle * parent) {
+	this->parent = parent;
 }
 
 void CharacterSelect::run() {
@@ -36,15 +36,19 @@ void CharacterSelect::run() {
 	ready1 = false;
 	ready2 = false;
 
+	ready_stage = false;
+
 	ready = false;
 
 	controls1 = Main::instance->controls1;
 	controls2 = Main::instance->controls2;
 	
 	cursor1_direction = DIRECTION_NONE;
+	cursor1_direction_start = 0;
 	cursor1_first = true;
 	cursor1_enter = false;
 	cursor2_direction = DIRECTION_NONE;
+	cursor2_direction_start = 0;
 	cursor2_first = true;
 	cursor2_enter = false;
 
@@ -56,6 +60,8 @@ void CharacterSelect::run() {
 	
 	stage = 0;
 	select_stage(DIRECTION_NONE);
+
+	ruleset = 0;
 
 	frame = 0;
 
@@ -275,8 +281,14 @@ void CharacterSelect::process_cursors() {
 	if(cursor1_enter) {
 		cursor1_enter = false;
 		if(ready1 && ready2) {
-			ready = true;
 			Main::audio->play(SND_SELECT_CHARACTER);
+			if(!ready_stage) {
+				ready_stage = true;
+				flicker_stage = true;
+				flicker_stage_frame = 0;
+			} else {
+				ready = true;
+			}
 		}
 		if(!ready1) {
 			ready1 = true;
@@ -299,8 +311,12 @@ void CharacterSelect::process_cursors() {
 				Main::audio->play(SND_SELECT);
 			}
 			if(ready1 && ready2) {
-				select_stage(cursor1_direction);
-				Main::audio->play(SND_SELECT);
+					Main::audio->play(SND_SELECT);
+				if(!ready_stage) {
+					select_stage(cursor1_direction);
+				} else {
+					select_ruleset(cursor1_direction);
+				}
 			}
 		}
 	}
@@ -308,8 +324,14 @@ void CharacterSelect::process_cursors() {
 	if(cursor2_enter) {
 		cursor2_enter = false;
 		if(ready1 && ready2) {
-			ready = true;
 			Main::audio->play(SND_SELECT_CHARACTER);
+			if(!ready_stage) {
+				ready_stage = true;
+				flicker_stage = true;
+				flicker_stage_frame = 0;
+			} else {
+				ready = true;
+			}
 		}
 		if(!ready2) {
 			ready2 = true;
@@ -332,8 +354,12 @@ void CharacterSelect::process_cursors() {
 				Main::audio->play(SND_SELECT);
 			}
 			if(ready1 && ready2) {
-				select_stage(cursor2_direction);
 				Main::audio->play(SND_SELECT);
+				if(!ready_stage) {
+					select_stage(cursor2_direction);
+				} else {
+					select_ruleset(cursor2_direction);
+				}
 			}
 		}
 	}
@@ -398,10 +424,22 @@ void CharacterSelect::select_stage(int direction) {
 	stage_author = Battle::stages[stage].author;
 }
 
+void CharacterSelect::select_ruleset(int direction) {
+	if(direction & DIRECTION_UP) {
+		ruleset--;
+	}
+	if(direction & DIRECTION_DOWN) {
+		ruleset++;
+	}
+
+	if(ruleset < 0) ruleset += Battle::RULESET_COUNT;
+	if(ruleset >= Battle::RULESET_COUNT) ruleset -= Battle::RULESET_COUNT;
+}
+
 void CharacterSelect::draw() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
-	SDL_Rect rect, rect_b;
+	SDL_Rect rect, rect_b, rect_s;
 	SDL_Rect * clip;
 	Uint32 color;
 
@@ -521,21 +559,133 @@ void CharacterSelect::draw() {
 		color = 0;
 
 		if((ready1 && ready2) && stage == idx) {
-			color = 0xff0000;
-			/*
-			if(flicker_stage) {
+			color = 0x444488;
+			
+			if(ready_stage && flicker_stage) {
 				if(flicker_stage_frame > 0x20)
 					flicker_stage = false;
 				if(flicker_stage_frame & 0x4)
 					color = 0xffffff;
 				flicker_stage_frame++;
-			}*/
+			}
 		}
 		SDL_FillRect(screen, &rect_b, color);
 
 		SDL_BlitSurface(stage_thumbs->at(idx), NULL, screen, &rect);
 
 		rect_b.x += STAGE_WIDTH + (STAGE_SPACING * 2);
+	}
+
+	// RULESETS
+	RuleSet ruleset;
+	char text[5];
+	int left, top;
+	for(int i = 0; i < Battle::RULESET_COUNT; i++) {
+		top = 350 + (i * 20);
+		left = 55;
+		
+		if(ready_stage && i == this->ruleset) {
+			rect.x = left - 2;
+			rect.y = top - 3;
+			rect.w = screen->w - (left * 2) + 4;
+			rect.h = 22;
+			SDL_FillRect(screen, &rect, 0x444488);
+		}
+
+		ruleset = Battle::rulesets[i];
+		surface = TTF_RenderText_Solid(font26, ruleset.name, fontColor);
+		rect.x = left; rect.y = top;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+		left += 150;
+
+		// bullets
+		rect.x = left; rect.y = top + 6;
+		rect_s.x = 0; rect_s.y = 0; rect_s.w = 8; rect_s.h = 8;
+		SDL_BlitSurface(parent->weapons, &rect_s, screen, &rect);
+		left += 20;
+
+		strcpy(text, "-\0");
+		if(ruleset.bullets > -1) itoa(ruleset.bullets, text, 10);
+		surface = TTF_RenderText_Solid(font26, text, fontColor);
+		rect.x = left; rect.y = top;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+		left += 50;
+
+		// doubledamage bullets
+		rect.x = left; rect.y = top + 6;
+		rect_s.x = 8; rect_s.y = 0; rect_s.w = 8; rect_s.h = 8;
+		SDL_BlitSurface(parent->weapons, &rect_s, screen, &rect);
+		left += 20;
+
+		strcpy(text, "-\0");
+		if(ruleset.doubledamagebullets > -1) itoa(ruleset.doubledamagebullets, text, 10);
+		surface = TTF_RenderText_Solid(font26, text, fontColor);
+		rect.x = left; rect.y = top;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+		left += 50;
+
+		// instantkill bullets
+		rect.x = left; rect.y = top + 6;
+		rect_s.x = 16; rect_s.y = 0; rect_s.w = 8; rect_s.h = 8;
+		SDL_BlitSurface(parent->weapons, &rect_s, screen, &rect);
+		left += 20;
+
+		strcpy(text, "-\0");
+		if(ruleset.instantkillbullets > -1) itoa(ruleset.instantkillbullets, text, 10);
+		surface = TTF_RenderText_Solid(font26, text, fontColor);
+		rect.x = left; rect.y = top;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+		left += 50;
+
+		// bombs
+		rect.x = left; rect.y = top;
+		rect_s.x = 16; rect_s.y = 0; rect_s.w = 16; rect_s.h = 16;
+		SDL_BlitSurface(parent->surface_bombs, &rect_s, screen, &rect);
+		left += 20;
+
+		strcpy(text, "-\0");
+		if(ruleset.bombs > -1) itoa(ruleset.bombs, text, 10);
+		surface = TTF_RenderText_Solid(font26, text, fontColor);
+		rect.x = left; rect.y = top;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+		left += 50;
+
+		// powerups
+		if(ruleset.healthpowerups > 0) {
+			rect.x = left; rect.y = top;
+			rect_s.x = 0; rect_s.y = 0; rect_s.w = 16; rect_s.h = 16;
+			SDL_BlitSurface(parent->powerup, &rect_s, screen, &rect);
+			left += 20;
+		}
+		if(ruleset.bulletpowerups > 0) {
+			rect.x = left; rect.y = top;
+			rect_s.x = 32; rect_s.y = 0; rect_s.w = 16; rect_s.h = 16;
+			SDL_BlitSurface(parent->powerup, &rect_s, screen, &rect);
+			left += 20;
+		}
+		if(ruleset.doubledamagepowerups > 0) {
+			rect.x = left; rect.y = top;
+			rect_s.x = 48; rect_s.y = 0; rect_s.w = 16; rect_s.h = 16;
+			SDL_BlitSurface(parent->powerup, &rect_s, screen, &rect);
+			left += 20;
+		}
+		if(ruleset.instantkillpowerups > 0) {
+			rect.x = left; rect.y = top;
+			rect_s.x = 64; rect_s.y = 0; rect_s.w = 16; rect_s.h = 16;
+			SDL_BlitSurface(parent->powerup, &rect_s, screen, &rect);
+			left += 20;
+		}
+		if(ruleset.bombpowerups > 0) {
+			rect.x = left; rect.y = top;
+			rect_s.x = 16; rect_s.y = 0; rect_s.w = 16; rect_s.h = 16;
+			SDL_BlitSurface(parent->powerup, &rect_s, screen, &rect);
+			left += 20;
+		}
 	}
 }
 

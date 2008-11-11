@@ -69,6 +69,15 @@ const Stage Battle::stages[Battle::STAGE_COUNT] = {
 	{(char*)"Pit of Death", (char*)"Bert Hekman", (char*)"stage/pitofdeath.stg"},
 	{(char*)"Duck and Hunt", (char*)"Bert Hekman", (char*)"stage/ducknhunt.stg"},
 };
+const int Battle::RULESET_COUNT = 4;
+const RuleSet Battle::rulesets[Battle::RULESET_COUNT] = {
+	//						weapons         powerups
+	// Name					bul ddb ikb bom hea bul ddb ikb bom rate max
+	{(char*)"Default",		 -1,  2,  0,  3,  2,  0,  1,  1,  1, 500,  2},
+	{(char*)"Heavy",		 -1,  9,  0,  5,  4,  0,  5,  1,  3, 250,  4},
+	{(char*)"Overkill",		  0,  0, -1, -1,  1,  0,  0,  0,  0, 500,  2},
+	{(char*)"Save ammo",	 10,  0,  0,  0,  1,  1,  0,  0,  0, 250,  5},
+};
 
 Battle::Battle() {
 
@@ -89,7 +98,7 @@ void Battle::run() {
 	game_running = true;
 
 	CharacterSelect * character_select;
-	character_select = new CharacterSelect();
+	character_select = new CharacterSelect(this);
 	character_select->run();
 
 	player1 = new Player(character_select->name1, 1, character_select->file1);
@@ -100,13 +109,13 @@ void Battle::run() {
 
 	load_level(stages[character_select->stage].filename);
 
+	ruleset = rulesets[character_select->ruleset];
+
 	delete character_select;
 
 	projectiles = new std::vector<Projectile*>(0);
 	bombs = new std::vector<Bomb*>(0);
 	powerups = new std::vector<PowerUp*>(0);
-
-	bullets_unlimited = true;
 
 	reset_game();
 
@@ -301,10 +310,10 @@ void Battle::reset_game() {
 	player1->duck_force_start = 0;
 	player1->is_hit = false;
 	player1->hit_start = 0;
-	player1->bullets = 20;
-	player1->bombs = 3;
-	player1->doubledamagebullets = 2;
-	player1->instantkillbullets = 0;
+	player1->bullets = ruleset.bullets;
+	player1->bombs = ruleset.bombs;
+	player1->doubledamagebullets = ruleset.doubledamagebullets;
+	player1->instantkillbullets = ruleset.instantkillbullets;
 	player1->is_falling = false;
 	player1->is_jumping = false;
 	player1->momentumx = 0;
@@ -320,10 +329,10 @@ void Battle::reset_game() {
 	player2->duck_force_start = 0;
 	player2->is_hit = false;
 	player2->hit_start = 0;
-	player2->bullets = 20;
-	player2->bombs = 3;
-	player2->doubledamagebullets = 2;
-	player2->instantkillbullets = 0;
+	player2->bullets = ruleset.bullets;
+	player2->bombs = ruleset.bombs;
+	player2->doubledamagebullets = ruleset.doubledamagebullets;
+	player2->instantkillbullets = ruleset.instantkillbullets;
 	player2->is_falling = false;
 	player2->is_jumping = false;
 	player2->momentumx = 0;
@@ -457,15 +466,18 @@ void Battle::handle_pause_input(SDL_Event * event) {
 
 void Battle::process_shoot(Player * p) {
 	if(p->keydn_shoot) {
-		if(frame > p->shoot_start + p->shoot_delay && (bullets_unlimited ||  p->bullets > 0)) {
+		if(frame > p->shoot_start + p->shoot_delay &&
+			(((ruleset.bullets == BULLETS_UNLIMITED) ||  p->bullets > 0) ||
+			((ruleset.doubledamagebullets == BULLETS_UNLIMITED) ||  p->doubledamagebullets > 0) ||
+			((ruleset.instantkillbullets == BULLETS_UNLIMITED) ||  p->instantkillbullets > 0))) {
 			p->shoot_start = frame;
 			Projectile * pr;
 			SDL_Rect * clip_weapon;
 			bool doubledamage;
 			bool instantkill;
 
-			doubledamage = (p->doubledamagebullets > 0);
-			instantkill = (p->instantkillbullets > 0);
+			doubledamage = ((ruleset.doubledamagebullets == BULLETS_UNLIMITED) || p->doubledamagebullets > 0);
+			instantkill = ((ruleset.instantkillbullets == BULLETS_UNLIMITED) || p->instantkillbullets > 0);
 
 			clip_weapon = new SDL_Rect();
 			if(instantkill)
@@ -503,7 +515,7 @@ void Battle::process_shoot(Player * p) {
 				p->instantkillbullets--;
 			else if(doubledamage)
 				p->doubledamagebullets--;
-			else if(!bullets_unlimited)
+			else if(ruleset.doubledamagebullets != BULLETS_UNLIMITED)
 				p->bullets--;
 
 			Main::instance->audio->play(SND_SHOOT);
@@ -533,17 +545,18 @@ void Battle::process_shoot(Player * p) {
 }
 
 void Battle::generate_powerup(bool force) {
+	if((int)powerups->size() >= ruleset.powerup_max) return;
+	if(!force) {
+		if(rand() % ruleset.powerup_rate != 0) return;
+	}
+
 	int r;
 	int row, col;
 	PowerUp * pu;
 	SDL_Rect * rect, * pos;
 	bool done;
 
-	if(powerups->size() >= 2) return;
-	if(!force) {
-		r = rand();
-		if(r % 500 != 0) return;
-	}
+	int max, first, last;
 
 	done = false;
 	while(!done) {
@@ -565,60 +578,57 @@ void Battle::generate_powerup(bool force) {
 	pos->h = 16;
 	pos->x = (col * SPR_W) + 8;
 	pos->y = (row * SPR_H) + 16;
+
+	max = ruleset.healthpowerups + ruleset.bulletpowerups + ruleset.doubledamagepowerups +
+		ruleset.instantkillpowerups + ruleset.bombpowerups;
 	
-	r = rand() % 6;
-	switch(r) {
-		case 0:
-			if(!bullets_unlimited) {
-				rect = new SDL_Rect();
-				rect->x = 16;
-				rect->y = 0;
-				rect->w = 16;
-				rect->h = 16;
-				pu = new AmmoPowerUp(powerup, rect, pos, 20);
-				break;
-			}
-		case 1:
-		case 2:
-			rect = new SDL_Rect();
-			rect->x = 0;
-			rect->y = 0;
-			rect->w = 16;
-			rect->h = 16;
-			pu = new HealthPowerUp(powerup, rect, pos, 25);
-			break;
-		case 3:
-			rect = new SDL_Rect();
-			rect->x = 16;
-			rect->y = 0;
-			rect->w = 16;
-			rect->h = 16;
-			pu = new BombPowerUp(powerup, rect, pos, 1);
-			break;
-		case 4:
-			rect = new SDL_Rect();
-			rect->x = 48;
-			rect->y = 0;
-			rect->w = 16;
-			rect->h = 16;
-			pu = new DoubleDamagePowerUp(powerup, rect, pos, 5);
-			break;
-		case 5:
-			rect = new SDL_Rect();
-			rect->x = 64;
-			rect->y = 0;
-			rect->w = 16;
-			rect->h = 16;
-			pu = new InstantKillBulletPowerUp(powerup, rect, pos, 1);
-			break;
-		default:
-			delete pos;
-			pu = NULL;
-			break;
+	r = rand() % max;
+	
+	rect = new SDL_Rect();
+	rect->w = 16;
+	rect->h = 16;
+
+	pu = NULL;
+
+	first = 0;
+	last = first + ruleset.healthpowerups;
+	if(r >= first && r < last) {
+		rect->x = 0; rect->y = 0;
+		pu = new HealthPowerUp(powerup, rect, pos, 25);
+	}
+
+	first = last;
+	last = first + ruleset.bulletpowerups;
+	if(r >= first && r < last) {
+		rect->x = 32; rect->y = 0;
+		pu = new AmmoPowerUp(powerup, rect, pos, 20);
+	}
+
+	first = last;
+	last = first + ruleset.doubledamagepowerups;
+	if(r >= first && r < last) {
+		rect->x = 48; rect->y = 0;
+		pu = new DoubleDamagePowerUp(powerup, rect, pos, 5);
+	}
+
+	first = last;
+	last = first + ruleset.instantkillpowerups;
+	if(r >= first && r < last) {
+		rect->x = 64; rect->y = 0;
+		pu = new InstantKillBulletPowerUp(powerup, rect, pos, 1);
+	}
+
+	first = last;
+	last = first + ruleset.bombpowerups;
+	if(r >= first && r < last) {
+		rect->x = 16; rect->y = 0;
+		pu = new BombPowerUp(powerup, rect, pos, 1);
 	}
 
 	if(pu != NULL)
 		powerups->push_back(pu);
+	else
+		delete pos;
 }
 
 void Battle::move_player(Player * p) {
@@ -1386,19 +1396,23 @@ void Battle::draw_score(SDL_Surface * screen) {
 	rect.y = 460;
 	SDL_BlitSurface(surface_bombs, &rect_s, screen, &rect);
 
-	sprintf_s(str, 2, "%01d", player1->bombs);
-	surface = TTF_RenderText_Solid(font26, str, fontColor);
-	rect.x = 180 - surface->w;
-	rect.y = 460;
-	SDL_BlitSurface(surface, NULL, screen, &rect);
-	SDL_FreeSurface(surface);
+	if(player1->bombs != -1) {
+		sprintf_s(str, 2, "%01d", player1->bombs);
+		surface = TTF_RenderText_Solid(font26, str, fontColor);
+		rect.x = 180 - surface->w;
+		rect.y = 460;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+	}
 
-	sprintf_s(str, 2, "%01d", player2->bombs);
-	surface = TTF_RenderText_Solid(font26, str, fontColor);
-	rect.x = 460;
-	rect.y = 460;
-	SDL_BlitSurface(surface, NULL, screen, &rect);
-	SDL_FreeSurface(surface);
+	if(player2->bombs != -1) {
+		sprintf_s(str, 2, "%01d", player2->bombs);
+		surface = TTF_RenderText_Solid(font26, str, fontColor);
+		rect.x = 460;
+		rect.y = 460;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+	}
 	
 	// Ammo type and ammount
 	rect_s.x = 0;
@@ -1407,19 +1421,19 @@ void Battle::draw_score(SDL_Surface * screen) {
 	rect_s.h = 8;
 	rect.x = 120;
 	rect.y = 464;
-	if(player1->doubledamagebullets > 0) rect_s.x = 8;
-	if(player1->instantkillbullets > 0) rect_s.x = 16;
+	if(ruleset.doubledamagebullets == BULLETS_UNLIMITED || player1->doubledamagebullets > 0) rect_s.x = 8;
+	if(ruleset.instantkillbullets == BULLETS_UNLIMITED || player1->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(weapons, &rect_s, screen, &rect);
 
 	if(player1->instantkillbullets > 0) ammount = player1->instantkillbullets;
 	else if(player1->doubledamagebullets > 0) ammount = player1->doubledamagebullets;
 	else {
-		if(!bullets_unlimited) ammount = player1->bullets;
+		if(ruleset.doubledamagebullets != BULLETS_UNLIMITED) ammount = player1->bullets;
 		else ammount = 0;
 	}
 
-	if(ammount != 0) {
-		sprintf_s(str, 2, "%01d", ammount);
+	if(ammount > 0) {
+		sprintf_s(str, 3, "%01d", ammount);
 		surface = TTF_RenderText_Solid(font26, str, fontColor);
 		rect.x = 144 - surface->w;
 		rect.y = 460;
@@ -1433,18 +1447,18 @@ void Battle::draw_score(SDL_Surface * screen) {
 	rect_s.h = 8;
 	rect.x = 514;
 	rect.y = 464;
-	if(player2->doubledamagebullets > 0) rect_s.x = 8;
-	if(player2->instantkillbullets > 0) rect_s.x = 16;
+	if(ruleset.doubledamagebullets == BULLETS_UNLIMITED || player2->doubledamagebullets > 0) rect_s.x = 8;
+	if(ruleset.instantkillbullets == BULLETS_UNLIMITED || player2->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(weapons, &rect_s, screen, &rect);
 
 	if(player2->instantkillbullets > 0) ammount = player2->instantkillbullets;
 	else if(player2->doubledamagebullets > 0) ammount = player2->doubledamagebullets;
 	else {
-		if(!bullets_unlimited) ammount = player2->bullets;
+		if(ruleset.doubledamagebullets != BULLETS_UNLIMITED) ammount = player2->bullets;
 		else ammount = 0;
 	}
-	if(ammount != 0) {
-		sprintf_s(str, 2, "%01d", ammount);
+	if(ammount > 0) {
+		sprintf_s(str, 3, "%01d", ammount);
 		surface = TTF_RenderText_Solid(font26, str, fontColor);
 		rect.x = 496;
 		rect.y = 460;
