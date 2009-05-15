@@ -34,6 +34,11 @@ bool Main::fps_cap = false;
 
 Timer * Main::fps = NULL;
 
+int Main::fps_counter_last_frame = 0;
+int Main::fps_counter_this_frame = 0;
+Timer * Main::fps_counter_timer = NULL;
+bool Main::fps_counter_visible = false;
+
 AudioController * Main::audio = NULL;
 
 Main::Main() {
@@ -50,7 +55,6 @@ bool Main::init() {
 	//Start SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
 	
-	
 	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
 	SDL_ShowCursor(0);
 
@@ -60,12 +64,14 @@ bool Main::init() {
 
 	if(TTF_Init() == -1) return false;
 
-	//font = TTF_OpenFont("tahoma.ttf", 28);
-	//if(font == NULL) return false;
+	font = TTF_OpenFont("fonts/slick.ttf", 13);
+	if(font == NULL) return false;
 
 	SDL_WM_SetCaption("Battle", NULL);
 	
 	fps = new Timer();
+
+	fps_counter_timer = new Timer();
 
 	audio = new AudioController();
 	audio->open_audio();
@@ -85,9 +91,11 @@ void Main::clean_up() {
 
 	SDL_FreeSurface(screen);
 	
-	//TTF_CloseFont(font);
+	TTF_CloseFont(font);
 
 	delete fps;
+
+	delete fps_counter_timer;
 
 	audio->close_files();
 	audio->close_audio();
@@ -103,10 +111,49 @@ void Main::clean_up() {
 }
 
 void Main::flip() {
+	fps_count();
+
 	SDL_Flip(screen);
 	frame++;
 	if((fps_cap == true) && (fps->get_ticks() < frame_delay)) {
 		SDL_Delay((frame_delay) - fps->get_ticks());
+	}
+
+	fps->start();
+}
+
+void Main::fps_count() {
+	// Calculate the FPS
+	if(fps_counter_timer->get_ticks() > 1000) {
+		fps_counter_this_frame = frame - fps_counter_last_frame;
+
+		fps_counter_last_frame = frame;
+		fps_counter_timer->start();
+	}
+
+	// Show FPS
+	if(fps_counter_visible) {
+		char * cap;
+		cap = new char[20];
+
+		SDL_Surface * surf;
+		SDL_Rect rect;
+		SDL_Color color;
+		
+		color.r = 0xff;
+		color.g = 0xff;
+		color.b = 0xff;
+
+		sprintf(cap, "%d fps", fps_counter_this_frame);
+		surf = TTF_RenderText_Solid(font, cap, color);
+
+		rect.x = screen->w - surf->w;
+		rect.y = 0;
+
+		SDL_BlitSurface(surf, NULL, screen, &rect);
+
+		SDL_FreeSurface(surf);
+		delete cap;
 	}
 }
 
@@ -124,6 +171,9 @@ void Main::handle_event(SDL_Event * event) {
 		if(event->key.keysym.sym == SDLK_F10) {
 			SDL_WM_ToggleFullScreen(screen);
 		}
+		if(event->key.keysym.sym == SDLK_F11) {
+			fps_counter_visible = !fps_counter_visible;
+		}
 	}
 }
 
@@ -134,6 +184,8 @@ int Main::run() {
 	frame = 0;
 
 	load_options();
+
+	fps_counter_timer->start();
 
 	Menu * menu;
 	menu = new Menu();
@@ -147,6 +199,7 @@ int Main::run() {
 
 	clean_up();
 
+	_CrtDumpMemoryLeaks();
 	return 0;
 }
 

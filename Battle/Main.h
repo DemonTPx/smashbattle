@@ -59,6 +59,11 @@ public:
 
 	static Timer * fps;
 
+	static int fps_counter_last_frame;
+	static int fps_counter_this_frame;
+	static Timer * fps_counter_timer;
+	static bool fps_counter_visible;
+
 	static AudioController * audio;
 
 	SDL_Joystick * joystick1;
@@ -75,6 +80,8 @@ public:
 private:
 	bool init();
 	void clean_up();
+
+	void fps_count();
 
 	void load_options();
 	void save_options();
