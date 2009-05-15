@@ -17,6 +17,11 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 	this->name = (char*)name;
 	this->number = (int)number;
 
+	speedclass = 1;
+	weightclass = 1;
+	bulletrateclass = 1;
+	bombpowerclass = 1;
+
 	momentumx = 0;
 	momentumy = 0;
 

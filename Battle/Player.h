@@ -50,6 +50,11 @@ public:
 	SDL_Surface * marker;
 	SDL_Rect * marker_clip;
 
+	int speedclass;
+	int weightclass;
+	int bulletrateclass;
+	int bombpowerclass;
+
 	int momentumx, momentumy;
 	int last_speedx, last_speedy;
 

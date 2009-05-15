@@ -12,6 +12,10 @@
 struct Character {
 	char * name;
 	char * filename;
+	int speedclass;
+	int weightclass;
+	int bulletrateclass;
+	int bombpowerclass;
 };
 
 struct Stage {
@@ -35,6 +39,24 @@ struct RuleSet {
 	int powerup_max;
 };
 
+struct SpeedClass {
+	int run_speed;
+};
+
+struct WeightClass {
+	int push_force;
+	int push_force_fullspeed;
+	int headjump_damage;
+};
+
+struct BulletRateClass {
+	int rate;
+};
+
+struct BombPowerClass {
+	int damage;
+};
+
 class Battle {
 public:
 	Battle();
@@ -47,6 +69,16 @@ public:
 	static const Stage stages[];
 	static const int RULESET_COUNT;
 	static const RuleSet rulesets[];
+
+	static const int SPEEDCLASS_COUNT;
+	static const SpeedClass speedclasses[];
+	static const int WEIGHTCLASS_COUNT;
+	static const WeightClass weightclasses[];
+	static const int BULLETRATECLASS_COUNT;
+	static const BulletRateClass bulletrateclasses[];
+	static const int BOMBPOWERCLASS_COUNT;
+	static const BombPowerClass bombpowerclasses[];
+
 	static SDL_Surface * create_level_thumbnail(const char * filename);
 
 	SDL_Surface * tiles;

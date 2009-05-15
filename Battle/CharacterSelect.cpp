@@ -12,7 +12,7 @@
 #define sprintf_s snprintf
 #endif
 
-#define CHARACTERS_PER_LINE	4
+#define CHARACTERS_PER_LINE	5
 #define CHARACTER_WIDTH		44
 #define CHARACTER_SPACING	4
 
@@ -443,6 +443,7 @@ void CharacterSelect::select_ruleset(int direction) {
 void CharacterSelect::draw() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
+	SDL_Surface * statsblock[3];
 	SDL_Rect rect, rect_b, rect_s;
 	SDL_Rect * clip;
 	Uint32 color;
@@ -502,41 +503,153 @@ void CharacterSelect::draw() {
 
 	// Player 1
 	rect.x = 40;
-	rect.y = 40;
+	rect.y = 20;
 	SDL_BlitSurface(character_sprites->at(select1), clip_left, screen, &rect);
 
 	surface = TTF_RenderText_Solid(font26, name1, fontColor);
 	rect.x = 50 + PLAYER_W;
-	rect.y = 45;
+	rect.y = 25;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
 	if(ready1) {
 		surface = TTF_RenderText_Solid(font26, "READY", fontColor);
 		rect.x = 50 + PLAYER_W;
-		rect.y = 65;
+		rect.y = 45;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 	}
 
+	// Player 1 stats
+	statsblock[0] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRect(statsblock[0], NULL, 0x880000);
+
+	statsblock[1] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRect(statsblock[1], NULL, 0x888800);
+
+	statsblock[2] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRect(statsblock[2], NULL, 0x008800);
+
+	surface = TTF_RenderText_Solid(font26, "SPEED", fontColor);
+	rect.x = 20;
+	rect.y = 70;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	for(int i = 0; i <= Battle::characters[select1].speedclass; i++) {
+		rect.x = 120 + (i * 18);
+		rect.y = 70;
+		SDL_BlitSurface(statsblock[i], NULL, screen, &rect);
+	}
+
+	surface = TTF_RenderText_Solid(font26, "WEIGHT", fontColor);
+	rect.x = 20;
+	rect.y = 90;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	for(int i = 0; i <= Battle::characters[select1].weightclass; i++) {
+		rect.x = 120 + (i * 18);
+		rect.y = 90;
+		SDL_BlitSurface(statsblock[i], NULL, screen, &rect);
+	}
+
+	surface = TTF_RenderText_Solid(font26, "WEAPON", fontColor);
+	rect.x = 20;
+	rect.y = 110;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	for(int i = 0; i <= Battle::characters[select1].bulletrateclass; i++) {
+		rect.x = 120 + (i * 18);
+		rect.y = 110;
+		SDL_BlitSurface(statsblock[i], NULL, screen, &rect);
+	}
+
+	surface = TTF_RenderText_Solid(font26, "BOMB", fontColor);
+	rect.x = 20;
+	rect.y = 130;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	for(int i = 0; i <= Battle::characters[select1].bombpowerclass; i++) {
+		rect.x = 120 + (i * 18);
+		rect.y = 130;
+		SDL_BlitSurface(statsblock[i], NULL, screen, &rect);
+	}
+
 	// Player 2
 	rect.x = screen->clip_rect.w - PLAYER_W - 40;
-	rect.y = 40;
+	rect.y = 20;
 	SDL_BlitSurface(character_sprites->at(select2), clip_right, screen, &rect);
 
 	surface = TTF_RenderText_Solid(font26, name2, fontColor);
 	rect.x = screen->clip_rect.w - PLAYER_W - surface->clip_rect.w - 50;
-	rect.y = 45;
+	rect.y = 25;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
 	if(ready2) {
 		surface = TTF_RenderText_Solid(font26, "READY", fontColor);
 		rect.x = screen->clip_rect.w - PLAYER_W - surface->clip_rect.w - 50;
-		rect.y = 65;
+		rect.y = 45;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 	}
+	
+	// Player 2 stats
+
+	surface = TTF_RenderText_Solid(font26, "SPEED", fontColor);
+	rect.x = screen->w - surface->w - 20;
+	rect.y = 70;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	for(int i = 0; i <= Battle::characters[select2].speedclass; i++) {
+		rect.x = screen->w - statsblock[i]->w - (120 + (i * 18));
+		rect.y = 70;
+		SDL_BlitSurface(statsblock[i], NULL, screen, &rect);
+	}
+
+	surface = TTF_RenderText_Solid(font26, "WEIGHT", fontColor);
+	rect.x = screen->w - surface->w - 20;
+	rect.y = 90;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	for(int i = 0; i <= Battle::characters[select2].weightclass; i++) {
+		rect.x = screen->w - statsblock[i]->w - (120 + (i * 18));
+		rect.y = 90;
+		SDL_BlitSurface(statsblock[i], NULL, screen, &rect);
+	}
+
+	surface = TTF_RenderText_Solid(font26, "WEAPON", fontColor);
+	rect.x = screen->w - surface->w - 20;
+	rect.y = 110;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	for(int i = 0; i <= Battle::characters[select2].bulletrateclass; i++) {
+		rect.x = screen->w - statsblock[i]->w - (120 + (i * 18));
+		rect.y = 110;
+		SDL_BlitSurface(statsblock[i], NULL, screen, &rect);
+	}
+
+	surface = TTF_RenderText_Solid(font26, "BOMB", fontColor);
+	rect.x = screen->w - surface->w - 20;
+	rect.y = 130;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	for(int i = 0; i <= Battle::characters[select2].bombpowerclass; i++) {
+		rect.x = screen->w - statsblock[i]->w - (120 + (i * 18));
+		rect.y = 130;
+		SDL_BlitSurface(statsblock[i], NULL, screen, &rect);
+	}
+
+	SDL_FreeSurface(statsblock[0]);
+	SDL_FreeSurface(statsblock[1]);
+	SDL_FreeSurface(statsblock[2]);
 	
 	// STAGES
 

@@ -11,6 +11,8 @@ public:
 	char * name1,* name2;
 	char * file1,* file2;
 
+	int select1, select2;
+
 	int stage;
 	int ruleset;
 private:
@@ -33,8 +35,6 @@ private:
 	bool ready;
 	bool ready_stage;
 	bool ready1, ready2;
-
-	int select1, select2;
 	
 	int cursor1_direction;
 	bool cursor1_first;

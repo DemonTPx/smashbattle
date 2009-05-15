@@ -47,16 +47,19 @@
 #define SPEED_HORIZ 2
 #define SPEED_VERT 2
 
-const int Battle::CHARACTER_COUNT = 8;
+const int Battle::CHARACTER_COUNT = 10;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
-	{(char*)"Bert", (char*)"gfx/bert.bmp"},
-	{(char*)"Jeroen", (char*)"gfx/jeroen.bmp"},
-	{(char*)"Steven", (char*)"gfx/steven.bmp"},
-	{(char*)"Tedje", (char*)"gfx/tedje.bmp"},
-	{(char*)"Okke", (char*)"gfx/okke.bmp"},
-	{(char*)"Jeremy", (char*)"gfx/jeremy.bmp"},
-	{(char*)"Marcel", (char*)"gfx/marcel.bmp"},
-	{(char*)"Anton", (char*)"gfx/anton.bmp"},
+	//      Name               Filename            sp wt br bd
+	{(char*)"Bert",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
+	{(char*)"Jeroen",	(char*)"gfx/jeroen.bmp",	2, 1, 1, 0},
+	{(char*)"Steven",	(char*)"gfx/steven.bmp",	0, 2, 1, 1},
+	{(char*)"Tedje",	(char*)"gfx/tedje.bmp",		0, 1, 2, 1},
+	{(char*)"Okke",		(char*)"gfx/okke.bmp",		2, 1, 0, 1},
+	{(char*)"Jeremy",	(char*)"gfx/jeremy.bmp",	1, 0, 1, 2},
+	{(char*)"Marcel",	(char*)"gfx/marcel.bmp",	1, 0, 2, 1},
+	{(char*)"Anton",	(char*)"gfx/anton.bmp",		2, 1, 1, 0},
+	{(char*)"Donja",	(char*)"gfx/donja.bmp",		2, 0, 1, 1},
+	{(char*)"Rob",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
 };
 const int Battle::STAGE_COUNT = 8;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
@@ -79,6 +82,31 @@ const RuleSet Battle::rulesets[Battle::RULESET_COUNT] = {
 	{(char*)"Save ammo",	 10,  0,  0,  0,  1,  1,  0,  0,  0, 250,  5},
 };
 
+const int Battle::SPEEDCLASS_COUNT = 3;
+const SpeedClass Battle::speedclasses[Battle::SPEEDCLASS_COUNT] = {
+	{30},
+	{40},
+	{50},
+};
+const int Battle::WEIGHTCLASS_COUNT = 3;
+const WeightClass Battle::weightclasses[Battle::WEIGHTCLASS_COUNT] = {
+	{15, 35, 0},
+	{20, 40, 5},
+	{25, 45, 10},
+};
+const int Battle::BULLETRATECLASS_COUNT = 3;
+const BulletRateClass Battle::bulletrateclasses[Battle::BULLETRATECLASS_COUNT] = {
+	{14},
+	{10},
+	{7},
+};
+const int Battle::BOMBPOWERCLASS_COUNT = 3;
+const BombPowerClass Battle::bombpowerclasses[Battle::BOMBPOWERCLASS_COUNT] = {
+	{15},
+	{25},
+	{30},
+};
+
 Battle::Battle() {
 
 }
@@ -97,15 +125,32 @@ void Battle::run() {
 
 	game_running = true;
 
+	// Character selection
 	CharacterSelect * character_select;
 	character_select = new CharacterSelect(this);
 	character_select->run();
 
-	player1 = new Player(character_select->name1, 1, character_select->file1);
-	player1->controls = Main::instance->controls1;
+	// Character selected
+	Character c1, c2;
 
-	player2 = new Player(character_select->name2, 2, character_select->file2);
+	c1 = characters[character_select->select1];
+	c2 = characters[character_select->select2];
+
+	player1 = new Player(c1.name, 1, c1.filename);
+	player1->controls = Main::instance->controls1;
+	player1->speedclass = c1.speedclass;
+	player1->weightclass = c1.weightclass;
+	player1->bulletrateclass = c1.bulletrateclass;
+	player1->bombpowerclass = c1.bombpowerclass;
+	player1->shoot_delay = bulletrateclasses[player1->bulletrateclass].rate;
+
+	player2 = new Player(c2.name, 2, c2.filename);
 	player2->controls = Main::instance->controls2;
+	player2->speedclass = c2.speedclass;
+	player2->weightclass = c2.weightclass;
+	player2->bulletrateclass = c2.bulletrateclass;
+	player2->bombpowerclass = c2.bombpowerclass;
+	player2->shoot_delay = bulletrateclasses[player2->bulletrateclass].rate;
 
 	load_level(stages[character_select->stage].filename);
 
@@ -527,7 +572,7 @@ void Battle::process_shoot(Player * p) {
 			Bomb * b;
 
 			b = new Bomb(surface_bombs);
-			b->damage = 25;
+			b->damage = bombpowerclasses[p->bombpowerclass].damage;
 			b->time = 60;
 			b->frame_start = frame;
 			b->frame_change_start = frame;
@@ -654,7 +699,8 @@ void Battle::move_player(Player * p) {
 	// Are we running?
 	if(p->keydn_run) {
 		p->is_running = true;
-		maxx = MAX_MOMENTUM_RUN;
+		//maxx = MAX_MOMENTUM_RUN;
+		maxx = speedclasses[p->speedclass].run_speed;
 	} else {
 		p->is_running = false;
 		maxx = MAX_MOMENTUM_HORIZ;
@@ -1091,16 +1137,20 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 		lower->is_duck_forced = true;
 		lower->duck_force_start = frame;
 		lower->momentumy = -10;
-		lower->hitpoints -= 5;
+		lower->hitpoints -= weightclasses[upper->weightclass].headjump_damage;
 	} else { // Players hit each others side
 		if(momxr < -(MAX_MOMENTUM_HORIZ + MOMENTUM_INTERV_HORIZ))
-			left->momentumx = -40;
+			left->momentumx = -weightclasses[right->weightclass].push_force_fullspeed;
+			//left->momentumx = -40;
 		else
-			left->momentumx = -20;
+			left->momentumx = -weightclasses[right->weightclass].push_force;
+			//left->momentumx = -20;
 		if(momxl > (MAX_MOMENTUM_HORIZ + MOMENTUM_INTERV_HORIZ))
-			right->momentumx = 40;
+			right->momentumx = weightclasses[left->weightclass].push_force_fullspeed;
+			//right->momentumx = 40;
 		else
-			right->momentumx = 20;
+			right->momentumx = weightclasses[left->weightclass].push_force;
+			//right->momentumx = 20;
 		upper->momentumy = lower->momentumy;
 	}
 	
