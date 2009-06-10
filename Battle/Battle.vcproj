@@ -400,6 +400,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\eva.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\sfx\explode.wav"
 				>
 			</File>
@@ -509,6 +513,10 @@
 			</File>
 			<File
 				RelativePath=".\music\title.ogg"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\tobias.bmp"
 				>
 			</File>
 			<File

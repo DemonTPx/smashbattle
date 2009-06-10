@@ -47,7 +47,7 @@
 #define SPEED_HORIZ 2
 #define SPEED_VERT 2
 
-const int Battle::CHARACTER_COUNT = 10;
+const int Battle::CHARACTER_COUNT = 12;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	//      Name               Filename            sp wt br bd
 	{(char*)"Bert",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
@@ -60,6 +60,8 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Anton",	(char*)"gfx/anton.bmp",		2, 1, 1, 0},
 	{(char*)"Donja",	(char*)"gfx/donja.bmp",		2, 0, 1, 1},
 	{(char*)"Rob",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
+	{(char*)"Eva",		(char*)"gfx/eva.bmp",		1, 2, 0, 1},
+	{(char*)"Tobias",	(char*)"gfx/tobias.bmp",	1, 1, 2, 0},
 };
 const int Battle::STAGE_COUNT = 8;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {

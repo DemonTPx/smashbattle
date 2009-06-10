@@ -12,7 +12,7 @@
 #define sprintf_s snprintf
 #endif
 
-#define CHARACTERS_PER_LINE	5
+#define CHARACTERS_PER_LINE	4
 #define CHARACTER_WIDTH		44
 #define CHARACTER_SPACING	4
 
@@ -655,12 +655,12 @@ void CharacterSelect::draw() {
 
 	surface = TTF_RenderText_Solid(font26, stage_name, fontColor);
 	rect.x = (screen->w - surface->w) / 2;
-	rect.y = 160;
+	rect.y = 220;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
 	rect_b.x = (screen->w - ((STAGE_WIDTH + (STAGE_SPACING * 2)) * STAGES_PER_LINE)) / 2;
-	rect_b.y = 180;
+	rect_b.y = 240;
 	rect_b.w = STAGE_WIDTH + (STAGE_SPACING * 2);
 	rect_b.h = STAGE_HEIGHT + (STAGE_SPACING * 2);
 
@@ -698,7 +698,7 @@ void CharacterSelect::draw() {
 	char text[5];
 	int left, top;
 	for(int i = 0; i < Battle::RULESET_COUNT; i++) {
-		top = 350 + (i * 20);
+		top = 370 + (i * 20);
 		left = 55;
 		
 		if(ready_stage && i == this->ruleset) {
