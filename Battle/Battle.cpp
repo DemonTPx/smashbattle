@@ -1244,79 +1244,34 @@ void Battle::damage_tiles(SDL_Rect * rect, int damage) {
 	int l, r, t, b;
 
 	l = rect->x;
-	r = rect->x + rect->w - 1;
+	r = rect->x + rect->w + SPR_W;
 
 	t = rect->y;
-	b = rect->y + rect->h - 1;
+	b = rect->y + rect->h;
 
 	if(t < 0) t = 0;
 	if(b < 0) b = 0;
 	if(t >= WINDOW_HEIGHT) t = WINDOW_HEIGHT - 1;
 	if(b >= WINDOW_HEIGHT) b = WINDOW_HEIGHT - 1;
 
+	int wx;
+
 	for(int y = t; y < b; y += SPR_H) {
 		if(y < 0) continue;
 		if(y > WINDOW_HEIGHT) continue;
 
 		for(int x = l; x < r; x += SPR_W) {
-			if(x > WINDOW_WIDTH) continue;
+			wx = x;
+			if(x < 0) wx += WINDOW_WIDTH;
+			if(x > WINDOW_WIDTH) wx -= WINDOW_WIDTH;
 
-			if(level[level_pos(x, y)] != -1) {
-				level_hp[level_pos(x, y)] -= damage;
-				if(level_hp[level_pos(x, y)] < 0)
-					level[level_pos(x, y)] = -1;
+			if(level[level_pos(wx, y)] != -1) {
+				level_hp[level_pos(wx, y)] -= damage;
+				if(level_hp[level_pos(wx, y)] < 0)
+					level[level_pos(wx, y)] = -1;
 			}
 		}
 	}
-
-	/*
-	if(r >= WINDOW_WIDTH) {
-		for(int x = 0; x < r - WINDOW_WIDTH; x += SPR_W) {
-			if(level[level_pos(x, t)] != -1) {
-				level_hp[level_pos(x, t)] -= damage;
-				if(level_hp[level_pos(x, t)] < 0)
-					level[level_pos(x, t)] = -1;
-			}
-			if(level[level_pos(x, b)] != -1) {
-				level_hp[level_pos(x, b)] -= damage;
-				if(level_hp[level_pos(x, b)] < 0)
-					level[level_pos(x, b)] = -1;
-			}
-		}
-		
-		r = WINDOW_WIDTH - 1;
-	}
-	for(int x = l; x < r; x += SPR_W) {
-		if(r > WINDOW_WIDTH)
-			break;
-
-		if(level[level_pos(x, t)] != -1) {
-			level_hp[level_pos(x, t)] -= damage;
-			if(level_hp[level_pos(x, t)] < 0)
-				level[level_pos(x, t)] = -1;
-		}
-		if(level[level_pos(x, b)] != -1) {
-			level_hp[level_pos(x, b)] -= damage;
-			if(level_hp[level_pos(x, b)] < 0)
-				level[level_pos(x, b)] = -1;
-		}
-	}
-
-	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
-
-	for(int y = t; y < b; y += SPR_H) {
-		if(level[level_pos(l, y)] != -1) {
-			level_hp[level_pos(l, y)] -= damage;
-			if(level_hp[level_pos(l, y)] < 0)
-				level[level_pos(l, y)] = -1;
-		}
-		if(level[level_pos(r, y)] != -1) {
-			level_hp[level_pos(r, y)] -= damage;
-			if(level_hp[level_pos(r, y)] < 0)
-				level[level_pos(r, y)] = -1;
-		}
-	}
-	*/
 }
 
 bool Battle::check_collision(SDL_Rect * rect) {
