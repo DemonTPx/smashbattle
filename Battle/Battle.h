@@ -113,6 +113,8 @@ private:
 
 	void generate_powerup(bool force);
 
+	void damage_tiles(SDL_Rect * rect, int damage);
+
 	void check_player_collision(Player * p1, Player * p2);
 	void check_player_projectile_collision(Player * p);
 	void check_player_bomb_collision(Player * p);
@@ -127,8 +129,10 @@ private:
 	void load_images();
 	void free_images();
 	void set_clips();
-	
+
+	int level_start[300];
 	int level[300];
+	int level_hp[300];
 
 	Player * player1;
 	Player * player2;

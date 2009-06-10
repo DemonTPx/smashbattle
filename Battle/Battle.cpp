@@ -388,6 +388,11 @@ void Battle::reset_game() {
 
 	srand(SDL_GetTicks());
 
+	for(int i = 0; i < SPR_COUNT; i++) {
+		level[i] = level_start[i];
+		level_hp[i] = 50;
+	}
+
 	Projectile * pr;
 	for(unsigned int i = 0; i < projectiles->size(); i++) {
 		pr = projectiles->at(i);
@@ -1030,6 +1035,12 @@ void Battle::move_bomb(Bomb * b) {
 				other->is_hit = true;
 				other->hit_start = frame;
 			}
+
+			// Tiles below are also to be damaged
+			rect->h += SPR_H;
+
+			damage_tiles(rect, b->damage);
+
 			delete rect;
 		}
 	}
@@ -1228,6 +1239,86 @@ void Battle::check_player_powerup_collision(Player * p) {
 	delete rect;
 }
 
+void Battle::damage_tiles(SDL_Rect * rect, int damage) {
+	// Check if the rect is colliding with the level
+	int l, r, t, b;
+
+	l = rect->x;
+	r = rect->x + rect->w - 1;
+
+	t = rect->y;
+	b = rect->y + rect->h - 1;
+
+	if(t < 0) t = 0;
+	if(b < 0) b = 0;
+	if(t >= WINDOW_HEIGHT) t = WINDOW_HEIGHT - 1;
+	if(b >= WINDOW_HEIGHT) b = WINDOW_HEIGHT - 1;
+
+	for(int y = t; y < b; y += SPR_H) {
+		if(y < 0) continue;
+		if(y > WINDOW_HEIGHT) continue;
+
+		for(int x = l; x < r; x += SPR_W) {
+			if(x > WINDOW_WIDTH) continue;
+
+			if(level[level_pos(x, y)] != -1) {
+				level_hp[level_pos(x, y)] -= damage;
+				if(level_hp[level_pos(x, y)] < 0)
+					level[level_pos(x, y)] = -1;
+			}
+		}
+	}
+
+	/*
+	if(r >= WINDOW_WIDTH) {
+		for(int x = 0; x < r - WINDOW_WIDTH; x += SPR_W) {
+			if(level[level_pos(x, t)] != -1) {
+				level_hp[level_pos(x, t)] -= damage;
+				if(level_hp[level_pos(x, t)] < 0)
+					level[level_pos(x, t)] = -1;
+			}
+			if(level[level_pos(x, b)] != -1) {
+				level_hp[level_pos(x, b)] -= damage;
+				if(level_hp[level_pos(x, b)] < 0)
+					level[level_pos(x, b)] = -1;
+			}
+		}
+		
+		r = WINDOW_WIDTH - 1;
+	}
+	for(int x = l; x < r; x += SPR_W) {
+		if(r > WINDOW_WIDTH)
+			break;
+
+		if(level[level_pos(x, t)] != -1) {
+			level_hp[level_pos(x, t)] -= damage;
+			if(level_hp[level_pos(x, t)] < 0)
+				level[level_pos(x, t)] = -1;
+		}
+		if(level[level_pos(x, b)] != -1) {
+			level_hp[level_pos(x, b)] -= damage;
+			if(level_hp[level_pos(x, b)] < 0)
+				level[level_pos(x, b)] = -1;
+		}
+	}
+
+	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
+
+	for(int y = t; y < b; y += SPR_H) {
+		if(level[level_pos(l, y)] != -1) {
+			level_hp[level_pos(l, y)] -= damage;
+			if(level_hp[level_pos(l, y)] < 0)
+				level[level_pos(l, y)] = -1;
+		}
+		if(level[level_pos(r, y)] != -1) {
+			level_hp[level_pos(r, y)] -= damage;
+			if(level_hp[level_pos(r, y)] < 0)
+				level[level_pos(r, y)] = -1;
+		}
+	}
+	*/
+}
+
 bool Battle::check_collision(SDL_Rect * rect) {
 	// Check if the rect is colliding with the level
 	int l, r, t, b;
@@ -1353,6 +1444,7 @@ int Battle::level_pos(int x, int y) {
 
 void Battle::draw_level(SDL_Surface * screen) {
 	SDL_Rect rect;
+	SDL_Rect rect_s;
 
 	rect.w = SPR_W;
 	rect.h = SPR_H;
@@ -1367,10 +1459,22 @@ void Battle::draw_level(SDL_Surface * screen) {
 		rect.x = (i % SPR_COLS) * SPR_W;
 		rect.y = (i / SPR_COLS) * SPR_H;
 
+		rect_s.x = tile_rect[level[i]]->x;
+		rect_s.y = tile_rect[level[i]]->y;
+		rect_s.w = tile_rect[level[i]]->w;
+		rect_s.h = tile_rect[level[i]]->h;
+
+		if(level_hp[i] < 33) {
+			rect_s.y += SPR_H;
+		}
+		if(level_hp[i] < 16) {
+			rect_s.y += SPR_H;
+		}
+	
 		// Don't draw empty sprites
 		if(level[i] == -1) continue;
 
-		SDL_BlitSurface(tiles, tile_rect[level[i]], screen, &rect);
+		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}
 }
 
@@ -1671,7 +1775,7 @@ void Battle::load_level(const char * filename) {
 
 	for(int i = 0; i < SPR_COUNT; i++) {
 		ifs.read(l, 1);
-		level[i] = (int)l[0];
+		level_start[i] = (int)l[0];
 	}
 
 	ifs.close();
