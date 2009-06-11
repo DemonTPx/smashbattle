@@ -80,7 +80,7 @@ const RuleSet Battle::rulesets[Battle::RULESET_COUNT] = {
 	// Name					bul ddb ikb bom hea bul ddb ikb bom rate max
 	{(char*)"Default",		 -1,  2,  0,  3,  2,  0,  1,  1,  1, 500,  2},
 	{(char*)"Heavy",		 -1,  9,  0,  5,  4,  0,  5,  1,  3, 250,  4},
-	{(char*)"Overkill",		  0,  0, -1, -1,  1,  0,  0,  0,  0, 500,  2},
+	{(char*)"Overkill",		  0, -1,  1, -1,  1,  0,  0,  1,  0, 500,  2},
 	{(char*)"Save ammo",	 10,  0,  0,  0,  1,  1,  0,  0,  0, 250,  5},
 };
 
@@ -1756,6 +1756,7 @@ void Battle::load_level(const char * filename) {
 	ifs.read(tiles_file, 30);
 	ifs.read(bg_file, 30);
 
+	// Get the level tiles (HP & sprite index)
 	for(int i = 0; i < SPR_COUNT; i++) {
 		ifs.read(l, 1);
 		level_start[i] = (int)l[0] & 0x0f;
