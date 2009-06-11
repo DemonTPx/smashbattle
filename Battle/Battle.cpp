@@ -390,7 +390,7 @@ void Battle::reset_game() {
 
 	for(int i = 0; i < SPR_COUNT; i++) {
 		level[i] = level_start[i];
-		level_hp[i] = 50;
+		level_hp[i] = level_hp_start[i];
 	}
 
 	Projectile * pr;
@@ -1747,6 +1747,7 @@ void Battle::load_level(const char * filename) {
 	char tiles_file_full[35], bg_file_full[35];
 	char l[1];
 	SDL_Surface * surface;
+	Uint32 colorkey;
 
 	ifs.open(filename, std::ifstream::binary);
 	
@@ -1757,7 +1758,15 @@ void Battle::load_level(const char * filename) {
 
 	for(int i = 0; i < SPR_COUNT; i++) {
 		ifs.read(l, 1);
-		level_start[i] = (int)l[0];
+		level_start[i] = (int)l[0] & 0x0f;
+
+		if(level_start[i] == 0xf)
+			level_start[i] = -1;
+
+		level_hp_start[i] = 10 * (((int)l[0] & 0xf0) >> 4);
+
+		if(level_hp_start[i] == 150)
+			level_hp_start[i] = 10000;
 	}
 
 	ifs.close();
@@ -1767,6 +1776,8 @@ void Battle::load_level(const char * filename) {
 
 	surface = SDL_LoadBMP(tiles_file_full);
 	tiles = SDL_DisplayFormat(surface);
+	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
+	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
 	SDL_FreeSurface(surface);
 
 	if(bg_file[0] != 0) {

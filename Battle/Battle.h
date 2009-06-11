@@ -131,6 +131,8 @@ private:
 	void set_clips();
 
 	int level_start[300];
+	int level_hp_start[300];
+
 	int level[300];
 	int level_hp[300];
 
