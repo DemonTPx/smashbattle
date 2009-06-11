@@ -574,7 +574,7 @@ void Battle::process_shoot(Player * p) {
 		}
 	}
 	if(p->keydn_bomb) {
-		if(frame > p->shoot_start + p->shoot_delay && p->bombs > 0) {
+		if(frame > p->shoot_start + p->shoot_delay && (p->bombs > 0 || p->bombs == -1)) {
 			p->shoot_start = frame;
 			Bomb * b;
 
@@ -588,8 +588,9 @@ void Battle::process_shoot(Player * p) {
 			b->position->x = p->position->x + (p->position->w - p->position->w) / 2;
 			b->position->y = p->position->y + (p->position->h - b->position->h);
 			bombs->push_back(b);
-
-			p->bombs -= 1;
+			
+			if(p->bombs != -1)
+				p->bombs -= 1;
 
 			Main::instance->audio->play(SND_SHOOT);
 		}
@@ -891,7 +892,7 @@ void Battle::move_player(Player * p) {
 	// If we went too far to the right, appear at the far left (and vica versa)
 	if(p->position->x >= WINDOW_WIDTH)
 		p->position->x -= WINDOW_WIDTH;
-	if(p->position->x <= 0)
+	if(p->position->x < 0)
 		p->position->x += WINDOW_WIDTH;
 	
 
@@ -1212,6 +1213,8 @@ void Battle::check_player_bomb_collision(Player * p) {
 			p->hit_start = frame;
 			p->hitpoints -= b->damage;
 			Main::audio->play(SND_HIT);
+
+			damage_tiles(b->get_damage_rect(), b->damage);
 		}
 	}
 
@@ -1289,6 +1292,23 @@ bool Battle::check_collision(SDL_Rect * rect) {
 	if(t >= WINDOW_HEIGHT) t = WINDOW_HEIGHT - 1;
 	if(b >= WINDOW_HEIGHT) b = WINDOW_HEIGHT - 1;
 
+	if(l < 0) {
+		for(int x = l + WINDOW_WIDTH; x < WINDOW_WIDTH; x++) {
+			if(level[level_pos(x, t)] != -1)
+				return true;
+			if(level[level_pos(x, b)] != -1)
+				return true;
+		}
+
+		for(int y = t; y < b; y++) {
+			if(level[level_pos(l + WINDOW_WIDTH, y)] != -1)
+				return true;
+			if(level[level_pos(l + WINDOW_WIDTH, y)] != -1)
+				return true;
+		}
+
+		l = 0;
+	}
 
 	if(r >= WINDOW_WIDTH) {
 		for(int x = 0; x < r - WINDOW_WIDTH; x++) {
@@ -1297,12 +1317,19 @@ bool Battle::check_collision(SDL_Rect * rect) {
 			if(level[level_pos(x, b)] != -1)
 				return true;
 		}
+
+		for(int y = t; y < b; y++) {
+			if(level[level_pos(r - WINDOW_WIDTH, y)] != -1)
+				return true;
+			if(level[level_pos(r - WINDOW_WIDTH, y)] != -1)
+				return true;
+		}
 		
 		r = WINDOW_WIDTH - 1;
 	}
 
 	for(int x = l; x < r; x++) {
-		if(r > WINDOW_WIDTH)
+		if(r >= WINDOW_WIDTH)
 			break;
 
 		if(level[level_pos(x, t)] != -1)
@@ -1311,7 +1338,7 @@ bool Battle::check_collision(SDL_Rect * rect) {
 			return true;
 	}
 
-	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
+	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH - 1;
 
 	for(int y = t; y < b; y++) {
 		if(level[level_pos(l, y)] != -1)
