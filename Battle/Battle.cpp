@@ -1123,7 +1123,7 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 
 	if(p1->momentumx > p2->momentumx) { // p1 at the left of p2
 		diffx = r1 - l2;
-		if((p1_clip && !p2_clip) || !p1_clip && p2_clip) {
+		if((p1_clip && !p2_clip) || (!p1_clip && p2_clip)) {
 			diffx -= WINDOW_WIDTH;
 		}
 		if(p1_clip) diffx -= WINDOW_WIDTH;
@@ -1137,7 +1137,7 @@ void Battle::check_player_collision(Player * p1, Player * p2) {
 		momyr = p2->momentumy;
 	} else { // p1 at the right of p2, or at the same level
 		diffx = r2 - l1;
-		if((p1_clip && !p2_clip) || !p1_clip && p2_clip) {
+		if((p1_clip && !p2_clip) || (!p1_clip && p2_clip)) {
 			diffx -= WINDOW_WIDTH;
 		}
 		left = p2;

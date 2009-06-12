@@ -1,0 +1,29 @@
+=== Smash Battle - Stage files ===
+
+
+
+-------------------------------------------------
+File format
+-------------------------------------------------
+offset	length	type	description
+
+0000	0020	str	Level name
+0020	0020	str	Level author
+0040	0030	str	Tiles image filename
+0070	0030	str	Background image filename
+0100	0300	byte	{tile} * 300
+-------------------------------------------------
+
+-- {tile} byte --
+The first 4 bits = hitpoint data
+	0x1 = 10hp, 0x2 = 20hp, ..., 0xf = 10000hp (almost indestructible)
+
+The last 4 bits = tile sprite index
+	0x0 = first sprite, 0x1 = second sprite, ..., 0xf = no tile
+
+Example:
+
+0xff	No tile (can also be 0x0f)
+0x30	30 HP, first sprite
+0xb3	110 HP, fourth sprite
+0xf1	(almost) indestructible, second sprite

@@ -524,6 +524,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\stg-files.txt"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\tedje.bmp"
 				>
 			</File>
