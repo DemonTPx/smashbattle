@@ -372,6 +372,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\bg_bluesky.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\stage\blastbowl.stg"
 				>
 			</File>
@@ -420,6 +424,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\jay.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\jeremy.bmp"
 				>
 			</File>
@@ -429,6 +437,22 @@
 			</File>
 			<File
 				RelativePath=".\sfx\jump.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\level_01.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\level_02.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\lvl_okke_01.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\lvl_okke_02.bmp"
 				>
 			</File>
 			<File
@@ -505,6 +529,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\tiles.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\tiles_02.bmp"
 				>
 			</File>
 			<File

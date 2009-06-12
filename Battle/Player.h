@@ -82,6 +82,9 @@ public:
 	int shoot_start;
 	int shoot_delay;
 
+	int bomb_start;
+	int bomb_delay;
+
 	int bullets;
 	int bombs;
 	int doubledamagebullets;

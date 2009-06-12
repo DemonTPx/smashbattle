@@ -31,7 +31,7 @@ Bomb::Bomb(SDL_Surface * surface) {
 	position = new SDL_Rect();
 	position->x = 0;
 	position->y = 0;
-	position->w = 16;
+	position->w = 12;
 	position->h = 16;
 
 	current_frame = 0;
@@ -105,13 +105,13 @@ void Bomb::set_clips() {
 	clip[FRAME_NORMAL] = new SDL_Rect();
 	clip[FRAME_NORMAL]->x = 0;
 	clip[FRAME_NORMAL]->y = 0;
-	clip[FRAME_NORMAL]->w = 16;
+	clip[FRAME_NORMAL]->w = 12;
 	clip[FRAME_NORMAL]->h = 16;
 	
 	clip[FRAME_FLASH] = new SDL_Rect();
-	clip[FRAME_FLASH]->x = 16;
+	clip[FRAME_FLASH]->x = 12;
 	clip[FRAME_FLASH]->y = 0;
-	clip[FRAME_FLASH]->w = 16;
+	clip[FRAME_FLASH]->w = 12;
 	clip[FRAME_FLASH]->h = 16;
 	
 	clip[FRAME_EXPLOSION] = new SDL_Rect();

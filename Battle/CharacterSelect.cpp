@@ -760,7 +760,7 @@ void CharacterSelect::draw() {
 
 		// bombs
 		rect.x = left; rect.y = top;
-		rect_s.x = 16; rect_s.y = 0; rect_s.w = 16; rect_s.h = 16;
+		rect_s.x = 12; rect_s.y = 0; rect_s.w = 12; rect_s.h = 16;
 		SDL_BlitSurface(parent->surface_bombs, &rect_s, screen, &rect);
 		left += 20;
 

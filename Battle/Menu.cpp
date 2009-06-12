@@ -379,7 +379,7 @@ void Menu::init() {
 	credits = new std::vector<SDL_Surface*>(0);
 	surface = TTF_RenderText_Solid(font13, "Programming by Bert Hekman", fontColor);
 	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(font13, "Graphics by Jeroen Groeneweg", fontColor);
+	surface = TTF_RenderText_Solid(font13, "Graphics by Jeroen Groeneweg and Okke Voerman", fontColor);
 	credits->push_back(surface);
 	surface = TTF_RenderText_Solid(font13, "Music by Nick Perrin", fontColor);
 	credits->push_back(surface);

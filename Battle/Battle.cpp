@@ -57,7 +57,7 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Okke",		(char*)"gfx/okke.bmp",		2, 1, 0, 1},
 	{(char*)"Jeremy",	(char*)"gfx/jeremy.bmp",	1, 0, 1, 2},
 	{(char*)"Marcel",	(char*)"gfx/marcel.bmp",	1, 0, 2, 1},
-	{(char*)"Anton",	(char*)"gfx/anton.bmp",		2, 1, 1, 0},
+	{(char*)"Jay",		(char*)"gfx/jay.bmp",		2, 1, 1, 0},
 	{(char*)"Donja",	(char*)"gfx/donja.bmp",		2, 0, 1, 1},
 	{(char*)"Rob",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
 	{(char*)"Eva",		(char*)"gfx/eva.bmp",		1, 2, 0, 1},
@@ -80,7 +80,7 @@ const RuleSet Battle::rulesets[Battle::RULESET_COUNT] = {
 	// Name					bul ddb ikb bom hea bul ddb ikb bom rate max
 	{(char*)"Default",		 -1,  2,  0,  3,  2,  0,  1,  1,  1, 500,  2},
 	{(char*)"Heavy",		 -1,  9,  0,  5,  4,  0,  5,  1,  3, 250,  4},
-	{(char*)"Overkill",		  0, -1,  1, -1,  1,  0,  0,  1,  0, 500,  2},
+	{(char*)"Overkill",		  0, -1,  1, -1,  5,  0,  0,  1,  0, 500,  2},
 	{(char*)"Save ammo",	 10,  0,  0,  0,  1,  1,  0,  0,  0, 250,  5},
 };
 
@@ -184,6 +184,15 @@ void Battle::run() {
 			process_shoot(player1);
 			process_shoot(player2);
 
+			for(unsigned int idx = 0; idx < powerups->size(); idx++) {
+				PowerUp * p = powerups->at(idx);
+				// Make sure powerups do not float in the air
+				if(check_bottom(p->position)) {
+					powerups->erase(powerups->begin() + idx);
+					delete p;
+				}
+			}
+
 			for(unsigned int idx = 0; idx < projectiles->size(); idx++) {
 				Projectile * p = projectiles->at(idx);
 				move_projectile(p);
@@ -264,8 +273,6 @@ void Battle::run() {
 		player1->show(screen);
 		player2->show(screen);
 
-		draw_score(screen);
-
 		for(unsigned int idx = 0; idx < powerups->size(); idx++) {
 			PowerUp * p = powerups->at(idx);
 			p->show(screen);
@@ -280,6 +287,8 @@ void Battle::run() {
 			Projectile * p = projectiles->at(idx);
 			p->show(screen);
 		}
+
+		draw_score(screen);
 		
 		if(ended) {
 			draw_win_screen(screen);
@@ -353,6 +362,7 @@ void Battle::reset_game() {
 	player1->position->y = 320 - player1->position->h;
 	player1->hitpoints = 100;
 	player1->shoot_start = 0;
+	player1->bomb_start = 0;
 	player1->is_duck_forced = false;
 	player1->duck_force_start = 0;
 	player1->is_hit = false;
@@ -372,6 +382,7 @@ void Battle::reset_game() {
 	player2->position->y = 320 - player2->position->h;
 	player2->hitpoints = 100;
 	player2->shoot_start = 0;
+	player2->bomb_start = 0;
 	player2->is_duck_forced = false;
 	player2->duck_force_start = 0;
 	player2->is_hit = false;
@@ -574,8 +585,8 @@ void Battle::process_shoot(Player * p) {
 		}
 	}
 	if(p->keydn_bomb) {
-		if(frame > p->shoot_start + p->shoot_delay && (p->bombs > 0 || p->bombs == -1)) {
-			p->shoot_start = frame;
+		if(frame > p->bomb_start + p->bomb_delay && (p->bombs > 0 || p->bombs == -1)) {
+			p->bomb_start = frame;
 			Bomb * b;
 
 			b = new Bomb(surface_bombs);
@@ -585,7 +596,7 @@ void Battle::process_shoot(Player * p) {
 			b->frame_change_start = frame;
 			b->frame_change_count = 12;
 			b->owner = p;
-			b->position->x = p->position->x + (p->position->w - p->position->w) / 2;
+			b->position->x = p->position->x + (p->position->w - b->position->w) / 2;
 			b->position->y = p->position->y + (p->position->h - b->position->h);
 			bombs->push_back(b);
 			
@@ -1446,10 +1457,11 @@ void Battle::draw_level(SDL_Surface * screen) {
 		rect_s.w = tile_rect[level[i]]->w;
 		rect_s.h = tile_rect[level[i]]->h;
 
-		if(level_hp[i] < 33) {
+		// Show damaged tiles
+		if(level_hp[i] < 40) {
 			rect_s.y += SPR_H;
 		}
-		if(level_hp[i] < 16) {
+		if(level_hp[i] < 20) {
 			rect_s.y += SPR_H;
 		}
 	
@@ -1466,9 +1478,16 @@ void Battle::draw_score(SDL_Surface * screen) {
 	SDL_Rect rect_s;
 	int ammount;
 
+	// Fill the background
+	rect.x = 0;
+	rect.y = WINDOW_HEIGHT - 32;
+	rect.w = WINDOW_WIDTH;
+	rect.h = 32;
+	SDL_FillRect(screen, &rect, 0x222222);
+
 	// Health bar player 1
-	rect.x = 2;
-	rect.y = WINDOW_HEIGHT - 31;
+	rect.x = 3;
+	rect.y = WINDOW_HEIGHT - 29;
 	rect.w = 120;
 	rect.h = 9;
 	SDL_FillRect(screen, &rect, 0);
@@ -1477,13 +1496,13 @@ void Battle::draw_score(SDL_Surface * screen) {
 	rect_s.h = 7;
 	rect_s.x = 0;
 	rect_s.y = 0;
-	rect.x = 3;
-	rect.y = WINDOW_HEIGHT - 30;
+	rect.x = 4;
+	rect.y = WINDOW_HEIGHT - 28;
 	SDL_BlitSurface(player1hp, &rect_s, screen, &rect);
 
 	// Health bar player 2
-	rect.x = WINDOW_WIDTH - 122;
-	rect.y = WINDOW_HEIGHT - 31;
+	rect.x = WINDOW_WIDTH - 123;
+	rect.y = WINDOW_HEIGHT - 29;
 	rect.w = 120;
 	rect.h = 9;
 	SDL_FillRect(screen, &rect, 0);
@@ -1492,8 +1511,8 @@ void Battle::draw_score(SDL_Surface * screen) {
 	rect_s.h = 7;
 	rect_s.x = 118 - rect_s.w;
 	rect_s.y = 0;
-	rect.x = WINDOW_WIDTH - 2 - rect_s.w;
-	rect.y = WINDOW_HEIGHT - 30;
+	rect.x = WINDOW_WIDTH - 3 - rect_s.w;
+	rect.y = WINDOW_HEIGHT - 28;
 	SDL_BlitSurface(player2hp, &rect_s, screen, &rect);
 
 	char str[40];
@@ -1518,14 +1537,14 @@ void Battle::draw_score(SDL_Surface * screen) {
 	sprintf_s(str, 40, "%02d-%02d", player1->score, player2->score);
 	surface = TTF_RenderText_Solid(font52, str, fontColor);
 	rect.x = (WINDOW_WIDTH - surface->w) / 2;
-	rect.y = WINDOW_HEIGHT - surface->h + 2;
+	rect.y = WINDOW_HEIGHT - surface->h + 3;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
 	// Show bomb ammount
-	rect_s.x = 16;
+	rect_s.x = 12;
 	rect_s.y = 0;
-	rect_s.w = 16;
+	rect_s.w = 12;
 	rect_s.h = 16;
 	rect.x = 150;
 	rect.y = 460;

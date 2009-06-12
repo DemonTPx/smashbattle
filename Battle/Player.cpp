@@ -73,6 +73,9 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 	shoot_start = 0;
 	shoot_delay = 10;
 
+	bomb_start = 0;
+	bomb_delay = 30;
+
 	bullets = 10;
 	bombs = 3;
 	doubledamagebullets = 0;
