@@ -44,8 +44,15 @@
 #define MOMENTUM_INTERV_HORIZ 1
 #define MOMENTUM_INTERV_VERT 1
 
+// Base speed
 #define SPEED_HORIZ 2
 #define SPEED_VERT 2
+
+// Tile boucing variables
+#define BOUNCE_TOP_FRAME 4
+#define BOUNCE_LAST_FRAME 8
+#define BOUNCE_HEIGHT_PER_FRAME 3
+#define BOUNCE_HIT_HEIGHT 16
 
 const int Battle::CHARACTER_COUNT = 12;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
@@ -92,9 +99,9 @@ const SpeedClass Battle::speedclasses[Battle::SPEEDCLASS_COUNT] = {
 };
 const int Battle::WEIGHTCLASS_COUNT = 3;
 const WeightClass Battle::weightclasses[Battle::WEIGHTCLASS_COUNT] = {
-	{15, 35, 0},
-	{20, 40, 5},
-	{25, 45, 10},
+	{15, 35,  0, 30},
+	{20, 40,  5, 20},
+	{25, 45, 10, 15},
 };
 const int Battle::BULLETRATECLASS_COUNT = 3;
 const BulletRateClass Battle::bulletrateclasses[Battle::BULLETRATECLASS_COUNT] = {
@@ -408,6 +415,9 @@ void Battle::reset_game() {
 	for(int i = 0; i < SPR_COUNT; i++) {
 		level[i] = level_start[i];
 		level_hp[i] = level_hp_start[i];
+		
+		level_bounce[i] = 0;
+		level_bounce_start[i] = 0;
 	}
 
 	Projectile * pr;
@@ -957,9 +967,14 @@ void Battle::move_player(Player * p) {
 
 	// Did we hit something?
 	if(check_collision(&rect)) {
+		if(speedy > 0) {
+			bounce_tile(&rect);
+		}
+
+		// Put the player back into the previous position
 		p->position->y += speedy;
 
-		if(p->is_jumping) {
+		if(speedy > 0) {
 			// Bounce off the top (bump head)
 			p->is_jumping = false;
 			p->is_falling = true;
@@ -1260,7 +1275,6 @@ void Battle::check_player_powerup_collision(Player * p) {
 }
 
 void Battle::damage_tiles(SDL_Rect * rect, int damage) {
-	// Check if the rect is colliding with the level
 	int l, r, t, b;
 
 	l = rect->x;
@@ -1291,6 +1305,61 @@ void Battle::damage_tiles(SDL_Rect * rect, int damage) {
 					level[level_pos(wx, y)] = -1;
 			}
 		}
+	}
+}
+
+void Battle::bounce_tile(SDL_Rect * rect) {
+	int l, x, r, y;
+	int pos;
+
+	l = rect->x;
+	r = rect->x + rect->w;
+	x = rect->x + (rect->w / 2);
+	y = rect->y;
+
+	if(x >= WINDOW_WIDTH) x = x - WINDOW_WIDTH;
+	if(r >= WINDOW_WIDTH) r = r - WINDOW_WIDTH;
+	
+	pos = level_pos(x, y); // Is there a tile at the center-top?
+	if(level[pos] == -1) pos = level_pos(l, y); // tile at left-top?
+	if(level[pos] == -1) pos = level_pos(r, y); // tile at right-top?
+	if(level[pos] == -1) return; // No tile at all
+
+	// Cancel if the tile is already bouncing
+	if(level_bounce[pos] != 0) return;
+
+	// Start bouncing
+	level_bounce[pos] = 1;
+	level_bounce_start[pos] = frame;
+
+	// Check if a player is standing on the tile
+	SDL_Rect rect_hit;
+	rect_hit.x = (pos % SPR_COLS) * SPR_W;
+	rect_hit.y = ((pos / SPR_COLS) * SPR_H) - BOUNCE_HIT_HEIGHT;
+	rect_hit.w = SPR_W;
+	rect_hit.h = BOUNCE_HIT_HEIGHT;
+
+	if(is_intersecting(player1->position, &rect_hit)) {
+		player1->duck_force_start = frame;
+		player1->is_duck_forced = true;
+		player1->is_falling = true;
+		player1->momentumy = weightclasses[player1->weightclass].bounce_momentum;
+		player1->momentumx += (player1->position->x - player2->position->x) * 2;
+		if(player1->momentumx > MAX_MOMENTUM_HORIZ)
+			player1->momentumx = MAX_MOMENTUM_HORIZ;
+		if(player1->momentumx < -MAX_MOMENTUM_HORIZ)
+			player1->momentumx = -MAX_MOMENTUM_HORIZ;
+	}
+	if(is_intersecting(player2->position, &rect_hit)) {
+		player2->duck_force_start = frame;
+		player2->is_duck_forced = true;
+		player2->is_falling = true;
+		player2->momentumy = weightclasses[player2->weightclass].bounce_momentum;
+		player2->momentumx += (player2->position->x - player1->position->x) * 2;
+		if(player2->momentumx > MAX_MOMENTUM_HORIZ)
+			player2->momentumx = MAX_MOMENTUM_HORIZ;
+		if(player2->momentumx < -MAX_MOMENTUM_HORIZ)
+			player2->momentumx = -MAX_MOMENTUM_HORIZ;
 	}
 }
 
@@ -1455,6 +1524,9 @@ void Battle::draw_level(SDL_Surface * screen) {
 
 	// Draw each sprite, one by one
 	for(int i = 0; i < SPR_COUNT; i++) {
+		// Don't draw empty sprites
+		if(level[i] == -1) continue;
+
 		rect.x = (i % SPR_COLS) * SPR_W;
 		rect.y = (i / SPR_COLS) * SPR_H;
 
@@ -1470,9 +1542,20 @@ void Battle::draw_level(SDL_Surface * screen) {
 		if(level_hp[i] < 20) {
 			rect_s.y += SPR_H;
 		}
-	
-		// Don't draw empty sprites
-		if(level[i] == -1) continue;
+
+		// Show bouncing tiles
+		if(level_bounce[i] != 0) {
+			level_bounce[i]++;
+			level_bounce_start[i] = frame;
+			if(level_bounce[i] >= BOUNCE_LAST_FRAME) {
+				level_bounce[i] = 0;
+			}
+			if(level_bounce[i] <= BOUNCE_TOP_FRAME) {
+				rect.y -= level_bounce[i] * BOUNCE_HEIGHT_PER_FRAME;
+			} else {
+				rect.y -= (BOUNCE_TOP_FRAME - (level_bounce[i] - BOUNCE_TOP_FRAME)) * BOUNCE_HEIGHT_PER_FRAME;
+			}
+		}
 
 		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}

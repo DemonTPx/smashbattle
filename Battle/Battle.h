@@ -47,6 +47,7 @@ struct WeightClass {
 	int push_force;
 	int push_force_fullspeed;
 	int headjump_damage;
+	int bounce_momentum;
 };
 
 struct BulletRateClass {
@@ -114,6 +115,7 @@ private:
 	void generate_powerup(bool force);
 
 	void damage_tiles(SDL_Rect * rect, int damage);
+	void bounce_tile(SDL_Rect * rect);
 
 	void check_player_collision(Player * p1, Player * p2);
 	void check_player_projectile_collision(Player * p);
@@ -135,6 +137,9 @@ private:
 
 	int level[300];
 	int level_hp[300];
+
+	int level_bounce[300];
+	int level_bounce_start[300];
 
 	Player * player1;
 	Player * player2;
