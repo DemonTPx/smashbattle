@@ -43,6 +43,7 @@ void CharacterSelect::run() {
 	ready_stage = false;
 
 	ready = false;
+	cancel = false;
 
 	controls1 = Main::instance->controls1;
 	controls2 = Main::instance->controls2;
@@ -101,6 +102,12 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 	old_direction2 = cursor2_direction;
 
 	if(event->type == SDL_KEYDOWN) {
+		// Escape key always returns to main menu
+		if(event->key.keysym.sym == SDLK_ESCAPE) {
+			ready = true;
+			cancel = true;
+		}
+
 		// Keyboard 1
 		if(controls1.use_keyboard) {
 			if(event->key.keysym.sym == controls1.kb_left)

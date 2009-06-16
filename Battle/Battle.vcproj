@@ -384,6 +384,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\commongrounds.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\stage\commongrounds.stg"
 				>
 			</File>

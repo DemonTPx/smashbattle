@@ -132,6 +132,12 @@ void Battle::run() {
 	character_select = new CharacterSelect(this);
 	character_select->run();
 
+	if(character_select->cancel) {
+		delete character_select;
+		free_images();
+		return;
+	}
+
 	// Character selected
 	Character c1, c2;
 
@@ -1863,13 +1869,8 @@ void Battle::load_images() {
 	SDL_Surface * surface;
 	Uint32 colorkey;
 	
-	//surface = SDL_LoadBMP("gfx/bg.bmp");
-	//background = SDL_DisplayFormat(surface);
-	//SDL_FreeSurface(surface);
-
-	//surface = SDL_LoadBMP("gfx/tiles.bmp");
-	//tiles = SDL_DisplayFormat(surface);
-	//SDL_FreeSurface(surface);
+	background = NULL;
+	tiles = NULL;
 
 	surface = SDL_LoadBMP("gfx/weapons.bmp");
 	weapons = SDL_DisplayFormat(surface);
@@ -1909,7 +1910,8 @@ void Battle::load_images() {
 void Battle::free_images() {
 	if(background != NULL)
 		SDL_FreeSurface(background);
-	SDL_FreeSurface(tiles);
+	if(tiles != NULL)
+		SDL_FreeSurface(tiles);
 
 	SDL_FreeSurface(weapons);
 	SDL_FreeSurface(surface_bombs);

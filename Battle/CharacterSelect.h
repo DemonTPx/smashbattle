@@ -15,6 +15,8 @@ public:
 
 	int stage;
 	int ruleset;
+
+	bool cancel;
 private:
 	void draw();
 

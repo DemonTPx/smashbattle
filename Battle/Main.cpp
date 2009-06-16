@@ -199,7 +199,9 @@ int Main::run() {
 
 	clean_up();
 
+#ifdef _DEBUG && WIN32
 	_CrtDumpMemoryLeaks();
+#endif
 	return 0;
 }
 
