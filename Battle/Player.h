@@ -79,6 +79,9 @@ public:
 	int hit_delay;
 	int hit_flicker_frame;
 
+	bool is_frozen;
+	int freeze_start;
+
 	int shoot_start;
 	int shoot_delay;
 

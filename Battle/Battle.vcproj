@@ -368,10 +368,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\bg.bmp"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\bg_bluesky.bmp"
 				>
 			</File>
@@ -393,10 +389,6 @@
 			</File>
 			<File
 				RelativePath=".\sfx\countdown.wav"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\cube.bmp"
 				>
 			</File>
 			<File

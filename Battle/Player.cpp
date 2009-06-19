@@ -70,6 +70,9 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 	hit_delay = 30;
 	hit_flicker_frame = 0;
 
+	is_frozen = false;
+	freeze_start = 0;
+
 	shoot_start = 0;
 	shoot_delay = 10;
 
@@ -130,6 +133,7 @@ void Player::show(SDL_Surface * screen) {
 		SDL_BlitSurface(sprites, clip[current_sprite], screen, &rect);
 	}
 
+	// Show marker if the player is above the screen
 	if(position->y + position->h <= 0) {
 		rect.x = position->x + ((PLAYER_W - marker_clip->w) / 2);
 		rect.y = 0;

@@ -54,6 +54,9 @@
 #define BOUNCE_HEIGHT_PER_FRAME 3
 #define BOUNCE_HIT_HEIGHT 16
 
+// Freeze time
+#define PLAYER_FREEZE_FRAMES 45
+
 const int Battle::CHARACTER_COUNT = 12;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	//      Name               Filename            sp wt br bd
@@ -99,9 +102,9 @@ const SpeedClass Battle::speedclasses[Battle::SPEEDCLASS_COUNT] = {
 };
 const int Battle::WEIGHTCLASS_COUNT = 3;
 const WeightClass Battle::weightclasses[Battle::WEIGHTCLASS_COUNT] = {
-	{15, 35,  0, 30},
-	{20, 40,  5, 20},
-	{25, 45, 10, 15},
+	{15, 35,  0, 35},
+	{20, 40,  5, 30},
+	{25, 45, 10, 25},
 };
 const int Battle::BULLETRATECLASS_COUNT = 3;
 const BulletRateClass Battle::bulletrateclasses[Battle::BULLETRATECLASS_COUNT] = {
@@ -280,7 +283,8 @@ void Battle::run() {
 		
 		// Drawing
 
-		frame++;
+		if(!paused)
+			frame++;
 		draw_level(screen);
 
 		player1->show(screen);
@@ -380,6 +384,8 @@ void Battle::reset_game() {
 	player1->duck_force_start = 0;
 	player1->is_hit = false;
 	player1->hit_start = 0;
+	player1->is_frozen = false;
+	player1->freeze_start = 0;
 	player1->bullets = ruleset.bullets;
 	player1->bombs = ruleset.bombs;
 	player1->doubledamagebullets = ruleset.doubledamagebullets;
@@ -400,6 +406,8 @@ void Battle::reset_game() {
 	player2->duck_force_start = 0;
 	player2->is_hit = false;
 	player2->hit_start = 0;
+	player2->is_frozen = false;
+	player2->freeze_start = 0;
 	player2->bullets = ruleset.bullets;
 	player2->bombs = ruleset.bombs;
 	player2->doubledamagebullets = ruleset.doubledamagebullets;
@@ -727,6 +735,12 @@ void Battle::move_player(Player * p) {
 		}
 	}
 
+	if(p->is_frozen) {
+		if(frame > p->freeze_start + PLAYER_FREEZE_FRAMES) {
+			p->is_frozen = false;
+		}
+	}
+
 	speedx = SPEED_HORIZ;
 
 	momentumx_old = p->momentumx;
@@ -773,19 +787,19 @@ void Battle::move_player(Player * p) {
 		}
 	}
 
-	if(p->keydn_l) {
+	if(!p->is_frozen && p->keydn_l) {
 		// Move more to the left
 		if(p->momentumx > 0) p->momentumx -= MOMENTUM_INTERV_HORIZ;
 		if(p->momentumx >= -maxx) p->momentumx -= MOMENTUM_INTERV_HORIZ;
 		else p->momentumx += MOMENTUM_INTERV_HORIZ;
 	}
-	if(p->keydn_r) {
+	if(!p->is_frozen && p->keydn_r) {
 		// Move more to the right
 		if(p->momentumx < 0) p->momentumx += MOMENTUM_INTERV_HORIZ;
 		if(p->momentumx <= maxx) p->momentumx += MOMENTUM_INTERV_HORIZ;
 		else p->momentumx -= MOMENTUM_INTERV_HORIZ;
 	}
-	if(!p->keydn_l && !p->keydn_r) {
+	if(p->is_frozen || (!p->keydn_l && !p->keydn_r)) {
 		// Slide until we're standing still
 		if(p->momentumx < 0) p->momentumx += MOMENTUM_INTERV_HORIZ;
 		if(p->momentumx > 0) p->momentumx -= MOMENTUM_INTERV_HORIZ;
@@ -925,7 +939,7 @@ void Battle::move_player(Player * p) {
 
 	// Jumping
 
-	if(p->keydn_u && !p->is_falling && !p->is_jumping) {
+	if(p->keydn_u && !p->is_falling && !p->is_jumping && !p->is_frozen) {
 		// Start the jump
 		p->momentumy = MAX_MOMENTUM_JUMP;
 		p->is_jumping = true;
@@ -1343,6 +1357,8 @@ void Battle::bounce_tile(SDL_Rect * rect) {
 		player1->duck_force_start = frame;
 		player1->is_duck_forced = true;
 		player1->is_falling = true;
+		player1->is_frozen = true;
+		player1->freeze_start = frame;
 		player1->momentumy = weightclasses[player1->weightclass].bounce_momentum;
 		player1->momentumx += (player1->position->x - player2->position->x) * 2;
 		if(player1->momentumx > MAX_MOMENTUM_HORIZ)
@@ -1354,6 +1370,8 @@ void Battle::bounce_tile(SDL_Rect * rect) {
 		player2->duck_force_start = frame;
 		player2->is_duck_forced = true;
 		player2->is_falling = true;
+		player2->is_frozen = true;
+		player2->freeze_start = frame;
 		player2->momentumy = weightclasses[player2->weightclass].bounce_momentum;
 		player2->momentumx += (player2->position->x - player1->position->x) * 2;
 		if(player2->momentumx > MAX_MOMENTUM_HORIZ)
