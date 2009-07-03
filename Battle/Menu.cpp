@@ -8,7 +8,9 @@
 #include "Timer.h"
 #include "AudioController.h"
 #include "Main.h"
-#include "Battle.h"
+//#include "Battle.h"
+#include "Gameplay.h"
+#include "LocalMultiplayer.h"
 #include "Options.h"
 
 #include "Menu.h"
@@ -307,10 +309,30 @@ void Menu::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
+			/*
 			Battle * battle;
 			battle = new Battle();
 			battle->run();
 			delete battle;
+			*/
+
+			LocalMultiplayer * mp;
+			Level * l;
+			Player * p;
+			
+			l = new Level();
+			l->load("stage/trainingdojo.stg");
+
+			p = new Player("Bert", 1, "gfx/bert.bmp");
+
+			mp = new LocalMultiplayer();
+			mp->set_level(l);
+			mp->add_player(p);
+			mp->run();
+
+			delete l;
+			delete p;
+			delete mp;
 			break;
 		case 1:
 			Options * options;

@@ -220,11 +220,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Gameplay.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameplayObject.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HealthPowerUp.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\InstantKillBulletPowerUp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Level.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LocalMultiplayer.cpp"
 				>
 			</File>
 			<File
@@ -306,11 +322,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Gameplay.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameplayObject.h"
+				>
+			</File>
+			<File
 				RelativePath=".\HealthPowerUp.h"
 				>
 			</File>
 			<File
 				RelativePath=".\InstantKillBulletPowerUp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Level.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LocalMultiplayer.h"
 				>
 			</File>
 			<File
