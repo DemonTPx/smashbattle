@@ -42,6 +42,42 @@ Projectile::~Projectile() {
 }
 
 void Projectile::show(SDL_Surface * screen) {
+	draw(screen);
+}
+
+void Projectile::move(Level * level) {
+	position->x += speedx;
+	distance_traveled += speedx;
+	if(position->x < 0)
+		position->x += WINDOW_WIDTH;
+	if(position->x > WINDOW_WIDTH)
+		position->x -= WINDOW_WIDTH;
+
+	position->y += speedy;
+	distance_traveled += speedy;
+	
+	if(position->y < 0)
+		done = true;
+	if(position->y > WINDOW_HEIGHT)
+		done = true;
+
+	if(distance_traveled > max_distance || distance_traveled < -max_distance)
+		done = true;
+
+	if(level->is_intersecting(position))
+		done = true;
+}
+
+void Projectile::process() {
+}
+
+void Projectile::hit_player(Player * player) {
+	player->hitpoints -= damage;
+	hit = true;
+	done = true;
+}
+
+void Projectile::draw(SDL_Surface * screen) {
 	SDL_Rect rect;
 
 	rect.x = position->x;

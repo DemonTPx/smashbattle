@@ -1,17 +1,20 @@
 #ifndef _GAMEPLAYOBJECT_H
 #define _GAMEPLAYOBJECT_H
 
+#include "Level.h"
+#include "Player.h"
+
 class GameplayObject {
 public:
 	GameplayObject();
 	
-	virtual void move();
-	virtual void process();
+	virtual void move(Level * level) = 0;
+	virtual void process() = 0;
 
-	virtual void hit_player(Player * player);
-	//virtual void hit_npc(NPC * npc);
+	virtual void hit_player(Player * player) = 0;
+	//virtual void hit_npc(NPC * npc) = 0;
 
-	virtual void draw(SDL_Surface * screen);
+	virtual void draw(SDL_Surface * screen) = 0;
 
 	bool done;
 

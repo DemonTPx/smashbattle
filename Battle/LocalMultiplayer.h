@@ -4,7 +4,12 @@
 class LocalMultiplayer : public Gameplay {
 public:
 protected:
-	void on_post_processing();
+	virtual void on_game_reset();
+
+	virtual void on_pre_processing();
+	virtual void on_post_processing();
+	
+	int end_avatar_start_frame;
 };
 
 #endif

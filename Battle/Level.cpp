@@ -221,6 +221,103 @@ void Level::reset() {
 	}
 }
 
+
+bool Level::is_intersecting(SDL_Rect * rect) {
+	// Check if the rect is colliding with the level
+	int l, r, t, b;
+
+	l = rect->x;
+	r = rect->x + rect->w - 1;
+
+	t = rect->y;
+	b = rect->y + rect->h - 1;
+
+	if(t < 0) t = 0;
+	if(b < 0) b = 0;
+	if(t >= WINDOW_HEIGHT) t = WINDOW_HEIGHT - 1;
+	if(b >= WINDOW_HEIGHT) b = WINDOW_HEIGHT - 1;
+
+	if(l < 0) {
+		for(int x = l + WINDOW_WIDTH; x < WINDOW_WIDTH; x++) {
+			if(level[tile(x, t)] != -1)
+				return true;
+			if(level[tile(x, b)] != -1)
+				return true;
+		}
+
+		for(int y = t; y < b; y++) {
+			if(level[tile(l + WINDOW_WIDTH, y)] != -1)
+				return true;
+			if(level[tile(l + WINDOW_WIDTH, y)] != -1)
+				return true;
+		}
+
+		l = 0;
+	}
+
+	if(r >= WINDOW_WIDTH) {
+		for(int x = 0; x < r - WINDOW_WIDTH; x++) {
+			if(level[tile(x, t)] != -1)
+				return true;
+			if(level[tile(x, b)] != -1)
+				return true;
+		}
+
+		for(int y = t; y < b; y++) {
+			if(level[tile(r - WINDOW_WIDTH, y)] != -1)
+				return true;
+			if(level[tile(r - WINDOW_WIDTH, y)] != -1)
+				return true;
+		}
+		
+		r = WINDOW_WIDTH - 1;
+	}
+
+	for(int x = l; x < r; x++) {
+		if(r >= WINDOW_WIDTH)
+			break;
+
+		if(level[tile(x, t)] != -1)
+			return true;
+		if(level[tile(x, b)] != -1)
+			return true;
+	}
+
+	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH - 1;
+
+	for(int y = t; y < b; y++) {
+		if(level[tile(l, y)] != -1)
+			return true;
+		if(level[tile(r, y)] != -1)
+			return true;
+	}
+
+	return false;
+}
+
+bool Level::is_on_bottom(SDL_Rect * rect) {
+	// Check if there is anything to stand on below the rect
+	int l, r, t, b;
+
+	l = rect->x;
+	r = rect->x + rect->w - 1;
+
+	t = rect->y;
+	b = rect->y + rect->h - 1;
+
+	// Above the screen is no bottom
+	if(b < 0) return false;
+
+	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
+	if(r >= WINDOW_WIDTH) r -= WINDOW_WIDTH;
+
+	if(level[tile(l, b + 1)] != -1)
+		return true;
+	if(level[tile(r, b + 1)] != -1)
+		return true;
+	return false;
+}
+
 void Level::damage_tiles(SDL_Rect * rect, int damage) {
 	int l, r, t, b;
 
@@ -277,16 +374,17 @@ void Level::bounce_tile(SDL_Rect * rect) {
 
 	// Start bouncing
 	level_bounce[pos] = 1;
-//	level_bounce_start[pos] = frame; TODO!
+	level_bounce_start[pos] = Gameplay::frame;
 
-	/*
 	// Check if a player is standing on the tile
 	SDL_Rect rect_hit;
-	rect_hit.x = (pos % SPR_COLS) * SPR_W;
-	rect_hit.y = ((pos / SPR_COLS) * SPR_H) - BOUNCE_HIT_HEIGHT;
-	rect_hit.w = SPR_W;
+	rect_hit.x = (pos % TILE_COLS) * TILE_W;
+	rect_hit.y = ((pos / TILE_COLS) * TILE_H) - BOUNCE_HIT_HEIGHT;
+	rect_hit.w = TILE_W;
 	rect_hit.h = BOUNCE_HIT_HEIGHT;
 
+	Gameplay::instance->bounce_up_players_and_npcs(&rect_hit);
+	/*
 	if(is_intersecting(player1->position, &rect_hit)) {
 		player1->duck_force_start = frame;
 		player1->is_duck_forced = true;

@@ -2,6 +2,7 @@
 #define _PLAYER_H
 
 #include "Main.h"
+#include "Level.h"
 
 #define FACE_LEFT 0
 #define FACE_RIGHT 1
@@ -45,6 +46,7 @@ public:
 	int number;
 
 	SDL_Rect * position;
+	SDL_Rect * last_position;
 	SDL_Surface * sprites;
 	SDL_Rect * clip[20];
 	SDL_Surface * marker;
@@ -98,8 +100,18 @@ public:
 
 	static const int jump_height;
 
-	void handle_input(SDL_Event * event);
-	void show(SDL_Surface * screen);
+	void handle_input(SDL_Event * event); // Deprecaded
+	void handle_event(SDL_Event * event);
+
+	void show(SDL_Surface * screen); // Deprecaded
+	void draw(SDL_Surface * screen);
+
+	void move(Level * level);
+	void process();
+
+	void bounce(SDL_Rect * source);
+	void bounce_up();
+
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);
 	void cycle_sprite_updown(int first, int last);

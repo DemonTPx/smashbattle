@@ -315,24 +315,21 @@ void Menu::select() {
 			battle->run();
 			delete battle;
 			*/
+			{
+				LocalMultiplayer mp;
+				Level l;
+				Player p1("Bert", 1, "gfx/bert.bmp"), p2("Jeroen", 2, "gfx/jeroen.bmp");
+				p1.controls = controls1;
+				p2.controls = controls2;
+				
+				l.load("stage/trainingdojo.stg");
 
-			LocalMultiplayer * mp;
-			Level * l;
-			Player * p;
-			
-			l = new Level();
-			l->load("stage/trainingdojo.stg");
+				mp.set_level(&l);
+				mp.add_player(&p1);
+				mp.add_player(&p2);
+				mp.run();
+			}
 
-			p = new Player("Bert", 1, "gfx/bert.bmp");
-
-			mp = new LocalMultiplayer();
-			mp->set_level(l);
-			mp->add_player(p);
-			mp->run();
-
-			delete l;
-			delete p;
-			delete mp;
 			break;
 		case 1:
 			Options * options;
