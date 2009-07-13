@@ -37,6 +37,11 @@ protected:
 	virtual void deinitialize();
 
 	void reset_game();
+
+	void pause(Player * p);
+	void unpause();
+
+	void process_countdown();
 	
 	virtual void draw_pause_screen();
 	virtual void draw_score();
@@ -56,6 +61,8 @@ protected:
 	bool game_running;
 
 	bool paused;
+	Player * pause_player;
+	int pause_menu_selected;
 
 	bool countdown;
 	int countdown_sec_left;

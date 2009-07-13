@@ -319,19 +319,19 @@ void Menu::select() {
 				LocalMultiplayer mp;
 				Level l;
 				Player p1("Bert", 1, "gfx/bert.bmp"), p2("Jeroen", 2, "gfx/jeroen.bmp");
-				Player p3("Tedje", 3, "gfx/tedje.bmp"), p4("Rob", 4, "gfx/rob.bmp");
+				//Player p3("Tedje", 3, "gfx/tedje.bmp"), p4("Rob", 4, "gfx/rob.bmp");
 				p1.controls = controls1;
 				p2.controls = controls2;
-				p3.controls = controls1;
-				p4.controls = controls2;
+				//p3.controls = controls1;
+				//p4.controls = controls2;
 				
-				l.load("stage/trainingdojo.stg");
+				l.load("stage/commongrounds.stg");
 
 				mp.set_level(&l);
 				mp.add_player(&p1);
 				mp.add_player(&p2);
-				mp.add_player(&p3);
-				mp.add_player(&p4);
+				//mp.add_player(&p3);
+				//mp.add_player(&p4);
 				mp.run();
 			}
 

@@ -380,12 +380,6 @@ void OptionsScreen::init() {
 	OptionItem * item;
 	int x;
 
-	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
-	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
-	fontColor.r = 255;
-	fontColor.g = 255;
-	fontColor.b = 255;
-
 	if(selected_item < 0 || selected_item >= (int)items->size())
 		selected_item = 0;
 
@@ -395,7 +389,7 @@ void OptionsScreen::init() {
 	for(unsigned int i = 0; i < items->size(); i++) {
 		item = items->at(i);
 		
-		item->surf_name = TTF_RenderText_Solid(font26, item->name, fontColor);
+		item->surf_name = TTF_RenderText_Solid(Main::graphics->font26, item->name, Main::graphics->white);
 
 		item->rect_name = new SDL_Rect();
 
@@ -414,7 +408,7 @@ void OptionsScreen::init() {
 			item->surf_options = new std::vector<SDL_Surface *>(0);
 			item->rect_options = new std::vector<SDL_Rect *>(0);
 			for(unsigned int j = 0; j < item->options->size(); j++) {
-				surface = TTF_RenderText_Solid(font26, item->options->at(j), fontColor);
+				surface = TTF_RenderText_Solid(Main::graphics->font26, item->options->at(j), Main::graphics->white);
 				item->surf_options->push_back(surface);
 
 				rect = new SDL_Rect();
@@ -433,9 +427,6 @@ void OptionsScreen::init() {
 }
 
 void OptionsScreen::cleanup() {
-	TTF_CloseFont(font26);
-	TTF_CloseFont(font13);
-
 	for(unsigned int i = 0; i < items->size(); i++) {
 		if(items->at(i)->options != NULL) {
 			for(unsigned int j = 0; j < items->at(i)->options->size(); j++) {

@@ -231,7 +231,7 @@ void ControlsOptions::show_notification(const char * text) {
 	rect.h -= 4;
 	SDL_FillRect(screen, &rect, 0);
 
-	surface = TTF_RenderText_Solid(font26, text, fontColor);
+	surface = TTF_RenderText_Solid(Main::graphics->font26, text, Main::graphics->white);
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = (screen->h - surface->h) / 2;
 	SDL_BlitSurface(surface, NULL, screen, &rect);

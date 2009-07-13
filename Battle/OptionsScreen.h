@@ -37,10 +37,6 @@ protected:
 	int menu_left_offset;
 	int menu_options_left_offset;
 
-	TTF_Font * font26;
-	TTF_Font * font13;
-	SDL_Color fontColor;
-
 	void init();
 	void cleanup();
 

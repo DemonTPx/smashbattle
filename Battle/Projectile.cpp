@@ -70,14 +70,21 @@ void Projectile::move(Level * level) {
 }
 
 void Projectile::process() {
+	// One frame after the bullet hit, we mark it as done
+	if(hit) done = true;
 }
 
 void Projectile::hit_player(Player * player) {
+	if(hit)
+		return;
+
+	if(player->is_hit)
+		return;
+
 	player->hitpoints -= damage;
 	player->hit_start = Gameplay::frame;
 	player->is_hit = true;
 	hit = true;
-	done = true;
 }
 
 void Projectile::draw(SDL_Surface * screen) {
