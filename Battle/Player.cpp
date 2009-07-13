@@ -693,6 +693,7 @@ void Player::bounce(SDL_Rect * source) {
 			duck_force_start = Gameplay::frame;
 			momentumy = -10;
 			//hitpoints -= weightclasses[upper->weightclass].headjump_damage;
+			hitpoints -= 10;
 		}
 	}
 	if(diffx < diffy || (diffx <= 6 && diffy <= 6)) { // Players hit each others side

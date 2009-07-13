@@ -41,6 +41,8 @@ public:
 	virtual void hit_player(Player * player);
 	//virtual void hit_npc(NPC * npc);
 
+	void explode();
+
 	virtual void draw(SDL_Surface * screen);
 
 	void show(SDL_Surface * screen);

@@ -96,7 +96,11 @@ void Bomb::draw(SDL_Surface * screen) {
 }
 
 void Bomb::hit_player(Player * p) {
+	if(exploded)
+		return;
 
+	if(p != owner)
+		explode();
 }
 
 void Bomb::move(Level * level) {
@@ -133,38 +137,46 @@ void Bomb::process() {
 
 		// Explode
 		if(Gameplay::frame - frame_start >= time) {
-			exploded = true;
-
-			Main::audio->play(SND_EXPLODE);
-
-			Player * p;
-			SDL_Rect * rect_bomb;
-			SDL_Rect * rect_player = NULL;
-			rect_bomb = get_damage_rect();
-
-			for(unsigned int i = 0; i < Gameplay::instance->players->size(); i++) {
-				p = Gameplay::instance->players->at(i);
-				if(p == owner)
-					continue;
-
-				rect_player = p->get_rect();
-
-				if(Gameplay::is_intersecting(rect_bomb, rect_player)) {
-					p->hitpoints -= damage;
-					p->is_hit = true;
-					p->hit_start = Gameplay::frame;
-				}
-			}
-
-			// Tiles below are also to be damaged
-			rect_bomb->h += TILE_H;
-
-			Gameplay::instance->level->damage_tiles(rect_bomb, damage);
-
-			delete rect_bomb;
-			delete rect_player;
+			explode();
 		}
 	}
+}
+
+void Bomb::explode() {
+	if(exploded)
+		return;
+
+	exploded = true;
+
+	Main::audio->play(SND_EXPLODE);
+
+	Player * p;
+	SDL_Rect * rect_bomb;
+	SDL_Rect * rect_player = NULL;
+	rect_bomb = get_damage_rect();
+
+	for(unsigned int i = 0; i < Gameplay::instance->players->size(); i++) {
+		p = Gameplay::instance->players->at(i);
+		if(p == owner)
+			continue;
+
+		rect_player = p->get_rect();
+
+		if(Gameplay::is_intersecting(rect_bomb, rect_player)) {
+			p->hitpoints -= damage;
+			p->is_hit = true;
+			p->hit_start = Gameplay::frame;
+		}
+
+		delete rect_player;
+	}
+
+	// Tiles below are also to be damaged
+	rect_bomb->h += TILE_H;
+
+	Gameplay::instance->level->damage_tiles(rect_bomb, damage);
+
+	delete rect_bomb;
 }
 
 SDL_Rect * Bomb::get_damage_rect() {

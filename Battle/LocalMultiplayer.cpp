@@ -74,24 +74,25 @@ void LocalMultiplayer::on_post_processing() {
 		playersleft = 0;
 		for(unsigned int idx = 0; idx < players->size(); idx++) {
 			p = players->at(idx);
-			if(p->hitpoints < 0) {
+			if(p->is_dead)
+				continue;
+			if(p->hitpoints <= 0) {
 				Main::audio->play(SND_YOULOSE);
 
 				if(p->hitpoints < 0) {
 					p->hitpoints = 0;
-					if(!p->is_dead) {
-						p->is_dead = true;
-						p->dead_start = Gameplay::frame;
-					}
 				}
-				p->score--;
+				if(!p->is_dead) {
+					p->is_dead = true;
+					p->dead_start = Gameplay::frame;
+				}
 
 				p->is_hit = true;
 				for(unsigned int i2 = 0; i2 < players->size(); i2++) {
 					p2 = players->at(i2);
 					if(p == p2) continue;
 					if(p2->hitpoints > 0) {
-						p2->is_hit = false;
+						p2->score++;
 						playersleft++;
 					}
 				}
