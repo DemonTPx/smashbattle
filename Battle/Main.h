@@ -4,6 +4,7 @@
 #include "SDL/SDL_ttf.h"
 
 #include "Timer.h"
+#include "Graphics.h"
 #include "AudioController.h"
 
 #define WINDOW_WIDTH 640
@@ -43,8 +44,6 @@ public:
 	static SDL_Surface * screen;
 	static int flags;
 
-	static TTF_Font * font;
-
 	static bool running;
 	static int frame_delay;
 	static int frame;
@@ -65,6 +64,7 @@ public:
 	static bool fps_counter_visible;
 
 	static AudioController * audio;
+	static Graphics * graphics;
 
 	SDL_Joystick * joystick1;
 	SDL_Joystick * joystick2;

@@ -15,9 +15,6 @@ public:
 	void select_down();
 	void select();
 private:
-	TTF_Font * font26;
-	TTF_Font * font13;
-	SDL_Color fontColor;
 	SDL_Surface * bg;
 	int selected_item;
 

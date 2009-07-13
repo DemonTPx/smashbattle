@@ -84,6 +84,9 @@ public:
 	bool is_frozen;
 	int freeze_start;
 
+	bool is_dead;
+	int dead_start;
+
 	int shoot_start;
 	int shoot_delay;
 

@@ -319,14 +319,19 @@ void Menu::select() {
 				LocalMultiplayer mp;
 				Level l;
 				Player p1("Bert", 1, "gfx/bert.bmp"), p2("Jeroen", 2, "gfx/jeroen.bmp");
+				Player p3("Tedje", 3, "gfx/tedje.bmp"), p4("Rob", 4, "gfx/rob.bmp");
 				p1.controls = controls1;
 				p2.controls = controls2;
+				p3.controls = controls1;
+				p4.controls = controls2;
 				
 				l.load("stage/trainingdojo.stg");
 
 				mp.set_level(&l);
 				mp.add_player(&p1);
 				mp.add_player(&p2);
+				mp.add_player(&p3);
+				mp.add_player(&p4);
 				mp.run();
 			}
 
@@ -371,12 +376,6 @@ void Menu::init() {
 	SDL_Surface * surface;
 	SDL_Rect * rect;
 
-	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
-	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
-	fontColor.r = 255;
-	fontColor.g = 255;
-	fontColor.b = 255;
-
 	selected_item = 0;
 
 	surface = SDL_LoadBMP("gfx/title.bmp");
@@ -386,7 +385,7 @@ void Menu::init() {
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
 	for(int i = 0; i < ITEMCOUNT; i++) {
-		surface = TTF_RenderText_Solid(font26, item[i], fontColor);
+		surface = TTF_RenderText_Solid(Main::graphics->font26, item[i], Main::graphics->white);
 		surf_items->push_back(surface);
 
 		rect = new SDL_Rect();
@@ -396,19 +395,16 @@ void Menu::init() {
 	}
 
 	credits = new std::vector<SDL_Surface*>(0);
-	surface = TTF_RenderText_Solid(font13, "Programming by Bert Hekman", fontColor);
+	surface = TTF_RenderText_Solid(Main::graphics->font13, "Programming by Bert Hekman", Main::graphics->white);
 	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(font13, "Graphics by Jeroen Groeneweg and Okke Voerman", fontColor);
+	surface = TTF_RenderText_Solid(Main::graphics->font13, "Graphics by Jeroen Groeneweg and Okke Voerman", Main::graphics->white);
 	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(font13, "Music by Nick Perrin", fontColor);
+	surface = TTF_RenderText_Solid(Main::graphics->font13, "Music by Nick Perrin", Main::graphics->white);
 	credits->push_back(surface);
 
 }
 
 void Menu::cleanup() {
-	TTF_CloseFont(font26);
-	TTF_CloseFont(font13);
-
 	for(unsigned int i = 0; i < surf_items->size(); i++) {
 		SDL_FreeSurface(surf_items->at(i));
 	}

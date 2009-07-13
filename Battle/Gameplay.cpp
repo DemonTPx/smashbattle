@@ -84,6 +84,8 @@ void Gameplay::run() {
 				obj->process();
 				for(unsigned int i = 0; i < players->size(); i++) {
 					Player * p = players->at(i);
+					if(p->is_dead)
+						continue;
 					SDL_Rect * rect;
 					rect = p->get_rect();
 					if(is_intersecting(rect, obj->position)) {
@@ -309,8 +311,14 @@ void Gameplay::process_player_collission() {
 
 	for(unsigned int i1 = 0; i1 < players->size(); i1++) {
 		p1 = players->at(i1);
+		
+		if(p1->is_dead) continue;
+
 		for(unsigned int i2 = (i1 + 1); i2 < players->size(); i2++) {
 			p2 = players->at(i2);
+
+			if(p2->is_dead) continue;
+
 			r1 = p1->get_rect();
 			r2 = p2->get_rect();
 

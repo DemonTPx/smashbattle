@@ -613,7 +613,7 @@ void Battle::process_shoot(Player * p) {
 			p->bomb_start = frame;
 			Bomb * b;
 
-			b = new Bomb(surface_bombs);
+//			b = new Bomb(surface_bombs);
 			b->damage = bombpowerclasses[p->bombpowerclass].damage;
 			b->time = 60;
 			b->frame_start = frame;

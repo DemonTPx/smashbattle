@@ -1,15 +1,15 @@
 #ifndef _BOMB_H
 #define _BOMB_H
 
+#include "GameplayObject.h"
 #include "Player.h"
 
-class Bomb {
+class Bomb : public GameplayObject {
 public:
 	Bomb();
 	Bomb(SDL_Surface * surface);
 	~Bomb();
 
-	SDL_Rect * position;
 	SDL_Surface * sprite;
 	SDL_Rect * clip[3];
 	int explosion_offset_x, explosion_offset_y;
@@ -19,7 +19,6 @@ public:
 	int speedy;
 
 	bool exploded;
-	bool done;
 
 	int damage;
 	int time;
@@ -36,6 +35,14 @@ public:
 	static const int FRAME_FLASH;
 	static const int FRAME_EXPLOSION;
 	
+	virtual void move(Level * level);
+	virtual void process();
+
+	virtual void hit_player(Player * player);
+	//virtual void hit_npc(NPC * npc);
+
+	virtual void draw(SDL_Surface * screen);
+
 	void show(SDL_Surface * screen);
 	SDL_Rect * get_damage_rect();
 private:

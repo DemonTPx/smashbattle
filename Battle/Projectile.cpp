@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
 
+#include "Gameplay.h"
 #include "Projectile.h"
 
 #define WINDOW_WIDTH 640
@@ -73,6 +74,8 @@ void Projectile::process() {
 
 void Projectile::hit_player(Player * player) {
 	player->hitpoints -= damage;
+	player->hit_start = Gameplay::frame;
+	player->is_hit = true;
 	hit = true;
 	done = true;
 }

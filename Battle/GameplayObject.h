@@ -7,6 +7,7 @@
 class GameplayObject {
 public:
 	GameplayObject();
+	virtual ~GameplayObject();
 	
 	virtual void move(Level * level) = 0;
 	virtual void process() = 0;

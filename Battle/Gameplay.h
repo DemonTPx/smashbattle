@@ -16,6 +16,13 @@ public:
 
 	static Gameplay * instance;
 
+	Level * level;
+
+	std::vector<Player*> * players;
+	//std::vector<NPC*> * npcs;
+	
+	std::vector<GameplayObject*> * objects;
+
 	void run();
 
 	void set_level(Level * level);
@@ -23,6 +30,8 @@ public:
 
 	void add_object(GameplayObject * obj);
 	void bounce_up_players_and_npcs(SDL_Rect * rect);
+
+	static bool is_intersecting(SDL_Rect * one, SDL_Rect * two);
 protected:
 	virtual void initialize();
 	virtual void deinitialize();
@@ -33,8 +42,6 @@ protected:
 	virtual void draw_score();
 	virtual void draw_game_ended();
 	virtual void draw_countdown();
-
-	bool is_intersecting(SDL_Rect * one, SDL_Rect * two);
 
 	virtual void on_game_reset() = 0;
 
@@ -58,7 +65,6 @@ protected:
 	Timer * end_timer;
 
 	SDL_Surface * screen;
-	Level * level;
 
 	// Do players collide with each other?
 	bool players_collide;
@@ -66,12 +72,6 @@ protected:
 	bool npcs_collide;
 	// Do players collide with NPC's?
 	bool players_npcs_collide;
-
-	std::vector<Player*> * players;
-	//std::vector<NPC*> * npcs;
-	
-	std::vector<GameplayObject*> * objects;
-
 };
 
 #endif

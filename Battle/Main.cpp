@@ -10,6 +10,7 @@
 #include "Block.h"
 #include "Menu.h"
 #include "AudioController.h"
+#include "Graphics.h"
 
 #include "Main.h"
 
@@ -25,8 +26,6 @@ Main * Main::instance = NULL;
 SDL_Surface * Main::screen = NULL;
 int Main::flags = SDL_SWSURFACE;
 
-TTF_Font * Main::font = NULL;
-
 bool Main::running = false;
 int Main::frame_delay = 0;
 int Main::frame = 0;
@@ -40,6 +39,7 @@ Timer * Main::fps_counter_timer = NULL;
 bool Main::fps_counter_visible = false;
 
 AudioController * Main::audio = NULL;
+Graphics * Main::graphics = NULL;
 
 Main::Main() {
 	Main::instance = this;
@@ -64,9 +64,6 @@ bool Main::init() {
 
 	if(TTF_Init() == -1) return false;
 
-	font = TTF_OpenFont("fonts/slick.ttf", 13);
-	if(font == NULL) return false;
-
 	SDL_WM_SetCaption("Battle", NULL);
 	
 	fps = new Timer();
@@ -76,6 +73,9 @@ bool Main::init() {
 	audio = new AudioController();
 	audio->open_audio();
 	audio->load_files();
+
+	graphics = new Graphics();
+	graphics->load_all();
 
 	// enable joystick throughout the game
 	SDL_JoystickEventState(SDL_ENABLE);
@@ -90,8 +90,6 @@ bool Main::init() {
 void Main::clean_up() {
 
 	SDL_FreeSurface(screen);
-	
-	TTF_CloseFont(font);
 
 	delete fps;
 
@@ -100,6 +98,9 @@ void Main::clean_up() {
 	audio->close_files();
 	audio->close_audio();
 	delete audio;
+
+	graphics->clear_all();
+	delete graphics;
 
 	if(SDL_JoystickOpened(1))
 		SDL_JoystickClose(joystick2);
@@ -145,7 +146,7 @@ void Main::fps_count() {
 		color.b = 0xff;
 
 		sprintf(cap, "%d fps", fps_counter_this_frame);
-		surf = TTF_RenderText_Solid(font, cap, color);
+		surf = TTF_RenderText_Solid(graphics->font13, cap, color);
 
 		rect.x = screen->w - surf->w;
 		rect.y = 0;

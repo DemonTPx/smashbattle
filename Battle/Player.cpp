@@ -6,6 +6,7 @@
 #include "Main.h"
 
 #include "Projectile.h"
+#include "Bomb.h"
 #include "Gameplay.h"
 #include "Level.h"
 #include "Player.h"
@@ -94,6 +95,9 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 	hit_delay = 30;
 	hit_flicker_frame = 0;
 
+	is_dead = false;
+	dead_start = 0;
+
 	is_frozen = false;
 	freeze_start = 0;
 
@@ -139,6 +143,10 @@ void Player::draw(SDL_Surface * screen) {
 
 	rect.x = position->x;
 	rect.y = position->y;
+
+	if(is_dead && Gameplay::frame - dead_start > 120) {
+		return;
+	}
 
 	// Check if player is hit and cycle between a show and a hide of the player to create
 	// a flicker effect
@@ -329,6 +337,9 @@ void Player::move(Level * level) {
 	int maxx;
 	int momentumx_old;
 	SDL_Rect rect;
+
+	if(is_dead)
+		return;
 
 	last_position->x = position->x;
 	last_position->y = position->y;
@@ -635,8 +646,6 @@ void Player::bounce(SDL_Rect * source) {
 	rs = source->x + source->w;
 	bs = source->y + source->h;
 
-	Main::audio->play(SND_BOUNCE);
-
 	// Bounce back
 	is_above = false;
 	is_below = false;
@@ -731,6 +740,9 @@ void Player::bounce_up() {
 }
 
 void Player::process() {
+	if(is_dead)
+		return;
+
 	if(keydn_shoot) {
 		if(Gameplay::frame > shoot_start + shoot_delay) { // &&
 //			(((ruleset.bullets == BULLETS_UNLIMITED) ||  p->bullets > 0) ||
@@ -759,10 +771,7 @@ void Player::process() {
 			clip_weapon->w = 8;
 			clip_weapon->h = 8;
 
-			SDL_Surface * weapons;
-			weapons = SDL_LoadBMP("gfx/weapons.bmp");
-
-			pr = new Projectile(weapons, clip_weapon);
+			pr = new Projectile(Main::graphics->weapons, clip_weapon);
 			if(instantkill)
 				pr->damage = 100;
 			else if(doubledamage)
@@ -783,6 +792,18 @@ void Player::process() {
 				pr->position->y = position->y + 8;
 			Gameplay::instance->add_object(pr);
 			
+			/*for(int i = 0; i <= 1; i++) {
+				Projectile * p1;
+				p1 = new Projectile(Main::graphics->weapons, clip_weapon);
+				p1->damage = pr->damage;
+				p1->speedx = pr->speedx;
+				if(i == 0) p1->speedy = -5;
+				if(i == 1) p1->speedy = 5;
+				p1->position->x = pr->position->x;
+				p1->position->y = pr->position->y;
+				Gameplay::instance->add_object(p1);
+			}*/
+			
 			if(instantkill)
 				instantkillbullets--;
 			else if(doubledamage)
@@ -793,29 +814,29 @@ void Player::process() {
 			Main::instance->audio->play(SND_SHOOT);
 		}
 	}
-	/*
-	if(p->keydn_bomb) {
-		if(frame > p->bomb_start + p->bomb_delay && (p->bombs > 0 || p->bombs == -1)) {
-			p->bomb_start = frame;
+	if(keydn_bomb) {
+		if(Gameplay::frame > bomb_start + bomb_delay && (bombs > 0 || bombs == -1)) {
+			bomb_start = Gameplay::frame;
 			Bomb * b;
 
-			b = new Bomb(surface_bombs);
-			b->damage = bombpowerclasses[p->bombpowerclass].damage;
+			b = new Bomb(Main::graphics->bombs);
+			//b->damage = bombpowerclasses[p->bombpowerclass].damage;
+			b->damage = 20;
 			b->time = 60;
-			b->frame_start = frame;
-			b->frame_change_start = frame;
+			b->frame_start = Gameplay::frame;
+			b->frame_change_start = Gameplay::frame;
 			b->frame_change_count = 12;
-			b->owner = p;
-			b->position->x = p->position->x + (p->position->w - b->position->w) / 2;
-			b->position->y = p->position->y + (p->position->h - b->position->h);
-			bombs->push_back(b);
+			b->owner = this;
+			b->position->x = position->x + (position->w - b->position->w) / 2;
+			b->position->y = position->y + (position->h - b->position->h);
+			Gameplay::instance->add_object(b);
 			
-			if(p->bombs != -1)
-				p->bombs -= 1;
+			if(bombs != -1)
+				bombs -= 1;
 
 			Main::instance->audio->play(SND_SHOOT);
 		}
-	}*/
+	}
 }
 
 void Player::load_images(const char * sprite_file) {

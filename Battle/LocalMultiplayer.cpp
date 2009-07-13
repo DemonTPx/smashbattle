@@ -47,10 +47,13 @@ void LocalMultiplayer::on_game_reset() {
 		p->duck_force_start = 0;
 		p->is_hit = false;
 		p->hit_start = 0;
+		p->is_dead = false;
+		p->dead_start = 0;
 		p->is_frozen = false;
 		p->freeze_start = 0;
 		//p->bullets = ruleset.bullets;
 		//p->bombs = ruleset.bombs;
+		p->bombs = 3;
 		//p->doubledamagebullets = ruleset.doubledamagebullets;
 		//p->instantkillbullets = ruleset.instantkillbullets;
 		p->is_falling = false;
@@ -74,8 +77,13 @@ void LocalMultiplayer::on_post_processing() {
 			if(p->hitpoints < 0) {
 				Main::audio->play(SND_YOULOSE);
 
-				if(p->hitpoints < 0)
+				if(p->hitpoints < 0) {
 					p->hitpoints = 0;
+					if(!p->is_dead) {
+						p->is_dead = true;
+						p->dead_start = Gameplay::frame;
+					}
+				}
 				p->score--;
 
 				p->is_hit = true;

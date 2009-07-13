@@ -7,3 +7,6 @@
 GameplayObject::GameplayObject() {
 	done = false;
 }
+
+GameplayObject::~GameplayObject() {
+}

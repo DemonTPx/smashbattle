@@ -1,42 +1,52 @@
 CC=g++
 CFLAGS=-c -Wall
 LDFLAGS=-lSDL -lSDL_ttf -lSDL_mixer -lstdc++
-SRCS=AudioController.cpp\
+SRCS=AmmoPowerUp.cpp\
+	AudioController.cpp\
+	AudioOptions.cpp\
 	Battle.cpp\
+	Bomb.cpp\
+	BombPowerUp.cpp\
+	CharacterSelect.cpp\
+	ControlsOptions.cpp\
+	DoubleDamagePowerUp.cpp\
+	Gameplay.cpp\
+	GameplayObject.cpp\
+	Graphics.cpp\
+	HealthPowerUp.cpp\
+	InstantKillBulletPowerUp.cpp\
+	Level.cpp\
+	LocalMultiplayer.cpp\
 	Main.cpp\
 	Menu.cpp\
-	OptionsScreen.cpp\
 	Options.cpp\
-	AudioOptions.cpp\
-	ControlsOptions.cpp\
+	OptionsScreen.cpp\
 	Player.cpp\
 	Projectile.cpp\
-	Timer.cpp\
-	CharacterSelect.cpp\
-	AmmoPowerUp.cpp\
-	HealthPowerUp.cpp\
-	BombPowerUp.cpp\
-	Bomb.cpp\
-	DoubleDamagePowerUp.cpp\
-	InstantKillBulletPowerUp.cpp
-OBJS=AudioController.o\
+	Timer.cpp
+OBJS=AmmoPowerUp.o\
+	AudioController.o\
+	AudioOptions.o\
 	Battle.o\
+	Bomb.o\
+	BombPowerUp.o\
+	CharacterSelect.o\
+	ControlsOptions.o\
+	DoubleDamagePowerUp.o\
+	Gameplay.o\
+	GameplayObject.o\
+	Graphics.o\
+	HealthPowerUp.o\
+	InstantKillBulletPowerUp.o\
+	Level.o\
+	LocalMultiplayer.o\
 	Main.o\
 	Menu.o\
-	OptionsScreen.o\
 	Options.o\
-	AudioOptions.o\
-	ControlsOptions.o\
+	OptionsScreen.o\
 	Player.o\
 	Projectile.o\
-	Timer.o\
-	CharacterSelect.o\
-	AmmoPowerUp.o\
-	HealthPowerUp.o\
-	BombPowerUp.o\
-	Bomb.o\
-	DoubleDamagePowerUp.o\
-	InstantKillBulletPowerUp.o
+	Timer.o
 EXECUTABLE=battle
 
 all: $(EXECUTABLE)

@@ -196,10 +196,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Block.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Bomb.cpp"
 				>
 			</File>
@@ -225,6 +221,10 @@
 			</File>
 			<File
 				RelativePath=".\GameplayObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics.cpp"
 				>
 			</File>
 			<File
@@ -268,10 +268,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TetrisTest.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Timer.cpp"
 				>
 			</File>
@@ -295,10 +291,6 @@
 			</File>
 			<File
 				RelativePath=".\Battle.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Block.h"
 				>
 			</File>
 			<File
@@ -327,6 +319,10 @@
 			</File>
 			<File
 				RelativePath=".\GameplayObject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics.h"
 				>
 			</File>
 			<File
@@ -371,10 +367,6 @@
 			</File>
 			<File
 				RelativePath=".\Projectile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TetrisTest.h"
 				>
 			</File>
 			<File
