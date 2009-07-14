@@ -28,10 +28,10 @@ const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	{(char*)"Tobias",	(char*)"gfx/tobias.bmp",	1, 1, 2, 0},
 };
 const int Player::COLORS[4] = {
-	0xff0000,
-	0x0000ff,
-	0x00ff00,
-	0xffff00,
+	0xaa0000,
+	0x0000aa,
+	0x009900,
+	0xaa9900,
 };
 
 const int Player::jump_height = 144;

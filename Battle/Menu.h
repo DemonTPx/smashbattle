@@ -38,6 +38,8 @@ private:
 	void handle_input(SDL_Event * event);
 	void process_cursor();
 
+	void start_local_multiplayer(int players);
+
 	void init();
 	void cleanup();
 };

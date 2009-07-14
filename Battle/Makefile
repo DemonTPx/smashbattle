@@ -16,6 +16,7 @@ SRCS=AmmoPowerUp.cpp\
 	HealthPowerUp.cpp\
 	InstantKillBulletPowerUp.cpp\
 	Level.cpp\
+	LevelSelect.cpp\
 	LocalMultiplayer.cpp\
 	Main.cpp\
 	Menu.cpp\
@@ -40,6 +41,7 @@ OBJS=AmmoPowerUp.o\
 	HealthPowerUp.o\
 	InstantKillBulletPowerUp.o\
 	Level.o\
+	LevelSelect.o\
 	LocalMultiplayer.o\
 	Main.o\
 	Menu.o\

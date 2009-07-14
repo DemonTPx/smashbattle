@@ -58,8 +58,8 @@ void PauseMenu::handle_input(SDL_Event * event) {
 			selected_option = (selected_option + 1) % (int)options->size();
 		}
 		if(event->key.keysym.sym == player->controls.kb_up) {
+			if(selected_option == 0) selected_option += (int)options->size();
 			selected_option = selected_option - 1;
-			if(selected_option < 0) selected_option += (int)options->size();
 		}
 		if(event->key.keysym.sym == player->controls.kb_shoot ||
 			event->key.keysym.sym == player->controls.kb_run ||
@@ -78,8 +78,8 @@ void PauseMenu::handle_input(SDL_Event * event) {
 				selected_option = (selected_option + 1) % (int)options->size();
 			}
 			if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD) {
+				if(selected_option == 0) selected_option += (int)options->size();
 				selected_option = selected_option - 1;
-				if(selected_option < 0) selected_option += (int)options->size();
 			}
 		}
 	}

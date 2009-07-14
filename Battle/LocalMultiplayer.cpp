@@ -449,7 +449,7 @@ void LocalMultiplayer::draw_score_duel() {
 		rect_s.y = 0;
 		rect_s.w = 16;
 		rect_s.h = 16;
-		rect.x = 566 - Main::graphics->common->w;
+		rect.x = 566 - 16;
 		rect.y = 462;
 		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 	}

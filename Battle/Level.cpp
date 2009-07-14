@@ -16,7 +16,7 @@ const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"Pitfall", (char*)"stage/pitfall.stg"},
 	{(char*)"Blast Bowl", (char*)"stage/blastbowl.stg"},
 	{(char*)"Pit of Death", (char*)"stage/pitofdeath.stg"},
-	{(char*)"Duck'n'Hunt", (char*)"stage/ducknhunt.stg"}
+	{(char*)"Duck and Hunt", (char*)"stage/ducknhunt.stg"}
 };
 
 Level::Level() {

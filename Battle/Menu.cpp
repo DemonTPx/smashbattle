@@ -9,6 +9,7 @@
 #include "AudioController.h"
 #include "Main.h"
 #include "CharacterSelect.h"
+#include "LevelSelect.h"
 #include "Gameplay.h"
 #include "LocalMultiplayer.h"
 #include "Options.h"
@@ -311,76 +312,13 @@ void Menu::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
-			{
-				CharacterSelect cs(2);
-				cs.run();
-				if(cs.cancel) return;
-				Player p1(cs.name[0], 1, cs.file[0]);
-				Player p2(cs.name[1], 2, cs.file[1]);
-				p1.controls = controls1;
-				p2.controls = controls2;
-				
-				Level l;
-				l.load(Level::LEVELS[cs.stage].filename);
-
-				LocalMultiplayer mp;
-				mp.set_level(&l);
-				mp.add_player(&p1);
-				mp.add_player(&p2);
-				mp.run();
-			}
-
+			start_local_multiplayer(2);
 			break;
 		case 1:
-			{
-				CharacterSelect cs(3);
-				cs.run();
-				if(cs.cancel) return;
-				Player p1(cs.name[0], 1, cs.file[0]);
-				Player p2(cs.name[1], 2, cs.file[1]);
-				Player p3(cs.name[2], 3, cs.file[2]);
-				p1.controls = controls1;
-				p2.controls = controls2;
-				p3.controls = controls3;
-				
-				Level l;
-				l.load(Level::LEVELS[cs.stage].filename);
-
-				LocalMultiplayer mp;
-				mp.set_level(&l);
-				mp.add_player(&p1);
-				mp.add_player(&p2);
-				mp.add_player(&p3);
-				mp.run();
-			}
-
+			start_local_multiplayer(3);
 			break;
 		case 2:
-			{
-				CharacterSelect cs(4);
-				cs.run();
-				if(cs.cancel) return;
-				Player p1(cs.name[0], 1, cs.file[0]);
-				Player p2(cs.name[1], 2, cs.file[1]);
-				Player p3(cs.name[2], 3, cs.file[2]);
-				Player p4(cs.name[3], 4, cs.file[3]);
-				p1.controls = controls1;
-				p2.controls = controls2;
-				p3.controls = controls3;
-				p4.controls = controls4;
-				
-				Level l;
-				l.load(Level::LEVELS[cs.stage].filename);
-
-				LocalMultiplayer mp;
-				mp.set_level(&l);
-				mp.add_player(&p1);
-				mp.add_player(&p2);
-				mp.add_player(&p3);
-				mp.add_player(&p4);
-				mp.run();
-			}
-
+			start_local_multiplayer(4);
 			break;
 		case 3:
 			Options * options;
@@ -396,6 +334,71 @@ void Menu::select() {
 			break;
 	}
 	Main::audio->play_music(MUSIC_TITLE);
+}
+
+void Menu::start_local_multiplayer(int players) {
+	Player ** player;
+	int * score;
+
+	Level * level;
+	LocalMultiplayer * lmp;
+	CharacterSelect * cs;
+	LevelSelect * ls;
+
+	bool running;
+
+	player = new Player*[players];
+	score = new int[players];
+
+	running = true;
+
+	cs = new CharacterSelect(players);
+	ls = new LevelSelect(players);
+
+	while(Main::running && running) {
+		cs->run();
+		if(cs->cancel) break;
+
+		ls->run();
+		if(ls->cancel) break;
+
+		for(int i = 0; i < players; i++) {
+			player[i] = new Player(cs->name[i], (i + 1), cs->file[i]);
+			if(i == 0) player[i]->controls = controls1;
+			if(i == 1) player[i]->controls = controls2;
+			if(i == 2) player[i]->controls = controls3;
+			if(i == 3) player[i]->controls = controls4;
+		}
+
+		level = new Level();
+		level->load(Level::LEVELS[ls->level].filename);
+
+		lmp = new LocalMultiplayer();
+		lmp->set_level(level);
+
+		for(int i = 0; i < players; i++) {
+			lmp->add_player(player[i]);
+		}
+		lmp->run();
+
+		for(int i = 0; i < players; i++) {
+			score[i] = player[i]->score;
+		}
+
+		// TODO: end screen with scores
+		running = false;
+
+		delete lmp;
+		delete level;
+		for(int i = 0; i < players; i++) {
+			delete player[i];
+		}
+	}
+
+	delete cs;
+	delete ls;
+	delete player;
+	delete score;
 }
 
 void Menu::select_up() {

@@ -240,6 +240,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\LevelSelect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\LocalMultiplayer.cpp"
 				>
 			</File>
@@ -339,6 +343,10 @@
 			</File>
 			<File
 				RelativePath=".\Level.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LevelSelect.h"
 				>
 			</File>
 			<File

@@ -1,6 +1,5 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include "Main.h"
 #include "Player.h"
@@ -16,11 +15,6 @@
 #define CHARACTERS_PER_LINE	4
 #define CHARACTER_WIDTH		44
 #define CHARACTER_SPACING	4
-
-#define STAGES_PER_LINE	4
-#define STAGE_WIDTH		44
-#define STAGE_HEIGHT	34
-#define STAGE_SPACING	4
 
 #define DIRECTION_NONE	0
 #define DIRECTION_LEFT	1
@@ -50,8 +44,6 @@ void CharacterSelect::run() {
 	controls[2] = Main::instance->controls3;
 	controls[3] = Main::instance->controls4;
 
-	ready_stage = false;
-
 	ready = false;
 	cancel = false;
 
@@ -65,9 +57,6 @@ void CharacterSelect::run() {
 		player_select[2] = Player::CHARACTER_COUNT - CHARACTERS_PER_LINE;
 		player_select[3] = Player::CHARACTER_COUNT - 1;
 	}
-	
-	stage = 0;
-	select_stage(DIRECTION_NONE);
 
 	frame = 0;
 
@@ -84,11 +73,22 @@ void CharacterSelect::run() {
 			file[i] = Player::CHARACTERS[player_select[i]].filename;
 		}
 
+		frame++;
+
 		draw();
 
-		frame++;
+		ready = true;
+		for(int i = 0; i < players; i++) {
+			if(!player_ready[i] || flicker[i]) {
+				ready = false;
+			}
+		}
+
 		Main::instance->flip();
 	}
+
+	if(!ready)
+		cancel = true;
 
 	Main::audio->stop_music();
 
@@ -101,6 +101,7 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 	for(int i = 0; i < players; i++) {
 		old_direction[i] = cursor_direction[i];
 
+		// Keyboard
 		if(event->type == SDL_KEYDOWN) {
 			// Escape key always returns to main menu
 			if(event->key.keysym.sym == SDLK_ESCAPE) {
@@ -108,7 +109,6 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 				cancel = true;
 			}
 
-			// Keyboard 1
 			if(controls[i].use_keyboard) {
 				if(event->key.keysym.sym == controls[i].kb_left)
 					cursor_direction[i] |= DIRECTION_LEFT;
@@ -127,7 +127,6 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 			}
 		}
 		if(event->type == SDL_KEYUP) {
-			// Keyboard 1
 			if(controls[i].use_keyboard) {
 				if(event->key.keysym.sym == controls[i].kb_left && cursor_direction[i] & DIRECTION_LEFT)
 					cursor_direction[i] ^= DIRECTION_LEFT;
@@ -145,8 +144,8 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 				}
 			}
 		}
+		// Joystick Buttons
 		if(event->type == SDL_JOYBUTTONDOWN) {
-			// Joystick 1 Buttons
 			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
 				if(event->jbutton.button == controls[i].js_left)
 					cursor_direction[i] |= DIRECTION_LEFT;
@@ -160,7 +159,6 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 			}
 		}
 		if(event->type == SDL_JOYBUTTONUP) {
-			// Joystick 1 Buttons
 			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
 				if(event->jbutton.button == controls[i].js_left && cursor_direction[i] & DIRECTION_LEFT)
 					cursor_direction[i] ^= DIRECTION_LEFT;
@@ -168,8 +166,8 @@ void CharacterSelect::handle_input(SDL_Event * event) {
 					cursor_direction[i] ^= DIRECTION_RIGHT;
 			}
 		}
+		// Joystick Axis
 		if(event->type == SDL_JOYAXISMOTION) {
-			// Joystick 1 Axis
 			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
 				if(event->jaxis.axis == 0) {
 					if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
@@ -218,17 +216,6 @@ void CharacterSelect::process_cursors() {
 	for(int i = 0; i < players; i++) {
 		if(cursor_enter[i]) {
 			cursor_enter[i] = false;
-			if(players_ready) {
-				Main::audio->play(SND_SELECT_CHARACTER);
-				if(!ready_stage) {
-					ready_stage = true;
-					flicker_stage = true;
-					flicker_stage_frame = 0;
-					ready = true;
-				} else {
-					ready = true;
-				}
-			}
 			if(!player_ready[i]) {
 				can_select = true;
 				for(int idx = 0; idx < players; idx++) {
@@ -257,12 +244,6 @@ void CharacterSelect::process_cursors() {
 				if(!player_ready[i]) {
 					select(&player_select[i], cursor_direction[i]);
 					Main::audio->play(SND_SELECT);
-				}
-				if(players_ready) {
-						Main::audio->play(SND_SELECT);
-					if(!ready_stage) {
-						select_stage(cursor_direction[i]);
-					}
 				}
 			}
 		}
@@ -302,30 +283,6 @@ void CharacterSelect::select(int * select, int direction) {
 	}*/
 }
 
-void CharacterSelect::select_stage(int direction) {
-	if(direction & DIRECTION_LEFT) {
-		if(stage % STAGES_PER_LINE == 0)
-			stage += STAGES_PER_LINE;
-		stage--;
-	}
-	if(direction & DIRECTION_RIGHT) {
-		if(stage % STAGES_PER_LINE == STAGES_PER_LINE - 1)
-			stage -= STAGES_PER_LINE;
-		stage++;
-	}
-	if(direction & DIRECTION_UP) {
-		stage -= STAGES_PER_LINE;
-	}
-	if(direction & DIRECTION_DOWN) {
-		stage += STAGES_PER_LINE;
-	}
-
-	if(stage < 0) stage += Level::LEVEL_COUNT;
-	if(stage >= Level::LEVEL_COUNT) stage -= Level::LEVEL_COUNT;
-
-	stage_name = Level::LEVELS[stage].name;
-}
-
 void CharacterSelect::draw() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
@@ -361,9 +318,22 @@ void CharacterSelect::draw() {
 
 		for(int i = 0; i < players; i++) {
 			if(player_select[i] == idx) {
-				color = Player::COLORS[i];
+				if(color != 0) {
+					int r1, g1, b1;
+					int r2, g2, b2;
+					r1 = (color & 0xff0000) >> 16;
+					g1 = (color & 0xff00) >> 8;
+					b1 = color & 0xff;
+					r2 = (Player::COLORS[i] & 0xff0000) >> 16;
+					g2 = (Player::COLORS[i] & 0xff00) >> 8;
+					b2 = Player::COLORS[i] & 0xff;
+					color = (((r1 + r2) / 2) << 16) + (((g1 + g2) / 2) << 8) + ((b1 + b2) / 2);
+				}
+				else
+					color = Player::COLORS[i];
 				if(player_ready[i]) {
-					color_back = 0xffffff;
+					color_back = Player::COLORS[i];
+					color = Player::COLORS[i];
 					if(flicker[i]) {
 						if(flicker_frame[i] > 0x20)
 							flicker[i] = false;
@@ -371,8 +341,10 @@ void CharacterSelect::draw() {
 							color = 0xffffff;
 						flicker_frame[i]++;
 					}
+					clip = clip_avatar_selected;
+
+					break;
 				}
-				if(player_ready[i]) clip = clip_avatar_selected;
 			}
 		}
 
@@ -386,12 +358,19 @@ void CharacterSelect::draw() {
 		SDL_BlitSurface(character_sprites->at(idx), clip, screen, &rect);
 
 		for(int i = 0; i < players; i++) {
-			rect_c.x = rect_b.x + 4 + (10 * i);
-			rect_c.y = rect_b.y + 4;
-			rect_s.x = 16 + (10 * i);
+			rect_c.x = rect_b.x;
+			rect_c.y = rect_b.y;
+			if(i == 1 || i == 3) rect_c.x += 26;
+			if(i == 2 || i == 3) rect_c.y += 26;
+
+			rect_s.x = 16;
 			rect_s.y = 0;
-			rect_s.w = 10;
-			rect_s.h = 16;
+			rect_s.w = 26;
+			rect_s.h = 26;
+
+			if(i == 1 || i == 3) rect_s.x += 26;
+			if(i == 2 || i == 3) rect_s.y += 26;
+
 			if(player_select[i] == idx) {
 				SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect_c);
 			}
@@ -481,8 +460,8 @@ void CharacterSelect::draw() {
 				break;
 		}
 		SDL_FillRect(screen, &r_block, Player::COLORS[i]);
-		r_block.x += 2; r_block.w -= 4;
-		r_block.y += 2; r_block.h -= 4;
+		r_block.x += 4; r_block.w -= 8;
+		r_block.y += 4; r_block.h -= 8;
 		SDL_FillRect(screen, &r_block, 0x222222);
 
 		SDL_BlitSurface(character_sprites->at(player_select[i]), clip_direction, screen, &r_avatar);
@@ -556,56 +535,6 @@ void CharacterSelect::draw() {
 			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
 		}
 	}
-	
-	// STAGES
-	
-	bool players_ready;
-
-	players_ready = true;
-	for(int i = 0; i < players; i++) {
-		if(!player_ready[i])
-			players_ready = false;
-	}
-
-	surface = TTF_RenderText_Solid(Main::graphics->font26, stage_name, Main::graphics->white);
-	rect.x = (screen->w - surface->w) / 2;
-	rect.y = 320;
-	SDL_BlitSurface(surface, NULL, screen, &rect);
-	SDL_FreeSurface(surface);
-
-	rect_b.x = (screen->w - ((STAGE_WIDTH + (STAGE_SPACING * 2)) * STAGES_PER_LINE)) / 2;
-	rect_b.y = 340;
-	rect_b.w = STAGE_WIDTH + (STAGE_SPACING * 2);
-	rect_b.h = STAGE_HEIGHT + (STAGE_SPACING * 2);
-
-	for(int idx = 0; idx < Level::LEVEL_COUNT; idx++) {
-		if(idx > 0 && idx % STAGES_PER_LINE == 0) {
-			rect_b.x = (screen->w - ((STAGE_WIDTH + (STAGE_SPACING * 2)) * STAGES_PER_LINE)) / 2;
-			rect_b.y += rect_b.h;
-		}
-
-		rect.x = rect_b.x + STAGE_SPACING;
-		rect.y = rect_b.y + STAGE_SPACING;
-
-		color = 0;
-
-		if(players_ready && stage == idx) {
-			color = 0x444488;
-			
-			if(ready_stage && flicker_stage) {
-				if(flicker_stage_frame > 0x20)
-					flicker_stage = false;
-				if(flicker_stage_frame & 0x4)
-					color = 0xffffff;
-				flicker_stage_frame++;
-			}
-		}
-		SDL_FillRect(screen, &rect_b, color);
-
-		SDL_BlitSurface(stage_thumbs->at(idx), NULL, screen, &rect);
-
-		rect_b.x += STAGE_WIDTH + (STAGE_SPACING * 2);
-	}
 }
 
 void CharacterSelect::load_sprites() {
@@ -648,14 +577,6 @@ void CharacterSelect::load_sprites() {
 	clip_right->y = PLAYER_H;
 	clip_right->w = PLAYER_W;
 	clip_right->h = PLAYER_H;
-	
-
-	stage_thumbs = new std::vector<SDL_Surface*>(0);
-
-	for(int idx = 0; idx < Level::LEVEL_COUNT; idx++) {
-		sprites = Level::get_thumbnail(Level::LEVELS[idx].filename);
-		stage_thumbs->push_back(sprites);
-	}
 }
 
 void CharacterSelect::free_sprites() {
@@ -664,12 +585,6 @@ void CharacterSelect::free_sprites() {
 		character_sprites->erase(character_sprites->begin() + idx);
 	}
 	delete character_sprites;
-
-	for(unsigned int idx = 0; idx < stage_thumbs->size(); idx++) {
-		SDL_FreeSurface(stage_thumbs->at(idx));
-		stage_thumbs->erase(stage_thumbs->begin() + idx);
-	}
-	delete stage_thumbs;
 
 	delete clip_avatar;
 	delete clip_avatar_selected;

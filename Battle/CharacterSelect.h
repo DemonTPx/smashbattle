@@ -11,8 +11,6 @@ public:
 
 	int player_select[4];
 
-	int stage;
-
 	bool cancel;
 private:
 	void draw();
@@ -25,12 +23,10 @@ private:
 	void process_cursors();
 
 	void select(int * select, int direction);
-	void select_stage(int direction);
 
 	int players;
 
 	bool ready;
-	bool ready_stage;
 	bool player_ready[4];
 	
 	int cursor_direction[4];
@@ -46,11 +42,6 @@ private:
 	bool flicker[4];
 	int flicker_start[4];
 	int flicker_frame[4];
-	int flicker_stage, flicker_stage_frame;
-
-	char * stage_name;
-	char * stage_author;
-	std::vector<SDL_Surface*> * stage_thumbs;
 
 	int frame;
 };
