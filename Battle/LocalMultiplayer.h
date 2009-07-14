@@ -11,18 +11,29 @@ protected:
 	virtual void on_pre_processing();
 	virtual void on_post_processing();
 
+	virtual void pause(Player * p);
+
 	virtual void draw_score();
 	virtual void draw_game_ended();
 
-	virtual void pause(Player * p);
-
 	void draw_score_duel();
 	void draw_score_multi();
+
+	void generate_powerup(bool force);
 	
 	int end_avatar_start_frame;
 
 	Player * winner;
 	bool draw;
+
+	int powerup_rate;
+	int powerup_max;
+
+	int powerup_health_rate;
+	int powerup_bullet_rate;
+	int powerup_doubledamage_rate;
+	int powerup_instantkill_rate;
+	int powerup_bomb_rate;
 };
 
 #endif

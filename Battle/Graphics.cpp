@@ -39,6 +39,12 @@ void Graphics::load_all() {
 	player2hp = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
 
+	surface = SDL_LoadBMP("gfx/common.bmp");
+	common = SDL_DisplayFormat(surface);
+	colorkey = SDL_MapRGB(common->format, 0, 255, 255);
+	SDL_SetColorKey(common, SDL_SRCCOLORKEY, colorkey); 
+	SDL_FreeSurface(surface);
+
 	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
 	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
 	font52 = TTF_OpenFont("fonts/slick.ttf", 52);
@@ -59,6 +65,8 @@ void Graphics::clear_all() {
 
 	SDL_FreeSurface(player1hp);
 	SDL_FreeSurface(player2hp);
+
+	SDL_FreeSurface(common);
 
 	TTF_CloseFont(font13);
 	TTF_CloseFont(font26);

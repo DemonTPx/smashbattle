@@ -9,14 +9,14 @@
 
 #define BULLETS_UNLIMITED -1
 
-struct Character {
+/*struct Character {
 	char * name;
 	char * filename;
 	int speedclass;
 	int weightclass;
 	int bulletrateclass;
 	int bombpowerclass;
-};
+};*/
 
 struct Stage {
 	char * name;
@@ -64,8 +64,8 @@ public:
 	~Battle();
 	void run();
 
-	static const int CHARACTER_COUNT;
-	static const Character characters[];
+//	static const int CHARACTER_COUNT;
+//	static const Character characters[];
 	static const int STAGE_COUNT;
 	static const Stage stages[];
 	static const int RULESET_COUNT;

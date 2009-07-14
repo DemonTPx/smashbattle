@@ -37,10 +37,23 @@
 
 #define DUCK_FORCE_FRAMES 10
 
+struct Character {
+	char * name;
+	char * filename;
+	int speedclass;
+	int weightclass;
+	int bulletrateclass;
+	int bombpowerclass;
+};
+
 class Player {
 public:
 	Player(const char * name, const int number, const char * sprite_file);
 	~Player();
+
+	static const int CHARACTER_COUNT;
+	static const Character CHARACTERS[];
+	static const int COLORS[];
 
 	char * name;
 	int number;

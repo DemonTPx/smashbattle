@@ -105,10 +105,7 @@ void PauseMenu::draw() {
 
 	width = draw_width;
 	
-	if(player->number == 1) color = 0xff0000;
-	if(player->number == 2) color = 0x0000ff;
-	if(player->number == 3) color = 0x00ff00;
-	if(player->number == 4) color = 0xffff00;
+	color = Player::COLORS[player->number - 1];
 
 	height = (20 * (int)options->size()) + 44;
 

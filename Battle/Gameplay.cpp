@@ -226,6 +226,8 @@ void Gameplay::reset_game() {
 	on_game_reset();
 
 	Main::audio->stop_music();
+
+	srand(SDL_GetTicks());
 }
 
 void Gameplay::initialize() {

@@ -1,13 +1,16 @@
 #ifndef _BOMBPOWERUP_H
 #define _BOMBPOWERUP_H
 
-class BombPowerUp : public PowerUp {
+class BombPowerUp : public GameplayObject {
 public:
 	BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount);
-	void cleanup();
+	~BombPowerUp();
 
-	void got_powerup(Player *);
-	void show(SDL_Surface *);
+	virtual void move(Level * level);
+	virtual void process();
+
+	virtual void hit_player(Player * player);
+	virtual void draw(SDL_Surface * screen);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;

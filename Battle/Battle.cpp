@@ -56,7 +56,7 @@
 
 // Freeze time
 #define PLAYER_FREEZE_FRAMES 45
-
+/*
 const int Battle::CHARACTER_COUNT = 12;
 const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	//      Name               Filename            sp wt br bd
@@ -72,7 +72,7 @@ const Character Battle::characters[Battle::CHARACTER_COUNT] = {
 	{(char*)"Rob",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
 	{(char*)"Eva",		(char*)"gfx/eva.bmp",		1, 2, 0, 1},
 	{(char*)"Tobias",	(char*)"gfx/tobias.bmp",	1, 1, 2, 0},
-};
+};*/
 const int Battle::STAGE_COUNT = 8;
 const Stage Battle::stages[Battle::STAGE_COUNT] = {
 	{(char*)"Training Dojo", (char*)"Bert Hekman", (char*)"stage/trainingdojo.stg"},
@@ -138,6 +138,7 @@ void Battle::run() {
 	game_running = true;
 
 	// Character selection
+	/*
 	CharacterSelect * character_select;
 	character_select = new CharacterSelect(this);
 	character_select->run();
@@ -174,7 +175,7 @@ void Battle::run() {
 
 	ruleset = rulesets[character_select->ruleset];
 
-	delete character_select;
+	delete character_select;*/
 
 	projectiles = new std::vector<Projectile*>(0);
 	bombs = new std::vector<Bomb*>(0);
@@ -682,35 +683,35 @@ void Battle::generate_powerup(bool force) {
 	last = first + ruleset.healthpowerups;
 	if(r >= first && r < last) {
 		rect->x = 0; rect->y = 0;
-		pu = new HealthPowerUp(powerup, rect, pos, 25);
+//		pu = new HealthPowerUp(powerup, rect, pos, 25);
 	}
 
 	first = last;
 	last = first + ruleset.bulletpowerups;
 	if(r >= first && r < last) {
 		rect->x = 32; rect->y = 0;
-		pu = new AmmoPowerUp(powerup, rect, pos, 20);
+//		pu = new AmmoPowerUp(powerup, rect, pos, 20);
 	}
 
 	first = last;
 	last = first + ruleset.doubledamagepowerups;
 	if(r >= first && r < last) {
 		rect->x = 48; rect->y = 0;
-		pu = new DoubleDamagePowerUp(powerup, rect, pos, 5);
+//		pu = new DoubleDamagePowerUp(powerup, rect, pos, 5);
 	}
 
 	first = last;
 	last = first + ruleset.instantkillpowerups;
 	if(r >= first && r < last) {
 		rect->x = 64; rect->y = 0;
-		pu = new InstantKillBulletPowerUp(powerup, rect, pos, 1);
+//		pu = new InstantKillBulletPowerUp(powerup, rect, pos, 1);
 	}
 
 	first = last;
 	last = first + ruleset.bombpowerups;
 	if(r >= first && r < last) {
 		rect->x = 16; rect->y = 0;
-		pu = new BombPowerUp(powerup, rect, pos, 1);
+//		pu = new BombPowerUp(powerup, rect, pos, 1);
 	}
 
 	if(pu != NULL)

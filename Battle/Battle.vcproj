@@ -412,6 +412,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\common.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\commongrounds.bmp"
 				>
 			</File>

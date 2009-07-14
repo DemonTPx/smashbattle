@@ -11,8 +11,28 @@
 #include "Level.h"
 #include "Player.h"
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
+const int Player::CHARACTER_COUNT = 12;
+const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
+	//      Name               Filename            sp wt br bd
+	{(char*)"Bert",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
+	{(char*)"Jeroen",	(char*)"gfx/jeroen.bmp",	2, 1, 1, 0},
+	{(char*)"Steven",	(char*)"gfx/steven.bmp",	0, 2, 1, 1},
+	{(char*)"Tedje",	(char*)"gfx/tedje.bmp",		0, 1, 2, 1},
+	{(char*)"Okke",		(char*)"gfx/okke.bmp",		2, 1, 0, 1},
+	{(char*)"Jeremy",	(char*)"gfx/jeremy.bmp",	1, 0, 1, 2},
+	{(char*)"Marcel",	(char*)"gfx/marcel.bmp",	1, 0, 2, 1},
+	{(char*)"Jay",		(char*)"gfx/jay.bmp",		2, 1, 1, 0},
+	{(char*)"Donja",	(char*)"gfx/donja.bmp",		2, 0, 1, 1},
+	{(char*)"Rob",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
+	{(char*)"Eva",		(char*)"gfx/eva.bmp",		1, 2, 0, 1},
+	{(char*)"Tobias",	(char*)"gfx/tobias.bmp",	1, 1, 2, 0},
+};
+const int Player::COLORS[4] = {
+	0xff0000,
+	0x0000ff,
+	0x00ff00,
+	0xffff00,
+};
 
 const int Player::jump_height = 144;
 
@@ -762,9 +782,8 @@ void Player::process() {
 
 //			doubledamage = ((ruleset.doubledamagebullets == BULLETS_UNLIMITED) || p->doubledamagebullets > 0);
 //			instantkill = ((ruleset.instantkillbullets == BULLETS_UNLIMITED) || p->instantkillbullets > 0);
-
-			doubledamage = false;
-			instantkill = false;
+			doubledamage = doubledamagebullets > 0;
+			instantkill = instantkillbullets > 0;
 
 			clip_weapon = new SDL_Rect();
 			if(instantkill)
@@ -797,18 +816,6 @@ void Player::process() {
 			else
 				pr->position->y = position->y + 8;
 			Gameplay::instance->add_object(pr);
-			
-			/*for(int i = 0; i <= 1; i++) {
-				Projectile * p1;
-				p1 = new Projectile(Main::graphics->weapons, clip_weapon);
-				p1->damage = pr->damage;
-				p1->speedx = pr->speedx;
-				if(i == 0) p1->speedy = -5;
-				if(i == 1) p1->speedy = 5;
-				p1->position->x = pr->position->x;
-				p1->position->y = pr->position->y;
-				Gameplay::instance->add_object(p1);
-			}*/
 			
 			if(instantkill)
 				instantkillbullets--;

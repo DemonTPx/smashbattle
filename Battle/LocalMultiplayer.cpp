@@ -6,6 +6,12 @@
 #include "Level.h"
 #include "Gameplay.h"
 
+#include "HealthPowerUp.h"
+#include "AmmoPowerUp.h"
+#include "DoubleDamagePowerUp.h"
+#include "InstantKillBulletPowerUp.h"
+#include "BombPowerUp.h"
+
 #include "LocalMultiplayer.h"
 
 void LocalMultiplayer::initialize() {
@@ -13,6 +19,15 @@ void LocalMultiplayer::initialize() {
 	pause_menu->add_option("RESUME\0");
 	pause_menu->add_option("END ROUND\0");
 	pause_menu->add_option("QUIT\0");
+
+	powerup_rate = 500;
+	powerup_max = 2;
+
+	powerup_health_rate = 0;
+	powerup_bullet_rate = 0;
+	powerup_doubledamage_rate = 1;
+	powerup_instantkill_rate = 1;
+	powerup_bomb_rate = 0;
 }
 
 void LocalMultiplayer::on_game_reset() {
@@ -58,11 +73,10 @@ void LocalMultiplayer::on_game_reset() {
 		p->dead_start = 0;
 		p->is_frozen = false;
 		p->freeze_start = 0;
-		//p->bullets = ruleset.bullets;
-		//p->bombs = ruleset.bombs;
+		p->bullets = -1;
 		p->bombs = 3;
-		//p->doubledamagebullets = ruleset.doubledamagebullets;
-		//p->instantkillbullets = ruleset.instantkillbullets;
+		p->doubledamagebullets = 0;
+		p->instantkillbullets = 0;
 		p->is_falling = false;
 		p->is_jumping = false;
 		p->momentumx = 0;
@@ -119,6 +133,9 @@ void LocalMultiplayer::on_post_processing() {
 				}
 			}
 		}
+
+		// Generate powerup
+		generate_powerup(false);
 	}
 }
 
@@ -127,6 +144,106 @@ void LocalMultiplayer::pause(Player * p) {
 	ret = pause_menu->pause(p);
 	if(ret == 1) return;
 	if(ret == 2) game_running = false;
+}
+
+void LocalMultiplayer::generate_powerup(bool force) {
+	if(!force) {
+		if(rand() % powerup_rate != 0) return;
+	}
+
+	int powerups;
+
+	powerups = 0;
+	for(unsigned int idx = 0; idx < objects->size(); idx++) {
+		if(objects->at(idx)->is_powerup)
+			powerups++;
+	}
+
+	if(powerups >= powerup_max)
+		return;
+
+	int r;
+	int row, col;
+	GameplayObject * gpo, * obj;
+	SDL_Rect * rect, * pos;
+	bool done;
+
+	int max, first, last;
+
+	done = false;
+	while(!done) {
+		row = rand() % TILE_ROWS - 1;
+		col = rand() % TILE_COLS;
+		if(level->level[row * TILE_COLS + col] == -1 && level->level[(row + 1) * TILE_COLS + col] != -1) {
+			done = true;
+			for(unsigned int idx = 0; idx < objects->size(); idx++) {
+				obj = objects->at(idx);
+				if(!obj->is_powerup)
+					continue;
+				if(obj->position->x == (col * TILE_W) + 8 &&
+					obj->position->y == (row * TILE_H) + 16) {
+					done = false;
+				}
+			}
+		}
+	}
+
+	pos = new SDL_Rect();
+	pos->w = 16;
+	pos->h = 16;
+	pos->x = (col * TILE_W) + 8;
+	pos->y = (row * TILE_H) + 16;
+
+	max = powerup_health_rate + powerup_bullet_rate + powerup_doubledamage_rate +
+		powerup_instantkill_rate + powerup_bomb_rate;
+	
+	r = rand() % max;
+	
+	rect = new SDL_Rect();
+	rect->w = 16;
+	rect->h = 16;
+
+	gpo = NULL;
+
+	first = 0;
+	last = first + powerup_health_rate;
+	if(r >= first && r < last) {
+		rect->x = 0; rect->y = 0;
+		gpo = new HealthPowerUp(Main::graphics->powerups, rect, pos, 25);
+	}
+
+	first = last;
+	last = first + powerup_bullet_rate;
+	if(r >= first && r < last) {
+		rect->x = 32; rect->y = 0;
+		gpo = new AmmoPowerUp(Main::graphics->powerups, rect, pos, 20);
+	}
+
+	first = last;
+	last = first + powerup_doubledamage_rate;
+	if(r >= first && r < last) {
+		rect->x = 48; rect->y = 0;
+		gpo = new DoubleDamagePowerUp(Main::graphics->powerups, rect, pos, 5);
+	}
+
+	first = last;
+	last = first + powerup_instantkill_rate;
+	if(r >= first && r < last) {
+		rect->x = 64; rect->y = 0;
+		gpo = new InstantKillBulletPowerUp(Main::graphics->powerups, rect, pos, 1);
+	}
+
+	first = last;
+	last = first + powerup_bomb_rate;
+	if(r >= first && r < last) {
+		rect->x = 16; rect->y = 0;
+		gpo = new BombPowerUp(Main::graphics->powerups, rect, pos, 1);
+	}
+
+	if(gpo != NULL)
+		objects->push_back(gpo);
+	else
+		delete pos;
 }
 
 void LocalMultiplayer::draw_score() {
@@ -149,11 +266,21 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_Rect rect;
 	SDL_Rect rect_s;
 	int ammount;
+	char str[40];
 
 	Player * player1, * player2;
 	
 	player1 = players->at(0);
 	player2 = players->at(1);
+	
+	// Show player avatars
+	rect.x = 250 - PLAYER_W;
+	rect.y = 450;
+	SDL_BlitSurface(player1->sprites, player1->clip[SPR_R], screen, &rect);
+
+	rect.x = 390;
+	rect.y = 450;
+	SDL_BlitSurface(player2->sprites, player2->clip[SPR_L], screen, &rect);
 
 	// Health bar player 1
 	rect.x = 3;
@@ -185,21 +312,16 @@ void LocalMultiplayer::draw_score_duel() {
 	rect.y = WINDOW_HEIGHT - 28;
 	SDL_BlitSurface(Main::instance->graphics->player2hp, &rect_s, screen, &rect);
 
-	char str[40];
-
-	//sprintf_s(str, 40, "%s %d", player1->name, player1->bullets);
-	//surface = TTF_RenderText_Solid(font26, str, fontColor);
+	// Player names
 	surface = TTF_RenderText_Solid(Main::instance->graphics->font26, player1->name, Main::instance->graphics->white);
-	rect.x = 2;
-	rect.y = WINDOW_HEIGHT - surface->h;
+	rect.x = 220 - surface->w;
+	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	//sprintf_s(str, 40, "%s %d", player2->name, player2->bullets);
-	//surface = TTF_RenderText_Solid(font26, str, fontColor);
 	surface = TTF_RenderText_Solid(Main::instance->graphics->font26, player2->name, Main::instance->graphics->white);
-	rect.x = WINDOW_WIDTH - surface->w - 2;
-	rect.y = WINDOW_HEIGHT - surface->h;
+	rect.x = 420;
+	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
@@ -216,29 +338,42 @@ void LocalMultiplayer::draw_score_duel() {
 	rect_s.y = 0;
 	rect_s.w = 12;
 	rect_s.h = 16;
-	rect.x = 150;
-	rect.y = 460;
-	SDL_BlitSurface(Main::instance->graphics->bombs, &rect_s, screen, &rect);
-	rect.x = 474;
-	rect.y = 460;
-	SDL_BlitSurface(Main::instance->graphics->bombs, &rect_s, screen, &rect);
+	rect.x = 2;
+	rect.y = 462;
+	SDL_BlitSurface(Main::graphics->bombs, &rect_s, screen, &rect);
+	rect.x = 626;
+	rect.y = 462;
+	SDL_BlitSurface(Main::graphics->bombs, &rect_s, screen, &rect);
+
+	rect_s.x = 0;
+	rect_s.y = 0;
+	rect_s.w = 16;
+	rect_s.h = 16;
 
 	if(player1->bombs != -1) {
-		sprintf_s(str, 2, "%01d", player1->bombs);
-		surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->white);
-		rect.x = 180 - surface->w;
-		rect.y = 460;
+		sprintf_s(str, 3, "%02d", player1->bombs);
+		surface = TTF_RenderText_Solid(Main::graphics->font26, str, Main::graphics->white);
+		rect.x = 18;
+		rect.y = 462;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
+	} else {
+		rect.x = 18;
+		rect.y = 462;
+		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 	}
 
 	if(player2->bombs != -1) {
-		sprintf_s(str, 2, "%01d", player2->bombs);
-		surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->white);
-		rect.x = 460;
-		rect.y = 460;
+		sprintf_s(str, 3, "%02d", player2->bombs);
+		surface = TTF_RenderText_Solid(Main::graphics->font26, str, Main::graphics->white);
+		rect.x = 624 - surface->w;
+		rect.y = 462;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
+	} else {
+		rect.x = 624 - Main::graphics->common->w;
+		rect.y = 462;
+		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 	}
 	
 	// Ammo type and ammount
@@ -246,36 +381,49 @@ void LocalMultiplayer::draw_score_duel() {
 	rect_s.y = 0;
 	rect_s.w = 8;
 	rect_s.h = 8;
-	rect.x = 120;
-	rect.y = 464;
+	rect.x = 62;
+	rect.y = 466;
 //	if(ruleset.doubledamagebullets == BULLETS_UNLIMITED || player1->doubledamagebullets > 0) rect_s.x = 8;
 //	if(ruleset.instantkillbullets == BULLETS_UNLIMITED || player1->instantkillbullets > 0) rect_s.x = 16;
-	SDL_BlitSurface(Main::instance->graphics->weapons, &rect_s, screen, &rect);
+	if(player1->doubledamagebullets > 0) rect_s.x = 8;
+	if(player1->instantkillbullets > 0) rect_s.x = 16;
+	SDL_BlitSurface(Main::graphics->weapons, &rect_s, screen, &rect);
 
 	if(player1->instantkillbullets > 0) ammount = player1->instantkillbullets;
 	else if(player1->doubledamagebullets > 0) ammount = player1->doubledamagebullets;
 	else {
 //		if(ruleset.doubledamagebullets != BULLETS_UNLIMITED) ammount = player1->bullets;
 //		else ammount = 0;
+		ammount = -1;
 	}
 
-	if(ammount > 0) {
-		sprintf_s(str, 3, "%01d", ammount);
+	if(ammount != -1) {
+		sprintf_s(str, 3, "%02d", ammount);
 		surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->white);
-		rect.x = 144 - surface->w;
-		rect.y = 460;
+		rect.x = 74;
+		rect.y = 462;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
+	} else {
+		rect_s.x = 0;
+		rect_s.y = 0;
+		rect_s.w = 16;
+		rect_s.h = 16;
+		rect.x = 74;
+		rect.y = 462;
+		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 	}
 
 	rect_s.x = 0;
 	rect_s.y = 0;
 	rect_s.w = 8;
 	rect_s.h = 8;
-	rect.x = 514;
-	rect.y = 464;
+	rect.x = 570;
+	rect.y = 466;
 //	if(ruleset.doubledamagebullets == BULLETS_UNLIMITED || player2->doubledamagebullets > 0) rect_s.x = 8;
 //	if(ruleset.instantkillbullets == BULLETS_UNLIMITED || player2->instantkillbullets > 0) rect_s.x = 16;
+	if(player2->doubledamagebullets > 0) rect_s.x = 8;
+	if(player2->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(Main::instance->graphics->weapons, &rect_s, screen, &rect);
 
 	if(player2->instantkillbullets > 0) ammount = player2->instantkillbullets;
@@ -283,24 +431,24 @@ void LocalMultiplayer::draw_score_duel() {
 	else {
 //		if(ruleset.doubledamagebullets != BULLETS_UNLIMITED) ammount = player2->bullets;
 //		else ammount = 0;
+		ammount = -1;
 	}
-	if(ammount > 0) {
-		sprintf_s(str, 3, "%01d", ammount);
+	if(ammount != -1) {
+		sprintf_s(str, 3, "%02d", ammount);
 		surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->white);
-		rect.x = 496;
-		rect.y = 460;
+		rect.x = 566 - surface->w;
+		rect.y = 462;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
+	} else {
+		rect_s.x = 0;
+		rect_s.y = 0;
+		rect_s.w = 16;
+		rect_s.h = 16;
+		rect.x = 566 - Main::graphics->common->w;
+		rect.y = 462;
+		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 	}
-
-	// Show player avatars
-	rect.x = 220 - PLAYER_W;
-	rect.y = 450;
-	SDL_BlitSurface(player1->sprites, player1->clip[SPR_R], screen, &rect);
-
-	rect.x = 420;
-	rect.y = 450;
-	SDL_BlitSurface(player2->sprites, player2->clip[SPR_L], screen, &rect);
 }
 
 void LocalMultiplayer::draw_score_multi() {

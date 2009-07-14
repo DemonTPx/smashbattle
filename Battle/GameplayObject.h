@@ -18,6 +18,7 @@ public:
 	virtual void draw(SDL_Surface * screen) = 0;
 
 	bool done;
+	bool is_powerup;
 
 	SDL_Rect * position;
 };

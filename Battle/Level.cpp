@@ -8,22 +8,27 @@
 #include "Level.h"
 
 const int Level::LEVEL_COUNT = 8;
-const char* Level::levels[Level::LEVEL_COUNT] = {
-	(char*)"stage/trainingdojo.stg",
-	(char*)"stage/commongrounds.stg",
-	(char*)"stage/platformalley.stg",
-	(char*)"stage/pogostick.stg",
-	(char*)"stage/pitfall.stg",
-	(char*)"stage/blastbowl.stg",
-	(char*)"stage/pitofdeath.stg",
-	(char*)"stage/ducknhunt.stg"
+const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
+	{(char*)"Training Dojo", (char*)"stage/trainingdojo.stg"},
+	{(char*)"Common Grounds", (char*)"stage/commongrounds.stg"},
+	{(char*)"Platform Alley", (char*)"stage/platformalley.stg"},
+	{(char*)"Pogostick", (char*)"stage/pogostick.stg"},
+	{(char*)"Pitfall", (char*)"stage/pitfall.stg"},
+	{(char*)"Blast Bowl", (char*)"stage/blastbowl.stg"},
+	{(char*)"Pit of Death", (char*)"stage/pitofdeath.stg"},
+	{(char*)"Duck'n'Hunt", (char*)"stage/ducknhunt.stg"}
 };
 
 Level::Level() {
+	background = NULL;
+	tiles = NULL;
 }
 
 Level::~Level() {
-	cleanup();
+	if(background != NULL)
+		SDL_FreeSurface(background);
+	if(tiles != NULL)
+		SDL_FreeSurface(tiles);
 }
 
 void Level::load(char * filename) {
@@ -76,13 +81,6 @@ void Level::load(char * filename) {
 	} else {
 		background = NULL;
 	}
-}
-
-void Level::cleanup() {
-	if(background != NULL)
-		SDL_FreeSurface(background);
-	if(tiles != NULL)
-		SDL_FreeSurface(tiles);
 }
 
 LevelInformation * Level::get_information(const char *filename) {

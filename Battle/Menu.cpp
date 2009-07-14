@@ -8,7 +8,7 @@
 #include "Timer.h"
 #include "AudioController.h"
 #include "Main.h"
-//#include "Battle.h"
+#include "CharacterSelect.h"
 #include "Gameplay.h"
 #include "LocalMultiplayer.h"
 #include "Options.h"
@@ -312,61 +312,67 @@ void Menu::select() {
 	switch(selected_item) {
 		case 0:
 			{
-				LocalMultiplayer mp;
-				Level l;
-				Player p1("Bert", 1, "gfx/bert.bmp"), p2("Jeroen", 2, "gfx/jeroen.bmp");
-				//Player p3("Tedje", 3, "gfx/tedje.bmp"), p4("Rob", 4, "gfx/rob.bmp");
+				CharacterSelect cs(2);
+				cs.run();
+				if(cs.cancel) return;
+				Player p1(cs.name[0], 1, cs.file[0]);
+				Player p2(cs.name[1], 2, cs.file[1]);
 				p1.controls = controls1;
 				p2.controls = controls2;
-				//p3.controls = controls3;
-				//p4.controls = controls4;
 				
-				l.load("stage/pitofdeath.stg");
+				Level l;
+				l.load(Level::LEVELS[cs.stage].filename);
 
+				LocalMultiplayer mp;
 				mp.set_level(&l);
 				mp.add_player(&p1);
 				mp.add_player(&p2);
-				//mp.add_player(&p3);
-				//mp.add_player(&p4);
 				mp.run();
 			}
 
 			break;
 		case 1:
 			{
-				LocalMultiplayer mp;
-				Level l;
-				Player p1("Bert", 1, "gfx/bert.bmp"), p2("Jeroen", 2, "gfx/jeroen.bmp");
-				Player p3("Tedje", 3, "gfx/tedje.bmp");//, p4("Rob", 4, "gfx/rob.bmp");
+				CharacterSelect cs(3);
+				cs.run();
+				if(cs.cancel) return;
+				Player p1(cs.name[0], 1, cs.file[0]);
+				Player p2(cs.name[1], 2, cs.file[1]);
+				Player p3(cs.name[2], 3, cs.file[2]);
 				p1.controls = controls1;
 				p2.controls = controls2;
 				p3.controls = controls3;
-				//p4.controls = controls4;
 				
-				l.load("stage/commongrounds.stg");
+				Level l;
+				l.load(Level::LEVELS[cs.stage].filename);
 
+				LocalMultiplayer mp;
 				mp.set_level(&l);
 				mp.add_player(&p1);
 				mp.add_player(&p2);
 				mp.add_player(&p3);
-				//mp.add_player(&p4);
 				mp.run();
 			}
 
 			break;
 		case 2:
 			{
-				LocalMultiplayer mp;
-				Level l;
-				Player p1("Bert", 1, "gfx/bert.bmp"), p2("Jeroen", 2, "gfx/jeroen.bmp");
-				Player p3("Tedje", 3, "gfx/tedje.bmp"), p4("Rob", 4, "gfx/rob.bmp");
+				CharacterSelect cs(4);
+				cs.run();
+				if(cs.cancel) return;
+				Player p1(cs.name[0], 1, cs.file[0]);
+				Player p2(cs.name[1], 2, cs.file[1]);
+				Player p3(cs.name[2], 3, cs.file[2]);
+				Player p4(cs.name[3], 4, cs.file[3]);
 				p1.controls = controls1;
 				p2.controls = controls2;
 				p3.controls = controls3;
 				p4.controls = controls4;
 				
+				Level l;
 				l.load("stage/commongrounds.stg");
 
+				LocalMultiplayer mp;
 				mp.set_level(&l);
 				mp.add_player(&p1);
 				mp.add_player(&p2);

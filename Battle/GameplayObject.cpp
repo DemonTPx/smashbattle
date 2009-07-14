@@ -6,6 +6,7 @@
 
 GameplayObject::GameplayObject() {
 	done = false;
+	is_powerup = false;
 }
 
 GameplayObject::~GameplayObject() {

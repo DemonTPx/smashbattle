@@ -15,11 +15,16 @@
 #define BOUNCE_HIT_HEIGHT 16
 
 struct LevelInformation {
-	char* name;
-	char* author;
-	char* filename;
-	char* filename_tiles;
-	char* filename_background;
+	char * name;
+	char * author;
+	char * filename;
+	char * filename_tiles;
+	char * filename_background;
+};
+
+struct LevelInfo {
+	char * name;
+	char * filename;
 };
 
 class Level {
@@ -30,7 +35,6 @@ public:
 	void draw(SDL_Surface * screen);
 
 	void load(char * filename);
-	void cleanup();
 
 	void reset();
 
@@ -41,7 +45,7 @@ public:
 	bool is_on_bottom(SDL_Rect * rect);
 
 	static const int LEVEL_COUNT;
-	static const char* levels[];
+	static const LevelInfo LEVELS[];
 
 	static LevelInformation * get_information(const char * filename);
 	static SDL_Surface * get_thumbnail(const char * filename);

@@ -17,6 +17,7 @@ public:
 	SDL_Surface * powerups;
 	SDL_Surface * player1hp;
 	SDL_Surface * player2hp;
+	SDL_Surface * common;
 	
 	TTF_Font * font13;
 	TTF_Font * font26;
