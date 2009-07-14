@@ -8,6 +8,13 @@
 
 #include "LocalMultiplayer.h"
 
+void LocalMultiplayer::initialize() {
+	pause_menu = new PauseMenu(screen);
+	pause_menu->add_option("RESUME\0");
+	pause_menu->add_option("END ROUND\0");
+	pause_menu->add_option("QUIT\0");
+}
+
 void LocalMultiplayer::on_game_reset() {
 	int x, y;
 	int sprite;
@@ -62,50 +69,64 @@ void LocalMultiplayer::on_game_reset() {
 		p->momentumy = 0;
 		p->set_sprite(sprite);
 	}
+
+	winner = NULL;
 }
 
 void LocalMultiplayer::on_pre_processing() {}
 
 void LocalMultiplayer::on_post_processing() {
-	if(!paused && !countdown && !ended) {
+	if(!countdown && !ended) {
 		// Check if a player lost
 		Player * p, * p2;
 		int playersleft;
 		playersleft = 0;
 		for(unsigned int idx = 0; idx < players->size(); idx++) {
 			p = players->at(idx);
+			
+			if(p->hitpoints < 0)
+				p->hitpoints = 0;
+
 			if(p->is_dead)
 				continue;
+
 			if(p->hitpoints <= 0) {
 				Main::audio->play(SND_YOULOSE);
 
-				if(p->hitpoints < 0) {
-					p->hitpoints = 0;
-				}
-				if(!p->is_dead) {
-					p->is_dead = true;
-					p->dead_start = Gameplay::frame;
-				}
-
+				p->is_dead = true;
+				p->dead_start = Gameplay::frame;
 				p->is_hit = true;
+
 				for(unsigned int i2 = 0; i2 < players->size(); i2++) {
 					p2 = players->at(i2);
 					if(p == p2) continue;
 					if(p2->hitpoints > 0) {
 						p2->score++;
 						playersleft++;
+						winner = p2;
 					}
 				}
 
 				if(playersleft <= 1) {
 					ended = true;
-					end_timer = new Timer();
-					end_timer->start();
+					end_start = frame;
 					end_avatar_start_frame = frame;
+					draw = false;
+					if(playersleft == 0)
+						draw = true;
+					else
+						winner->is_hit = false;
 				}
 			}
 		}
 	}
+}
+
+void LocalMultiplayer::pause(Player * p) {
+	int ret;
+	ret = pause_menu->pause(p);
+	if(ret == 1) return;
+	if(ret == 2) game_running = false;
 }
 
 void LocalMultiplayer::draw_score() {
@@ -131,8 +152,8 @@ void LocalMultiplayer::draw_score_duel() {
 
 	Player * player1, * player2;
 	
-	player1 = Gameplay::instance->players->at(0);
-	player2 = Gameplay::instance->players->at(1);
+	player1 = players->at(0);
+	player2 = players->at(1);
 
 	// Health bar player 1
 	rect.x = 3;
@@ -283,5 +304,136 @@ void LocalMultiplayer::draw_score_duel() {
 }
 
 void LocalMultiplayer::draw_score_multi() {
+	SDL_Surface * surface;
+	SDL_Rect rect;
+	SDL_Rect rect_s;
+	int ammount;
+	char str[40];
 
+	int player_count;
+
+	int x, y, w, h;
+
+	player_count = (int)players->size();
+
+	x = 0;
+	y = WINDOW_HEIGHT - 32;
+	w = WINDOW_WIDTH / player_count;
+	h = 32;
+
+	Player * player;
+
+	for(unsigned int i = 0; i < players->size(); i++) {
+		player = players->at(i);
+
+		x = i * w;
+
+		// Avatar
+		rect.x = x + 2;
+		rect.y = y + 2;
+		SDL_BlitSurface(player->sprites, player->clip[SPR_R], screen, &rect);
+
+		// Score
+		sprintf_s(str, 40, "%02d", player->score);
+		surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->white);
+		rect.x = x + 28;
+		rect.y = y + 14;
+		SDL_BlitSurface(surface, NULL, screen, &rect);
+		SDL_FreeSurface(surface);
+
+		// Healthbar
+		rect.x = x + 30;
+		rect.y = y + 2;
+		rect.w = 122;
+		rect.h = 10;
+		SDL_FillRect(screen, &rect, 0);
+
+		rect_s.w = (int)(1.18 * player->hitpoints);
+		rect_s.h = 8;
+		rect_s.x = 0;
+		rect_s.y = 0;
+		rect.x = x + 32;
+		rect.y = y + 4;
+		SDL_BlitSurface(Main::instance->graphics->player1hp, &rect_s, screen, &rect);
+
+		// Bullets
+		rect_s.x = 0;
+		rect_s.y = 0;
+		rect_s.w = 8;
+		rect_s.h = 8;
+		rect.x = x + 116;
+		rect.y = y + 18;
+		//if(ruleset.doubledamagebullets == BULLETS_UNLIMITED || player->doubledamagebullets > 0) rect_s.x = 8;
+		//if(ruleset.instantkillbullets == BULLETS_UNLIMITED || player->instantkillbullets > 0) rect_s.x = 16;
+		SDL_BlitSurface(Main::instance->graphics->weapons, &rect_s, screen, &rect);
+
+		if(player->instantkillbullets > 0) ammount = player->instantkillbullets;
+		else if(player->doubledamagebullets > 0) ammount = player->doubledamagebullets;
+		else {
+		//	if(ruleset.doubledamagebullets != BULLETS_UNLIMITED) ammount = player->bullets;
+		//	else ammount = 0;
+			ammount = 10;
+		}
+
+		if(ammount > 0) {
+			sprintf_s(str, 3, "%02d", ammount);
+			surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->gray);
+			rect.x = x + 130;
+			rect.y = y + 14;
+			SDL_BlitSurface(surface, NULL, screen, &rect);
+			SDL_FreeSurface(surface);
+		}
+
+		// Bombs
+		rect_s.x = 12;
+		rect_s.y = 0;
+		rect_s.w = 12;
+		rect_s.h = 16;
+		rect.x = x + 70;
+		rect.y = y + 14;
+		SDL_BlitSurface(Main::instance->graphics->bombs, &rect_s, screen, &rect);
+
+		if(player->bombs != -1) {
+			sprintf_s(str, 3, "%02d", player->bombs);
+			surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->gray);
+			rect.x = x + 84;
+			rect.y = y + 14;
+			SDL_BlitSurface(surface, NULL, screen, &rect);
+			SDL_FreeSurface(surface);
+		}
+	}
+}
+
+void LocalMultiplayer::draw_game_ended() {
+	SDL_Surface * surface;
+	SDL_Rect rect;
+	SDL_Rect clip_avatar;
+
+	char text[30];
+	
+	if(draw)
+		sprintf(text, "DRAW");
+	else
+		sprintf(text, "%s WINS", winner->name);
+
+	surface = TTF_RenderText_Solid(Main::graphics->font26, text, Main::graphics->white);
+	rect.x = (screen->w - surface->w) / 2;
+	if(!draw) rect.x += 28;
+	rect.y = (screen->h - surface->h) / 2;
+
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+	
+	if(!draw) {
+		rect.x = rect.x - 56;
+		rect.y = (screen->h - 44) / 2;
+		clip_avatar.x = 220;
+		clip_avatar.y = 0;
+		clip_avatar.w = 44;
+		clip_avatar.h = 44;
+		if((frame - end_avatar_start_frame) % 40 > 20)
+			clip_avatar.y = 44;
+
+		SDL_BlitSurface(winner->sprites, &clip_avatar, screen, &rect);
+	}
 }

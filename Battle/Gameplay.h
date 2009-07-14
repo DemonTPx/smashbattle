@@ -5,6 +5,7 @@
 
 #include "Level.h"
 #include "Player.h"
+#include "PauseMenu.h"
 #include "GameplayObject.h"
 
 class Gameplay {
@@ -38,8 +39,7 @@ protected:
 
 	void reset_game();
 
-	void pause(Player * p);
-	void unpause();
+	virtual void pause(Player * p);
 
 	void process_countdown();
 	
@@ -60,16 +60,14 @@ protected:
 	
 	bool game_running;
 
-	bool paused;
-	Player * pause_player;
-	int pause_menu_selected;
+	PauseMenu * pause_menu;
 
 	bool countdown;
 	int countdown_sec_left;
-	Timer * countdown_timer;
+	int countdown_start;
 
 	bool ended;
-	Timer * end_timer;
+	int end_start;
 
 	SDL_Surface * screen;
 

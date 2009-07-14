@@ -8,6 +8,7 @@
 #include "Level.h"
 #include "Player.h"
 #include "GameplayObject.h"
+#include "PauseMenu.h"
 
 #include "Gameplay.h"
 
@@ -58,7 +59,7 @@ void Gameplay::run() {
 
 		// Gameplay processing
 		on_pre_processing();
-		if(!paused && !countdown && !ended) {
+		if(!countdown && !ended) {
 			// Move and process players
 			for(unsigned int idx = 0; idx < players->size(); idx++) {
 				Player * p = players->at(idx);
@@ -106,8 +107,7 @@ void Gameplay::run() {
 		on_post_processing();
 
 		// Drawing
-		if(!paused)
-			frame++;
+		frame++;
 
 		level->draw(screen);
 
@@ -129,20 +129,13 @@ void Gameplay::run() {
 		
 		if(ended) {
 			draw_game_ended();
-			
-			if(paused && !end_timer->is_paused()) end_timer->pause();
-			if(!paused && end_timer->is_paused()) end_timer->unpause();
 
-			if(end_timer->get_ticks() > 2000) {
-				delete end_timer;
+			if(frame - end_start > 120) {
 				reset_game();
 			}
 		}
 		if(countdown) {
 			draw_countdown();
-		}
-		if(paused) {
-			draw_pause_screen();
 		}
 
 		Main::instance->flip();
@@ -152,83 +145,29 @@ void Gameplay::run() {
 }
 
 void Gameplay::handle_pause_input(SDL_Event * event) {
-	if(paused) {
-		if(event->type == SDL_KEYDOWN) {
-			if(event->key.keysym.sym == pause_player->controls.kb_down ||
-				event->key.keysym.sym == pause_player->controls.kb_up) {
-					pause_menu_selected = !pause_menu_selected;
-			}
-			if(event->key.keysym.sym == pause_player->controls.kb_shoot ||
-				event->key.keysym.sym == pause_player->controls.kb_run ||
-				(pause_player->controls.kb_jump != pause_player->controls.kb_up &&
-				event->key.keysym.sym == pause_player->controls.kb_jump)) {
-					if(pause_menu_selected) {
-						game_running = false;
-					} else {
-						unpause();
-					}
-			}
-			if(event->key.keysym.sym == pause_player->controls.kb_start) {
-				unpause();
-			}
-		}
-		if(event->type == SDL_JOYAXISMOTION && event->jbutton.which == pause_player->controls.joystick_idx) {
-			if(event->jaxis.axis == 1) {
-				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD || event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
-					pause_menu_selected = !pause_menu_selected;
-				}
-			}
-		}
-		if(event->type == SDL_JOYBUTTONDOWN && event->jbutton.which == pause_player->controls.joystick_idx) {
-			if(event->jbutton.button == pause_player->controls.js_run ||
-				event->jbutton.button == pause_player->controls.js_jump ||
-				event->jbutton.button == pause_player->controls.js_shoot) {
-					if(pause_menu_selected) {
-						game_running = false;
-					} else {
-						unpause();
-					}
-			}
-			if(event->jbutton.button == pause_player->controls.js_start) {
-				unpause();
-			}
-		}
-	} else {
-		Player * player;
-		for(unsigned int i = 0; i < players->size(); i++) {
-			player = players->at(i);
+	Player * player;
+	for(unsigned int i = 0; i < players->size(); i++) {
+		player = players->at(i);
 
-			if(event->type == SDL_KEYDOWN) {
-				if(event->key.keysym.sym == player->controls.kb_start) {
-					if(!(paused && event->key.keysym.sym != pause_player->controls.kb_start)) {
-						pause(player);
-					}
-				}
+		if(event->type == SDL_KEYDOWN) {
+			if(event->key.keysym.sym == player->controls.kb_start) {
+				pause(player);
 			}
-			if(event->type == SDL_JOYBUTTONDOWN) {
-				if((player->controls.use_joystick &&
-					event->jbutton.which == player->controls.joystick_idx &&
-					event->jbutton.button == player->controls.js_start)) {
-						pause(player);
-				}
+		}
+		if(event->type == SDL_JOYBUTTONDOWN) {
+			if((player->controls.use_joystick &&
+				event->jbutton.which == player->controls.joystick_idx &&
+				event->jbutton.button == player->controls.js_start)) {
+					pause(player);
 			}
 		}
 	}
 }
 
 void Gameplay::pause(Player * p) {
-	paused = true;
-	pause_player = p;
-	pause_menu_selected = 0;
-	Main::instance->audio->pause_music();
-	if(countdown) countdown_timer->pause();
-	Main::instance->audio->play(SND_PAUSE);
-}
-
-void Gameplay::unpause() {
-	paused = false;
-	Main::instance->audio->unpause_music();
-	if(countdown) countdown_timer->unpause();
+	int ret;
+	ret = pause_menu->pause(p);
+	if(ret == 1) game_running = false;
 }
 
 void Gameplay::set_level(Level * l) {
@@ -267,13 +206,12 @@ void Gameplay::add_object(GameplayObject * obj) {
 void Gameplay::reset_game() {
 	frame = 0;
 	
-	paused = false;
+	//paused = false;
 	ended = false;
 	countdown = true;
 	
 	countdown_sec_left = 4;
-	countdown_timer = new Timer();
-	countdown_timer->start();
+	countdown_start = frame;
 
 	level->reset();
 	
@@ -291,7 +229,9 @@ void Gameplay::reset_game() {
 }
 
 void Gameplay::initialize() {
-	// Load graphics, fonts, etc
+	pause_menu = new PauseMenu(screen);
+	pause_menu->add_option("RESUME\0");
+	pause_menu->add_option("QUIT\0");
 }
 
 void Gameplay::deinitialize() {
@@ -303,12 +243,6 @@ void Gameplay::deinitialize() {
 	players->clear();
 	delete players;
 
-	// Delete timers
-	if(ended)
-		delete end_timer;
-	if(countdown)
-		delete countdown_timer;
-
 	// Clear gameplay objects
 	GameplayObject * obj;
 	for(unsigned int i = 0; i < objects->size(); i++) {
@@ -318,7 +252,8 @@ void Gameplay::deinitialize() {
 	objects->clear();
 	delete objects;
 
-	// Unload graphics, fonts, etc
+	// Unload pause menu
+	delete pause_menu;
 }
 
 void Gameplay::draw_countdown() {
@@ -434,21 +369,15 @@ void Gameplay::process_player_collission() {
 }
 
 void Gameplay::process_countdown() {
-	if(countdown_timer->get_ticks() >= 1000) {
+	if(frame - countdown_start >= 60) {
 		if(countdown_sec_left == 1) {
 			countdown = false;
-			countdown_timer->stop();
-
-			delete countdown_timer;
-
 			Main::audio->play(SND_GO);
-
 			Main::audio->play_music(MUSIC_BATTLE);
-
 			return;
 		}
 		countdown_sec_left--;
-		countdown_timer->start();
+		countdown_start = frame;
 
 		Main::audio->play(SND_COUNTDOWN);
 	}

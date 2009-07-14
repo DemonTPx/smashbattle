@@ -129,6 +129,8 @@ void ControlsOptions::item_selected() {
 				controls->kb_start = new_controls.kb_start;
 			}
 			controls->use_joystick = items->at(2)->selected == 0 ? true : false;
+			if(joystick_idx_changed)
+				controls->joystick_idx = new_controls.joystick_idx;
 			if(joystick_redefined) {
 				controls->js_left = new_controls.js_left;
 				controls->js_right = new_controls.js_right;

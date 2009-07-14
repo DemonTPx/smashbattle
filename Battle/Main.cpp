@@ -83,6 +83,10 @@ bool Main::init() {
 		joystick1 = SDL_JoystickOpen(0);
 	if(SDL_NumJoysticks() >= 2)
 		joystick2 = SDL_JoystickOpen(1);
+	if(SDL_NumJoysticks() >= 3)
+		joystick3 = SDL_JoystickOpen(2);
+	if(SDL_NumJoysticks() >= 4)
+		joystick4 = SDL_JoystickOpen(3);
 
 	return true;
 }
@@ -102,6 +106,10 @@ void Main::clean_up() {
 	graphics->clear_all();
 	delete graphics;
 
+	if(SDL_JoystickOpened(3))
+		SDL_JoystickClose(joystick4);
+	if(SDL_JoystickOpened(2))
+		SDL_JoystickClose(joystick3);
 	if(SDL_JoystickOpened(1))
 		SDL_JoystickClose(joystick2);
 	if(SDL_JoystickOpened(0))
@@ -241,9 +249,11 @@ void Main::load_options() {
 	file.read(val.c, 4);
 	audio->music_volume = val.i;
 
-	for(int i = 0; i < 2; i++) {
+	for(int i = 0; i < 4; i++) {
 		if(i == 0) controls = &controls1;
 		if(i == 1) controls = &controls2;
+		if(i == 2) controls = &controls3;
+		if(i == 3) controls = &controls4;
 
 		file.read(c, 1);
 		controls->use_keyboard = (c[0] == 1);
@@ -285,6 +295,8 @@ void Main::load_options() {
 		controls->js_bomb = val.i;
 		file.read(val.c, 4);
 		controls->js_start = val.i;
+
+		if(file.eof()) break;
 	}
 	file.close();
 }
@@ -310,9 +322,11 @@ void Main::save_options() {
 	file.write(val.c, 4);
 	
 
-	for(int i = 0; i < 2; i++) {
+	for(int i = 0; i < 4; i++) {
 		if(i == 0) controls = &controls1;
 		if(i == 1) controls = &controls2;
+		if(i == 2) controls = &controls3;
+		if(i == 3) controls = &controls4;
 
 		c[0] = controls->use_keyboard ? 1 : 0;
 		file.write(c, 1);

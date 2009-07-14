@@ -23,6 +23,18 @@ Options::Options() {
 	add_item(item);
 
 	item = new OptionItem();
+	item->name = (char*)"Controls Player 3";
+	item->options = NULL;
+	item->selected = 0;
+	add_item(item);
+
+	item = new OptionItem();
+	item->name = (char*)"Controls Player 4";
+	item->options = NULL;
+	item->selected = 0;
+	add_item(item);
+
+	item = new OptionItem();
 	item->name = (char*)"Sound and music";
 	item->options = NULL;
 	item->selected = 0;
@@ -58,12 +70,26 @@ void Options::item_selected() {
 			reload_controls();
 			break;
 		case 2:
+			ControlsOptions * controlsoptions3;
+			controlsoptions3 = new ControlsOptions(&Main::instance->controls3);
+			controlsoptions3->run();
+			delete controlsoptions3;
+			reload_controls();
+			break;
+		case 3:
+			ControlsOptions * controlsoptions4;
+			controlsoptions4 = new ControlsOptions(&Main::instance->controls4);
+			controlsoptions4->run();
+			delete controlsoptions4;
+			reload_controls();
+			break;
+		case 4:
 			AudioOptions * audiooptions;
 			audiooptions = new AudioOptions();
 			audiooptions->run();
 			delete audiooptions;
 			break;
-		case 3:
+		case 5:
 			running = false;
 			break;
 	}

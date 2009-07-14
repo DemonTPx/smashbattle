@@ -23,6 +23,7 @@ public:
 	TTF_Font * font52;
 
 	SDL_Color white;
+	SDL_Color gray;
 };
 
 #endif

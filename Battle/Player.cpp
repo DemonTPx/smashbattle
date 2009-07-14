@@ -623,6 +623,11 @@ void Player::move(Level * level) {
 		// start falling when there is no bottom
 		is_falling = true;
 	}
+
+	// Die when we fall out of the level
+	if(position->y + position->h > (14 * TILE_H)) {
+		hitpoints = 0;
+	}
 }
 
 void Player::bounce(SDL_Rect * source) {
@@ -693,7 +698,7 @@ void Player::bounce(SDL_Rect * source) {
 			duck_force_start = Gameplay::frame;
 			momentumy = -10;
 			//hitpoints -= weightclasses[upper->weightclass].headjump_damage;
-			hitpoints -= 10;
+			hitpoints -= 5;
 		}
 	}
 	if(diffx < diffy || (diffx <= 6 && diffy <= 6)) { // Players hit each others side

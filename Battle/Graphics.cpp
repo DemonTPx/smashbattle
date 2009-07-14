@@ -43,9 +43,13 @@ void Graphics::load_all() {
 	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
 	font52 = TTF_OpenFont("fonts/slick.ttf", 52);
 
-	white.r = 255;
-	white.g = 255;
-	white.b = 255;
+	gray.r = 0x88;
+	gray.g = 0x88;
+	gray.b = 0x88;
+
+	white.r = 0xff;
+	white.g = 0xff;
+	white.b = 0xff;
 }
 
 void Graphics::clear_all() {

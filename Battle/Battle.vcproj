@@ -260,6 +260,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PauseMenu.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Player.cpp"
 				>
 			</File>
@@ -355,6 +359,10 @@
 			</File>
 			<File
 				RelativePath=".\OptionsScreen.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PauseMenu.h"
 				>
 			</File>
 			<File

@@ -21,6 +21,7 @@ private:
 	int frame;
 	
 	ControlScheme controls1, controls2;
+	ControlScheme controls3, controls4;
 
 	std::vector<SDL_Surface*> * credits;
 	std::vector<SDL_Surface*> * surf_items;

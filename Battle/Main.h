@@ -68,9 +68,13 @@ public:
 
 	SDL_Joystick * joystick1;
 	SDL_Joystick * joystick2;
+	SDL_Joystick * joystick3;
+	SDL_Joystick * joystick4;
 
 	ControlScheme controls1;
 	ControlScheme controls2;
+	ControlScheme controls3;
+	ControlScheme controls4;
 
 	Main();
 	~Main();

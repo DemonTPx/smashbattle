@@ -24,8 +24,8 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-const int Menu::ITEMCOUNT = 3;
-const char * Menu::item[ITEMCOUNT] = {"START", "OPTIONS", "QUIT"};
+const int Menu::ITEMCOUNT = 5;
+const char * Menu::item[ITEMCOUNT] = {"2P DUEL", "3P BATTLE", "4P BATTLE", "OPTIONS", "QUIT"};
 
 Menu::Menu() {
 }
@@ -40,6 +40,8 @@ void Menu::run() {
 
 	controls1 = Main::instance->controls1;
 	controls2 = Main::instance->controls2;
+	controls3 = Main::instance->controls3;
+	controls4 = Main::instance->controls4;
 	
 	Main::audio->play_music(MUSIC_TITLE);
 
@@ -309,12 +311,6 @@ void Menu::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
-			/*
-			Battle * battle;
-			battle = new Battle();
-			battle->run();
-			delete battle;
-			*/
 			{
 				LocalMultiplayer mp;
 				Level l;
@@ -322,10 +318,10 @@ void Menu::select() {
 				//Player p3("Tedje", 3, "gfx/tedje.bmp"), p4("Rob", 4, "gfx/rob.bmp");
 				p1.controls = controls1;
 				p2.controls = controls2;
-				//p3.controls = controls1;
-				//p4.controls = controls2;
+				//p3.controls = controls3;
+				//p4.controls = controls4;
 				
-				l.load("stage/commongrounds.stg");
+				l.load("stage/pitofdeath.stg");
 
 				mp.set_level(&l);
 				mp.add_player(&p1);
@@ -337,6 +333,50 @@ void Menu::select() {
 
 			break;
 		case 1:
+			{
+				LocalMultiplayer mp;
+				Level l;
+				Player p1("Bert", 1, "gfx/bert.bmp"), p2("Jeroen", 2, "gfx/jeroen.bmp");
+				Player p3("Tedje", 3, "gfx/tedje.bmp");//, p4("Rob", 4, "gfx/rob.bmp");
+				p1.controls = controls1;
+				p2.controls = controls2;
+				p3.controls = controls3;
+				//p4.controls = controls4;
+				
+				l.load("stage/commongrounds.stg");
+
+				mp.set_level(&l);
+				mp.add_player(&p1);
+				mp.add_player(&p2);
+				mp.add_player(&p3);
+				//mp.add_player(&p4);
+				mp.run();
+			}
+
+			break;
+		case 2:
+			{
+				LocalMultiplayer mp;
+				Level l;
+				Player p1("Bert", 1, "gfx/bert.bmp"), p2("Jeroen", 2, "gfx/jeroen.bmp");
+				Player p3("Tedje", 3, "gfx/tedje.bmp"), p4("Rob", 4, "gfx/rob.bmp");
+				p1.controls = controls1;
+				p2.controls = controls2;
+				p3.controls = controls3;
+				p4.controls = controls4;
+				
+				l.load("stage/commongrounds.stg");
+
+				mp.set_level(&l);
+				mp.add_player(&p1);
+				mp.add_player(&p2);
+				mp.add_player(&p3);
+				mp.add_player(&p4);
+				mp.run();
+			}
+
+			break;
+		case 3:
 			Options * options;
 			options = new Options();
 			options->run();
@@ -344,7 +384,7 @@ void Menu::select() {
 			controls1 = Main::instance->controls1;
 			controls2 = Main::instance->controls2;
 			break;
-		case 2:
+		case 4:
 			SDL_Delay(500);
 			Main::running = false;
 			break;
