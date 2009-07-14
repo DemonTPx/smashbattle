@@ -370,7 +370,7 @@ void Menu::select() {
 				p4.controls = controls4;
 				
 				Level l;
-				l.load("stage/commongrounds.stg");
+				l.load(Level::LEVELS[cs.stage].filename);
 
 				LocalMultiplayer mp;
 				mp.set_level(&l);

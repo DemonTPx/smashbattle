@@ -12,6 +12,10 @@
 
 #include "Gameplay.h"
 
+#ifndef WIN32
+#define sprintf_s snprintf
+#endif
+
 int Gameplay::frame = 0;
 Gameplay * Gameplay::instance = 0;
 
@@ -232,8 +236,8 @@ void Gameplay::reset_game() {
 
 void Gameplay::initialize() {
 	pause_menu = new PauseMenu(screen);
-	pause_menu->add_option("RESUME\0");
-	pause_menu->add_option("QUIT\0");
+	pause_menu->add_option((char*)"RESUME\0");
+	pause_menu->add_option((char*)"QUIT\0");
 }
 
 void Gameplay::deinitialize() {

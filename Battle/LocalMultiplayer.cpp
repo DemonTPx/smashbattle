@@ -14,11 +14,15 @@
 
 #include "LocalMultiplayer.h"
 
+#ifndef WIN32
+#define sprintf_s snprintf
+#endif
+
 void LocalMultiplayer::initialize() {
 	pause_menu = new PauseMenu(screen);
-	pause_menu->add_option("RESUME\0");
-	pause_menu->add_option("END ROUND\0");
-	pause_menu->add_option("QUIT\0");
+	pause_menu->add_option((char*)"RESUME\0");
+	pause_menu->add_option((char*)"END ROUND\0");
+	pause_menu->add_option((char*)"QUIT\0");
 
 	powerup_rate = 500;
 	powerup_max = 2;

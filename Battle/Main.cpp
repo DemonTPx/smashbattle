@@ -208,8 +208,10 @@ int Main::run() {
 
 	clean_up();
 
-#ifdef _DEBUG && WIN32
+#ifdef _DEBUG
+#ifdef WIN32
 	_CrtDumpMemoryLeaks();
+#endif
 #endif
 	return 0;
 }

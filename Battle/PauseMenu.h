@@ -21,7 +21,7 @@ private:
 	int draw_width;
 
 	std::vector<char*> * options;
-	int selected_option;
+	unsigned int selected_option;
 };
 
 #endif
