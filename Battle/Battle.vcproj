@@ -44,7 +44,6 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -192,10 +191,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Battle.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Bomb.cpp"
 				>
 			</File>
@@ -295,10 +290,6 @@
 			</File>
 			<File
 				RelativePath=".\AudioOptions.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Battle.h"
 				>
 			</File>
 			<File

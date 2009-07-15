@@ -60,7 +60,7 @@ void CharacterSelect::run() {
 
 	frame = 0;
 
-	while (Main::running && !ready) {
+	while (Main::running && !ready && !cancel) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
 			handle_input(&event);
@@ -89,8 +89,6 @@ void CharacterSelect::run() {
 
 	if(!ready)
 		cancel = true;
-
-	Main::audio->stop_music();
 
 	free_sprites();
 }
@@ -290,6 +288,7 @@ void CharacterSelect::draw() {
 	SDL_Rect rect, rect_b, rect_c, rect_s;
 	SDL_Rect * clip;
 	Uint32 color, color_back;
+	char str[5];
 
 	screen = Main::instance->screen;
 
@@ -390,7 +389,7 @@ void CharacterSelect::draw() {
 	SDL_FillRect(statsblock[2], NULL, 0x008800);
 
 	// PLAYERS
-	SDL_Rect r_block, r_avatar, r_playername, r_ready;
+	SDL_Rect r_block, r_pnumber, r_avatar, r_playername, r_ready;
 	SDL_Rect r_stats;
 	SDL_Rect * clip_direction;
 	int stats_w, stats_h;
@@ -401,10 +400,14 @@ void CharacterSelect::draw() {
 	for(int i = 0; i < players; i++) {
 		r_block.w = 190;
 		r_block.h = 180;
+		r_pnumber.w = 60;
+		r_pnumber.h = 50;
 		switch(i) {
 			case 0:
 				r_block.x = 10;
 				r_block.y = 10;
+				r_pnumber.x = r_block.x + r_block.w;
+				r_pnumber.y = r_block.y;
 				clip_direction = clip_left;
 				r_avatar.x = 40;
 				r_avatar.y = 20;
@@ -419,6 +422,8 @@ void CharacterSelect::draw() {
 			case 1:
 				r_block.x = 440;
 				r_block.y = 10;
+				r_pnumber.x = r_block.x - r_pnumber.w;
+				r_pnumber.y = r_block.y;
 				clip_direction = clip_right;
 				r_avatar.x = 600 - PLAYER_W;
 				r_avatar.y = 20;
@@ -433,6 +438,8 @@ void CharacterSelect::draw() {
 			case 2:
 				r_block.x = 10;
 				r_block.y = 290;
+				r_pnumber.x = r_block.x + r_block.w;
+				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
 				clip_direction = clip_left;
 				r_avatar.x = 40;
 				r_avatar.y = 300;
@@ -447,6 +454,8 @@ void CharacterSelect::draw() {
 			case 3:
 				r_block.x = 440;
 				r_block.y = 290;
+				r_pnumber.x = r_block.x - r_pnumber.w;
+				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
 				clip_direction = clip_right;
 				r_avatar.x = 600 - PLAYER_W;
 				r_avatar.y = 300;
@@ -477,6 +486,16 @@ void CharacterSelect::draw() {
 			SDL_BlitSurface(surface, NULL, screen, &r_ready);
 			SDL_FreeSurface(surface);
 		}
+
+		// Player number
+		SDL_FillRect(screen, &r_pnumber, Player::COLORS[i]);
+
+		sprintf_s(str, 3, "P%1d", (i + 1));
+		surface = TTF_RenderText_Solid(Main::graphics->font52, str, Main::graphics->white);
+		r_pnumber.x += (r_pnumber.w - surface->w) / 2;
+		r_pnumber.y += 10;
+		SDL_BlitSurface(surface, NULL, screen, &r_pnumber);
+		SDL_FreeSurface(surface);
 
 		// Stats
 		surface = TTF_RenderText_Solid(Main::graphics->font26, "SPEED", Main::graphics->white);
@@ -514,7 +533,7 @@ void CharacterSelect::draw() {
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 
-		for(int j = 0; j <= Player::CHARACTERS[player_select[i]].bulletrateclass; j++) {
+		for(int j = 0; j <= Player::CHARACTERS[player_select[i]].weaponclass; j++) {
 			rect.x = r_stats.x + ((stats_w + (j * 18)) * direction);
 			rect.y = r_stats.y + (stats_h * 2);
 			if(direction == -1) rect.x -= 18;

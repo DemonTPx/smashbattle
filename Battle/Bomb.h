@@ -45,7 +45,6 @@ public:
 
 	virtual void draw(SDL_Surface * screen);
 
-	void show(SDL_Surface * screen);
 	SDL_Rect * get_damage_rect();
 private:
 	void set_clips();

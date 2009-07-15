@@ -382,33 +382,5 @@ void Level::bounce_tile(SDL_Rect * rect) {
 	rect_hit.h = BOUNCE_HIT_HEIGHT;
 
 	Gameplay::instance->bounce_up_players_and_npcs(&rect_hit);
-	/*
-	if(is_intersecting(player1->position, &rect_hit)) {
-		player1->duck_force_start = frame;
-		player1->is_duck_forced = true;
-		player1->is_falling = true;
-		player1->is_frozen = true;
-		player1->freeze_start = frame;
-		player1->momentumy = weightclasses[player1->weightclass].bounce_momentum;
-		player1->momentumx += (player1->position->x - player2->position->x) * 2;
-		if(player1->momentumx > MAX_MOMENTUM_HORIZ)
-			player1->momentumx = MAX_MOMENTUM_HORIZ;
-		if(player1->momentumx < -MAX_MOMENTUM_HORIZ)
-			player1->momentumx = -MAX_MOMENTUM_HORIZ;
-	}
-	if(is_intersecting(player2->position, &rect_hit)) {
-		player2->duck_force_start = frame;
-		player2->is_duck_forced = true;
-		player2->is_falling = true;
-		player2->is_frozen = true;
-		player2->freeze_start = frame;
-		player2->momentumy = weightclasses[player2->weightclass].bounce_momentum;
-		player2->momentumx += (player2->position->x - player1->position->x) * 2;
-		if(player2->momentumx > MAX_MOMENTUM_HORIZ)
-			player2->momentumx = MAX_MOMENTUM_HORIZ;
-		if(player2->momentumx < -MAX_MOMENTUM_HORIZ)
-			player2->momentumx = -MAX_MOMENTUM_HORIZ;
-	}
-	*/
 }
 

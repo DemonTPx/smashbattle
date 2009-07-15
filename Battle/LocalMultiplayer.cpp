@@ -24,14 +24,14 @@ void LocalMultiplayer::initialize() {
 	pause_menu->add_option((char*)"END ROUND\0");
 	pause_menu->add_option((char*)"QUIT\0");
 
-	powerup_rate = 500;
+	powerup_rate = 600;
 	powerup_max = 2;
 
-	powerup_health_rate = 0;
+	powerup_health_rate = 10;
 	powerup_bullet_rate = 0;
-	powerup_doubledamage_rate = 1;
+	powerup_doubledamage_rate = 6;
 	powerup_instantkill_rate = 1;
-	powerup_bomb_rate = 0;
+	powerup_bomb_rate = 6;
 }
 
 void LocalMultiplayer::on_game_reset() {
@@ -515,16 +515,14 @@ void LocalMultiplayer::draw_score_multi() {
 		rect_s.h = 8;
 		rect.x = x + 116;
 		rect.y = y + 18;
-		//if(ruleset.doubledamagebullets == BULLETS_UNLIMITED || player->doubledamagebullets > 0) rect_s.x = 8;
-		//if(ruleset.instantkillbullets == BULLETS_UNLIMITED || player->instantkillbullets > 0) rect_s.x = 16;
+		if(player->doubledamagebullets == -1 || player->doubledamagebullets > 0) rect_s.x = 8;
+		if(player->instantkillbullets == -1 || player->instantkillbullets > 0) rect_s.x = 16;
 		SDL_BlitSurface(Main::instance->graphics->weapons, &rect_s, screen, &rect);
 
 		if(player->instantkillbullets > 0) ammount = player->instantkillbullets;
 		else if(player->doubledamagebullets > 0) ammount = player->doubledamagebullets;
 		else {
-		//	if(ruleset.doubledamagebullets != BULLETS_UNLIMITED) ammount = player->bullets;
-		//	else ammount = 0;
-			ammount = 10;
+			ammount = player->bullets;
 		}
 
 		if(ammount > 0) {

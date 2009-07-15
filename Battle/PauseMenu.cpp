@@ -26,6 +26,9 @@ void PauseMenu::add_option(char * name) {
 int PauseMenu::pause(Player * p) {
 	SDL_Event event;
 	
+	Main::audio->play(SND_PAUSE);
+	Main::audio->pause_music();
+
 	player = p;
 	paused = true;
 
@@ -49,15 +52,18 @@ int PauseMenu::pause(Player * p) {
 		Main::instance->flip();
 	}
 
+	Main::audio->unpause_music();
 	return selected_option;
 }
 
 void PauseMenu::handle_input(SDL_Event * event) {
 	if(event->type == SDL_KEYDOWN) {
 		if(event->key.keysym.sym == player->controls.kb_down) {
+			Main::audio->play(SND_SELECT);
 			selected_option = (selected_option + 1) % (int)options->size();
 		}
 		if(event->key.keysym.sym == player->controls.kb_up) {
+			Main::audio->play(SND_SELECT);
 			if(selected_option == 0) selected_option += (int)options->size();
 			selected_option = selected_option - 1;
 		}
@@ -65,9 +71,11 @@ void PauseMenu::handle_input(SDL_Event * event) {
 			event->key.keysym.sym == player->controls.kb_run ||
 			(player->controls.kb_jump != player->controls.kb_up &&
 			event->key.keysym.sym == player->controls.kb_jump)) {
+				Main::audio->play(SND_SELECT);
 				paused = false;
 		}
 		if(event->key.keysym.sym == player->controls.kb_start) {
+			Main::audio->play(SND_PAUSE);
 			selected_option = 0;
 			paused = false;
 		}
@@ -75,9 +83,11 @@ void PauseMenu::handle_input(SDL_Event * event) {
 	if(event->type == SDL_JOYAXISMOTION && event->jbutton.which == player->controls.joystick_idx) {
 		if(event->jaxis.axis == 1) {
 			if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
+				Main::audio->play(SND_SELECT);
 				selected_option = (selected_option + 1) % (int)options->size();
 			}
 			if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD) {
+				Main::audio->play(SND_SELECT);
 				if(selected_option == 0) selected_option += (int)options->size();
 				selected_option = selected_option - 1;
 			}
@@ -87,9 +97,11 @@ void PauseMenu::handle_input(SDL_Event * event) {
 		if(event->jbutton.button == player->controls.js_run ||
 			event->jbutton.button == player->controls.js_jump ||
 			event->jbutton.button == player->controls.js_shoot) {
+				Main::audio->play(SND_SELECT);
 				paused = false;
 		}
 		if(event->jbutton.button == player->controls.js_start) {
+			Main::audio->play(SND_PAUSE);
 			selected_option = 0;
 			paused = false;
 		}

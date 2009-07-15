@@ -364,8 +364,11 @@ void Gameplay::process_player_collission() {
 
 				// Move players out of collision zone
 
-				p1->bounce(r2);
-				p2->bounce(r1);
+				p1->bounce(p2);
+				p2->bounce(p1);
+
+				p1->momentumx = p1->newmomentumx;
+				p2->momentumx = p2->newmomentumx;
 			}
 
 			delete r1;

@@ -22,7 +22,7 @@ Projectile::Projectile(SDL_Surface * surface, SDL_Rect * clip) {
 	speedx = 0;
 	speedy = 0;
 	distance_traveled = 0;
-	max_distance = WINDOW_WIDTH >> 1;
+	max_distance = WINDOW_WIDTH / 2;
 	hit = false;
 
 	damage = 0;
@@ -79,6 +79,9 @@ void Projectile::hit_player(Player * player) {
 		return;
 
 	if(player->is_hit)
+		return;
+
+	if(player == owner)
 		return;
 
 	player->hitpoints -= damage;

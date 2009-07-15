@@ -16,6 +16,8 @@ public:
 	int distance_traveled;
 	int max_distance;
 	bool hit;
+	
+	Player * owner;
 
 	int damage;
 	

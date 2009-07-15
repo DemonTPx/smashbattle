@@ -343,6 +343,7 @@ void Menu::start_local_multiplayer(int players) {
 	Level * level;
 	LocalMultiplayer * lmp;
 	CharacterSelect * cs;
+	Character c;
 	LevelSelect * ls;
 
 	bool running;
@@ -363,7 +364,12 @@ void Menu::start_local_multiplayer(int players) {
 		if(ls->cancel) break;
 
 		for(int i = 0; i < players; i++) {
-			player[i] = new Player(cs->name[i], (i + 1), cs->file[i]);
+			c = Player::CHARACTERS[cs->player_select[i]];
+			player[i] = new Player(c.name, (i + 1), c.filename);
+			player[i]->speedclass = c.speedclass;
+			player[i]->weightclass = c.weightclass;
+			player[i]->weaponclass = c.weaponclass;
+			player[i]->bombpowerclass = c.bombpowerclass;
 			if(i == 0) player[i]->controls = controls1;
 			if(i == 1) player[i]->controls = controls2;
 			if(i == 2) player[i]->controls = controls3;

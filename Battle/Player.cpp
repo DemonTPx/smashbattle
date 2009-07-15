@@ -11,9 +11,11 @@
 #include "Level.h"
 #include "Player.h"
 
+#define BULLETS_UNLIMITED -1
+
 const int Player::CHARACTER_COUNT = 12;
 const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
-	//      Name               Filename            sp wt br bd
+	//      Name               Filename            sp wt wp bd
 	{(char*)"Bert",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
 	{(char*)"Jeroen",	(char*)"gfx/jeroen.bmp",	2, 1, 1, 0},
 	{(char*)"Steven",	(char*)"gfx/steven.bmp",	0, 2, 1, 1},
@@ -32,6 +34,31 @@ const int Player::COLORS[4] = {
 	0x0000aa,
 	0x009900,
 	0xaa9900,
+};
+
+const int Player::SPEEDCLASS_COUNT = 3;
+const SpeedClass Player::SPEEDCLASSES[Player::SPEEDCLASS_COUNT] = {
+	{30},
+	{40},
+	{50},
+};
+const int Player::WEIGHTCLASS_COUNT = 3;
+const WeightClass Player::WEIGHTCLASSES[Player::WEIGHTCLASS_COUNT] = {
+	{5,   0, 35},
+	{10,  5, 30},
+	{15, 10, 25},
+};
+const int Player::WEAPONCLASS_COUNT = 3;
+const WeaponClass Player::WEAPONCLASSES[Player::WEAPONCLASS_COUNT] = {
+	{12, 250, 10},
+	{10, 300, 10},
+	{ 8, 350, 10},
+};
+const int Player::BOMBPOWERCLASS_COUNT = 3;
+const BombPowerClass Player::BOMBPOWERCLASSES[Player::BOMBPOWERCLASS_COUNT] = {
+	{15},
+	{20},
+	{25},
 };
 
 const int Player::jump_height = 144;
@@ -56,7 +83,7 @@ const int Player::jump_height = 144;
 #define SPEED_VERT 2
 
 // Freeze time
-#define PLAYER_FREEZE_FRAMES 15
+#define PLAYER_FREEZE_FRAMES 30
 
 Player::Player(const char * name, const int number, const char * sprite_file) {
 	this->name = (char*)name;
@@ -64,7 +91,7 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 
 	speedclass = 1;
 	weightclass = 1;
-	bulletrateclass = 1;
+	weaponclass = 1;
 	bombpowerclass = 1;
 
 	momentumx = 0;
@@ -154,10 +181,6 @@ Player::~Player() {
 	free_images();
 }
 
-void Player::show(SDL_Surface * screen) {
-	draw(screen);
-}
-
 void Player::draw(SDL_Surface * screen) {
 	SDL_Rect rect;
 
@@ -211,10 +234,6 @@ SDL_Rect * Player::get_rect() {
 		rect->h = PLAYER_DUCK_H;
 	}
 	return rect;
-}
-
-void Player::handle_input(SDL_Event * event) {
-	handle_event(event);
 }
 
 void Player::handle_event(SDL_Event * event) {
@@ -389,8 +408,8 @@ void Player::move(Level * level) {
 	// Are we running?
 	if(keydn_run) {
 		is_running = true;
-		maxx = MAX_MOMENTUM_RUN;
-		//maxx = speedclasses[speedclass].run_speed;
+		//maxx = MAX_MOMENTUM_RUN;
+		maxx = SPEEDCLASSES[speedclass].run_speed;
 	} else {
 		is_running = false;
 		maxx = MAX_MOMENTUM_HORIZ;
@@ -650,9 +669,11 @@ void Player::move(Level * level) {
 	}
 }
 
-void Player::bounce(SDL_Rect * source) {
-	SDL_Rect * rect;
+void Player::bounce(Player * other) {
+	SDL_Rect * rect, * source;
+
 	rect = get_rect();
+	source = other->get_rect();
 
 	int l, r, t, b;
 	int ls, rs, ts, bs;
@@ -684,25 +705,26 @@ void Player::bounce(SDL_Rect * source) {
 
 	is_left = false;
 	is_right = false;
+
 	if(l < ls) { // At the left of the source
 		diffx = r - ls;
-		if(diffx < 0) {
-			diffx += WINDOW_WIDTH;
-			is_right = true;
-		} else {
+		if(diffx >= 0) {
 			is_left = true;
+		} else {
+			diffx = (rs - WINDOW_WIDTH) - l;
+			is_right = true;
 		}
 	} else { // At the right of the source
 		diffx = rs - l;
-		if(diffx < 0) {
-			diffx += WINDOW_WIDTH;
-			is_left = true;
-		} else {
+		if(diffx >= 0) {
 			is_right = true;
+		} else {
+			diffx = (r - WINDOW_WIDTH) - ls;
+			is_left = true;
 		}
 	}
 
-	if(diffx > diffy || (diffx <= 6 && diffy <= 6)) { // Players hit each others top
+	if(diffx > diffy || diffx <= 6 && diffy <= 6) { // Players hit each others top
 		if(is_above) {
 			if(keydn_u) {
 				Main::audio->play(SND_JUMP);
@@ -717,37 +739,23 @@ void Player::bounce(SDL_Rect * source) {
 			is_duck_forced = true;
 			duck_force_start = Gameplay::frame;
 			momentumy = -10;
-			//hitpoints -= weightclasses[upper->weightclass].headjump_damage;
-			hitpoints -= 5;
+			hitpoints -= WEIGHTCLASSES[other->weightclass].headjump_damage;
 		}
 	}
-	if(diffx < diffy || (diffx <= 6 && diffy <= 6)) { // Players hit each others side
+	newmomentumx = momentumx;
+	if(diffx < diffy || diffx <= 6 && diffy <= 6) { // Players hit each others side
+		newmomentumx = other->momentumx;
+		
 		if(is_left) {
-			momentumx = -MAX_MOMENTUM_HORIZ;
+			newmomentumx -= WEIGHTCLASSES[other->weightclass].push_force - WEIGHTCLASSES[weightclass].push_force + 10;
 		}
 		if(is_right) {
-			momentumx = MAX_MOMENTUM_HORIZ;
+			newmomentumx += WEIGHTCLASSES[other->weightclass].push_force - WEIGHTCLASSES[weightclass].push_force + 10;
 		}
-
-		//momentumx = -momentumx;
-		/*
-		if(momxr < -(MAX_MOMENTUM_HORIZ + MOMENTUM_INTERV_HORIZ))
-			left->momentumx = -weightclasses[right->weightclass].push_force_fullspeed;
-			//left->momentumx = -40;
-		else
-			left->momentumx = -weightclasses[right->weightclass].push_force;
-			//left->momentumx = -20;
-		if(momxl > (MAX_MOMENTUM_HORIZ + MOMENTUM_INTERV_HORIZ))
-			right->momentumx = weightclasses[left->weightclass].push_force_fullspeed;
-			//right->momentumx = 40;
-		else
-			right->momentumx = weightclasses[left->weightclass].push_force;
-			//right->momentumx = 20;
-		upper->momentumy = lower->momentumy;
-		*/
 	}
 
 	delete rect;
+	delete source;
 }
 
 void Player::bounce_up() {
@@ -756,8 +764,7 @@ void Player::bounce_up() {
 	is_falling = true;
 	is_frozen = true;
 	freeze_start = Gameplay::frame;
-	//momentumy = weightclasses[weightclass].bounce_momentum;
-	momentumy = 20;
+	momentumy = WEIGHTCLASSES[weightclass].bounce_momentum;
 	//momentumx += (player1->position->x - player2->position->x) * 2;
 	if(momentumx > MAX_MOMENTUM_HORIZ)
 		momentumx = MAX_MOMENTUM_HORIZ;
@@ -770,18 +777,16 @@ void Player::process() {
 		return;
 
 	if(keydn_shoot) {
-		if(Gameplay::frame > shoot_start + shoot_delay) { // &&
-//			(((ruleset.bullets == BULLETS_UNLIMITED) ||  p->bullets > 0) ||
-//			((ruleset.doubledamagebullets == BULLETS_UNLIMITED) ||  p->doubledamagebullets > 0) ||
-//			((ruleset.instantkillbullets == BULLETS_UNLIMITED) ||  p->instantkillbullets > 0))) {
+		if(Gameplay::frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
+			(((bullets == BULLETS_UNLIMITED) ||  bullets > 0) ||
+			((doubledamagebullets == BULLETS_UNLIMITED) ||  doubledamagebullets > 0) ||
+			((instantkillbullets == BULLETS_UNLIMITED) ||  instantkillbullets > 0))) {
 			shoot_start = Gameplay::frame;
 			Projectile * pr;
 			SDL_Rect * clip_weapon;
 			bool doubledamage;
 			bool instantkill;
 
-//			doubledamage = ((ruleset.doubledamagebullets == BULLETS_UNLIMITED) || p->doubledamagebullets > 0);
-//			instantkill = ((ruleset.instantkillbullets == BULLETS_UNLIMITED) || p->instantkillbullets > 0);
 			doubledamage = doubledamagebullets > 0;
 			instantkill = instantkillbullets > 0;
 
@@ -800,9 +805,9 @@ void Player::process() {
 			if(instantkill)
 				pr->damage = 100;
 			else if(doubledamage)
-				pr->damage = 20;
+				pr->damage = WEAPONCLASSES[weaponclass].damage * 2;
 			else
-				pr->damage = 10;
+				pr->damage = WEAPONCLASSES[weaponclass].damage;
 
 			if(current_sprite >= SPR_L && current_sprite <= SPR_L_DUCK) {
 				pr->speedx = -10;
@@ -816,6 +821,8 @@ void Player::process() {
 			else
 				pr->position->y = position->y + 8;
 			Gameplay::instance->add_object(pr);
+
+			pr->max_distance = WEAPONCLASSES[weaponclass].distance;
 			
 			if(instantkill)
 				instantkillbullets--;
@@ -833,8 +840,7 @@ void Player::process() {
 			Bomb * b;
 
 			b = new Bomb(Main::graphics->bombs);
-			//b->damage = bombpowerclasses[p->bombpowerclass].damage;
-			b->damage = 20;
+			b->damage = BOMBPOWERCLASSES[bombpowerclass].damage;
 			b->time = 60;
 			b->frame_start = Gameplay::frame;
 			b->frame_change_start = Gameplay::frame;

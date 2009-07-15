@@ -74,8 +74,6 @@ void LevelSelect::run() {
 	if(!ready)
 		cancel = true;
 
-	Main::audio->stop_music();
-
 	free_sprites();
 }
 

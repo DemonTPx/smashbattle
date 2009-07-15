@@ -42,8 +42,28 @@ struct Character {
 	char * filename;
 	int speedclass;
 	int weightclass;
-	int bulletrateclass;
+	int weaponclass;
 	int bombpowerclass;
+};
+
+struct SpeedClass {
+	int run_speed;
+};
+
+struct WeightClass {
+	int push_force;
+	int headjump_damage;
+	int bounce_momentum;
+};
+
+struct WeaponClass {
+	int rate;
+	int distance;
+	int damage;
+};
+
+struct BombPowerClass {
+	int damage;
 };
 
 class Player {
@@ -54,6 +74,15 @@ public:
 	static const int CHARACTER_COUNT;
 	static const Character CHARACTERS[];
 	static const int COLORS[];
+	
+	static const int SPEEDCLASS_COUNT;
+	static const SpeedClass SPEEDCLASSES[];
+	static const int WEIGHTCLASS_COUNT;
+	static const WeightClass WEIGHTCLASSES[];
+	static const int WEAPONCLASS_COUNT;
+	static const WeaponClass WEAPONCLASSES[];
+	static const int BOMBPOWERCLASS_COUNT;
+	static const BombPowerClass BOMBPOWERCLASSES[];
 
 	char * name;
 	int number;
@@ -67,11 +96,13 @@ public:
 
 	int speedclass;
 	int weightclass;
-	int bulletrateclass;
+	int weaponclass;
 	int bombpowerclass;
 
 	int momentumx, momentumy;
 	int last_speedx, last_speedy;
+	
+	int newmomentumx;
 
 	bool is_running;
 	bool is_duck;
@@ -116,16 +147,14 @@ public:
 
 	static const int jump_height;
 
-	void handle_input(SDL_Event * event); // Deprecaded
 	void handle_event(SDL_Event * event);
 
-	void show(SDL_Surface * screen); // Deprecaded
 	void draw(SDL_Surface * screen);
 
 	void move(Level * level);
 	void process();
 
-	void bounce(SDL_Rect * source);
+	void bounce(Player * other);
 	void bounce_up();
 
 	void set_sprite(int sprite);

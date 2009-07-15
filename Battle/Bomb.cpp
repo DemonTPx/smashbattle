@@ -47,10 +47,6 @@ Bomb::~Bomb() {
 	delete clip[FRAME_EXPLOSION];
 }
 
-void Bomb::show(SDL_Surface * screen) {
-	draw(screen);
-}
-
 void Bomb::draw(SDL_Surface * screen) {
 	SDL_Rect rect;
 
