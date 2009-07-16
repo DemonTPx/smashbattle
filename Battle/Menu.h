@@ -2,8 +2,8 @@
 #define _MENU_H
 
 #include <vector>
-#include "Player.h"
 #include "Main.h"
+#include "PlayerAnimation.h"
 
 class Menu {
 public:
@@ -31,6 +31,9 @@ private:
 	std::vector<SDL_Surface*> * surf_items;
 	std::vector<SDL_Rect*> * surf_items_clip;
 
+	PlayerAnimation * playeranimation;
+	int animation_start;
+
 	static const char * item[];
 	static const int ITEMCOUNT;
 
@@ -43,6 +46,9 @@ private:
 	void process_cursor();
 
 	void start_local_multiplayer(int players);
+
+	void next_playeranimation();
+	void process_playeranimation();
 
 	void init();
 	void cleanup();

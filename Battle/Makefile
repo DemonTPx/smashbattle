@@ -23,6 +23,7 @@ SRCS=AmmoPowerUp.cpp\
 	OptionsScreen.cpp\
 	PauseMenu.cpp\
 	Player.cpp\
+	PlayerAnimation.cpp\
 	Projectile.cpp\
 	Timer.cpp
 OBJS=AmmoPowerUp.o\
@@ -47,6 +48,7 @@ OBJS=AmmoPowerUp.o\
 	OptionsScreen.o\
 	PauseMenu.o\
 	Player.o\
+	PlayerAnimation.o\
 	Projectile.o\
 	Timer.o
 EXECUTABLE=battle

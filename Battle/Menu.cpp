@@ -13,6 +13,7 @@
 #include "Gameplay.h"
 #include "LocalMultiplayer.h"
 #include "Options.h"
+#include "PlayerAnimation.h"
 
 #include "Menu.h"
 
@@ -60,7 +61,10 @@ void Menu::run() {
 			handle_input(&event);
 		}
 		process_cursor();
-		
+
+		process_playeranimation();
+		playeranimation->move();
+
 		draw();
 
 		Main::instance->flip();
@@ -124,6 +128,8 @@ void Menu::draw() {
 		rect.x += TILE_W;
 		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}
+
+	playeranimation->draw(Main::instance->screen);
 
 	rect.x = (WINDOW_WIDTH - credits->at(0)->w) / 2;
 	rect.y = WINDOW_HEIGHT - 35;
@@ -435,6 +441,44 @@ void Menu::start_local_multiplayer(int players) {
 	delete score;
 }
 
+void Menu::process_playeranimation() {
+	if(playeranimation->position->x < -PLAYER_W)
+		next_playeranimation();
+	if(frame - animation_start == 0) {
+		playeranimation->position->x = WINDOW_WIDTH;
+		playeranimation->position->y = (TILE_H * 13) - PLAYER_H;
+		playeranimation->is_walking = true;
+		playeranimation->is_running = true;
+		playeranimation->momentumx = -20;
+		playeranimation->animate_in_place = false;
+		playeranimation->direction = -1;
+	}
+	if(frame - animation_start == 32) {
+		playeranimation->direction = 1;
+	}
+	if(playeranimation->momentumx == 0) {
+		playeranimation->is_walking = false;
+		playeranimation->direction = -1;
+	}
+	if(playeranimation->character == 2 && frame - animation_start == 100) {
+		playeranimation->is_duck = true;
+	}
+	if(frame - animation_start == 140) {
+		playeranimation->is_duck = false;
+		playeranimation->is_walking = true;
+		playeranimation->direction = -1;
+	}
+}
+
+void Menu::next_playeranimation() {
+	int character;
+	character = playeranimation->character;
+	delete playeranimation;
+
+	playeranimation = new PlayerAnimation((character + 1) % Player::CHARACTER_COUNT);
+	animation_start = frame;
+}
+
 void Menu::select_up() {
 	Main::audio->play(SND_SELECT);
 
@@ -490,6 +534,9 @@ void Menu::init() {
 	credits->push_back(surface);
 	surface = TTF_RenderText_Solid(Main::graphics->font13, "Music by Nick Perrin", Main::graphics->white);
 	credits->push_back(surface);
+
+	playeranimation = new PlayerAnimation(0);
+	animation_start = 0;
 }
 
 void Menu::cleanup() {
@@ -514,4 +561,6 @@ void Menu::cleanup() {
 	}
 	credits->clear();
 	delete credits;
+
+	delete playeranimation;
 }
