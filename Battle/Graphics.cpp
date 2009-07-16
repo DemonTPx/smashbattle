@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
 
+#include "Player.h"
 #include "Graphics.h"
 
 Graphics::Graphics() {
@@ -45,6 +46,12 @@ void Graphics::load_all() {
 	SDL_SetColorKey(common, SDL_SRCCOLORKEY, colorkey); 
 	SDL_FreeSurface(surface);
 
+	surface = SDL_LoadBMP("gfx/pmarkers.bmp");
+	pmarker = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+	colorkey = SDL_MapRGB(pmarker->format, 0, 255, 255);
+	SDL_SetColorKey(pmarker, SDL_SRCCOLORKEY, colorkey);
+
 	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
 	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
 	font52 = TTF_OpenFont("fonts/slick.ttf", 52);
@@ -56,6 +63,25 @@ void Graphics::load_all() {
 	white.r = 0xff;
 	white.g = 0xff;
 	white.b = 0xff;
+
+	load_players();
+	set_player_clips();
+}
+
+void Graphics::load_players() {
+	SDL_Surface * loaded, * surface;
+	Uint32 colorkey;
+
+	player = new std::vector<SDL_Surface *>(0);
+
+	for(int i = 0; i < Player::CHARACTER_COUNT; i++) {
+		loaded = SDL_LoadBMP(Player::CHARACTERS[i].filename);
+		surface = SDL_DisplayFormat(loaded);
+		SDL_FreeSurface(loaded);
+		colorkey = SDL_MapRGB(surface->format, 0, 255, 255);
+		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey); 
+		player->push_back(surface);
+	}
 }
 
 void Graphics::clear_all() {
@@ -71,4 +97,55 @@ void Graphics::clear_all() {
 	TTF_CloseFont(font13);
 	TTF_CloseFont(font26);
 	TTF_CloseFont(font52);
+
+	clear_players();
+	clear_player_clips();
+}
+
+void Graphics::clear_players() {
+	for(unsigned int i = 0; i < player->size(); i++) {
+		SDL_FreeSurface(player->at(i));
+	}
+	player->clear();
+	delete player;
+}
+
+void Graphics::set_player_clips() {
+	int row_width = PLAYER_W * PLAYER_SURF_COLS;
+	for (int i = 0; i < PLAYER_SURF_COUNT; i++) {
+		player_clip[i] = new SDL_Rect();
+		player_clip[i]->w = PLAYER_W;
+		player_clip[i]->h = PLAYER_H;
+		player_clip[i]->x = (i * PLAYER_W) % row_width;
+		player_clip[i]->y = (int)(i / PLAYER_SURF_COLS) * PLAYER_H;
+	}
+
+	player_clip[SPR_AVATAR] = new SDL_Rect();
+	player_clip[SPR_AVATAR]->x = row_width;
+	player_clip[SPR_AVATAR]->y = 0;
+	player_clip[SPR_AVATAR]->w = PLAYER_W * 2;
+	player_clip[SPR_AVATAR]->h = PLAYER_H;
+
+	player_clip[SPR_AVATAR_SELECTED] = new SDL_Rect();
+	player_clip[SPR_AVATAR_SELECTED]->x = row_width;
+	player_clip[SPR_AVATAR_SELECTED]->y = player_clip[SPR_AVATAR]->h;
+	player_clip[SPR_AVATAR_SELECTED]->w = PLAYER_W * 2;
+	player_clip[SPR_AVATAR_SELECTED]->h = PLAYER_H;
+
+	for(int i = 0; i < 4; i++) {
+		pmarker_clip[i] = new SDL_Rect();
+		pmarker_clip[i]->x = 16 * (i - 1);
+		pmarker_clip[i]->y = 0;
+		pmarker_clip[i]->w = 16;
+		pmarker_clip[i]->h = 20;
+	}
+}
+
+void Graphics::clear_player_clips() {
+	for(int i = 0; i < SPR_COUNT; i++) {
+		delete player_clip[i];
+	}
+	for(int i = 0; i < 4; i++) {
+		delete pmarker_clip[i];
+	}
 }

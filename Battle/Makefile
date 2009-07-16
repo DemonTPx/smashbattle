@@ -4,7 +4,6 @@ LDFLAGS=-lSDL -lSDL_ttf -lSDL_mixer -lstdc++
 SRCS=AmmoPowerUp.cpp\
 	AudioController.cpp\
 	AudioOptions.cpp\
-	Battle.cpp\
 	Bomb.cpp\
 	BombPowerUp.cpp\
 	CharacterSelect.cpp\
@@ -29,7 +28,6 @@ SRCS=AmmoPowerUp.cpp\
 OBJS=AmmoPowerUp.o\
 	AudioController.o\
 	AudioOptions.o\
-	Battle.o\
 	Bomb.o\
 	BombPowerUp.o\
 	CharacterSelect.o\

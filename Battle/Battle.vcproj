@@ -579,6 +579,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\title_screen.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\tobias.bmp"
 				>
 			</File>

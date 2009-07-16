@@ -14,10 +14,6 @@ public:
 	bool cancel;
 private:
 	void draw();
-
-	void load_sprites();
-	void free_sprites();
-
 	void handle_input(SDL_Event * event);
 
 	void process_cursors();
@@ -35,9 +31,6 @@ private:
 	bool cursor_enter[4];
 	
 	ControlScheme controls[4];
-
-	std::vector<SDL_Surface*> * character_sprites;
-	SDL_Rect * clip_avatar, * clip_avatar_selected, * clip_left, * clip_right;
 
 	bool flicker[4];
 	int flicker_start[4];

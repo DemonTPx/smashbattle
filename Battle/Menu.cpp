@@ -16,8 +16,9 @@
 
 #include "Menu.h"
 
-#define MENU_TOP_OFFSET 200
-#define MENU_ITEM_HEIGHT 26
+#define MENU_TOP_OFFSET 160
+#define MENU_ITEM_HEIGHT TILE_H
+#define MENU_ITEM_WIDTH 128
 
 #define DIRECTION_NONE	0
 #define DIRECTION_LEFT	1
@@ -72,29 +73,56 @@ void Menu::run() {
 
 void Menu::draw() {
 	int i;
-	SDL_Surface * text, * highlight;
-	SDL_Rect rect;
+	SDL_Surface * text;
+	SDL_Rect rect, rect_s;
 	SDL_Surface * screen;
 
 	screen = Main::instance->screen;
 
 	SDL_BlitSurface(bg, NULL, screen, NULL);
 
+	rect.x = (WINDOW_WIDTH - title->w) / 2;
+	rect.y = 40;
+	SDL_BlitSurface(title, NULL, screen, &rect);
+
+	rect_s.x = 0;
+	rect_s.y = 0;
+	rect_s.w = TILE_W;
+	rect_s.h = TILE_H;
+
+	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 3);
+	rect.y = MENU_TOP_OFFSET - TILE_H;
+	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
+		rect.x += TILE_W;
+		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
+	}
+
 	for(i = 0; i < ITEMCOUNT; i++) {
+		rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
+		rect.y = surf_items_clip->at(i)->y - 6;
+		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
+		rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
+		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
+
 		text = surf_items->at(i);
 		
 		if(selected_item == i) {
-			highlight = SDL_CreateRGBSurface(NULL, text->w + 10, MENU_ITEM_HEIGHT, 32, 0, 0, 0, 0);
-			SDL_FillRect(highlight, NULL, 0x444488);
-			
-			rect.x = surf_items_clip->at(i)->x - 5;
-			rect.y = surf_items_clip->at(i)->y - 3;
+			rect.x = surf_items_clip->at(i)->x - TILE_W;
+			rect.y = surf_items_clip->at(i)->y - 6;
+			rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
+			rect.h = MENU_ITEM_HEIGHT;
 
-			SDL_BlitSurface(highlight, NULL, screen, &rect);
-			SDL_FreeSurface(highlight);
+			SDL_FillRect(screen, &rect, 0x0088ff);
 		}
 
 		SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
+	}
+
+	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 3);
+	rect.y = MENU_TOP_OFFSET + (ITEMCOUNT * MENU_ITEM_HEIGHT);
+	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
+		rect.x += TILE_W;
+		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}
 
 	rect.x = (WINDOW_WIDTH - credits->at(0)->w) / 2;
@@ -365,7 +393,7 @@ void Menu::start_local_multiplayer(int players) {
 
 		for(int i = 0; i < players; i++) {
 			c = Player::CHARACTERS[cs->player_select[i]];
-			player[i] = new Player(c.name, (i + 1), c.filename);
+			player[i] = new Player(cs->player_select[i], (i + 1));
 			player[i]->speedclass = c.speedclass;
 			player[i]->weightclass = c.weightclass;
 			player[i]->weaponclass = c.weaponclass;
@@ -433,9 +461,15 @@ void Menu::init() {
 
 	selected_item = 0;
 
-	surface = SDL_LoadBMP("gfx/title.bmp");
+	surface = SDL_LoadBMP("gfx/title_screen.bmp");
 	bg = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
+
+	surface = SDL_LoadBMP("gfx/tiles.bmp");
+	tiles = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+
+	title = TTF_RenderText_Solid(Main::graphics->font52, "SMASH BATTLE", Main::graphics->white);
 
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
@@ -444,8 +478,8 @@ void Menu::init() {
 		surf_items->push_back(surface);
 
 		rect = new SDL_Rect();
-		rect->x = (WINDOW_WIDTH - surface->w) / 2;
-		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT);
+		rect->x = (WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2;
+		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) + 6;
 		surf_items_clip->push_back(rect);
 	}
 
@@ -456,10 +490,13 @@ void Menu::init() {
 	credits->push_back(surface);
 	surface = TTF_RenderText_Solid(Main::graphics->font13, "Music by Nick Perrin", Main::graphics->white);
 	credits->push_back(surface);
-
 }
 
 void Menu::cleanup() {
+	SDL_FreeSurface(bg);
+	SDL_FreeSurface(tiles);
+	SDL_FreeSurface(title);
+
 	for(unsigned int i = 0; i < surf_items->size(); i++) {
 		SDL_FreeSurface(surf_items->at(i));
 	}
@@ -477,6 +514,4 @@ void Menu::cleanup() {
 	}
 	credits->clear();
 	delete credits;
-
-	SDL_FreeSurface(bg);
 }

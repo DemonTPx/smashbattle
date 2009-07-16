@@ -280,11 +280,11 @@ void LocalMultiplayer::draw_score_duel() {
 	// Show player avatars
 	rect.x = 250 - PLAYER_W;
 	rect.y = 450;
-	SDL_BlitSurface(player1->sprites, player1->clip[SPR_R], screen, &rect);
+	SDL_BlitSurface(player1->sprites, Main::graphics->player_clip[SPR_R], screen, &rect);
 
 	rect.x = 390;
 	rect.y = 450;
-	SDL_BlitSurface(player2->sprites, player2->clip[SPR_L], screen, &rect);
+	SDL_BlitSurface(player2->sprites, Main::graphics->player_clip[SPR_L], screen, &rect);
 
 	// Health bar player 1
 	rect.x = 3;

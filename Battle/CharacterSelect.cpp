@@ -29,8 +29,6 @@ CharacterSelect::CharacterSelect(int players) {
 void CharacterSelect::run() {
 	SDL_Event event;
 
-	load_sprites();
-
 	for(int i = 0; i < players; i++) {
 		player_ready[i] = false;
 	
@@ -89,8 +87,6 @@ void CharacterSelect::run() {
 
 	if(!ready)
 		cancel = true;
-
-	free_sprites();
 }
 
 void CharacterSelect::handle_input(SDL_Event * event) {
@@ -296,21 +292,21 @@ void CharacterSelect::draw() {
 
 	// CHARACTERS
 
-	rect_b.x = (screen->clip_rect.w - ((clip_avatar->w + (CHARACTER_SPACING * 2)) * CHARACTERS_PER_LINE)) / 2;
-	rect_b.y = (screen->clip_rect.h - ((clip_avatar->h + (CHARACTER_SPACING * 2)) * (Player::CHARACTER_COUNT / CHARACTERS_PER_LINE))) / 2;
-	rect_b.w = clip_avatar->w + (CHARACTER_SPACING * 2);
-	rect_b.h = clip_avatar->h + (CHARACTER_SPACING * 2);
+	rect_b.x = (screen->clip_rect.w - ((Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2)) * CHARACTERS_PER_LINE)) / 2;
+	rect_b.y = (screen->clip_rect.h - ((Main::graphics->player_clip[SPR_AVATAR]->h + (CHARACTER_SPACING * 2)) * (Player::CHARACTER_COUNT / CHARACTERS_PER_LINE))) / 2;
+	rect_b.w = Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2);
+	rect_b.h = Main::graphics->player_clip[SPR_AVATAR]->h + (CHARACTER_SPACING * 2);
 
 	for(int idx = 0; idx < Player::CHARACTER_COUNT; idx++) {
 		if(idx > 0 && idx % CHARACTERS_PER_LINE == 0) {
-			rect_b.x = (screen->clip_rect.w - ((clip_avatar->w + (CHARACTER_SPACING * 2)) * CHARACTERS_PER_LINE)) / 2;
+			rect_b.x = (screen->clip_rect.w - ((Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2)) * CHARACTERS_PER_LINE)) / 2;
 			rect_b.y += rect_b.h;
 		}
 
 		rect.x = rect_b.x + CHARACTER_SPACING;
 		rect.y = rect_b.y + CHARACTER_SPACING;
 
-		clip = clip_avatar;
+		clip = Main::graphics->player_clip[SPR_AVATAR];
 
 		color = 0;
 		color_back = 0;
@@ -340,7 +336,7 @@ void CharacterSelect::draw() {
 							color = 0xffffff;
 						flicker_frame[i]++;
 					}
-					clip = clip_avatar_selected;
+					clip = Main::graphics->player_clip[SPR_AVATAR_SELECTED];
 
 					break;
 				}
@@ -354,7 +350,7 @@ void CharacterSelect::draw() {
 		rect_c.h = rect_b.h - 8;
 		SDL_FillRect(screen, &rect_c, color_back);
 
-		SDL_BlitSurface(character_sprites->at(idx), clip, screen, &rect);
+		SDL_BlitSurface(Main::graphics->player->at(idx), clip, screen, &rect);
 
 		for(int i = 0; i < players; i++) {
 			rect_c.x = rect_b.x;
@@ -375,7 +371,7 @@ void CharacterSelect::draw() {
 			}
 		}
 
-		rect_b.x += clip_avatar->w + (CHARACTER_SPACING * 2);
+		rect_b.x += Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2);
 	}
 
 	// Player stats blocks
@@ -408,7 +404,7 @@ void CharacterSelect::draw() {
 				r_block.y = 10;
 				r_pnumber.x = r_block.x + r_block.w;
 				r_pnumber.y = r_block.y;
-				clip_direction = clip_left;
+				clip_direction = Main::graphics->player_clip[SPR_R];
 				r_avatar.x = 40;
 				r_avatar.y = 20;
 				r_playername.x = 50 + PLAYER_W;
@@ -424,7 +420,7 @@ void CharacterSelect::draw() {
 				r_block.y = 10;
 				r_pnumber.x = r_block.x - r_pnumber.w;
 				r_pnumber.y = r_block.y;
-				clip_direction = clip_right;
+				clip_direction = Main::graphics->player_clip[SPR_L];
 				r_avatar.x = 600 - PLAYER_W;
 				r_avatar.y = 20;
 				r_playername.x = 590 - PLAYER_W;
@@ -440,7 +436,7 @@ void CharacterSelect::draw() {
 				r_block.y = 290;
 				r_pnumber.x = r_block.x + r_block.w;
 				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
-				clip_direction = clip_left;
+				clip_direction = Main::graphics->player_clip[SPR_R];
 				r_avatar.x = 40;
 				r_avatar.y = 300;
 				r_playername.x = 50 + PLAYER_W;
@@ -456,7 +452,7 @@ void CharacterSelect::draw() {
 				r_block.y = 290;
 				r_pnumber.x = r_block.x - r_pnumber.w;
 				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
-				clip_direction = clip_right;
+				clip_direction = Main::graphics->player_clip[SPR_L];
 				r_avatar.x = 600 - PLAYER_W;
 				r_avatar.y = 300;
 				r_playername.x = 590 - PLAYER_W;
@@ -473,7 +469,7 @@ void CharacterSelect::draw() {
 		r_block.y += 4; r_block.h -= 8;
 		SDL_FillRect(screen, &r_block, 0x222222);
 
-		SDL_BlitSurface(character_sprites->at(player_select[i]), clip_direction, screen, &r_avatar);
+		SDL_BlitSurface(Main::graphics->player->at(player_select[i]), clip_direction, screen, &r_avatar);
 
 		surface = TTF_RenderText_Solid(Main::graphics->font26, name[i], Main::graphics->white);
 		if(direction == -1) r_playername.x -= surface->w;
@@ -554,59 +550,4 @@ void CharacterSelect::draw() {
 			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
 		}
 	}
-}
-
-void CharacterSelect::load_sprites() {
-	SDL_Surface * loaded;
-	SDL_Surface * sprites;
-	Uint32 colorkey;
-
-	character_sprites = new std::vector<SDL_Surface*>(0);
-
-	for(int idx = 0; idx < Player::CHARACTER_COUNT; idx++) {
-		loaded = SDL_LoadBMP(Player::CHARACTERS[idx].filename);
-		sprites = SDL_DisplayFormat(loaded);
-		SDL_FreeSurface(loaded);
-		colorkey = SDL_MapRGB(sprites->format, 0, 255, 255);
-		SDL_SetColorKey(sprites, SDL_SRCCOLORKEY, colorkey);
-		
-		character_sprites->push_back(sprites);
-	}
-
-	clip_avatar = new SDL_Rect();
-	clip_avatar->x = 220;
-	clip_avatar->y = 0;
-	clip_avatar->w = 44;
-	clip_avatar->h = 44;
-
-	clip_avatar_selected = new SDL_Rect();
-	clip_avatar_selected->x = 220;
-	clip_avatar_selected->y = 44;
-	clip_avatar_selected->w = 44;
-	clip_avatar_selected->h = 44;
-	
-	clip_left = new SDL_Rect();
-	clip_left->x = 0;
-	clip_left->y = 0;
-	clip_left->w = PLAYER_W;
-	clip_left->h = PLAYER_H;
-	
-	clip_right = new SDL_Rect();
-	clip_right->x = 0;
-	clip_right->y = PLAYER_H;
-	clip_right->w = PLAYER_W;
-	clip_right->h = PLAYER_H;
-}
-
-void CharacterSelect::free_sprites() {
-	for(unsigned int idx = 0; idx < character_sprites->size(); idx++) {
-		SDL_FreeSurface(character_sprites->at(idx));
-		character_sprites->erase(character_sprites->begin() + idx);
-	}
-	delete character_sprites;
-
-	delete clip_avatar;
-	delete clip_avatar_selected;
-	delete clip_left;
-	delete clip_right;
 }

@@ -2,6 +2,7 @@
 #define _MENU_H
 
 #include <vector>
+#include "Player.h"
 #include "Main.h"
 
 class Menu {
@@ -16,6 +17,9 @@ public:
 	void select();
 private:
 	SDL_Surface * bg;
+	SDL_Surface * tiles;
+	SDL_Surface * title;
+
 	int selected_item;
 
 	int frame;

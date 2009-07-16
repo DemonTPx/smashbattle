@@ -7,27 +7,6 @@
 #define FACE_LEFT 0
 #define FACE_RIGHT 1
 
-#define SPR_R		0
-#define SPR_R_WALK1	1
-#define SPR_R_WALK2	2
-#define SPR_R_WALK3	3
-#define SPR_R_RUN1	4
-#define SPR_R_RUN2	5
-#define SPR_R_RUN3	6
-#define SPR_L_BRAKE	7
-#define SPR_R_JUMP	8
-#define SPR_R_DUCK	9
-#define SPR_L		10
-#define SPR_L_WALK1	11
-#define SPR_L_WALK2	12
-#define SPR_L_WALK3	13
-#define SPR_L_RUN1	14
-#define SPR_L_RUN2	15
-#define SPR_L_RUN3	16
-#define SPR_R_BRAKE	17
-#define SPR_L_JUMP	18
-#define SPR_L_DUCK	19
-
 #define CYCLE_UP 0
 #define CYCLE_DN 1
 
@@ -68,7 +47,7 @@ struct BombPowerClass {
 
 class Player {
 public:
-	Player(const char * name, const int number, const char * sprite_file);
+	Player(int character, int number);
 	~Player();
 
 	static const int CHARACTER_COUNT;
@@ -91,7 +70,6 @@ public:
 	SDL_Rect * last_position;
 	SDL_Surface * sprites;
 	SDL_Rect * clip[20];
-	SDL_Surface * marker;
 	SDL_Rect * marker_clip;
 
 	int speedclass;
@@ -100,7 +78,6 @@ public:
 	int bombpowerclass;
 
 	int momentumx, momentumy;
-	int last_speedx, last_speedy;
 	
 	int newmomentumx;
 
@@ -145,6 +122,8 @@ public:
 	int score;
 	int hitpoints;
 
+	int bounce_direction_x, bounce_direction_y;
+
 	static const int jump_height;
 
 	void handle_event(SDL_Event * event);
@@ -162,9 +141,6 @@ public:
 	void cycle_sprite_updown(int first, int last);
 	SDL_Rect * get_rect();
 private:
-	void load_images(const char * sprite_file);
-	void free_images();
-	void set_clips();
 };
 
 #endif

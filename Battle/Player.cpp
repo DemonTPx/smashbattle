@@ -63,9 +63,6 @@ const BombPowerClass Player::BOMBPOWERCLASSES[Player::BOMBPOWERCLASS_COUNT] = {
 
 const int Player::jump_height = 144;
 
-#define PLAYER_SURF_COLS 10
-#define PLAYER_SURF_COUNT 20
-
 // Movement constantes
 #define MAX_MOMENTUM_FALL 100
 #define MAX_MOMENTUM_JUMP 40
@@ -85,9 +82,9 @@ const int Player::jump_height = 144;
 // Freeze time
 #define PLAYER_FREEZE_FRAMES 30
 
-Player::Player(const char * name, const int number, const char * sprite_file) {
-	this->name = (char*)name;
-	this->number = (int)number;
+Player::Player(int character, int number) {
+	name = CHARACTERS[character].name;
+	this->number = number;
 
 	speedclass = 1;
 	weightclass = 1;
@@ -148,6 +145,9 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 	is_frozen = false;
 	freeze_start = 0;
 
+	bounce_direction_x = 0;
+	bounce_direction_y = 0;
+
 	shoot_start = 0;
 	shoot_delay = 10;
 
@@ -166,19 +166,17 @@ Player::Player(const char * name, const int number, const char * sprite_file) {
 
 	position = new SDL_Rect();
 	last_position = new SDL_Rect();
-	load_images(sprite_file);
-	set_clips();
+
+	position->w = PLAYER_W;
+	position->h = PLAYER_H;
+
+	sprites = Main::graphics->player->at(character);
+	marker_clip = Main::graphics->pmarker_clip[(number - 1)];
 }
 
 Player::~Player() {
-	for(int i = 0; i < PLAYER_SURF_COUNT; i++) {
-		delete clip[i];
-	}
-	delete marker_clip;
-	
 	delete position;
 	delete last_position;
-	free_images();
 }
 
 void Player::draw(SDL_Surface * screen) {
@@ -199,26 +197,26 @@ void Player::draw(SDL_Surface * screen) {
 			return;
 	}
 
-	SDL_BlitSurface(sprites, clip[current_sprite], screen, &rect);
+	SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 
 	// If the player is going out the side of the screen, we want it to
 	// appear on the other side.
 	if(position->x >= WINDOW_WIDTH - PLAYER_W) {
 		rect.x = position->x - WINDOW_WIDTH;
 		rect.y = position->y;
-		SDL_BlitSurface(sprites, clip[current_sprite], screen, &rect);
+		SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 	}
 	if(position->x <= 0) {
 		rect.x = position->x + WINDOW_WIDTH;
 		rect.y = position->y;
-		SDL_BlitSurface(sprites, clip[current_sprite], screen, &rect);
+		SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 	}
 
 	// Show marker if the player is above the screen
 	if(position->y + position->h <= 0) {
 		rect.x = position->x + ((PLAYER_W - marker_clip->w) / 2);
 		rect.y = 0;
-		SDL_BlitSurface(marker, marker_clip, screen, &rect);
+		SDL_BlitSurface(Main::graphics->pmarker, marker_clip, screen, &rect);
 	}
 }
 
@@ -384,6 +382,10 @@ void Player::move(Level * level) {
 	last_position->y = position->y;
 	last_position->w = position->w;
 	last_position->h = position->h;
+	if(is_duck) {
+		last_position->y = last_position->y + (PLAYER_H - PLAYER_DUCK_H);
+		last_position->h = PLAYER_DUCK_H;
+	}
 	
 	speedx = 0;
 	speedy = 0;
@@ -468,7 +470,6 @@ void Player::move(Level * level) {
 	// Move the player horizontally
 	speedx = (int)((double)speedx * ((double)momentumx / 10));
 	position->x += speedx;
-	last_speedx = speedx;
 
 	// Which sprite do we want to show?
 	if(momentumx == 0) {
@@ -624,7 +625,6 @@ void Player::move(Level * level) {
 	
 	// Move the player vertically
 	position->y -= speedy;
-	last_speedy = speedy;
 
 	rect.x = position->x;
 	rect.y = position->y;
@@ -672,16 +672,14 @@ void Player::move(Level * level) {
 void Player::bounce(Player * other) {
 	SDL_Rect * rect, * source;
 
-	rect = get_rect();
-	source = other->get_rect();
+	rect = last_position;
+	source = other->last_position;
 
 	int l, r, t, b;
 	int ls, rs, ts, bs;
-	int diffx, diffy;
 	bool is_above, is_below;
 	bool is_left, is_right;
 
-	// Collision
 	l = rect->x;
 	t = rect->y;
 	r = rect->x + rect->w;
@@ -692,70 +690,70 @@ void Player::bounce(Player * other) {
 	rs = source->x + source->w;
 	bs = source->y + source->h;
 
-	// Bounce back
-	is_above = false;
-	is_below = false;
-	if(t < ts) { // above the source
-		diffy = b - ts;
-		is_above = true;
-	} else { // below the source
-		diffy = bs - t;
-		is_below = true;
+	if(l - ls > (WINDOW_WIDTH / 2)) {
+		ls += WINDOW_WIDTH;
+		rs += WINDOW_WIDTH;
+	}
+	if(ls - l > (WINDOW_WIDTH / 2)) {
+		l += WINDOW_WIDTH;
+		r += WINDOW_WIDTH;
 	}
 
-	is_left = false;
-	is_right = false;
+	is_above = (b < ts);
+	is_below = (t > bs);
+	is_left = (r < ls);
+	is_right = (l > rs);
 
-	if(l < ls) { // At the left of the source
-		diffx = r - ls;
-		if(diffx >= 0) {
-			is_left = true;
-		} else {
-			diffx = (rs - WINDOW_WIDTH) - l;
-			is_right = true;
-		}
-	} else { // At the right of the source
-		diffx = rs - l;
-		if(diffx >= 0) {
-			is_right = true;
-		} else {
-			diffx = (r - WINDOW_WIDTH) - ls;
-			is_left = true;
-		}
+	if(!is_above && !is_below && !is_left && !is_right) {
+		if(bounce_direction_y == -1) is_above = true;
+		if(bounce_direction_y == 1) is_below = true;
+		if(bounce_direction_x == -1) is_left = true;
+		if(bounce_direction_x == 1) is_right = true;
 	}
 
-	if(diffx > diffy || diffx <= 6 && diffy <= 6) { // Players hit each others top
-		if(is_above) {
-			if(keydn_u) {
-				Main::audio->play(SND_JUMP);
-				momentumy = MAX_MOMENTUM_JUMP;
-				is_falling = false;
-				is_jumping = true;
-			} else {
-				momentumy = 30;
-			}
+	// Players hit each others top
+	if(is_above) {
+		bounce_direction_y = -1;
+		if(keydn_u) {
+			Main::audio->play(SND_JUMP);
+			momentumy = MAX_MOMENTUM_JUMP;
+			is_falling = false;
+			is_jumping = true;
+		} else {
+			momentumy = 30;
 		}
-		if(is_below) {
-			is_duck_forced = true;
-			duck_force_start = Gameplay::frame;
+	}
+	if(is_below) {
+		bounce_direction_y = 1;
+		is_duck_forced = true;
+		duck_force_start = Gameplay::frame;
+		if(!is_hit) {
+			is_hit = true;
+			hit_start = Gameplay::frame;
 			momentumy = -10;
 			hitpoints -= WEIGHTCLASSES[other->weightclass].headjump_damage;
 		}
 	}
+	if(!is_above && !is_below) {
+		bounce_direction_y = 0;
+	}
+
 	newmomentumx = momentumx;
-	if(diffx < diffy || diffx <= 6 && diffy <= 6) { // Players hit each others side
+	// Players hit each others side
+	if(is_left || is_right) {
 		newmomentumx = other->momentumx;
 		
 		if(is_left) {
+			bounce_direction_x = -1;
 			newmomentumx -= WEIGHTCLASSES[other->weightclass].push_force - WEIGHTCLASSES[weightclass].push_force + 10;
 		}
 		if(is_right) {
+			bounce_direction_x = 1;
 			newmomentumx += WEIGHTCLASSES[other->weightclass].push_force - WEIGHTCLASSES[weightclass].push_force + 10;
 		}
+	} else {
+		bounce_direction_x = 0;
 	}
-
-	delete rect;
-	delete source;
 }
 
 void Player::bounce_up() {
@@ -856,60 +854,6 @@ void Player::process() {
 			Main::instance->audio->play(SND_SHOOT);
 		}
 	}
-}
-
-void Player::load_images(const char * sprite_file) {
-	SDL_Surface * loaded;
-	SDL_Rect rect;
-	Uint32 colorkey;
-
-	loaded = SDL_LoadBMP(sprite_file);
-	if(loaded == NULL) {
-
-	}
-	sprites = SDL_DisplayFormat(loaded);
-	SDL_FreeSurface(loaded);
-
-	colorkey = SDL_MapRGB(sprites->format, 0, 255, 255); 
-	SDL_SetColorKey(sprites, SDL_SRCCOLORKEY, colorkey);
-
-	loaded = SDL_LoadBMP("gfx/pmarkers.bmp");
-	marker = SDL_DisplayFormat(loaded);
-	SDL_FreeSurface(loaded);
-
-	colorkey = SDL_MapRGB(marker->format, 0, 255, 255);
-	SDL_SetColorKey(marker, SDL_SRCCOLORKEY, colorkey);
-
-	rect.w = PLAYER_W;
-	rect.h = PLAYER_H;
-
-	rect.x = 0;
-	rect.y = 0;
-	
-	position->w = PLAYER_W;
-	position->h = PLAYER_H;
-}
-
-void Player::set_clips() {
-	int row_width = PLAYER_W * PLAYER_SURF_COLS;
-	for (int i = 0; i < PLAYER_SURF_COUNT; i++) {
-		clip[i] = new SDL_Rect();
-		clip[i]->w = PLAYER_W;
-		clip[i]->h = PLAYER_H;
-		clip[i]->x = (i * PLAYER_W) % row_width;
-		clip[i]->y = (int)(i / PLAYER_SURF_COLS) * PLAYER_H;
-	}
-
-	marker_clip = new SDL_Rect();
-	marker_clip->x = 16 * (number - 1);
-	marker_clip->y = 0;
-	marker_clip->w = 16;
-	marker_clip->h = 20;
-}
-
-void Player::free_images() {
-	SDL_FreeSurface(sprites);
-	SDL_FreeSurface(marker);
 }
 
 void Player::set_sprite(int sprite) {
