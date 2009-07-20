@@ -251,10 +251,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Makefile"
-				>
-			</File>
-			<File
 				RelativePath=".\Menu.cpp"
 				>
 			</File>
@@ -655,6 +651,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\Makefile"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

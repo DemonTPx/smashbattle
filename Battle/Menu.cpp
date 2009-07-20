@@ -417,8 +417,11 @@ void Menu::start_local_multiplayer(int players) {
 
 			for(int i = 0; i < players; i++) {
 				player[i]->set_character(cs->player_select[i]);
-				player[i]->reset();
 			}
+		}
+
+		for(int i = 0; i < players; i++) {
+			player[i]->reset();
 		}
 
 		if(change_level) {
