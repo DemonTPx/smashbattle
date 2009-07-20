@@ -1,6 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include <vector>
 
@@ -73,7 +71,7 @@ void OptionsScreen::draw() {
 		
 		if(selected_item == (int)i) {
 			rect.x = item->rect_name->x - 5;
-			rect.y = item->rect_name->y - 3;
+			rect.y = item->rect_name->y - 5;
 			rect.w = text->w + 10;
 			rect.h = menu_item_height;
 			SDL_FillRect(screen, &rect, 0x444488);
@@ -86,7 +84,7 @@ void OptionsScreen::draw() {
 				text = item->surf_options->at(j);
 				if(item->selected == j) {
 					rect.x = item->rect_options->at(j)->x - 5;
-					rect.y = item->rect_options->at(j)->y - 3;
+					rect.y = item->rect_options->at(j)->y - 5;
 					rect.w = text->w + 10;
 					rect.h = menu_item_height;
 					SDL_FillRect(screen, &rect, 0x444488);
@@ -389,7 +387,7 @@ void OptionsScreen::init() {
 	for(unsigned int i = 0; i < items->size(); i++) {
 		item = items->at(i);
 		
-		item->surf_name = TTF_RenderText_Solid(Main::graphics->font26, item->name, Main::graphics->white);
+		item->surf_name = Main::text->render_text_medium(item->name);
 
 		item->rect_name = new SDL_Rect();
 
@@ -408,7 +406,7 @@ void OptionsScreen::init() {
 			item->surf_options = new std::vector<SDL_Surface *>(0);
 			item->rect_options = new std::vector<SDL_Rect *>(0);
 			for(unsigned int j = 0; j < item->options->size(); j++) {
-				surface = TTF_RenderText_Solid(Main::graphics->font26, item->options->at(j), Main::graphics->white);
+				surface = Main::text->render_text_medium(item->options->at(j));
 				item->surf_options->push_back(surface);
 
 				rect = new SDL_Rect();
@@ -434,16 +432,15 @@ void OptionsScreen::cleanup() {
 				delete(items->at(i)->rect_options->at(j));
 			}
 			
-			items->at(i)->surf_options->clear();
 			delete items->at(i)->surf_options;
-
-			items->at(i)->rect_options->clear();
 			delete items->at(i)->rect_options;
 
 			items->at(i)->options->clear();
 			delete items->at(i)->options;
 		}
+		SDL_FreeSurface(items->at(i)->surf_name);
 		delete items->at(i)->rect_name;
+
 		delete items->at(i);
 	}
 	items->clear();

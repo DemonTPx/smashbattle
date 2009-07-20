@@ -57,7 +57,6 @@ void PlayerAnimation::move() {
 	int speedx, speedy;
 	int maxx;
 	int momentumx_old;
-	SDL_Rect rect;
 	
 	speedx = 0;
 	speedy = 0;

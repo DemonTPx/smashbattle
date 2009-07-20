@@ -1,5 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 
 #include <iostream>
 
@@ -16,18 +15,18 @@
 const int Player::CHARACTER_COUNT = 12;
 const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	//      Name               Filename            sp wt wp bd
-	{(char*)"Bert",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
-	{(char*)"Jeroen",	(char*)"gfx/jeroen.bmp",	2, 1, 1, 0},
-	{(char*)"Steven",	(char*)"gfx/steven.bmp",	0, 2, 1, 1},
-	{(char*)"Tedje",	(char*)"gfx/tedje.bmp",		0, 1, 2, 1},
-	{(char*)"Okke",		(char*)"gfx/okke.bmp",		2, 1, 0, 1},
-	{(char*)"Jeremy",	(char*)"gfx/jeremy.bmp",	1, 0, 1, 2},
-	{(char*)"Marcel",	(char*)"gfx/marcel.bmp",	1, 0, 2, 1},
-	{(char*)"Jay",		(char*)"gfx/jay.bmp",		2, 1, 1, 0},
-	{(char*)"Donja",	(char*)"gfx/donja.bmp",		2, 0, 1, 1},
-	{(char*)"Rob",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
-	{(char*)"Eva",		(char*)"gfx/eva.bmp",		1, 2, 0, 1},
-	{(char*)"Tobias",	(char*)"gfx/tobias.bmp",	1, 1, 2, 0},
+	{(char*)"BERT",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
+	{(char*)"JEROEN",	(char*)"gfx/jeroen.bmp",	2, 1, 1, 0},
+	{(char*)"STEVEN",	(char*)"gfx/steven.bmp",	0, 2, 1, 1},
+	{(char*)"TEDJE",	(char*)"gfx/tedje.bmp",		0, 1, 2, 1},
+	{(char*)"OKKE",		(char*)"gfx/okke.bmp",		2, 1, 0, 1},
+	{(char*)"JEREMY",	(char*)"gfx/jeremy.bmp",	1, 0, 1, 2},
+	{(char*)"MARCEL",	(char*)"gfx/marcel.bmp",	1, 0, 2, 1},
+	{(char*)"JAY",		(char*)"gfx/jay.bmp",		2, 1, 1, 0},
+	{(char*)"DONJA",	(char*)"gfx/donja.bmp",		2, 0, 1, 1},
+	{(char*)"ROB",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
+	{(char*)"EVA",		(char*)"gfx/eva.bmp",		1, 2, 0, 1},
+	{(char*)"TOBIAS",	(char*)"gfx/tobias.bmp",	1, 1, 2, 0},
 };
 const int Player::COLORS[4] = {
 	0xaa0000,

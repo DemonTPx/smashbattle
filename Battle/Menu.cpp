@@ -1,6 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include <vector>
 
@@ -103,7 +101,7 @@ void Menu::draw() {
 
 	for(i = 0; i < ITEMCOUNT; i++) {
 		rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
-		rect.y = surf_items_clip->at(i)->y - 6;
+		rect.y = surf_items_clip->at(i)->y - 8;
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
@@ -112,7 +110,7 @@ void Menu::draw() {
 		
 		if(selected_item == i) {
 			rect.x = surf_items_clip->at(i)->x - TILE_W;
-			rect.y = surf_items_clip->at(i)->y - 6;
+			rect.y = surf_items_clip->at(i)->y - 8;
 			rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
 			rect.h = MENU_ITEM_HEIGHT;
 
@@ -560,26 +558,26 @@ void Menu::init() {
 
 	selected_item = 0;
 
-	title = TTF_RenderText_Solid(Main::graphics->font52, "SMASH BATTLE", Main::graphics->white);
+	title = Main::text->render_text_large("SMASH BATTLE");
 
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
 	for(int i = 0; i < ITEMCOUNT; i++) {
-		surface = TTF_RenderText_Solid(Main::graphics->font26, item[i], Main::graphics->white);
+		surface = Main::text->render_text_medium(item[i]);
 		surf_items->push_back(surface);
 
 		rect = new SDL_Rect();
 		rect->x = (WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2;
-		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) + 6;
+		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) + 8;
 		surf_items_clip->push_back(rect);
 	}
 
 	credits = new std::vector<SDL_Surface*>(0);
-	surface = TTF_RenderText_Solid(Main::graphics->font13, "Programming by Bert Hekman", Main::graphics->white);
+	surface = Main::text->render_text_small("PROGRAMMING BY BERT HEKMAN");
 	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(Main::graphics->font13, "Graphics by Jeroen Groeneweg and Okke Voerman", Main::graphics->white);
+	surface = Main::text->render_text_small("GRAPHICS BY JEROEN GROENEWEG AND OKKE VOERMAN");
 	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(Main::graphics->font13, "Music by Nick Perrin", Main::graphics->white);
+	surface = Main::text->render_text_small("MUSIC BY NICK PERRIN");
 	credits->push_back(surface);
 
 	playeranimation = new PlayerAnimation(0);

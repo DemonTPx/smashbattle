@@ -60,9 +60,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdl.lib sdlmain.lib sdl_ttf.lib sdl_mixer.lib"
+				AdditionalDependencies="sdl.lib sdlmain.lib sdl_mixer.lib"
 				LinkIncremental="2"
-				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -279,6 +279,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Text.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Timer.cpp"
 				>
 			</File>
@@ -393,6 +397,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Text.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Timer.h"
 				>
 			</File>
@@ -412,10 +420,6 @@
 			</File>
 			<File
 				RelativePath=".\gfx\bert.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\bg_bluesky.bmp"
 				>
 			</File>
 			<File
@@ -464,6 +468,18 @@
 			</File>
 			<File
 				RelativePath=".\sfx\explode.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\font_l.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\font_m.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\font_s.bmp"
 				>
 			</File>
 			<File
@@ -524,14 +540,6 @@
 			</File>
 			<File
 				RelativePath=".\gfx\level_08.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\lvl_okke_01.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\lvl_okke_02.bmp"
 				>
 			</File>
 			<File
@@ -599,10 +607,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fonts\slick.ttf"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\steven.bmp"
 				>
 			</File>
@@ -616,14 +620,6 @@
 			</File>
 			<File
 				RelativePath=".\gfx\tiles.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\tiles_02.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\title.bmp"
 				>
 			</File>
 			<File

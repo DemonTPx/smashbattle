@@ -1,6 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include "Main.h"
 #include "Level.h"
@@ -315,13 +313,13 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_BlitSurface(Main::instance->graphics->player2hp, &rect_s, screen, &rect);
 
 	// Player names
-	surface = TTF_RenderText_Solid(Main::instance->graphics->font26, player1->name, Main::instance->graphics->white);
+	surface = Main::text->render_text_medium(player1->name);
 	rect.x = 220 - surface->w;
 	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	surface = TTF_RenderText_Solid(Main::instance->graphics->font26, player2->name, Main::instance->graphics->white);
+	surface = Main::text->render_text_medium(player2->name);
 	rect.x = 420;
 	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -329,9 +327,9 @@ void LocalMultiplayer::draw_score_duel() {
 
 	// Show score
 	sprintf_s(str, 40, "%02d-%02d", player1->score, player2->score);
-	surface = TTF_RenderText_Solid(Main::instance->graphics->font52, str, Main::instance->graphics->white);
+	surface = Main::text->render_text_large(str);
 	rect.x = (WINDOW_WIDTH - surface->w) / 2;
-	rect.y = WINDOW_HEIGHT - surface->h + 3;
+	rect.y = WINDOW_HEIGHT - surface->h - 2;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
@@ -354,7 +352,7 @@ void LocalMultiplayer::draw_score_duel() {
 
 	if(player1->bombs != -1) {
 		sprintf_s(str, 3, "%02d", player1->bombs);
-		surface = TTF_RenderText_Solid(Main::graphics->font26, str, Main::graphics->white);
+		surface = Main::text->render_text_medium(str);
 		rect.x = 18;
 		rect.y = 462;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -367,7 +365,7 @@ void LocalMultiplayer::draw_score_duel() {
 
 	if(player2->bombs != -1) {
 		sprintf_s(str, 3, "%02d", player2->bombs);
-		surface = TTF_RenderText_Solid(Main::graphics->font26, str, Main::graphics->white);
+		surface = Main::text->render_text_medium(str);
 		rect.x = 624 - surface->w;
 		rect.y = 462;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -385,23 +383,17 @@ void LocalMultiplayer::draw_score_duel() {
 	rect_s.h = 8;
 	rect.x = 62;
 	rect.y = 466;
-//	if(ruleset.doubledamagebullets == BULLETS_UNLIMITED || player1->doubledamagebullets > 0) rect_s.x = 8;
-//	if(ruleset.instantkillbullets == BULLETS_UNLIMITED || player1->instantkillbullets > 0) rect_s.x = 16;
 	if(player1->doubledamagebullets > 0) rect_s.x = 8;
 	if(player1->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(Main::graphics->weapons, &rect_s, screen, &rect);
 
 	if(player1->instantkillbullets > 0) ammount = player1->instantkillbullets;
 	else if(player1->doubledamagebullets > 0) ammount = player1->doubledamagebullets;
-	else {
-//		if(ruleset.doubledamagebullets != BULLETS_UNLIMITED) ammount = player1->bullets;
-//		else ammount = 0;
-		ammount = -1;
-	}
+	else ammount = -1;
 
 	if(ammount != -1) {
 		sprintf_s(str, 3, "%02d", ammount);
-		surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->white);
+		surface = Main::text->render_text_medium(str);
 		rect.x = 74;
 		rect.y = 462;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -422,22 +414,17 @@ void LocalMultiplayer::draw_score_duel() {
 	rect_s.h = 8;
 	rect.x = 570;
 	rect.y = 466;
-//	if(ruleset.doubledamagebullets == BULLETS_UNLIMITED || player2->doubledamagebullets > 0) rect_s.x = 8;
-//	if(ruleset.instantkillbullets == BULLETS_UNLIMITED || player2->instantkillbullets > 0) rect_s.x = 16;
 	if(player2->doubledamagebullets > 0) rect_s.x = 8;
 	if(player2->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(Main::instance->graphics->weapons, &rect_s, screen, &rect);
 
 	if(player2->instantkillbullets > 0) ammount = player2->instantkillbullets;
 	else if(player2->doubledamagebullets > 0) ammount = player2->doubledamagebullets;
-	else {
-//		if(ruleset.doubledamagebullets != BULLETS_UNLIMITED) ammount = player2->bullets;
-//		else ammount = 0;
-		ammount = -1;
-	}
+	else ammount = -1;
+
 	if(ammount != -1) {
 		sprintf_s(str, 3, "%02d", ammount);
-		surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->white);
+		surface = Main::text->render_text_medium(str);
 		rect.x = 566 - surface->w;
 		rect.y = 462;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -485,7 +472,7 @@ void LocalMultiplayer::draw_score_multi() {
 
 		// Score
 		sprintf_s(str, 40, "%02d", player->score);
-		surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->white);
+		surface = Main::text->render_text_medium(str);
 		rect.x = x + 28;
 		rect.y = y + 14;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -525,7 +512,7 @@ void LocalMultiplayer::draw_score_multi() {
 
 		if(ammount > 0) {
 			sprintf_s(str, 3, "%02d", ammount);
-			surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->gray);
+			surface = Main::text->render_text_medium_gray(str);
 			rect.x = x + 130;
 			rect.y = y + 14;
 			SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -543,7 +530,7 @@ void LocalMultiplayer::draw_score_multi() {
 
 		if(player->bombs != -1) {
 			sprintf_s(str, 3, "%02d", player->bombs);
-			surface = TTF_RenderText_Solid(Main::instance->graphics->font26, str, Main::instance->graphics->gray);
+			surface = Main::text->render_text_medium_gray(str);
 			rect.x = x + 84;
 			rect.y = y + 14;
 			SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -564,7 +551,7 @@ void LocalMultiplayer::draw_game_ended() {
 	else
 		sprintf(text, "%s WINS", winner->name);
 
-	surface = TTF_RenderText_Solid(Main::graphics->font26, text, Main::graphics->white);
+	surface = Main::text->render_text_medium(text);
 	rect.x = (screen->w - surface->w) / 2;
 	if(!draw) rect.x += 28;
 	rect.y = (screen->h - surface->h) / 2;

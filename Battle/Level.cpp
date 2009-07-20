@@ -9,14 +9,14 @@
 
 const int Level::LEVEL_COUNT = 8;
 const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
-	{(char*)"Training Dojo", (char*)"stage/trainingdojo.stg"},
-	{(char*)"Common Grounds", (char*)"stage/commongrounds.stg"},
-	{(char*)"Platform Alley", (char*)"stage/platformalley.stg"},
-	{(char*)"Pogostick", (char*)"stage/pogostick.stg"},
-	{(char*)"Pitfall", (char*)"stage/pitfall.stg"},
-	{(char*)"Blast Bowl", (char*)"stage/blastbowl.stg"},
-	{(char*)"Pit of Death", (char*)"stage/pitofdeath.stg"},
-	{(char*)"Duck and Hunt", (char*)"stage/ducknhunt.stg"}
+	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.stg"},
+	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.stg"},
+	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.stg"},
+	{(char*)"POGOSTICK", (char*)"stage/pogostick.stg"},
+	{(char*)"PITTFALL", (char*)"stage/pitfall.stg"},
+	{(char*)"BLAST BOWL", (char*)"stage/blastbowl.stg"},
+	{(char*)"PIT OF DEATH", (char*)"stage/pitofdeath.stg"},
+	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.stg"}
 };
 
 Level::Level() {

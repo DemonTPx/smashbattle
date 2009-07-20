@@ -1,6 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include <vector>
 
@@ -270,7 +268,7 @@ void Gameplay::draw_countdown() {
 
 	sprintf_s(text, 5, "%d", countdown_sec_left);
 
-	surf = TTF_RenderText_Solid(Main::instance->graphics->font52, text, Main::instance->graphics->white);
+	surf = Main::text->render_text_large(text);
 
 	SDL_Rect rect;
 	rect.x = (screen->w - surf->w) / 2;

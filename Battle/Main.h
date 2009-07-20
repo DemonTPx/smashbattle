@@ -1,9 +1,8 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
-#include "SDL/SDL_ttf.h"
-
 #include "Timer.h"
+#include "Text.h"
 #include "Graphics.h"
 #include "AudioController.h"
 
@@ -65,6 +64,7 @@ public:
 
 	static AudioController * audio;
 	static Graphics * graphics;
+	static Text * text;
 
 	SDL_Joystick * joystick1;
 	SDL_Joystick * joystick2;

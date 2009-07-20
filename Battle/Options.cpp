@@ -1,6 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include "AudioOptions.h"
 #include "ControlsOptions.h"
@@ -11,37 +9,37 @@ Options::Options() {
 	OptionItem * item;
 
 	item = new OptionItem();
-	item->name = (char*)"Controls Player 1";
+	item->name = (char*)"CONTROLS PLAYER 1";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Controls Player 2";
+	item->name = (char*)"CONTROLS PLAYER 2";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Controls Player 3";
+	item->name = (char*)"CONTROLS PLAYER 3";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Controls Player 4";
+	item->name = (char*)"CONTROLS PLAYER 4";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Sound and music";
+	item->name = (char*)"SOUND AND MUSIC";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Return";
+	item->name = (char*)"RETURN";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);

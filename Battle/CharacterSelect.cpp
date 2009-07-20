@@ -1,5 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 
 #include <vector>
 
@@ -527,14 +526,14 @@ void CharacterSelect::draw() {
 		playeranimation[i]->draw(screen);
 
 		// Player name
-		surface = TTF_RenderText_Solid(Main::graphics->font26, name[i], Main::graphics->white);
+		surface = Main::text->render_text_medium(name[i]);
 		if(direction == -1) r_playername.x -= surface->w;
 		SDL_BlitSurface(surface, NULL, screen, &r_playername);
 		SDL_FreeSurface(surface);
 
 		// Player ready
 		if(player_ready[i]) {
-			surface = TTF_RenderText_Solid(Main::graphics->font26, "READY", Main::graphics->white);
+			surface = Main::text->render_text_medium("READY");
 			if(direction == -1) r_ready.x -= surface->w;
 			SDL_BlitSurface(surface, NULL, screen, &r_ready);
 			SDL_FreeSurface(surface);
@@ -544,14 +543,14 @@ void CharacterSelect::draw() {
 		SDL_FillRect(screen, &r_pnumber, Player::COLORS[i]);
 
 		sprintf_s(str, 3, "P%1d", (i + 1));
-		surface = TTF_RenderText_Solid(Main::graphics->font52, str, Main::graphics->white);
+		surface = Main::text->render_text_medium(str);
 		r_pnumber.x += (r_pnumber.w - surface->w) / 2;
 		r_pnumber.y += 10;
 		SDL_BlitSurface(surface, NULL, screen, &r_pnumber);
 		SDL_FreeSurface(surface);
 
 		// Stats
-		surface = TTF_RenderText_Solid(Main::graphics->font26, "SPEED", Main::graphics->white);
+		surface = Main::text->render_text_medium("SPEED");
 		rect.x = r_stats.x;
 		rect.y = r_stats.y;
 		if(direction == -1) rect.x -= surface->w;
@@ -565,7 +564,7 @@ void CharacterSelect::draw() {
 			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
 		}
 
-		surface = TTF_RenderText_Solid(Main::graphics->font26, "WEIGHT", Main::graphics->white);
+		surface = Main::text->render_text_medium("WEIGHT");
 		rect.x = r_stats.x;
 		rect.y = r_stats.y + stats_h;
 		if(direction == -1) rect.x -= surface->w;
@@ -579,7 +578,7 @@ void CharacterSelect::draw() {
 			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
 		}
 
-		surface = TTF_RenderText_Solid(Main::graphics->font26, "WEAPON", Main::graphics->white);
+		surface = Main::text->render_text_medium("WEAPON");
 		rect.x = r_stats.x;
 		rect.y = r_stats.y + (stats_h * 2);
 		if(direction == -1) rect.x -= surface->w;
@@ -593,7 +592,7 @@ void CharacterSelect::draw() {
 			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
 		}
 
-		surface = TTF_RenderText_Solid(Main::graphics->font26, "BOMB", Main::graphics->white);
+		surface = Main::text->render_text_medium("BOMB");
 		rect.x = r_stats.x;
 		rect.y = r_stats.y + (stats_h * 3);
 		if(direction == -1) rect.x -= surface->w;
@@ -607,4 +606,8 @@ void CharacterSelect::draw() {
 			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
 		}
 	}
+
+	SDL_FreeSurface(statsblock[0]);
+	SDL_FreeSurface(statsblock[1]);
+	SDL_FreeSurface(statsblock[2]);
 }

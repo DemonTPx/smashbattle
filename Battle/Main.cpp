@@ -1,5 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 #include "SDL/SDL_mixer.h"
 
 #include <cstdio>
@@ -40,6 +39,7 @@ bool Main::fps_counter_visible = false;
 
 AudioController * Main::audio = NULL;
 Graphics * Main::graphics = NULL;
+Text * Main::text = NULL;
 
 Main::Main() {
 	Main::instance = this;
@@ -62,8 +62,6 @@ bool Main::init() {
 
 	if(screen == NULL) return false;
 
-	if(TTF_Init() == -1) return false;
-
 	SDL_WM_SetCaption("Battle", NULL);
 	
 	fps = new Timer();
@@ -76,6 +74,9 @@ bool Main::init() {
 
 	graphics = new Graphics();
 	graphics->load_all();
+
+	text = new Text();
+	text->load_all();
 
 	// enable joystick throughout the game
 	SDL_JoystickEventState(SDL_ENABLE);
@@ -105,6 +106,9 @@ void Main::clean_up() {
 
 	graphics->clear_all();
 	delete graphics;
+
+	text->clear_all();
+	delete text;
 
 	if(SDL_JoystickOpened(3))
 		SDL_JoystickClose(joystick4);
@@ -153,11 +157,11 @@ void Main::fps_count() {
 		color.g = 0xff;
 		color.b = 0xff;
 
-		sprintf(cap, "%d fps", fps_counter_this_frame);
-		surf = TTF_RenderText_Solid(graphics->font13, cap, color);
+		sprintf(cap, "%d FPS", fps_counter_this_frame);
+		surf = Main::text->render_text_small(cap);
 
-		rect.x = screen->w - surf->w;
-		rect.y = 0;
+		rect.x = screen->w - surf->w - 2;
+		rect.y = 2;
 
 		SDL_BlitSurface(surf, NULL, screen, &rect);
 

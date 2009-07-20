@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -Wall
-LDFLAGS=-lSDL -lSDL_ttf -lSDL_mixer -lstdc++
+LDFLAGS=-lSDL -lSDL_mixer -lstdc++
 SRCS=AmmoPowerUp.cpp\
 	AudioController.cpp\
 	AudioOptions.cpp\
@@ -26,6 +26,7 @@ SRCS=AmmoPowerUp.cpp\
 	Player.cpp\
 	PlayerAnimation.cpp\
 	Projectile.cpp\
+	Text.cpp\
 	Timer.cpp
 OBJS=AmmoPowerUp.o\
 	AudioController.o\
@@ -52,6 +53,7 @@ OBJS=AmmoPowerUp.o\
 	Player.o\
 	PlayerAnimation.o\
 	Projectile.o\
+	Text.o\
 	Timer.o
 EXECUTABLE=battle
 

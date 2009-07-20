@@ -1,5 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 
 #include "Player.h"
 #include "Graphics.h"
@@ -66,18 +65,6 @@ void Graphics::load_all() {
 	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
 	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
 
-	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
-	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
-	font52 = TTF_OpenFont("fonts/slick.ttf", 52);
-
-	gray.r = 0x88;
-	gray.g = 0x88;
-	gray.b = 0x88;
-
-	white.r = 0xff;
-	white.g = 0xff;
-	white.b = 0xff;
-
 	load_players();
 	set_player_clips();
 }
@@ -114,10 +101,6 @@ void Graphics::clear_all() {
 	SDL_FreeSurface(bg_menu);
 
 	SDL_FreeSurface(tiles);
-
-	TTF_CloseFont(font13);
-	TTF_CloseFont(font26);
-	TTF_CloseFont(font52);
 
 	clear_players();
 	clear_player_clips();

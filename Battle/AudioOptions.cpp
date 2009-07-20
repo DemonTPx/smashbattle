@@ -1,5 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 #include "SDL/SDL_mixer.h"
 
 #include "AudioOptions.h"
@@ -8,9 +7,9 @@ AudioOptions::AudioOptions() {
 	OptionItem * item;
 
 	item = new OptionItem();
-	item->name = (char*)"Audio";
+	item->name = (char*)"AUDIO VOLUME";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"off");
+	item->options->push_back((char*)"OFF");
 	item->options->push_back((char*)"20");
 	item->options->push_back((char*)"40");
 	item->options->push_back((char*)"60");
@@ -20,9 +19,9 @@ AudioOptions::AudioOptions() {
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Music";
+	item->name = (char*)"MUSIC VOLUME";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"off");
+	item->options->push_back((char*)"OFF");
 	item->options->push_back((char*)"20");
 	item->options->push_back((char*)"40");
 	item->options->push_back((char*)"60");
@@ -32,7 +31,7 @@ AudioOptions::AudioOptions() {
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Return";
+	item->name = (char*)"RETURN";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);

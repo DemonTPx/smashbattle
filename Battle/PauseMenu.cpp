@@ -1,5 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 
 #include <vector>
 
@@ -135,7 +134,7 @@ void PauseMenu::draw() {
 
 	SDL_FillRect(screen, &rect, 0);
 
-	surface = TTF_RenderText_Solid(Main::graphics->font26, "PAUSE", Main::graphics->white);
+	surface = Main::text->render_text_medium("PAUSE");
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y += 8;
 
@@ -154,10 +153,12 @@ void PauseMenu::draw() {
 		rect.h = 20;
 
 		if(selected_option == i) {
+			rect.y -= 2;
 			SDL_FillRect(screen, &rect, color);
+			rect.y += 2;
 		}
 
-		surface = TTF_RenderText_Solid(Main::graphics->font26, text, Main::graphics->white);
+		surface = Main::text->render_text_medium(text);
 		rect.x = (screen->w - surface->w) / 2 ;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);

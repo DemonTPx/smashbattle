@@ -1,5 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 
 #include "Main.h"
 #include "Player.h"
@@ -291,7 +290,7 @@ void LevelSelect::draw() {
 	}
 
 	// STAGES
-	surface = TTF_RenderText_Solid(Main::graphics->font26, name, Main::graphics->white);
+	surface = Main::text->render_text_medium(name);
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = MENU_TOP_OFFSET - 20;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -350,15 +349,20 @@ void LevelSelect::load_sprites() {
 		strncpy(bg_file_full, "gfx/\0", 5);
 		strncat(bg_file_full, info->filename_background, 30);
 		surface = SDL_LoadBMP(bg_file_full);
-		backgrounds->push_back(surface);
+		backgrounds->push_back(SDL_DisplayFormat(surface));
+		SDL_FreeSurface(surface);
 		delete info;
 	}
 }
 
 void LevelSelect::free_sprites() {
-	thumbs->clear();
+	for(unsigned int i = 0; i < thumbs->size(); i++) {
+		SDL_FreeSurface(thumbs->at(i));
+	}
 	delete thumbs;
 
-	backgrounds->clear();
+	for(unsigned int i = 0; i < backgrounds->size(); i++) {
+		SDL_FreeSurface(backgrounds->at(i));
+	}
 	delete backgrounds;
 }
