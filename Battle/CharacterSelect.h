@@ -1,6 +1,8 @@
 #ifndef _CHARACTERSELECT_H
 #define _CHARACTERSELECT_H
 
+#include "PlayerAnimation.h"
+
 class CharacterSelect {
 public:
 	CharacterSelect(int players);
@@ -24,6 +26,8 @@ private:
 
 	bool ready;
 	bool player_ready[4];
+
+	PlayerAnimation * playeranimation[4];
 	
 	int cursor_direction[4];
 	bool cursor_first[4];

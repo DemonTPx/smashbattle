@@ -38,11 +38,19 @@ PlayerAnimation::PlayerAnimation(int character) {
 
 	current_sprite = 0;
 
+	distance_walked = 0;
+	total_distance_walked = 0;
+
 	animate_in_place = true;
 }
 
 PlayerAnimation::~PlayerAnimation() {
 	delete position;
+}
+
+void PlayerAnimation::set_character(int character) {
+	this->character = character;
+	sprites = Main::graphics->player->at(character);
 }
 
 void PlayerAnimation::move() {
@@ -130,6 +138,7 @@ void PlayerAnimation::move() {
 			}
 		}
 		distance_walked = 0;
+		total_distance_walked = 0;
 	}
 	if(momentumx < 0) {
 		// Moving left
@@ -160,6 +169,7 @@ void PlayerAnimation::move() {
 			}
 			distance_walked += speedx;
 		}
+		total_distance_walked += speedx;
 	}
 	else if(momentumx > 0) {
 		// Moving right
@@ -190,6 +200,7 @@ void PlayerAnimation::move() {
 			}
 			distance_walked += speedx;
 		}
+		total_distance_walked += speedx;
 	}
 	
 	/*

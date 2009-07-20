@@ -16,8 +16,6 @@ public:
 	void select_down();
 	void select();
 private:
-	SDL_Surface * bg;
-	SDL_Surface * tiles;
 	SDL_Surface * title;
 
 	int selected_item;

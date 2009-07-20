@@ -23,6 +23,10 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
+#define MENU_TOP_OFFSET 180
+#define TILES_COLS		10
+#define TILES_ROWS		6
+
 LevelSelect::LevelSelect(int players) {
 	this->players = players;
 }
@@ -242,22 +246,61 @@ void LevelSelect::select(int direction) {
 void LevelSelect::draw() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
-	SDL_Rect rect, rect_b;
+	SDL_Rect rect, rect_b, rect_s;
 	Uint32 color;
+	int width;
 
 	screen = Main::instance->screen;
 
-	SDL_FillRect(screen, NULL, 0);
+	SDL_BlitSurface(backgrounds->at(level), NULL, screen, NULL);
+
+	// TILES
+	rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
+	rect.y = MENU_TOP_OFFSET - 32 - TILE_H;
+	rect.w = TILES_COLS * TILE_W;
+	rect.h = TILES_ROWS * TILE_H;
+
+	SDL_FillRect(screen, &rect, 0);
+
+	rect_s.x = 0;
+	rect_s.y = 0;
+	rect_s.w = TILE_W;
+	rect_s.h = TILE_H;
+
+	rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
+	rect.y = MENU_TOP_OFFSET - 32 - TILE_H;
+	for(int i = 0; i < TILES_COLS; i++) {
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		rect.x += TILE_W;
+	}
+
+	for(int i = 1; i < TILES_ROWS - 1; i++) {
+		rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
+		rect.y = (MENU_TOP_OFFSET - 32 - TILE_H) + (TILE_H * i);
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		
+		rect.x = rect.x + ((TILES_COLS - 1) * TILE_W);
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+	}
+
+	rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
+	rect.y = (MENU_TOP_OFFSET - 32 - TILE_H) + ((TILES_ROWS - 1) * TILE_H);
+	for(int i = 0; i < TILES_COLS; i++) {
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		rect.x += TILE_W;
+	}
 
 	// STAGES
 	surface = TTF_RenderText_Solid(Main::graphics->font26, name, Main::graphics->white);
 	rect.x = (screen->w - surface->w) / 2;
-	rect.y = 200;
+	rect.y = MENU_TOP_OFFSET - 20;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	rect_b.x = (screen->w - ((LEVEL_WIDTH + (LEVEL_SPACING * 2)) * LEVELS_PER_LINE)) / 2;
-	rect_b.y = 220;
+	width = (LEVEL_WIDTH + (LEVEL_SPACING * 2)) * LEVELS_PER_LINE;
+
+	rect_b.x = (screen->w - width) / 2;
+	rect_b.y = MENU_TOP_OFFSET;
 	rect_b.w = LEVEL_WIDTH + (LEVEL_SPACING * 2);
 	rect_b.h = LEVEL_HEIGHT + (LEVEL_SPACING * 2);
 
@@ -273,7 +316,7 @@ void LevelSelect::draw() {
 		color = 0;
 
 		if(level == idx) {
-			color = 0x444488;
+			color = 0x0088ff;
 			
 			if(ready_level && flicker) {
 				if(flicker_frame > 0x20)
@@ -293,16 +336,29 @@ void LevelSelect::draw() {
 
 void LevelSelect::load_sprites() {
 	SDL_Surface * surface;
+	LevelInformation * info;
+	char bg_file_full[35];
 
 	thumbs = new std::vector<SDL_Surface*>(0);
+	backgrounds = new std::vector<SDL_Surface*>(0);
 
 	for(int idx = 0; idx < Level::LEVEL_COUNT; idx++) {
 		surface = Level::get_thumbnail(Level::LEVELS[idx].filename);
 		thumbs->push_back(surface);
+
+		info = Level::get_information(Level::LEVELS[idx].filename);
+		strncpy(bg_file_full, "gfx/\0", 5);
+		strncat(bg_file_full, info->filename_background, 30);
+		surface = SDL_LoadBMP(bg_file_full);
+		backgrounds->push_back(surface);
+		delete info;
 	}
 }
 
 void LevelSelect::free_sprites() {
 	thumbs->clear();
 	delete thumbs;
+
+	backgrounds->clear();
+	delete backgrounds;
 }

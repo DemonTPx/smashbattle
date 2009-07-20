@@ -36,6 +36,7 @@ private:
 
 	char * name;
 	std::vector<SDL_Surface*> * thumbs;
+	std::vector<SDL_Surface*> * backgrounds;
 
 	int frame;
 };

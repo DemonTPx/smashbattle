@@ -419,6 +419,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\charselect.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\common.bmp"
 				>
 			</File>

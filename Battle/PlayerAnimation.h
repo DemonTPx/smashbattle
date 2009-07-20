@@ -8,6 +8,8 @@ public:
 	PlayerAnimation(int character);
 	~PlayerAnimation();
 
+	void set_character(int character);
+
 	void move();
 	void draw(SDL_Surface * screen);
 
@@ -32,6 +34,7 @@ public:
 	int current_sprite;
 	int cycle_direction;
 	int distance_walked;
+	int total_distance_walked;
 };
 
 #endif

@@ -124,7 +124,7 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 	ifs.read(bg_file, 30);
 
 	surface = SDL_CreateRGBSurface(NULL, TILE_COLS * 2 + 4, TILE_ROWS * 2 + 4, 32, 0, 0, 0, 0);
-	SDL_FillRect(surface, NULL, 0x888888);
+	SDL_FillRect(surface, NULL, 0x444444);
 	rect.x = 2;
 	rect.y = 2;
 	rect.w = TILE_COLS * 2;
@@ -134,7 +134,7 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 	rect.y = 2;
 	rect.w = 2;
 	rect.h = 2;
-	fillColor = 0xff0000;
+	fillColor = 0x993300;
 	maxx = TILE_COLS * 2 + 2;
 
 	for(int i = 0; i < TILE_COUNT; i++) {

@@ -83,7 +83,7 @@ void Menu::draw() {
 
 	screen = Main::instance->screen;
 
-	SDL_BlitSurface(bg, NULL, screen, NULL);
+	SDL_BlitSurface(Main::graphics->bg_menu, NULL, screen, NULL);
 
 	rect.x = (WINDOW_WIDTH - title->w) / 2;
 	rect.y = 40;
@@ -94,19 +94,19 @@ void Menu::draw() {
 	rect_s.w = TILE_W;
 	rect_s.h = TILE_H;
 
-	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 3);
+	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
 	rect.y = MENU_TOP_OFFSET - TILE_H;
 	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
-		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}
 
 	for(i = 0; i < ITEMCOUNT; i++) {
 		rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
 		rect.y = surf_items_clip->at(i)->y - 6;
-		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
-		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 
 		text = surf_items->at(i);
 		
@@ -122,11 +122,11 @@ void Menu::draw() {
 		SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 	}
 
-	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 3);
+	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
 	rect.y = MENU_TOP_OFFSET + (ITEMCOUNT * MENU_ITEM_HEIGHT);
 	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
-		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}
 
 	playeranimation->draw(Main::instance->screen);
@@ -505,14 +505,6 @@ void Menu::init() {
 
 	selected_item = 0;
 
-	surface = SDL_LoadBMP("gfx/title_screen.bmp");
-	bg = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
-
-	surface = SDL_LoadBMP("gfx/tiles.bmp");
-	tiles = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
-
 	title = TTF_RenderText_Solid(Main::graphics->font52, "SMASH BATTLE", Main::graphics->white);
 
 	surf_items = new std::vector<SDL_Surface*>(0);
@@ -540,8 +532,6 @@ void Menu::init() {
 }
 
 void Menu::cleanup() {
-	SDL_FreeSurface(bg);
-	SDL_FreeSurface(tiles);
 	SDL_FreeSurface(title);
 
 	for(unsigned int i = 0; i < surf_items->size(); i++) {

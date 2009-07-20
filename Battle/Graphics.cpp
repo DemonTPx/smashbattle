@@ -51,6 +51,20 @@ void Graphics::load_all() {
 	SDL_FreeSurface(surface);
 	colorkey = SDL_MapRGB(pmarker->format, 0, 255, 255);
 	SDL_SetColorKey(pmarker, SDL_SRCCOLORKEY, colorkey);
+	
+	surface = SDL_LoadBMP("gfx/charselect.bmp");
+	bg_charselect = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+
+	surface = SDL_LoadBMP("gfx/title_screen.bmp");
+	bg_menu = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+
+	surface = SDL_LoadBMP("gfx/tiles.bmp");
+	tiles = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
+	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
 
 	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
 	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
@@ -94,6 +108,13 @@ void Graphics::clear_all() {
 
 	SDL_FreeSurface(common);
 
+	SDL_FreeSurface(pmarker);
+
+	SDL_FreeSurface(bg_charselect);
+	SDL_FreeSurface(bg_menu);
+
+	SDL_FreeSurface(tiles);
+
 	TTF_CloseFont(font13);
 	TTF_CloseFont(font26);
 	TTF_CloseFont(font52);
@@ -134,7 +155,7 @@ void Graphics::set_player_clips() {
 
 	for(int i = 0; i < 4; i++) {
 		pmarker_clip[i] = new SDL_Rect();
-		pmarker_clip[i]->x = 16 * (i - 1);
+		pmarker_clip[i]->x = 16 * i;
 		pmarker_clip[i]->y = 0;
 		pmarker_clip[i]->w = 16;
 		pmarker_clip[i]->h = 20;
@@ -148,4 +169,16 @@ void Graphics::clear_player_clips() {
 	for(int i = 0; i < 4; i++) {
 		delete pmarker_clip[i];
 	}
+}
+
+Uint32 Graphics::combine_colors(Uint32 color1, Uint32 color2) {
+	int r1, g1, b1;
+	int r2, g2, b2;
+	r1 = (color1 & 0xff0000) >> 16;
+	g1 = (color1 & 0xff00) >> 8;
+	b1 = color1 & 0xff;
+	r2 = (color2 & 0xff0000) >> 16;
+	g2 = (color2 & 0xff00) >> 8;
+	b2 = color2 & 0xff;
+	return (((r1 + r2) / 2) << 16) + (((g1 + g2) / 2) << 8) + ((b1 + b2) / 2);
 }

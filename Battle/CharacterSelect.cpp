@@ -1,11 +1,11 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
 
-#include "Main.h"
-#include "Player.h"
-
 #include <vector>
 
+#include "Main.h"
+#include "Player.h"
+#include "PlayerAnimation.h"
 #include "CharacterSelect.h"
 
 #ifndef WIN32
@@ -56,6 +56,35 @@ void CharacterSelect::run() {
 		player_select[3] = Player::CHARACTER_COUNT - 1;
 	}
 
+	for(int i = 0; i < players; i++) {
+		playeranimation[i] = new PlayerAnimation(player_select[i]);
+		playeranimation[i]->animate_in_place = true;
+		switch(i) {
+			case 0:
+				playeranimation[i]->position->x = 40;
+				playeranimation[i]->position->y = 28;
+				playeranimation[i]->direction = 1;
+				break;
+			case 1:
+				playeranimation[i]->position->x = 600 - PLAYER_W;
+				playeranimation[i]->position->y = 28;
+				playeranimation[i]->direction = -1;
+				playeranimation[i]->set_sprite(SPR_L);
+				break;
+			case 2:
+				playeranimation[i]->position->x = 40;
+				playeranimation[i]->position->y = 288;
+				playeranimation[i]->direction = 1;
+				break;
+			case 3:
+				playeranimation[i]->position->x = 600 - PLAYER_W;
+				playeranimation[i]->position->y = 288;
+				playeranimation[i]->direction = -1;
+				playeranimation[i]->set_sprite(SPR_L);
+				break;
+		}
+	}
+
 	frame = 0;
 
 	while (Main::running && !ready && !cancel) {
@@ -69,6 +98,8 @@ void CharacterSelect::run() {
 		for(int i = 0; i < players; i++) {
 			name[i] = Player::CHARACTERS[player_select[i]].name;
 			file[i] = Player::CHARACTERS[player_select[i]].filename;
+
+			playeranimation[i]->move();
 		}
 
 		frame++;
@@ -83,6 +114,10 @@ void CharacterSelect::run() {
 		}
 
 		Main::instance->flip();
+	}
+
+	for(int i = 0; i < players; i++) {
+		delete playeranimation[i];
 	}
 
 	if(!ready)
@@ -222,6 +257,7 @@ void CharacterSelect::process_cursors() {
 					player_ready[i] = true;
 					flicker[i] = true;
 					flicker_frame[i] = 0;
+					playeranimation[i]->is_walking = true;
 					Main::audio->play(SND_SELECT_CHARACTER);
 				}
 			}
@@ -237,6 +273,7 @@ void CharacterSelect::process_cursors() {
 				cursor_first[i] = false;
 				if(!player_ready[i]) {
 					select(&player_select[i], cursor_direction[i]);
+					playeranimation[i]->set_character(player_select[i]);
 					Main::audio->play(SND_SELECT);
 				}
 			}
@@ -288,7 +325,7 @@ void CharacterSelect::draw() {
 
 	screen = Main::instance->screen;
 
-	SDL_FillRect(screen, NULL, 0);
+	SDL_BlitSurface(Main::graphics->bg_charselect, NULL, screen, NULL);
 
 	// CHARACTERS
 
@@ -313,17 +350,8 @@ void CharacterSelect::draw() {
 
 		for(int i = 0; i < players; i++) {
 			if(player_select[i] == idx) {
-				if(color != 0) {
-					int r1, g1, b1;
-					int r2, g2, b2;
-					r1 = (color & 0xff0000) >> 16;
-					g1 = (color & 0xff00) >> 8;
-					b1 = color & 0xff;
-					r2 = (Player::COLORS[i] & 0xff0000) >> 16;
-					g2 = (Player::COLORS[i] & 0xff00) >> 8;
-					b2 = Player::COLORS[i] & 0xff;
-					color = (((r1 + r2) / 2) << 16) + (((g1 + g2) / 2) << 8) + ((b1 + b2) / 2);
-				}
+				if(color != 0)
+					color = Graphics::combine_colors(color, Player::COLORS[i]);
 				else
 					color = Player::COLORS[i];
 				if(player_ready[i]) {
@@ -385,17 +413,17 @@ void CharacterSelect::draw() {
 	SDL_FillRect(statsblock[2], NULL, 0x008800);
 
 	// PLAYERS
-	SDL_Rect r_block, r_pnumber, r_avatar, r_playername, r_ready;
+	SDL_Rect r_block, r_pnumber,r_playername, r_ready;
 	SDL_Rect r_stats;
 	SDL_Rect * clip_direction;
 	int stats_w, stats_h;
 	int direction;
-	stats_w = 110;
+	stats_w = 100;
 	stats_h = 20;
 
 	for(int i = 0; i < players; i++) {
 		r_block.w = 190;
-		r_block.h = 180;
+		r_block.h = 200;
 		r_pnumber.w = 60;
 		r_pnumber.h = 50;
 		switch(i) {
@@ -405,14 +433,12 @@ void CharacterSelect::draw() {
 				r_pnumber.x = r_block.x + r_block.w;
 				r_pnumber.y = r_block.y;
 				clip_direction = Main::graphics->player_clip[SPR_R];
-				r_avatar.x = 40;
-				r_avatar.y = 20;
 				r_playername.x = 50 + PLAYER_W;
-				r_playername.y = 25;
+				r_playername.y = 30;
 				r_ready.x = 50 + PLAYER_W;
-				r_ready.y = 45;
-				r_stats.x = 20;
-				r_stats.y = 100;
+				r_ready.y = 50;
+				r_stats.x = 22;
+				r_stats.y = 120;
 				direction = 1;
 				break;
 			case 1:
@@ -421,45 +447,39 @@ void CharacterSelect::draw() {
 				r_pnumber.x = r_block.x - r_pnumber.w;
 				r_pnumber.y = r_block.y;
 				clip_direction = Main::graphics->player_clip[SPR_L];
-				r_avatar.x = 600 - PLAYER_W;
-				r_avatar.y = 20;
 				r_playername.x = 590 - PLAYER_W;
-				r_playername.y = 25;
+				r_playername.y = 30;
 				r_ready.x = 590 - PLAYER_W;
-				r_ready.y = 45;
-				r_stats.x = 620;
-				r_stats.y = 100;
+				r_ready.y = 50;
+				r_stats.x = 616;
+				r_stats.y = 120;
 				direction = -1;
 				break;
 			case 2:
 				r_block.x = 10;
-				r_block.y = 290;
+				r_block.y = 270;
 				r_pnumber.x = r_block.x + r_block.w;
 				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
 				clip_direction = Main::graphics->player_clip[SPR_R];
-				r_avatar.x = 40;
-				r_avatar.y = 300;
 				r_playername.x = 50 + PLAYER_W;
-				r_playername.y = 305;
+				r_playername.y = 290;
 				r_ready.x = 50 + PLAYER_W;
-				r_ready.y = 325;
-				r_stats.x = 20;
+				r_ready.y = 310;
+				r_stats.x = 22;
 				r_stats.y = 380;
 				direction = 1;
 				break;
 			case 3:
 				r_block.x = 440;
-				r_block.y = 290;
+				r_block.y = 270;
 				r_pnumber.x = r_block.x - r_pnumber.w;
 				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
 				clip_direction = Main::graphics->player_clip[SPR_L];
-				r_avatar.x = 600 - PLAYER_W;
-				r_avatar.y = 300;
 				r_playername.x = 590 - PLAYER_W;
-				r_playername.y = 305;
+				r_playername.y = 290;
 				r_ready.x = 590 + PLAYER_W;
-				r_ready.y = 325;
-				r_stats.x = 620;
+				r_ready.y = 310;
+				r_stats.x = 616;
 				r_stats.y = 380;
 				direction = -1;
 				break;
@@ -467,15 +487,52 @@ void CharacterSelect::draw() {
 		SDL_FillRect(screen, &r_block, Player::COLORS[i]);
 		r_block.x += 4; r_block.w -= 8;
 		r_block.y += 4; r_block.h -= 8;
-		SDL_FillRect(screen, &r_block, 0x222222);
+		SDL_FillRect(screen, &r_block, 0);
 
-		SDL_BlitSurface(Main::graphics->player->at(player_select[i]), clip_direction, screen, &r_avatar);
 
+		// Player animation and background
+		r_block.x += 10; r_block.w -= 22;
+		r_block.y += 8; r_block.h -= 16;
+
+		r_block.h = (TILE_H * 2) + 18;
+		SDL_FillRect(screen, &r_block, 0x2288ff);
+
+		rect.x = r_block.x;
+		rect.y = r_block.y + TILE_H + 18;
+		rect_s.x = (TILE_W * 4);
+		rect_s.y = 0;
+		rect_s.w = TILE_W;
+		rect_s.h = TILE_H;
+
+		int offset = ((playeranimation[i]->total_distance_walked / 2) % TILE_W);
+
+		rect_s.w = TILE_W - offset;
+		rect_s.x += offset;
+		if(offset < 0) {
+			rect_s.w = -offset;
+			rect_s.x += TILE_W;
+		}
+		for(int tile_i = 0; tile_i < (r_block.w / TILE_W); tile_i++) {
+			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+			rect.x += rect_s.w;
+			rect_s.w = TILE_W;
+			rect_s.x = (TILE_W * 4);
+		}
+		rect_s.w = offset;
+		if(offset < 0) {
+			rect_s.w = TILE_W + offset;
+		}
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+
+		playeranimation[i]->draw(screen);
+
+		// Player name
 		surface = TTF_RenderText_Solid(Main::graphics->font26, name[i], Main::graphics->white);
 		if(direction == -1) r_playername.x -= surface->w;
 		SDL_BlitSurface(surface, NULL, screen, &r_playername);
 		SDL_FreeSurface(surface);
 
+		// Player ready
 		if(player_ready[i]) {
 			surface = TTF_RenderText_Solid(Main::graphics->font26, "READY", Main::graphics->white);
 			if(direction == -1) r_ready.x -= surface->w;

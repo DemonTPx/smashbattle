@@ -48,13 +48,22 @@ public:
 	void set_player_clips();
 	void clear_player_clips();
 
+	static Uint32 combine_colors(Uint32 color1, Uint32 color2);
+
 	SDL_Surface * weapons;
 	SDL_Surface * bombs;
 	SDL_Surface * powerups;
+	
 	SDL_Surface * player1hp;
 	SDL_Surface * player2hp;
+	
 	SDL_Surface * common;
 	SDL_Surface * pmarker;
+
+	SDL_Surface * bg_charselect;
+	SDL_Surface * bg_menu;
+
+	SDL_Surface * tiles;
 
 	std::vector<SDL_Surface*> * player;
 	SDL_Rect * player_clip[SPR_COUNT];
