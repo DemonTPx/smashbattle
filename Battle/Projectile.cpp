@@ -88,6 +88,7 @@ void Projectile::hit_player(Player * player) {
 	player->hit_start = Gameplay::frame;
 	player->is_hit = true;
 	hit = true;
+	owner->bullets_hit++;
 }
 
 void Projectile::draw(SDL_Surface * screen) {

@@ -3,10 +3,11 @@
 
 #include "SDL/SDL_mixer.h"
 
-#define MUSICFILES 2
+#define MUSICFILES 3
 
 #define MUSIC_TITLE 0
 #define MUSIC_BATTLE 1
+#define MUSIC_END 2
 
 #define SOUNDFILES 12
 

@@ -19,10 +19,7 @@
 #endif
 
 void LocalMultiplayer::initialize() {
-	pause_menu = new PauseMenu(screen);
-	pause_menu->add_option((char*)"RESUME\0");
-	pause_menu->add_option((char*)"END ROUND\0");
-	pause_menu->add_option((char*)"QUIT\0");
+	Gameplay::initialize();
 
 	powerup_rate = 600;
 	powerup_max = 2;
@@ -38,6 +35,14 @@ void LocalMultiplayer::on_game_reset() {
 	int x, y;
 	int sprite;
 	Player * p;
+	
+	for(unsigned int idx = 0; idx < players->size(); idx++) {
+		p = players->at(idx);
+		if(p->score >= (int)((players->size() - 1) * 5)) {
+			game_running = false;
+		}
+	}
+
 	for(unsigned int idx = 0; idx < players->size(); idx++) {
 		p = players->at(idx);
 
@@ -141,13 +146,6 @@ void LocalMultiplayer::on_post_processing() {
 		// Generate powerup
 		generate_powerup(false);
 	}
-}
-
-void LocalMultiplayer::pause(Player * p) {
-	int ret;
-	ret = pause_menu->pause(p);
-	if(ret == 1) return;
-	if(ret == 2) game_running = false;
 }
 
 void LocalMultiplayer::generate_powerup(bool force) {
@@ -483,7 +481,7 @@ void LocalMultiplayer::draw_score_multi() {
 		// Avatar
 		rect.x = x + 2;
 		rect.y = y + 2;
-		SDL_BlitSurface(player->sprites, player->clip[SPR_R], screen, &rect);
+		SDL_BlitSurface(player->sprites, Main::graphics->player_clip[SPR_R], screen, &rect);
 
 		// Score
 		sprintf_s(str, 40, "%02d", player->score);

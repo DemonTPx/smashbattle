@@ -17,6 +17,7 @@ SRCS=AmmoPowerUp.cpp\
 	Level.cpp\
 	LevelSelect.cpp\
 	LocalMultiplayer.cpp\
+	LocalMultiplayerRoundEnd.cpp\
 	Main.cpp\
 	Menu.cpp\
 	Options.cpp\
@@ -42,6 +43,7 @@ OBJS=AmmoPowerUp.o\
 	Level.o\
 	LevelSelect.o\
 	LocalMultiplayer.o\
+	LocalMultiplayerRoundEnd.o\
 	Main.o\
 	Menu.o\
 	Options.o\

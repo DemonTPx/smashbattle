@@ -63,13 +63,15 @@ public:
 	static const int BOMBPOWERCLASS_COUNT;
 	static const BombPowerClass BOMBPOWERCLASSES[];
 
+	void set_character(int character);
+	void reset();
+
 	char * name;
 	int number;
 
 	SDL_Rect * position;
 	SDL_Rect * last_position;
 	SDL_Surface * sprites;
-	SDL_Rect * clip[20];
 	SDL_Rect * marker_clip;
 
 	int speedclass;
@@ -120,9 +122,18 @@ public:
 	int instantkillbullets;
 
 	int score;
+
 	int hitpoints;
 
 	int bounce_direction_x, bounce_direction_y;
+
+	int rounds_won;
+	int rounds_draw;
+	unsigned int bullets_fired;
+	unsigned int bullets_hit;
+	unsigned int bombs_fired;
+	unsigned int bombs_hit;
+	unsigned int headstomps;
 
 	static const int jump_height;
 

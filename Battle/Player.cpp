@@ -86,32 +86,10 @@ Player::Player(int character, int number) {
 	name = CHARACTERS[character].name;
 	this->number = number;
 
-	speedclass = 1;
-	weightclass = 1;
-	weaponclass = 1;
-	bombpowerclass = 1;
-
-	momentumx = 0;
-	momentumy = 0;
-
-	current_sprite = SPR_R;
-	distance_walked = 0;
-
-	is_running = false;
-	is_duck = false;
-	is_duck_forced = false;
-	duck_force_start = 0;
-
-	is_jumping = false;
-	is_falling = false;
-
-	keydn_l = false;
-	keydn_r = false;
-	keydn_u = false;
-	keydn_d = false;
-	keydn_run = false;
-	keydn_shoot = false;
-	keydn_bomb = false;
+	speedclass = CHARACTERS[character].speedclass;
+	weightclass = CHARACTERS[character].weightclass;
+	weaponclass = CHARACTERS[character].weaponclass;
+	bombpowerclass = CHARACTERS[character].bombpowerclass;
 
 	controls.use_keyboard = true;
 	controls.kb_right = SDLK_RIGHT;
@@ -133,6 +111,65 @@ Player::Player(int character, int number) {
 	controls.js_shoot = 1;
 	controls.js_bomb = 3;
 	controls.js_start = 2;
+
+	rounds_won = 0;
+	rounds_draw = 0;
+	bullets_fired = 0;
+	bullets_hit = 0;
+	bombs_fired = 0;
+	bombs_hit = 0;
+	headstomps = 0;
+
+	reset();
+
+	position = new SDL_Rect();
+	last_position = new SDL_Rect();
+
+	position->w = PLAYER_W;
+	position->h = PLAYER_H;
+
+	sprites = Main::graphics->player->at(character);
+	marker_clip = Main::graphics->pmarker_clip[(number - 1)];
+}
+
+Player::~Player() {
+	delete position;
+	delete last_position;
+}
+
+void Player::set_character(int character) {
+	name = CHARACTERS[character].name;
+
+	speedclass = CHARACTERS[character].speedclass;
+	weightclass = CHARACTERS[character].weightclass;
+	weaponclass = CHARACTERS[character].weaponclass;
+	bombpowerclass = CHARACTERS[character].bombpowerclass;
+
+	sprites = Main::graphics->player->at(character);
+}
+
+void Player::reset() {
+	momentumx = 0;
+	momentumy = 0;
+
+	current_sprite = SPR_R;
+	distance_walked = 0;
+
+	is_running = false;
+	is_duck = false;
+	is_duck_forced = false;
+	duck_force_start = 0;
+
+	is_jumping = false;
+	is_falling = false;
+
+	keydn_l = false;
+	keydn_r = false;
+	keydn_u = false;
+	keydn_d = false;
+	keydn_run = false;
+	keydn_shoot = false;
+	keydn_bomb = false;
 
 	is_hit = false;
 	hit_start = 0;
@@ -159,24 +196,10 @@ Player::Player(int character, int number) {
 	doubledamagebullets = 0;
 	instantkillbullets = 0;
 
-	hitpoints = 100;
 	score = 0;
+	hitpoints = 100;
 
 	cycle_direction = CYCLE_UP;
-
-	position = new SDL_Rect();
-	last_position = new SDL_Rect();
-
-	position->w = PLAYER_W;
-	position->h = PLAYER_H;
-
-	sprites = Main::graphics->player->at(character);
-	marker_clip = Main::graphics->pmarker_clip[(number - 1)];
-}
-
-Player::~Player() {
-	delete position;
-	delete last_position;
 }
 
 void Player::draw(SDL_Surface * screen) {
@@ -732,6 +755,7 @@ void Player::bounce(Player * other) {
 			hit_start = Gameplay::frame;
 			momentumy = -10;
 			hitpoints -= WEIGHTCLASSES[other->weightclass].headjump_damage;
+			other->headstomps++;
 		}
 	}
 	if(!is_above && !is_below) {
@@ -800,6 +824,7 @@ void Player::process() {
 			clip_weapon->h = 8;
 
 			pr = new Projectile(Main::graphics->weapons, clip_weapon);
+			pr->owner = this;
 			if(instantkill)
 				pr->damage = 100;
 			else if(doubledamage)
@@ -828,6 +853,8 @@ void Player::process() {
 				doubledamagebullets--;
 //			else if(ruleset.doubledamagebullets != BULLETS_UNLIMITED)
 //				bullets--;
+			
+			bullets_fired++;
 
 			Main::instance->audio->play(SND_SHOOT);
 		}
@@ -850,6 +877,8 @@ void Player::process() {
 			
 			if(bombs != -1)
 				bombs -= 1;
+
+			bombs_fired++;
 
 			Main::instance->audio->play(SND_SHOOT);
 		}

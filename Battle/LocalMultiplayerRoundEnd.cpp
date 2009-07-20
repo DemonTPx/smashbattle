@@ -1,25 +1,14 @@
-#include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
-
-#include <vector>
+#include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
 
 #include "Main.h"
-#include "Timer.h"
-#include "AudioController.h"
-#include "CharacterSelect.h"
-#include "LevelSelect.h"
-#include "Gameplay.h"
-#include "LocalMultiplayer.h"
+#include "Player.h"
+#include "Level.h"
 #include "LocalMultiplayerRoundEnd.h"
-#include "Options.h"
-#include "PlayerAnimation.h"
 
-#include "Menu.h"
-
-#define MENU_TOP_OFFSET 160
+#define MENU_TOP_OFFSET 368
 #define MENU_ITEM_HEIGHT TILE_H
-#define MENU_ITEM_WIDTH 128
+#define MENU_ITEM_WIDTH 224
 
 #define DIRECTION_NONE	0
 #define DIRECTION_LEFT	1
@@ -27,62 +16,94 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-const int Menu::ITEMCOUNT = 5;
-const char * Menu::item[ITEMCOUNT] = {"2P DUEL", "3P BATTLE", "4P BATTLE", "OPTIONS", "QUIT"};
+const int LocalMultiplayerRoundEnd::ITEMCOUNT = 3;
+const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE CHARACTER", "CHANGE LEVEL", "QUIT TO MENU"};
 
-Menu::Menu() {
+LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd(int players) {
+	this->players = players;
 }
 
-Menu::~Menu() {
-}
-
-void Menu::run() {
+void LocalMultiplayerRoundEnd::run() {
 	SDL_Event event;
 
 	init();
 
-	controls1 = Main::instance->controls1;
-	controls2 = Main::instance->controls2;
-	controls3 = Main::instance->controls3;
-	controls4 = Main::instance->controls4;
+	Main::audio->play_music(MUSIC_END);
 	
-	Main::audio->play_music(MUSIC_TITLE);
-
+	ready = false;
 	frame = 0;
-
+	
 	cursor_direction = 0;
 	cursor_direction_start = 0;
 	cursor_enter = false;
 	cursor_first = false;
 
-	while (Main::running) {
+	while (Main::running && !ready) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
 			handle_input(&event);
 		}
 		process_cursor();
 
-		process_playeranimation();
-		playeranimation->move();
-
+		frame++;
 		draw();
 
 		Main::instance->flip();
-		frame++;
 	}
-	Main::audio->stop_music();
 
 	cleanup();
 }
 
-void Menu::draw() {
+void LocalMultiplayerRoundEnd::init() {
+	SDL_Surface * surface;
+	SDL_Rect * rect;
+
+	controls1 = Main::instance->controls1;
+	controls2 = Main::instance->controls2;
+	controls3 = Main::instance->controls3;
+	controls4 = Main::instance->controls4;
+
+	selected_item = 0;
+
+	surf_items = new std::vector<SDL_Surface*>(0);
+	surf_items_clip = new std::vector<SDL_Rect*>(0);
+	for(int i = 0; i < ITEMCOUNT; i++) {
+		surface = TTF_RenderText_Solid(Main::graphics->font26, item[i], Main::graphics->white);
+		surf_items->push_back(surface);
+
+		rect = new SDL_Rect();
+		rect->x = (WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2;
+		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) + 6;
+		surf_items_clip->push_back(rect);
+	}
+}
+
+void LocalMultiplayerRoundEnd::cleanup() {
+	for(unsigned int i = 0; i < surf_items->size(); i++) {
+		SDL_FreeSurface(surf_items->at(i));
+	}
+	surf_items->clear();
+	delete surf_items;
+
+	for(unsigned int i = 0; i < surf_items_clip->size(); i++) {
+		delete surf_items_clip->at(i);
+	}
+	surf_items_clip->clear();
+	delete surf_items_clip;
+}
+
+void LocalMultiplayerRoundEnd::draw() {
 	int i;
 	SDL_Surface * text;
 	SDL_Rect rect, rect_s;
 	SDL_Surface * screen;
+	char str[30];
+	double accuracy;
 
 	screen = Main::instance->screen;
 
+	SDL_FillRect(screen, NULL, 0);
+	/*
 	SDL_BlitSurface(Main::graphics->bg_menu, NULL, screen, NULL);
 
 	rect.x = (WINDOW_WIDTH - title->w) / 2;
@@ -99,14 +120,16 @@ void Menu::draw() {
 	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
-	}
+	}*/
 
 	for(i = 0; i < ITEMCOUNT; i++) {
+		/*
 		rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
 		rect.y = surf_items_clip->at(i)->y - 6;
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		*/
 
 		text = surf_items->at(i);
 		
@@ -121,30 +144,161 @@ void Menu::draw() {
 
 		SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 	}
-
+	/*
 	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
 	rect.y = MENU_TOP_OFFSET + (ITEMCOUNT * MENU_ITEM_HEIGHT);
 	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
+	*/
 
-	playeranimation->draw(Main::instance->screen);
-
-	rect.x = (WINDOW_WIDTH - credits->at(0)->w) / 2;
-	rect.y = WINDOW_HEIGHT - 35;
-	SDL_BlitSurface(credits->at(0), NULL, screen, &rect);
+	SDL_Rect r_block;
 	
-	rect.x = (WINDOW_WIDTH - credits->at(1)->w) / 2;
-	rect.y = WINDOW_HEIGHT - 25;
-	SDL_BlitSurface(credits->at(1), NULL, screen, &rect);
+	// RESULTS
+	if(winner == -1) {
+		text = TTF_RenderText_Solid(Main::graphics->font52, (char*)"DRAW", Main::graphics->white);
+	} else {
+		sprintf_s(str, 30, "%s WINS\0", player[winner]->name);
+		text = TTF_RenderText_Solid(Main::graphics->font52, str, Main::graphics->white);
+	}
+	rect.x = 10;
+	rect.y = 10;
+	if(!(frame & 0x10))
+		SDL_BlitSurface(text, NULL, screen, &rect);
 
-	rect.x = (WINDOW_WIDTH - credits->at(2)->w) / 2;
-	rect.y = WINDOW_HEIGHT - 15;
-	SDL_BlitSurface(credits->at(2), NULL, screen, &rect);
+	// Round number
+	sprintf_s(str, 20, "ROUND %d\0", round);
+	text = TTF_RenderText_Solid(Main::graphics->font52, str, Main::graphics->white);
+	rect.x = WINDOW_WIDTH - 10 - text->w;
+	rect.y = 10;
+	SDL_BlitSurface(text, NULL, screen, &rect);
+
+	r_block.w = WINDOW_WIDTH - 20;
+	r_block.h = 72;
+
+	for(int i = 0; i < players; i++) {
+		r_block.x = 10;
+		r_block.y = 50 + (76 * i);
+
+		SDL_FillRect(screen, &r_block, Player::COLORS[i]);
+		
+		// Avatar
+		rect.x = r_block.x + 14;
+		rect.y = r_block.y + 14;
+		if(i == winner && (frame & 0x10))
+			SDL_BlitSurface(player[i]->sprites, Main::graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
+		else
+			SDL_BlitSurface(player[i]->sprites, Main::graphics->player_clip[SPR_AVATAR], screen, &rect);
+
+		// Player number
+		rect.x = r_block.x + 72;
+		rect.y = r_block.y + 10;
+		sprintf_s(str, 5, "P%d\0", (i + 1));
+		text = TTF_RenderText_Solid(Main::graphics->font52, str, Main::graphics->white);
+		SDL_BlitSurface(text, NULL, screen, &rect);
+
+		// Player name
+		rect.x = r_block.x + 72;
+		rect.y = r_block.y + 48;
+		text = TTF_RenderText_Solid(Main::graphics->font26, player[i]->name, Main::graphics->white);
+		SDL_BlitSurface(text, NULL, screen, &rect);
+
+		// Bullets fired
+		rect.x = r_block.x + 202;
+		rect.y = r_block.y + 20;
+		rect_s.x = 0;
+		rect_s.y = 0;
+		rect_s.w = 8;
+		rect_s.h = 8;
+		SDL_BlitSurface(Main::graphics->weapons, &rect_s, screen, &rect);
+
+		sprintf_s(str, 20, "%06d\0", player[i]->bullets_fired);
+		text = TTF_RenderText_Solid(Main::graphics->font26, str, Main::graphics->white);
+		rect.x = r_block.x + 310 - text->w;
+		rect.y = r_block.y + 16;
+		SDL_BlitSurface(text, NULL, screen, &rect);
+		
+		// Bullets accuracy
+		rect.x = r_block.x + 332;
+		rect.y = r_block.y + 16;
+		rect_s.x = 0;
+		rect_s.y = 16;
+		rect_s.w = 16;
+		rect_s.h = 16;
+		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
+
+		if(player[i]->bullets_fired == 0)
+			accuracy = 0;
+		else
+			accuracy = ((double)player[i]->bullets_hit / (double)player[i]->bullets_fired) * 100;
+		sprintf_s(str, 20, "%3.0f\0", accuracy);
+		text = TTF_RenderText_Solid(Main::graphics->font26, str, Main::graphics->white);
+		rect.x = r_block.x + 390 - text->w;
+		rect.y = r_block.y + 16;
+		SDL_BlitSurface(text, NULL, screen, &rect);
+
+		// Bombs fired
+		rect.x = r_block.x + 200;
+		rect.y = r_block.y + 40;
+		rect_s.x = 0;
+		rect_s.y = 0;
+		rect_s.w = 12;
+		rect_s.h = 16;
+		SDL_BlitSurface(Main::graphics->bombs, &rect_s, screen, &rect);
+
+		sprintf_s(str, 20, "%06d\0", player[i]->bombs_fired);
+		text = TTF_RenderText_Solid(Main::graphics->font26, str, Main::graphics->white);
+		rect.x = r_block.x + 310 - text->w;
+		rect.y = r_block.y + 40;
+		SDL_BlitSurface(text, NULL, screen, &rect);
+		
+		// Bombs accuracy
+		rect.x = r_block.x + 332;
+		rect.y = r_block.y + 40;
+		rect_s.x = 0;
+		rect_s.y = 16;
+		rect_s.w = 16;
+		rect_s.h = 16;
+		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
+
+		if(player[i]->bombs_fired == 0)
+			accuracy = 0;
+		else
+			accuracy = ((double)player[i]->bombs_hit / (double)player[i]->bombs_fired) * 100;
+		sprintf_s(str, 20, "%3.0f\0", accuracy);
+		text = TTF_RenderText_Solid(Main::graphics->font26, str, Main::graphics->white);
+		rect.x = r_block.x + 390 - text->w;
+		rect.y = r_block.y + 40;
+		SDL_BlitSurface(text, NULL, screen, &rect);
+		
+		// Rounds draw
+		text = TTF_RenderText_Solid(Main::graphics->font26, (char*)"DRAW", Main::graphics->white);
+		rect.x = r_block.x + r_block.w - 136;
+		rect.y = r_block.y + 6;
+		SDL_BlitSurface(text, NULL, screen, &rect);
+
+		sprintf_s(str, 4, "%02d\0", player[i]->rounds_draw);
+		text = TTF_RenderText_Solid(Main::graphics->font52, str, Main::graphics->white);
+		rect.x = r_block.x + r_block.w - 130;
+		rect.y = r_block.y + 32;
+		SDL_BlitSurface(text, NULL, screen, &rect);
+
+		// Rounds won
+		text = TTF_RenderText_Solid(Main::graphics->font26, (char*)"WON", Main::graphics->white);
+		rect.x = r_block.x + r_block.w - 58;
+		rect.y = r_block.y + 6;
+		SDL_BlitSurface(text, NULL, screen, &rect);
+
+		sprintf_s(str, 4, "%02d\0", player[i]->rounds_won);
+		text = TTF_RenderText_Solid(Main::graphics->font52, str, Main::graphics->white);
+		rect.x = r_block.x + r_block.w - 60;
+		rect.y = r_block.y + 32;
+		SDL_BlitSurface(text, NULL, screen, &rect);
+	}
 }
 
-void Menu::handle_input(SDL_Event * event) {
+void LocalMultiplayerRoundEnd::handle_input(SDL_Event * event) {
 	int old_direction;
 	old_direction = cursor_direction;
 
@@ -315,8 +469,7 @@ void Menu::handle_input(SDL_Event * event) {
 	}
 }
 
-
-void Menu::process_cursor() {
+void LocalMultiplayerRoundEnd::process_cursor() {
 	int delay;
 
 	if(cursor_enter) {
@@ -342,196 +495,26 @@ void Menu::process_cursor() {
 	}
 }
 
-void Menu::select() {
+void LocalMultiplayerRoundEnd::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
-			start_local_multiplayer(2);
+			result = ROUNDEND_CHANGE_CHARACTER;
+			ready = true;
 			break;
 		case 1:
-			start_local_multiplayer(3);
+			result = ROUNDEND_CHANGE_LEVEL;
+			ready = true;
 			break;
 		case 2:
-			start_local_multiplayer(4);
-			break;
-		case 3:
-			Options * options;
-			options = new Options();
-			options->run();
-			delete options;
-			controls1 = Main::instance->controls1;
-			controls2 = Main::instance->controls2;
-			break;
-		case 4:
-			SDL_Delay(500);
-			Main::running = false;
+			result = ROUNDEND_QUIT;
+			ready = true;
 			break;
 	}
 	Main::audio->play_music(MUSIC_TITLE);
 }
 
-void Menu::start_local_multiplayer(int players) {
-	Player ** player;
-
-	Level * level;
-	LocalMultiplayer * lmp;
-	LocalMultiplayerRoundEnd * end;
-	CharacterSelect * cs;
-	LevelSelect * ls;
-
-	int round;
-
-	int winner;
-	int highest_score;
-
-	bool running;
-	bool change_character;
-	bool change_level;
-
-	player = new Player*[players];
-
-	level = NULL;
-	for(int i = 0; i < players; i++) {
-		player[i] = new Player(0, (i + 1));
-		if(i == 0) player[i]->controls = controls1;
-		if(i == 1) player[i]->controls = controls2;
-		if(i == 2) player[i]->controls = controls3;
-		if(i == 3) player[i]->controls = controls4;
-	}
-
-	running = true;
-	round = 0;
-
-	cs = new CharacterSelect(players);
-	ls = new LevelSelect(players);
-
-	change_level = true;
-	change_character = true;
-
-	while(Main::running && running) {
-		round++;
-
-		if(change_character) {
-			cs->run();
-			if(cs->cancel) break;
-
-			for(int i = 0; i < players; i++) {
-				player[i]->set_character(cs->player_select[i]);
-				player[i]->reset();
-			}
-		}
-
-		if(change_level) {
-			ls->run();
-			if(ls->cancel) break;
-
-			if(level != NULL)
-				delete level;
-
-			level = new Level();
-			level->load(Level::LEVELS[ls->level].filename);
-		}
-
-		lmp = new LocalMultiplayer();
-		lmp->set_level(level);
-
-		for(int i = 0; i < players; i++) {
-			lmp->add_player(player[i]);
-		}
-		lmp->run();
-
-		highest_score = 0;
-		winner = -1;
-		for(int i = 0; i < players; i++) {
-			if(player[i]->score == highest_score) {
-				winner = -1;
-			}
-			if(player[i]->score > highest_score) {
-				winner = i;
-				highest_score = player[i]->score;
-			}
-		}
-
-		if(winner == -1) {
-			for(int i = 0; i < players; i++) {
-				if(player[i]->score == highest_score) {
-					player[i]->rounds_draw++;
-				}
-			}
-		} else {
-			player[winner]->rounds_won++;
-		}
-
-		end = new LocalMultiplayerRoundEnd(players);
-		end->player = player;
-		end->winner = winner;
-		end->round = round;
-		end->run();
-		if(end->result == ROUNDEND_CHANGE_CHARACTER) {
-			change_level = true;
-			change_character = true;
-		}
-		if(end->result == ROUNDEND_CHANGE_LEVEL) {
-			change_character = false;
-			change_level = true;
-		}
-		if(end->result == ROUNDEND_QUIT)
-			running = false;
-		delete end;
-
-		delete lmp;
-	}
-
-	delete cs;
-	delete ls;
-	if(level != NULL)
-		delete level;
-	for(int i = 0; i < players; i++) {
-		if(player[i] != NULL)
-			delete player[i];
-	}
-	delete player;
-}
-
-void Menu::process_playeranimation() {
-	if(playeranimation->position->x < -PLAYER_W)
-		next_playeranimation();
-	if(frame - animation_start == 0) {
-		playeranimation->position->x = WINDOW_WIDTH;
-		playeranimation->position->y = (TILE_H * 13) - PLAYER_H;
-		playeranimation->is_walking = true;
-		playeranimation->is_running = true;
-		playeranimation->momentumx = -20;
-		playeranimation->animate_in_place = false;
-		playeranimation->direction = -1;
-	}
-	if(frame - animation_start == 32) {
-		playeranimation->direction = 1;
-	}
-	if(playeranimation->momentumx == 0) {
-		playeranimation->is_walking = false;
-		playeranimation->direction = -1;
-	}
-	if(playeranimation->character == 2 && frame - animation_start == 100) {
-		playeranimation->is_duck = true;
-	}
-	if(frame - animation_start == 140) {
-		playeranimation->is_duck = false;
-		playeranimation->is_walking = true;
-		playeranimation->direction = -1;
-	}
-}
-
-void Menu::next_playeranimation() {
-	int character;
-	character = playeranimation->character;
-	delete playeranimation;
-
-	playeranimation = new PlayerAnimation((character + 1) % Player::CHARACTER_COUNT);
-	animation_start = frame;
-}
-
-void Menu::select_up() {
+void LocalMultiplayerRoundEnd::select_up() {
 	Main::audio->play(SND_SELECT);
 
 	selected_item--;
@@ -541,7 +524,7 @@ void Menu::select_up() {
 	}
 }
 
-void Menu::select_down() {
+void LocalMultiplayerRoundEnd::select_down() {
 	Main::audio->play(SND_SELECT);
 
 	selected_item++;
@@ -549,60 +532,4 @@ void Menu::select_down() {
 	if(selected_item == ITEMCOUNT) {
 		selected_item = 0;
 	}
-}
-
-void Menu::init() {
-	SDL_Surface * surface;
-	SDL_Rect * rect;
-
-	selected_item = 0;
-
-	title = TTF_RenderText_Solid(Main::graphics->font52, "SMASH BATTLE", Main::graphics->white);
-
-	surf_items = new std::vector<SDL_Surface*>(0);
-	surf_items_clip = new std::vector<SDL_Rect*>(0);
-	for(int i = 0; i < ITEMCOUNT; i++) {
-		surface = TTF_RenderText_Solid(Main::graphics->font26, item[i], Main::graphics->white);
-		surf_items->push_back(surface);
-
-		rect = new SDL_Rect();
-		rect->x = (WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2;
-		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) + 6;
-		surf_items_clip->push_back(rect);
-	}
-
-	credits = new std::vector<SDL_Surface*>(0);
-	surface = TTF_RenderText_Solid(Main::graphics->font13, "Programming by Bert Hekman", Main::graphics->white);
-	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(Main::graphics->font13, "Graphics by Jeroen Groeneweg and Okke Voerman", Main::graphics->white);
-	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(Main::graphics->font13, "Music by Nick Perrin", Main::graphics->white);
-	credits->push_back(surface);
-
-	playeranimation = new PlayerAnimation(0);
-	animation_start = 0;
-}
-
-void Menu::cleanup() {
-	SDL_FreeSurface(title);
-
-	for(unsigned int i = 0; i < surf_items->size(); i++) {
-		SDL_FreeSurface(surf_items->at(i));
-	}
-	surf_items->clear();
-	delete surf_items;
-
-	for(unsigned int i = 0; i < surf_items_clip->size(); i++) {
-		delete surf_items_clip->at(i);
-	}
-	surf_items_clip->clear();
-	delete surf_items_clip;
-
-	for(unsigned int i = 0; i < credits->size(); i++) {
-		SDL_FreeSurface(credits->at(i));
-	}
-	credits->clear();
-	delete credits;
-
-	delete playeranimation;
 }

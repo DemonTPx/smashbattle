@@ -149,6 +149,8 @@ void Bomb::explode() {
 	Player * p;
 	SDL_Rect * rect_bomb;
 	SDL_Rect * rect_player = NULL;
+	bool player_hit = false;
+
 	rect_bomb = get_damage_rect();
 
 	for(unsigned int i = 0; i < Gameplay::instance->players->size(); i++) {
@@ -162,10 +164,14 @@ void Bomb::explode() {
 			p->hitpoints -= damage;
 			p->is_hit = true;
 			p->hit_start = Gameplay::frame;
+			player_hit = true;
 		}
 
 		delete rect_player;
 	}
+
+	if(player_hit)
+		owner->bombs_hit++;
 
 	// Tiles below are also to be damaged
 	rect_bomb->h += TILE_H;

@@ -243,7 +243,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\LocalMultiplayerRoundEnd.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Makefile"
 				>
 			</File>
 			<File
@@ -349,6 +357,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\LocalMultiplayerRoundEnd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.h"
 				>
 			</File>
@@ -447,6 +459,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\music\end.ogg"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\eva.bmp"
 				>
 			</File>
@@ -488,6 +504,30 @@
 			</File>
 			<File
 				RelativePath=".\gfx\level_02.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\level_03.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\level_04.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\level_05.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\level_06.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\level_07.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\level_08.bmp"
 				>
 			</File>
 			<File
@@ -544,6 +584,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\rob.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\rutger.bmp"
 				>
 			</File>
 			<File
@@ -611,10 +655,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\Makefile"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
