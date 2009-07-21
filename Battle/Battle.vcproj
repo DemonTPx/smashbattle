@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdl.lib sdlmain.lib sdl_mixer.lib"
+				AdditionalDependencies="sdl.lib sdlmain.lib sdl_mixer.lib zdll.lib"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -423,7 +423,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\blastbowl.stg"
+				RelativePath=".\stage\blastbowl.lvl"
 				>
 			</File>
 			<File
@@ -443,7 +443,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\commongrounds.stg"
+				RelativePath=".\stage\commongrounds.lvl"
 				>
 			</File>
 			<File
@@ -451,11 +451,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\desertstrike.stg"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\donja.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\ducknhunt.stg"
+				RelativePath=".\stage\ducknhunt.lvl"
 				>
 			</File>
 			<File
@@ -555,15 +559,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\pitfall.stg"
+				RelativePath=".\stage\pitfall.lvl"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\pitofdeath.stg"
+				RelativePath=".\stage\pitofdeath.lvl"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\platformalley.stg"
+				RelativePath=".\stage\platformalley.lvl"
 				>
 			</File>
 			<File
@@ -579,7 +583,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\pogostick.stg"
+				RelativePath=".\stage\pogostick.lvl"
 				>
 			</File>
 			<File
@@ -611,10 +615,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\stg-files.txt"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\tedje.bmp"
 				>
 			</File>
@@ -635,7 +635,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\trainingdojo.stg"
+				RelativePath=".\stage\trainingdojo.lvl"
 				>
 			</File>
 			<File

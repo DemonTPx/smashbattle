@@ -1,4 +1,5 @@
 #include "SDL/SDL.h"
+#include "zlib.h"
 
 #include <iostream>
 #include <fstream>
@@ -9,14 +10,14 @@
 
 const int Level::LEVEL_COUNT = 8;
 const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
-	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.stg"},
-	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.stg"},
-	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.stg"},
-	{(char*)"POGOSTICK", (char*)"stage/pogostick.stg"},
-	{(char*)"PITTFALL", (char*)"stage/pitfall.stg"},
-	{(char*)"BLAST BOWL", (char*)"stage/blastbowl.stg"},
-	{(char*)"PIT OF DEATH", (char*)"stage/pitofdeath.stg"},
-	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.stg"}
+	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.lvl"},
+	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.lvl"},
+	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.lvl"},
+	{(char*)"POGOSTICK", (char*)"stage/pogostick.lvl"},
+	{(char*)"PITTFALL", (char*)"stage/pitfall.lvl"},
+	{(char*)"BLAST BOWL", (char*)"stage/blastbowl.lvl"},
+	{(char*)"PIT OF DEATH", (char*)"stage/pitofdeath.lvl"},
+	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.lvl"}
 };
 
 Level::Level() {
@@ -31,39 +32,42 @@ Level::~Level() {
 		SDL_FreeSurface(tiles);
 }
 
-void Level::load(char * filename) {
-	std::ifstream ifs;
-	char name[20], author[20], tiles_file[30], bg_file[30];
+void Level::load(const char * filename) {
+	gzFile file;
+	LEVEL_HEADER header;
+	LEVEL_TILE tile[TILE_COUNT];
+
 	char tiles_file_full[35], bg_file_full[35];
-	char l[1];
+
 	SDL_Surface * surface;
 	Uint32 colorkey;
 
-	ifs.open(filename, std::ifstream::binary);
+	file = gzopen(filename, "rb");
+	gzread(file, &header, sizeof(LEVEL_HEADER));
+	
+	if(header.id != LEVEL_ID) // Invalid file
+		return;
+	if(header.version != LEVEL_VERSION) // Invalid version
+		return;
 
-	ifs.read(name, 20);
-	ifs.read(author, 20);
-	ifs.read(tiles_file, 30);
-	ifs.read(bg_file, 30);
+	gzread(file, &tile, sizeof(tile));
+	gzclose(file);
 
 	// Get the level tiles (HP & sprite index)
 	for(int i = 0; i < TILE_COUNT; i++) {
-		ifs.read(l, 1);
-		level_start[i] = (int)l[0] & 0x0f;
+		level_start[i] = (int)tile[i].tile;
 
-		if(level_start[i] == 0xf)
+		if(level_start[i] == 0xffff)
 			level_start[i] = -1;
 
-		level_hp_start[i] = 10 * (((int)l[0] & 0xf0) >> 4);
+		level_hp_start[i] = (int)tile[i].hp;
 
-		if(level_hp_start[i] == 150)
-			level_hp_start[i] = 10000;
+		if(tile[i].indestructible)
+			level_hp_start[i] = 0x7fffffff;
 	}
 
-	ifs.close();
-
 	strncpy(tiles_file_full, "gfx/\0", 5);
-	strncat(tiles_file_full, tiles_file, 30);
+	strncat(tiles_file_full, header.filename_tiles, 30);
 
 	surface = SDL_LoadBMP(tiles_file_full);
 	tiles = SDL_DisplayFormat(surface);
@@ -71,9 +75,9 @@ void Level::load(char * filename) {
 	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
 	SDL_FreeSurface(surface);
 
-	if(bg_file[0] != 0) {
+	if(header.filename_background[0] != 0) {
 		strncpy(bg_file_full, "gfx/\0", 5);
-		strncat(bg_file_full, bg_file, 30);
+		strncat(bg_file_full, header.filename_background, 30);
 
 		surface = SDL_LoadBMP(bg_file_full);
 		background = SDL_DisplayFormat(surface);
@@ -83,45 +87,46 @@ void Level::load(char * filename) {
 	}
 }
 
-LevelInformation * Level::get_information(const char *filename) {
-	std::ifstream ifs;
-	LevelInformation * info;
-	info = new LevelInformation();
-	char name[20], author[20], tiles_file[30], bg_file[30];
-
-	ifs.open(filename, std::ifstream::binary);
+LEVEL_HEADER * Level::get_header(const char *filename) {
+	gzFile file;
+	LEVEL_HEADER * header;
 	
-	ifs.read(name, 20);
-	ifs.read(author, 20);
-	ifs.read(tiles_file, 30);
-	ifs.read(bg_file, 30);
+	header = new LEVEL_HEADER();
 
-	info->name = name;
-	info->author = author;
-	info->filename = (char*)filename;
-	info->filename_tiles = tiles_file;
-	info->filename_background = bg_file;
+	file = gzopen(filename, "rb");
+	gzread(file, header, sizeof(LEVEL_HEADER));
+	
+	if(header->id != LEVEL_ID) // Invalid file
+		return NULL;
+	if(header->version != LEVEL_VERSION) // Invalid version
+		return NULL;
 
-	ifs.close();
+	gzclose(file);
 
-	return info;
+	return header;
 }
 
 SDL_Surface * Level::get_thumbnail(const char * filename) {
-	std::ifstream ifs;
-	char name[20], author[20], tiles_file[30], bg_file[30];
-	char l[1];
-	SDL_Surface * surface;
+	gzFile file;
+	LEVEL_HEADER header;
+	LEVEL_TILE tile[TILE_COUNT];
+
 	SDL_Rect rect;
 	Uint32 fillColor;
 	int maxx;
 
-	ifs.open(filename, std::ifstream::binary);
+	SDL_Surface * surface;
+
+	file = gzopen(filename, "rb");
+	gzread(file, &header, sizeof(LEVEL_HEADER));
 	
-	ifs.read(name, 20);
-	ifs.read(author, 20);
-	ifs.read(tiles_file, 30);
-	ifs.read(bg_file, 30);
+	if(header.id != LEVEL_ID) // Invalid file
+		return NULL;
+	if(header.version != LEVEL_VERSION) // Invalid version
+		return NULL;
+
+	gzread(file, &tile, sizeof(tile));
+	gzclose(file);
 
 	surface = SDL_CreateRGBSurface(NULL, TILE_COLS * 2 + 4, TILE_ROWS * 2 + 4, 32, 0, 0, 0, 0);
 	SDL_FillRect(surface, NULL, 0x444444);
@@ -138,8 +143,7 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 	maxx = TILE_COLS * 2 + 2;
 
 	for(int i = 0; i < TILE_COUNT; i++) {
-		ifs.read(l, 1);
-		if(l[0] != -1) {
+		if(tile[i].tile != 0xffff) {
 			SDL_FillRect(surface, &rect, fillColor);
 		}
 		rect.x += 2;
@@ -149,7 +153,74 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 		}
 	}
 
-	ifs.close();
+	return surface;
+}
+
+SDL_Surface * Level::get_preview(const char * filename) {
+	gzFile file;
+	LEVEL_HEADER header;
+	LEVEL_TILE tile[TILE_COUNT];
+
+	SDL_Rect rect, rect_s;
+	Uint32 fillColor;
+	Uint32 colorkey;
+
+	char tiles_file_full[35], bg_file_full[35];
+
+	SDL_Surface * loaded;
+	SDL_Surface * tiles;
+	SDL_Surface * surface;
+
+	file = gzopen(filename, "rb");
+	gzread(file, &header, sizeof(LEVEL_HEADER));
+	
+	if(header.id != LEVEL_ID) // Invalid file
+		return NULL;
+	if(header.version != LEVEL_VERSION) // Invalid version
+		return NULL;
+
+	gzread(file, &tile, sizeof(tile));
+	gzclose(file);
+	
+	strncpy(tiles_file_full, "gfx/\0", 5);
+	strncat(tiles_file_full, header.filename_tiles, 30);
+	
+	strncpy(bg_file_full, "gfx/\0", 5);
+	strncat(bg_file_full, header.filename_background, 30);
+
+	loaded = SDL_LoadBMP(bg_file_full);
+	surface = SDL_DisplayFormat(loaded);
+	SDL_FreeSurface(loaded);
+
+	loaded = SDL_LoadBMP(tiles_file_full);
+	tiles = SDL_DisplayFormat(loaded);
+	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
+	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
+	SDL_FreeSurface(loaded);
+
+	for(int i = 0; i < TILE_COUNT; i++) {
+		if(tile[i].tile == 0xffff)
+			continue;
+		if(!tile[i].show_in_preview)
+			continue;
+
+		rect_s.x = (TILE_W * tile[i].tile);
+		rect_s.y = 0;
+		rect_s.w = TILE_W;
+		rect_s.h = TILE_H;
+
+		if(tile[i].hp < 40)
+			rect_s.y += TILE_H;
+		if(tile[i].hp < 20)
+			rect_s.y += TILE_H;
+
+		rect.x = (i % TILE_COLS) * TILE_W;
+		rect.y = (i / TILE_COLS) * TILE_H;
+
+		SDL_BlitSurface(tiles, &rect_s, surface, &rect);
+	}
+
+	SDL_FreeSurface(tiles);
 
 	return surface;
 }

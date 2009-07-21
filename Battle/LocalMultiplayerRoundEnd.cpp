@@ -15,8 +15,10 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
+#define BEGIN_DELAY 150
+
 const int LocalMultiplayerRoundEnd::ITEMCOUNT = 3;
-const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE CHARACTER", "CHANGE LEVEL", "QUIT TO MENU"};
+const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE LEVEL", "CHANGE CHARACTER", "QUIT TO MENU"};
 
 LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd(int players) {
 	this->players = players;
@@ -102,55 +104,58 @@ void LocalMultiplayerRoundEnd::draw() {
 	screen = Main::instance->screen;
 
 	SDL_FillRect(screen, NULL, 0);
-	/*
-	SDL_BlitSurface(Main::graphics->bg_menu, NULL, screen, NULL);
-
-	rect.x = (WINDOW_WIDTH - title->w) / 2;
-	rect.y = 40;
-	SDL_BlitSurface(title, NULL, screen, &rect);
-
-	rect_s.x = 0;
-	rect_s.y = 0;
-	rect_s.w = TILE_W;
-	rect_s.h = TILE_H;
-
-	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
-	rect.y = MENU_TOP_OFFSET - TILE_H;
-	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-		rect.x += TILE_W;
-	}*/
-
-	for(i = 0; i < ITEMCOUNT; i++) {
+	
+	if(frame >= BEGIN_DELAY) {
 		/*
-		rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
-		rect.y = surf_items_clip->at(i)->y - 6;
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-		rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-		*/
+		SDL_BlitSurface(Main::graphics->bg_menu, NULL, screen, NULL);
 
-		text = surf_items->at(i);
-		
-		if(selected_item == i) {
-			rect.x = surf_items_clip->at(i)->x - TILE_W;
+		rect.x = (WINDOW_WIDTH - title->w) / 2;
+		rect.y = 40;
+		SDL_BlitSurface(title, NULL, screen, &rect);
+
+		rect_s.x = 0;
+		rect_s.y = 0;
+		rect_s.w = TILE_W;
+		rect_s.h = TILE_H;
+
+		rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
+		rect.y = MENU_TOP_OFFSET - TILE_H;
+		for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
+			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+			rect.x += TILE_W;
+		}*/
+
+		for(i = 0; i < ITEMCOUNT; i++) {
+			/*
+			rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
 			rect.y = surf_items_clip->at(i)->y - 6;
-			rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
-			rect.h = MENU_ITEM_HEIGHT;
+			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+			rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
+			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+			*/
 
-			SDL_FillRect(screen, &rect, 0x0088ff);
+			text = surf_items->at(i);
+			
+			if(selected_item == i) {
+				rect.x = surf_items_clip->at(i)->x - TILE_W;
+				rect.y = surf_items_clip->at(i)->y - 6;
+				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
+				rect.h = MENU_ITEM_HEIGHT;
+
+				SDL_FillRect(screen, &rect, 0x0088ff);
+			}
+
+			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 		}
-
-		SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
+		/*
+		rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
+		rect.y = MENU_TOP_OFFSET + (ITEMCOUNT * MENU_ITEM_HEIGHT);
+		for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
+			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+			rect.x += TILE_W;
+		}
+		*/
 	}
-	/*
-	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
-	rect.y = MENU_TOP_OFFSET + (ITEMCOUNT * MENU_ITEM_HEIGHT);
-	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-		rect.x += TILE_W;
-	}
-	*/
 
 	SDL_Rect r_block;
 	
@@ -326,6 +331,9 @@ void LocalMultiplayerRoundEnd::draw() {
 }
 
 void LocalMultiplayerRoundEnd::handle_input(SDL_Event * event) {
+	if(frame < BEGIN_DELAY)
+		return;
+
 	int old_direction;
 	old_direction = cursor_direction;
 
@@ -526,11 +534,11 @@ void LocalMultiplayerRoundEnd::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
-			result = ROUNDEND_CHANGE_CHARACTER;
+			result = ROUNDEND_CHANGE_LEVEL;
 			ready = true;
 			break;
 		case 1:
-			result = ROUNDEND_CHANGE_LEVEL;
+			result = ROUNDEND_CHANGE_CHARACTER;
 			ready = true;
 			break;
 		case 2:

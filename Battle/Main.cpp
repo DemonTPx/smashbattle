@@ -288,7 +288,6 @@ void Main::save_options() {
 }
 
 void Main::set_default_controlschemes() {
-	//TODO: load these from a file
 	controls1.use_keyboard = true;
 	controls1.kb_left = SDLK_a;
 	controls1.kb_right = SDLK_d;

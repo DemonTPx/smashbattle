@@ -335,8 +335,6 @@ void LevelSelect::draw() {
 
 void LevelSelect::load_sprites() {
 	SDL_Surface * surface;
-	LevelInformation * info;
-	char bg_file_full[35];
 
 	thumbs = new std::vector<SDL_Surface*>(0);
 	backgrounds = new std::vector<SDL_Surface*>(0);
@@ -345,13 +343,8 @@ void LevelSelect::load_sprites() {
 		surface = Level::get_thumbnail(Level::LEVELS[idx].filename);
 		thumbs->push_back(surface);
 
-		info = Level::get_information(Level::LEVELS[idx].filename);
-		strncpy(bg_file_full, "gfx/\0", 5);
-		strncat(bg_file_full, info->filename_background, 30);
-		surface = SDL_LoadBMP(bg_file_full);
-		backgrounds->push_back(SDL_DisplayFormat(surface));
-		SDL_FreeSurface(surface);
-		delete info;
+		surface = Level::get_preview(Level::LEVELS[idx].filename);
+		backgrounds->push_back(surface);
 	}
 }
 

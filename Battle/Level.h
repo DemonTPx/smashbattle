@@ -14,17 +14,31 @@
 #define BOUNCE_HEIGHT_PER_FRAME 3
 #define BOUNCE_HIT_HEIGHT 16
 
-struct LevelInformation {
-	char * name;
-	char * author;
-	char * filename;
-	char * filename_tiles;
-	char * filename_background;
-};
-
 struct LevelInfo {
 	char * name;
 	char * filename;
+};
+
+#define LEVEL_ID 'SB'
+#define LEVEL_VERSION 1
+
+struct LEVEL_TILE {
+	unsigned short tile;
+	unsigned short hp;
+	bool indestructible;
+	bool bouncing;
+	bool show_in_preview;
+	unsigned short player_start;
+};
+
+struct LEVEL_HEADER {
+	unsigned short id;
+	unsigned short version;
+	char name[20];
+	char author[20];
+	unsigned short max_players;
+	char filename_tiles[30];
+	char filename_background[30];
 };
 
 class Level {
@@ -34,7 +48,7 @@ public:
 
 	void draw(SDL_Surface * screen);
 
-	void load(char * filename);
+	void load(const char * filename);
 
 	void reset();
 
@@ -47,8 +61,9 @@ public:
 	static const int LEVEL_COUNT;
 	static const LevelInfo LEVELS[];
 
-	static LevelInformation * get_information(const char * filename);
+	static LEVEL_HEADER * get_header(const char * filename);
 	static SDL_Surface * get_thumbnail(const char * filename);
+	static SDL_Surface * get_preview(const char * filename);
 
 	static int tile(int x, int y);
 	
