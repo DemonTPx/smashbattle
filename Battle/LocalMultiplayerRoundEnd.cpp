@@ -158,7 +158,7 @@ void LocalMultiplayerRoundEnd::draw() {
 	if(winner == -1) {
 		text = Main::text->render_text_large("DRAW");
 	} else {
-		sprintf_s(str, 30, "%s WINS\0", player[winner]->name);
+		sprintf_s(str, 30, "%s WINS", player[winner]->name);
 		text = Main::text->render_text_large(str);
 	}
 	rect.x = 10;
@@ -168,7 +168,7 @@ void LocalMultiplayerRoundEnd::draw() {
 	SDL_FreeSurface(text);
 
 	// Round number
-	sprintf_s(str, 20, "ROUND %d\0", round);
+	sprintf_s(str, 20, "ROUND %d", round);
 	text = Main::text->render_text_large(str);
 	rect.x = WINDOW_WIDTH - 10 - text->w;
 	rect.y = 10;
@@ -195,7 +195,7 @@ void LocalMultiplayerRoundEnd::draw() {
 		// Player number
 		rect.x = r_block.x + 72;
 		rect.y = r_block.y + 10;
-		sprintf_s(str, 5, "P%d\0", (i + 1));
+		sprintf_s(str, 5, "P%d", (i + 1));
 		text = Main::text->render_text_large(str);
 		SDL_BlitSurface(text, NULL, screen, &rect);
 		SDL_FreeSurface(text);
@@ -216,9 +216,9 @@ void LocalMultiplayerRoundEnd::draw() {
 		rect_s.h = 8;
 		SDL_BlitSurface(Main::graphics->weapons, &rect_s, screen, &rect);
 
-		sprintf_s(str, 20, "%06d\0", player[i]->bullets_fired);
+		sprintf_s(str, 20, "%06d", player[i]->bullets_fired);
 		text = Main::text->render_text_medium_gray(str);
-		rect.x = r_block.x + 310 - text->w;
+		rect.x = r_block.x + 220;
 		rect.y = r_block.y + 8;
 		SDL_BlitSurface(text, NULL, screen, &rect);
 		SDL_FreeSurface(text);
@@ -236,7 +236,7 @@ void LocalMultiplayerRoundEnd::draw() {
 			accuracy = 0;
 		else
 			accuracy = ((double)player[i]->bullets_hit / (double)player[i]->bullets_fired) * 100;
-		sprintf_s(str, 20, "%3.0f%%\0", accuracy);
+		sprintf_s(str, 20, "%3.0f%%", accuracy);
 		text = Main::text->render_text_medium_gray(str);
 		rect.x = r_block.x + 390 - text->w;
 		rect.y = r_block.y + 8;
@@ -252,9 +252,9 @@ void LocalMultiplayerRoundEnd::draw() {
 		rect_s.h = 16;
 		SDL_BlitSurface(Main::graphics->bombs, &rect_s, screen, &rect);
 
-		sprintf_s(str, 20, "%06d\0", player[i]->bombs_fired);
+		sprintf_s(str, 20, "%06d", player[i]->bombs_fired);
 		text = Main::text->render_text_medium_gray(str);
-		rect.x = r_block.x + 310 - text->w;
+		rect.x = r_block.x + 220;
 		rect.y = r_block.y + 30;
 		SDL_BlitSurface(text, NULL, screen, &rect);
 		SDL_FreeSurface(text);
@@ -272,7 +272,7 @@ void LocalMultiplayerRoundEnd::draw() {
 			accuracy = 0;
 		else
 			accuracy = ((double)player[i]->bombs_hit / (double)player[i]->bombs_fired) * 100;
-		sprintf_s(str, 20, "%3.0f%%\0", accuracy);
+		sprintf_s(str, 20, "%3.0f%%", accuracy);
 		text = Main::text->render_text_medium_gray(str);
 		rect.x = r_block.x + 390 - text->w;
 		rect.y = r_block.y + 30;
@@ -288,9 +288,9 @@ void LocalMultiplayerRoundEnd::draw() {
 		rect_s.h = 16;
 		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 
-		sprintf_s(str, 20, "%06d\0", player[i]->headstomps);
+		sprintf_s(str, 20, "%06d", player[i]->headstomps);
 		text = Main::text->render_text_medium_gray(str);
-		rect.x = r_block.x + 310 - text->w;
+		rect.x = r_block.x + 220;
 		rect.y = r_block.y + 52;
 		SDL_BlitSurface(text, NULL, screen, &rect);
 		SDL_FreeSurface(text);
@@ -302,7 +302,7 @@ void LocalMultiplayerRoundEnd::draw() {
 		SDL_BlitSurface(text, NULL, screen, &rect);
 		SDL_FreeSurface(text);
 
-		sprintf_s(str, 4, "%02d\0", player[i]->rounds_draw);
+		sprintf_s(str, 4, "%02d", player[i]->rounds_draw);
 		text = Main::text->render_text_large(str);
 		rect.x = r_block.x + r_block.w - 130;
 		rect.y = r_block.y + 32;
@@ -316,7 +316,7 @@ void LocalMultiplayerRoundEnd::draw() {
 		SDL_BlitSurface(text, NULL, screen, &rect);
 		SDL_FreeSurface(text);
 
-		sprintf_s(str, 4, "%02d\0", player[i]->rounds_won);
+		sprintf_s(str, 4, "%02d", player[i]->rounds_won);
 		text = Main::text->render_text_large(str);
 		rect.x = r_block.x + r_block.w - 60;
 		rect.y = r_block.y + 32;

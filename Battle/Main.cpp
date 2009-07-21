@@ -232,11 +232,6 @@ int main(int argc, char* args[]) {
 }
 
 void Main::load_options() {
-	union {
-		int i;
-		char c[4];
-	} val;
-	char c[1];
 	std::ifstream file;
 	ControlScheme * controls;
 
@@ -250,10 +245,8 @@ void Main::load_options() {
 		return;
 	}
 
-	file.read(val.c, 4);
-	audio->sound_volume = val.i;
-	file.read(val.c, 4);
-	audio->music_volume = val.i;
+	file.read((char*)&audio->sound_volume, sizeof(int));
+	file.read((char*)&audio->sound_volume, sizeof(int));
 
 	for(int i = 0; i < 4; i++) {
 		if(i == 0) controls = &controls1;
@@ -261,46 +254,7 @@ void Main::load_options() {
 		if(i == 2) controls = &controls3;
 		if(i == 3) controls = &controls4;
 
-		file.read(c, 1);
-		controls->use_keyboard = (c[0] == 1);
-		file.read(val.c, 4);
-		controls->kb_left = val.i;
-		file.read(val.c, 4);
-		controls->kb_right = val.i;
-		file.read(val.c, 4);
-		controls->kb_up = val.i;
-		file.read(val.c, 4);
-		controls->kb_down = val.i;
-		file.read(val.c, 4);
-		controls->kb_jump = val.i;
-		file.read(val.c, 4);
-		controls->kb_run = val.i;
-		file.read(val.c, 4);
-		controls->kb_shoot = val.i;
-		file.read(val.c, 4);
-		controls->kb_bomb = val.i;
-		file.read(val.c, 4);
-		controls->kb_start = val.i;
-		file.read(c, 1);
-		controls->use_joystick = (c[0] == 1);
-		file.read(c, 1);
-		controls->use_axis_x = (c[0] == 1);
-		file.read(c, 1);
-		controls->use_axis_up = (c[0] == 1);
-		file.read(c, 1);
-		controls->use_axis_down = (c[0] == 1);
-		file.read(val.c, 4);
-		controls->joystick_idx = val.i;
-		file.read(val.c, 4);
-		controls->js_jump = val.i;
-		file.read(val.c, 4);
-		controls->js_run = val.i;
-		file.read(val.c, 4);
-		controls->js_shoot = val.i;
-		file.read(val.c, 4);
-		controls->js_bomb = val.i;
-		file.read(val.c, 4);
-		controls->js_start = val.i;
+		file.read((char*)controls, sizeof(ControlScheme));
 
 		if(file.eof()) break;
 	}
@@ -308,11 +262,6 @@ void Main::load_options() {
 }
 
 void Main::save_options() {
-	union {
-		int i;
-		char c[4];
-	} val;
-	char c[1];
 	std::ofstream file;
 	ControlScheme * controls;
 
@@ -322,10 +271,8 @@ void Main::save_options() {
 		file.close();
 	}
 
-	val.i = audio->sound_volume;
-	file.write(val.c, 4);
-	val.i = audio->music_volume;
-	file.write(val.c, 4);
+	file.write((char*)&audio->sound_volume, 4);
+	file.write((char*)&audio->music_volume, 4);
 	
 
 	for(int i = 0; i < 4; i++) {
@@ -334,46 +281,7 @@ void Main::save_options() {
 		if(i == 2) controls = &controls3;
 		if(i == 3) controls = &controls4;
 
-		c[0] = controls->use_keyboard ? 1 : 0;
-		file.write(c, 1);
-		val.i = controls->kb_left;
-		file.write(val.c, 4);
-		val.i = controls->kb_right;
-		file.write(val.c, 4);
-		val.i = controls->kb_up;
-		file.write(val.c, 4);
-		val.i = controls->kb_down;
-		file.write(val.c, 4);
-		val.i = controls->kb_jump;
-		file.write(val.c, 4);
-		val.i = controls->kb_run;
-		file.write(val.c, 4);
-		val.i = controls->kb_shoot;
-		file.write(val.c, 4);
-		val.i = controls->kb_bomb;
-		file.write(val.c, 4);
-		val.i = controls->kb_start;
-		file.write(val.c, 4);
-		c[0] = controls->use_joystick ? 1 : 0;
-		file.write(c, 1);
-		c[0] = controls->use_axis_x ? 1 : 0;
-		file.write(c, 1);
-		c[0] = controls->use_axis_up ? 1 : 0;
-		file.write(c, 1);
-		c[0] = controls->use_axis_down ? 1 : 0;
-		file.write(c, 1);
-		val.i = controls->joystick_idx;
-		file.write(val.c, 4);
-		val.i = controls->js_jump;
-		file.write(val.c, 4);
-		val.i = controls->js_run;
-		file.write(val.c, 4);
-		val.i = controls->js_shoot;
-		file.write(val.c, 4);
-		val.i = controls->js_bomb;
-		file.write(val.c, 4);
-		val.i = controls->js_start;
-		file.write(val.c, 4);
+		file.write((char*)controls, sizeof(ControlScheme));
 	}
 
 	file.close();
