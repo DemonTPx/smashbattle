@@ -35,6 +35,11 @@ private:
 	std::vector<SDL_Surface*> * surf_items;
 	std::vector<SDL_Rect*> * surf_items_clip;
 
+	SDL_Surface * surf_round;
+	SDL_Surface * surf_result;
+
+	std::vector<SDL_Surface*> * surf_statistics;
+
 	int players;
 
 	bool ready;
