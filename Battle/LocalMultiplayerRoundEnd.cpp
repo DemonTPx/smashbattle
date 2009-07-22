@@ -17,6 +17,10 @@
 
 #define BEGIN_DELAY 150
 
+#ifndef WIN32
+#define sprintf_s snprintf
+#endif
+
 const int LocalMultiplayerRoundEnd::ITEMCOUNT = 3;
 const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE LEVEL", "CHANGE CHARACTER", "QUIT TO MENU"};
 

@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -Wall
-LDFLAGS=-lSDL -lSDL_mixer -lstdc++
+LDFLAGS=-lSDL -lSDL_mixer -lz -lstdc++
 SRCS=AmmoPowerUp.cpp\
 	AudioController.cpp\
 	AudioOptions.cpp\

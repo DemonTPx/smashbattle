@@ -35,11 +35,15 @@ Level::~Level() {
 void Level::load(const char * filename) {
 	gzFile file;
 	LEVEL_HEADER header;
-	LEVEL_TILE tile[TILE_COUNT];
+	LEVEL_PLAYERSTART pstart;
+	LEVEL_PROP * prop;
+	std::vector<LEVEL_PROP *> * props;
+	unsigned short block_id;
 
-	char tiles_file_full[35], bg_file_full[35];
+	char tiles_file_full[35], bg_file_full[35], props_file_full[35];
 
-	SDL_Surface * surface;
+	SDL_Surface * loaded, * surface;
+	SDL_Rect rect, rect_s;
 	Uint32 colorkey;
 
 	file = gzopen(filename, "rb");
@@ -51,20 +55,26 @@ void Level::load(const char * filename) {
 		return;
 
 	gzread(file, &tile, sizeof(tile));
+
+	props = new std::vector<LEVEL_PROP *>(0);
+	while(!gzeof(file)) {
+		gzread(file, &block_id, sizeof(block_id));
+		switch(block_id) {
+			case LEVEL_BLOCK_PSTART:
+				gzread(file, &pstart, sizeof(LEVEL_PLAYERSTART));
+				memcpy(&playerstart[pstart.player], &pstart, sizeof(LEVEL_PLAYERSTART));
+				break;
+			case LEVEL_BLOCK_PROP:
+				prop = new LEVEL_PROP();
+				gzread(file, prop, sizeof(LEVEL_PROP));
+				props->push_back(prop);
+				break;
+		}
+	}
+
 	gzclose(file);
 
-	// Get the level tiles (HP & sprite index)
-	for(int i = 0; i < TILE_COUNT; i++) {
-		level_start[i] = (int)tile[i].tile;
-
-		if(level_start[i] == 0xffff)
-			level_start[i] = -1;
-
-		level_hp_start[i] = (int)tile[i].hp;
-
-		if(tile[i].indestructible)
-			level_hp_start[i] = 0x7fffffff;
-	}
+	// LOAD TILES SURFACE
 
 	strncpy(tiles_file_full, "gfx/\0", 5);
 	strncat(tiles_file_full, header.filename_tiles, 30);
@@ -75,15 +85,80 @@ void Level::load(const char * filename) {
 	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
 	SDL_FreeSurface(surface);
 
+	// PRE-RENDER THE BACKGROUND
+
+	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
+	SDL_FillRect(background, 0, header.background_color);
+
+	// Draw the background image (tiled) into the background
 	if(header.filename_background[0] != 0) {
 		strncpy(bg_file_full, "gfx/\0", 5);
 		strncat(bg_file_full, header.filename_background, 30);
 
-		surface = SDL_LoadBMP(bg_file_full);
-		background = SDL_DisplayFormat(surface);
+		loaded = SDL_LoadBMP(bg_file_full);
+		surface = SDL_DisplayFormat(loaded);
+		SDL_FreeSurface(loaded);
+
+		for(int y = 0; y < WINDOW_HEIGHT; y += surface->h) {
+			for(int x = 0; x < WINDOW_WIDTH; x += surface->w) {
+				rect.x = x;
+				rect.y = y;
+				rect.w = surface->w;
+				rect.h = surface->h;
+				SDL_BlitSurface(surface, 0, background, &rect);
+			}
+		}
+
 		SDL_FreeSurface(surface);
-	} else {
-		background = NULL;
+	}
+
+	// Draw the props into the background
+	if(header.filename_props[0] != 0) {
+		strncpy(props_file_full, "gfx/\0", 5);
+		strncat(props_file_full, header.filename_props, 30);
+
+		loaded = SDL_LoadBMP(props_file_full);
+		surface = SDL_DisplayFormat(loaded);
+		colorkey = SDL_MapRGB(surface->format, 0, 255, 255);
+		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey);
+		SDL_FreeSurface(loaded);
+
+		for(unsigned int i = 0; i < props->size(); i++) {
+			prop = props->at(i);
+			rect_s.x = prop->src.x;
+			rect_s.y = prop->src.y;
+			rect_s.w = prop->src.w;
+			rect_s.h = prop->src.h;
+			rect.x = prop->dst.x;
+			rect.y = prop->dst.y;
+			SDL_BlitSurface(surface, &rect_s, background, &rect);
+			delete prop;
+		}
+
+		delete props;
+		SDL_FreeSurface(surface);
+	}
+
+	// Draw the static tiles into the background (static = non-bouncing indestructible)
+	if(header.filename_props[0] != 0) {
+		for(int i = 0; i < TILE_COUNT; i++) {
+			if(tile[i].tile == 0xffff)
+				continue;
+			if(tile[i].bouncing)
+				continue;
+			if(!tile[i].indestructible)
+				continue;
+
+			rect_s.x = (TILE_W * tile[i].tile);
+			rect_s.y = 0;
+			rect_s.w = TILE_W;
+			rect_s.h = TILE_H;
+
+			rect.x = (i % TILE_COLS) * TILE_W;
+			rect.y = (i / TILE_COLS) * TILE_H;
+
+			SDL_BlitSurface(tiles, &rect_s, background, &rect);
+		}
 	}
 }
 
@@ -160,15 +235,19 @@ SDL_Surface * Level::get_preview(const char * filename) {
 	gzFile file;
 	LEVEL_HEADER header;
 	LEVEL_TILE tile[TILE_COUNT];
+	LEVEL_PLAYERSTART pstart;
+	LEVEL_PROP * prop;
+	std::vector<LEVEL_PROP *> * props;
+	unsigned short block_id;
 
 	SDL_Rect rect, rect_s;
 	Uint32 fillColor;
 	Uint32 colorkey;
 
-	char tiles_file_full[35], bg_file_full[35];
+	char tiles_file_full[35], bg_file_full[35], props_file_full[35];
 
 	SDL_Surface * loaded;
-	SDL_Surface * tiles;
+	SDL_Surface * surface_s;
 	SDL_Surface * surface;
 
 	file = gzopen(filename, "rb");
@@ -180,52 +259,118 @@ SDL_Surface * Level::get_preview(const char * filename) {
 		return NULL;
 
 	gzread(file, &tile, sizeof(tile));
-	gzclose(file);
 	
-	strncpy(tiles_file_full, "gfx/\0", 5);
-	strncat(tiles_file_full, header.filename_tiles, 30);
-	
-	strncpy(bg_file_full, "gfx/\0", 5);
-	strncat(bg_file_full, header.filename_background, 30);
-
-	loaded = SDL_LoadBMP(bg_file_full);
-	surface = SDL_DisplayFormat(loaded);
-	SDL_FreeSurface(loaded);
-
-	loaded = SDL_LoadBMP(tiles_file_full);
-	tiles = SDL_DisplayFormat(loaded);
-	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
-	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
-	SDL_FreeSurface(loaded);
-
-	for(int i = 0; i < TILE_COUNT; i++) {
-		if(tile[i].tile == 0xffff)
-			continue;
-		if(!tile[i].show_in_preview)
-			continue;
-
-		rect_s.x = (TILE_W * tile[i].tile);
-		rect_s.y = 0;
-		rect_s.w = TILE_W;
-		rect_s.h = TILE_H;
-
-		if(tile[i].hp < 40)
-			rect_s.y += TILE_H;
-		if(tile[i].hp < 20)
-			rect_s.y += TILE_H;
-
-		rect.x = (i % TILE_COLS) * TILE_W;
-		rect.y = (i / TILE_COLS) * TILE_H;
-
-		SDL_BlitSurface(tiles, &rect_s, surface, &rect);
+	props = new std::vector<LEVEL_PROP *>(0);
+	while(!gzeof(file)) {
+		gzread(file, &block_id, sizeof(block_id));
+		switch(block_id) {
+			case LEVEL_BLOCK_PSTART:
+				gzread(file, &pstart, sizeof(LEVEL_PLAYERSTART));
+				break;
+			case LEVEL_BLOCK_PROP:
+				prop = new LEVEL_PROP();
+				gzread(file, prop, sizeof(LEVEL_PROP));
+				props->push_back(prop);
+				break;
+		}
 	}
 
-	SDL_FreeSurface(tiles);
+	gzclose(file);
+
+	// PRE-RENDER THE BACKGROUND
+
+	surface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
+	SDL_FillRect(surface, 0, header.background_color);
+
+	// Draw the background image (tiled) into the background
+	if(header.filename_background[0] != 0) {
+		strncpy(bg_file_full, "gfx/\0", 5);
+		strncat(bg_file_full, header.filename_background, 30);
+
+		loaded = SDL_LoadBMP(bg_file_full);
+		surface_s = SDL_DisplayFormat(loaded);
+		SDL_FreeSurface(loaded);
+
+		for(int y = 0; y < WINDOW_HEIGHT; y += surface_s->h) {
+			for(int x = 0; x < WINDOW_WIDTH; x += surface_s->w) {
+				rect.x = x;
+				rect.y = y;
+				rect.w = surface_s->w;
+				rect.h = surface_s->h;
+				SDL_BlitSurface(surface_s, 0, surface, &rect);
+			}
+		}
+
+		SDL_FreeSurface(surface_s);
+	}
+
+	// Draw the props into the background
+	if(header.filename_props[0] != 0) {
+		strncpy(props_file_full, "gfx/\0", 5);
+		strncat(props_file_full, header.filename_props, 30);
+
+		loaded = SDL_LoadBMP(props_file_full);
+		surface_s = SDL_DisplayFormat(loaded);
+		colorkey = SDL_MapRGB(surface_s->format, 0, 255, 255);
+		SDL_SetColorKey(surface_s, SDL_SRCCOLORKEY, colorkey);
+		SDL_FreeSurface(loaded);
+
+		for(unsigned int i = 0; i < props->size(); i++) {
+			prop = props->at(i);
+			rect_s.x = prop->src.x;
+			rect_s.y = prop->src.y;
+			rect_s.w = prop->src.w;
+			rect_s.h = prop->src.h;
+			rect.x = prop->dst.x;
+			rect.y = prop->dst.y;
+			SDL_BlitSurface(surface_s, &rect_s, surface, &rect);
+			delete prop;
+		}
+
+		delete props;
+		SDL_FreeSurface(surface_s);
+	}
+
+	// Draw the preview tiles into the background
+	if(header.filename_tiles[0] != 0) {
+		strncpy(tiles_file_full, "gfx/\0", 5);
+		strncat(tiles_file_full, header.filename_tiles, 30);
+
+		loaded = SDL_LoadBMP(tiles_file_full);
+		surface_s = SDL_DisplayFormat(loaded);
+		colorkey = SDL_MapRGB(surface_s->format, 0, 255, 255);
+		SDL_SetColorKey(surface_s, SDL_SRCCOLORKEY, colorkey);
+		SDL_FreeSurface(loaded);
+
+		for(int i = 0; i < TILE_COUNT; i++) {
+			if(tile[i].tile == 0xffff)
+				continue;
+			if(!tile[i].show_in_preview)
+				continue;
+
+			rect_s.x = (TILE_W * tile[i].tile);
+			rect_s.y = 0;
+			rect_s.w = TILE_W;
+			rect_s.h = TILE_H;
+
+			if(tile[i].hp < 40)
+				rect_s.y += TILE_H;
+			if(tile[i].hp < 20)
+				rect_s.y += TILE_H;
+
+			rect.x = (i % TILE_COLS) * TILE_W;
+			rect.y = (i / TILE_COLS) * TILE_H;
+
+			SDL_BlitSurface(surface_s, &rect_s, surface, &rect);
+		}
+
+		SDL_FreeSurface(surface_s);
+	}
 
 	return surface;
 }
 
-int Level::tile(int x, int y) {
+int Level::tile_pos(int x, int y) {
 	// Calculate which tile intersects with (x, y)
 	return ((int)(y / TILE_H) * TILE_COLS) + (int)(x / TILE_W);
 }
@@ -237,15 +382,16 @@ void Level::draw(SDL_Surface * screen) {
 	rect.w = TILE_W;
 	rect.h = TILE_H;
 
-	if(background == NULL)
-		SDL_FillRect(screen, &screen->clip_rect, 0);
-	else
-		SDL_BlitSurface(background, NULL, screen, NULL);
+	SDL_BlitSurface(background, NULL, screen, NULL);
 
 	// Draw each sprite, one by one
+
 	for(int i = 0; i < TILE_COUNT; i++) {
 		// Don't draw empty sprites
 		if(level[i] == -1) continue;
+
+		// Skip tile if it is prerendered
+		if(!tile[i].bouncing && tile[i].indestructible) continue;
 
 		rect.x = (i % TILE_COLS) * TILE_W;
 		rect.y = (i / TILE_COLS) * TILE_H;
@@ -283,8 +429,16 @@ void Level::draw(SDL_Surface * screen) {
 
 void Level::reset() {
 	for(int i = 0; i < TILE_COUNT; i++) {
-		level[i] = level_start[i];
-		level_hp[i] = level_hp_start[i];
+		if(tile[i].tile == 0xffff)
+			level[i] = -1;
+		else
+			level[i] = (int)tile[i].tile;
+
+		if(tile[i].indestructible)
+			level_hp[i] = 0x7fffffff;
+		else
+			level_hp[i] = (int)tile[i].hp;
+
 		level_bounce[i] = 0;
 		level_bounce_start[i] = 0;
 	}
@@ -308,16 +462,16 @@ bool Level::is_intersecting(SDL_Rect * rect) {
 
 	if(l < 0) {
 		for(int x = l + WINDOW_WIDTH; x < WINDOW_WIDTH; x++) {
-			if(level[tile(x, t)] != -1)
+			if(level[tile_pos(x, t)] != -1)
 				return true;
-			if(level[tile(x, b)] != -1)
+			if(level[tile_pos(x, b)] != -1)
 				return true;
 		}
 
 		for(int y = t; y < b; y++) {
-			if(level[tile(l + WINDOW_WIDTH, y)] != -1)
+			if(level[tile_pos(l + WINDOW_WIDTH, y)] != -1)
 				return true;
-			if(level[tile(l + WINDOW_WIDTH, y)] != -1)
+			if(level[tile_pos(l + WINDOW_WIDTH, y)] != -1)
 				return true;
 		}
 
@@ -326,16 +480,16 @@ bool Level::is_intersecting(SDL_Rect * rect) {
 
 	if(r >= WINDOW_WIDTH) {
 		for(int x = 0; x < r - WINDOW_WIDTH; x++) {
-			if(level[tile(x, t)] != -1)
+			if(level[tile_pos(x, t)] != -1)
 				return true;
-			if(level[tile(x, b)] != -1)
+			if(level[tile_pos(x, b)] != -1)
 				return true;
 		}
 
 		for(int y = t; y < b; y++) {
-			if(level[tile(r - WINDOW_WIDTH, y)] != -1)
+			if(level[tile_pos(r - WINDOW_WIDTH, y)] != -1)
 				return true;
-			if(level[tile(r - WINDOW_WIDTH, y)] != -1)
+			if(level[tile_pos(r - WINDOW_WIDTH, y)] != -1)
 				return true;
 		}
 		
@@ -346,18 +500,18 @@ bool Level::is_intersecting(SDL_Rect * rect) {
 		if(r >= WINDOW_WIDTH)
 			break;
 
-		if(level[tile(x, t)] != -1)
+		if(level[tile_pos(x, t)] != -1)
 			return true;
-		if(level[tile(x, b)] != -1)
+		if(level[tile_pos(x, b)] != -1)
 			return true;
 	}
 
 	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH - 1;
 
 	for(int y = t; y < b; y++) {
-		if(level[tile(l, y)] != -1)
+		if(level[tile_pos(l, y)] != -1)
 			return true;
-		if(level[tile(r, y)] != -1)
+		if(level[tile_pos(r, y)] != -1)
 			return true;
 	}
 
@@ -380,9 +534,9 @@ bool Level::is_on_bottom(SDL_Rect * rect) {
 	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
 	if(r >= WINDOW_WIDTH) r -= WINDOW_WIDTH;
 
-	if(level[tile(l, b + 1)] != -1)
+	if(level[tile_pos(l, b + 1)] != -1)
 		return true;
-	if(level[tile(r, b + 1)] != -1)
+	if(level[tile_pos(r, b + 1)] != -1)
 		return true;
 	return false;
 }
@@ -412,10 +566,10 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 			if(x < 0) wx += WINDOW_WIDTH;
 			if(x > WINDOW_WIDTH) wx -= WINDOW_WIDTH;
 
-			if(level[tile(wx, y)] != -1) {
-				level_hp[tile(wx, y)] -= damage;
-				if(level_hp[tile(wx, y)] < 0)
-					level[tile(wx, y)] = -1;
+			if(level[tile_pos(wx, y)] != -1) {
+				level_hp[tile_pos(wx, y)] -= damage;
+				if(level_hp[tile_pos(wx, y)] < 0)
+					level[tile_pos(wx, y)] = -1;
 			}
 		}
 	}
@@ -433,9 +587,9 @@ void Level::bounce_tile(SDL_Rect * rect) {
 	if(x >= WINDOW_WIDTH) x = x - WINDOW_WIDTH;
 	if(r >= WINDOW_WIDTH) r = r - WINDOW_WIDTH;
 	
-	pos = tile(x, y); // Is there a tile at the center-top?
-	if(level[pos] == -1) pos = tile(l, y); // tile at left-top?
-	if(level[pos] == -1) pos = tile(r, y); // tile at right-top?
+	pos = tile_pos(x, y); // Is there a tile at the center-top?
+	if(level[pos] == -1) pos = tile_pos(l, y); // tile at left-top?
+	if(level[pos] == -1) pos = tile_pos(r, y); // tile at right-top?
 	if(level[pos] == -1) return; // No tile at all
 
 	// Cancel if the tile is already bouncing

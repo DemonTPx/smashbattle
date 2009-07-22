@@ -11,11 +11,6 @@
 #include "BombPowerUp.h"
 
 #include "LocalMultiplayer.h"
-
-#ifndef WIN32
-#define sprintf_s snprintf
-#endif
-
 void LocalMultiplayer::initialize() {
 	Gameplay::initialize();
 
@@ -44,28 +39,9 @@ void LocalMultiplayer::on_game_reset() {
 	for(unsigned int idx = 0; idx < players->size(); idx++) {
 		p = players->at(idx);
 
-		switch(idx) {
-			case 0:
-				x = 160 + ((TILE_W - p->position->w) / 2);
-				y = 320 - p->position->h;
-				sprite = SPR_R;
-				break;
-			case 1:
-				x = 448 + ((TILE_W - p->position->w) / 2);
-				y = 320 - p->position->h;
-				sprite = SPR_L;
-				break;
-			case 2:
-				x = 160 + ((TILE_W - p->position->w) / 2);
-				y = 96 - p->position->h;
-				sprite = SPR_R;
-				break;
-			case 3:
-				x = 448 + ((TILE_W - p->position->w) / 2);
-				y = 96 - p->position->h;
-				sprite = SPR_L;
-				break;
-		}
+		x = level->playerstart[idx].x * TILE_W + ((TILE_W - PLAYER_W) / 2);
+		y = level->playerstart[idx].y * TILE_H - PLAYER_H;
+		sprite = (level->playerstart[idx].facing_right ? SPR_R : SPR_L);
 		
 		p->position->x = x;
 		p->position->y = y;

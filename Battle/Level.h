@@ -19,16 +19,24 @@ struct LevelInfo {
 	char * filename;
 };
 
-#define LEVEL_ID 'SB'
+#define LEVEL_ID 0x5342 // "SB"
 #define LEVEL_VERSION 1
 
-struct LEVEL_TILE {
-	unsigned short tile;
-	unsigned short hp;
-	bool indestructible;
-	bool bouncing;
-	bool show_in_preview;
-	unsigned short player_start;
+#define LEVEL_BLOCK_PSTART	0x1
+#define LEVEL_BLOCK_PROP	0x2
+//#define LEVEL_BLOCK_STORY	0x10
+//#define LEVEL_BLOCK_NPC	0x11
+
+struct LEVEL_POINT {
+	short x;
+	short y;
+};
+
+struct LEVEL_RECT {
+	short x;
+	short y;
+	short w;
+	short h;
 };
 
 struct LEVEL_HEADER {
@@ -36,9 +44,32 @@ struct LEVEL_HEADER {
 	unsigned short version;
 	char name[20];
 	char author[20];
+	bool multiplayer;
 	unsigned short max_players;
+	unsigned int background_color;
 	char filename_tiles[30];
 	char filename_background[30];
+	char filename_props[30];
+};
+
+struct LEVEL_TILE {
+	unsigned short tile;
+	unsigned short hp;
+	bool indestructible;
+	bool bouncing;
+	bool show_in_preview;
+};
+
+struct LEVEL_PLAYERSTART {
+	unsigned short player;
+	short x;
+	short y;
+	bool facing_right;
+};
+
+struct LEVEL_PROP {
+	LEVEL_RECT src;
+	LEVEL_POINT dst;
 };
 
 class Level {
@@ -65,10 +96,10 @@ public:
 	static SDL_Surface * get_thumbnail(const char * filename);
 	static SDL_Surface * get_preview(const char * filename);
 
-	static int tile(int x, int y);
-	
-	int level_start[TILE_COUNT];
-	int level_hp_start[TILE_COUNT];
+	static int tile_pos(int x, int y);
+
+	LEVEL_TILE tile[TILE_COUNT];
+	LEVEL_PLAYERSTART playerstart[4];
 
 	int level[TILE_COUNT];
 	int level_hp[TILE_COUNT];

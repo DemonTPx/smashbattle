@@ -423,6 +423,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\bg_black.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\bg_blue.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\bg_orange.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\stage\blastbowl.lvl"
 				>
 			</File>
@@ -436,10 +448,6 @@
 			</File>
 			<File
 				RelativePath=".\gfx\common.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\commongrounds.bmp"
 				>
 			</File>
 			<File
@@ -515,38 +523,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\level_01.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\level_02.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\level_03.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\level_04.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\level_05.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\level_06.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\level_07.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\level_08.bmp"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\marcel.bmp"
 				>
 			</File>
@@ -588,6 +564,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\powerups.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\props.bmp"
 				>
 			</File>
 			<File

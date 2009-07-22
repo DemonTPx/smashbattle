@@ -246,7 +246,7 @@ void Main::load_options() {
 	}
 
 	file.read((char*)&audio->sound_volume, sizeof(int));
-	file.read((char*)&audio->sound_volume, sizeof(int));
+	file.read((char*)&audio->music_volume, sizeof(int));
 
 	for(int i = 0; i < 4; i++) {
 		if(i == 0) controls = &controls1;
