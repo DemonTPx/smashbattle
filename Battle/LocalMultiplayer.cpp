@@ -11,6 +11,11 @@
 #include "BombPowerUp.h"
 
 #include "LocalMultiplayer.h"
+
+#ifndef WIN32
+#define sprintf_s snprintf
+#endif
+
 void LocalMultiplayer::initialize() {
 	Gameplay::initialize();
 
