@@ -241,7 +241,6 @@ SDL_Surface * Level::get_preview(const char * filename) {
 	unsigned short block_id;
 
 	SDL_Rect rect, rect_s;
-	Uint32 fillColor;
 	Uint32 colorkey;
 
 	char tiles_file_full[35], bg_file_full[35], props_file_full[35];
@@ -606,6 +605,6 @@ void Level::bounce_tile(SDL_Rect * rect) {
 	rect_hit.w = TILE_W;
 	rect_hit.h = BOUNCE_HIT_HEIGHT;
 
-	Gameplay::instance->bounce_up_players_and_npcs(&rect_hit);
+	Gameplay::instance->bounce_up_players_and_npcs(&rect_hit, rect);
 }
 

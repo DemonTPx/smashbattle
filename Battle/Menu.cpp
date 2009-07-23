@@ -453,13 +453,7 @@ void Menu::start_local_multiplayer(int players) {
 			}
 		}
 
-		if(winner == -1) {
-			for(int i = 0; i < players; i++) {
-				if(player[i]->score == highest_score) {
-					player[i]->rounds_draw++;
-				}
-			}
-		} else {
+		if(winner != -1) {
 			player[winner]->rounds_won++;
 		}
 

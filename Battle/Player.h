@@ -32,7 +32,8 @@ struct SpeedClass {
 struct WeightClass {
 	int push_force;
 	int headjump_damage;
-	int bounce_momentum;
+	int bounce_momentum_x;
+	int bounce_momentum_y;
 };
 
 struct WeaponClass {
@@ -128,7 +129,6 @@ public:
 	int bounce_direction_x, bounce_direction_y;
 
 	int rounds_won;
-	int rounds_draw;
 	unsigned int bullets_fired;
 	unsigned int bullets_hit;
 	unsigned int bombs_fired;
@@ -145,7 +145,7 @@ public:
 	void process();
 
 	void bounce(Player * other);
-	void bounce_up();
+	void bounce_up(SDL_Rect * source);
 
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);

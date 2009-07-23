@@ -27,12 +27,16 @@ void LocalMultiplayer::initialize() {
 	powerup_doubledamage_rate = 6;
 	powerup_instantkill_rate = 1;
 	powerup_bomb_rate = 6;
+
+	round = 0;
 }
 
 void LocalMultiplayer::on_game_reset() {
 	int x, y;
 	int sprite;
 	Player * p;
+
+	round++;
 	
 	for(unsigned int idx = 0; idx < players->size(); idx++) {
 		p = players->at(idx);
@@ -73,6 +77,8 @@ void LocalMultiplayer::on_game_reset() {
 	}
 
 	winner = NULL;
+
+	sprintf_s(countdown_pre_text, 20, "ROUND %d", round);
 }
 
 void LocalMultiplayer::on_pre_processing() {}

@@ -43,9 +43,9 @@ const SpeedClass Player::SPEEDCLASSES[Player::SPEEDCLASS_COUNT] = {
 };
 const int Player::WEIGHTCLASS_COUNT = 3;
 const WeightClass Player::WEIGHTCLASSES[Player::WEIGHTCLASS_COUNT] = {
-	{5,   0, 35},
-	{10,  5, 30},
-	{15, 10, 25},
+	{5,   0, 35, 20},
+	{10,  5, 30, 15},
+	{15, 10, 25, 10},
 };
 const int Player::WEAPONCLASS_COUNT = 3;
 const WeaponClass Player::WEAPONCLASSES[Player::WEAPONCLASS_COUNT] = {
@@ -112,12 +112,6 @@ Player::Player(int character, int number) {
 	controls.js_start = 2;
 
 	rounds_won = 0;
-	rounds_draw = 0;
-	bullets_fired = 0;
-	bullets_hit = 0;
-	bombs_fired = 0;
-	bombs_hit = 0;
-	headstomps = 0;
 
 	reset();
 
@@ -197,6 +191,12 @@ void Player::reset() {
 
 	score = 0;
 	hitpoints = 100;
+
+	bullets_fired = 0;
+	bullets_hit = 0;
+	bombs_fired = 0;
+	bombs_hit = 0;
+	headstomps = 0;
 
 	cycle_direction = CYCLE_UP;
 }
@@ -721,10 +721,10 @@ void Player::bounce(Player * other) {
 		r += WINDOW_WIDTH;
 	}
 
-	is_above = (b < ts);
-	is_below = (t > bs);
-	is_left = (r < ls);
-	is_right = (l > rs);
+	is_above = (b <= ts);
+	is_below = (t >= bs);
+	is_left = (r <= ls);
+	is_right = (l >= rs);
 
 	if(!is_above && !is_below && !is_left && !is_right) {
 		if(bounce_direction_y == -1) is_above = true;
@@ -779,14 +779,17 @@ void Player::bounce(Player * other) {
 	}
 }
 
-void Player::bounce_up() {
-	//duck_force_start = Gameplay::frame;
-	//is_duck_forced = true;
+void Player::bounce_up(SDL_Rect * source) {
 	is_falling = true;
 	is_frozen = true;
 	freeze_start = Gameplay::frame;
-	momentumy = WEIGHTCLASSES[weightclass].bounce_momentum;
-	//momentumx += (player1->position->x - player2->position->x) * 2;
+	momentumy = WEIGHTCLASSES[weightclass].bounce_momentum_x;
+	if(position->x < source->x) {
+		momentumx -= WEIGHTCLASSES[weightclass].bounce_momentum_y;
+	}
+	if(position->x > source->x) {
+		momentumx += WEIGHTCLASSES[weightclass].bounce_momentum_y;
+	}
 	if(momentumx > MAX_MOMENTUM_HORIZ)
 		momentumx = MAX_MOMENTUM_HORIZ;
 	if(momentumx < -MAX_MOMENTUM_HORIZ)

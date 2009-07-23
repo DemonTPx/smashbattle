@@ -184,12 +184,12 @@ void Gameplay::add_player(Player * p) {
 	}
 }
 
-void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect) {
+void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source) {
 	Player * p;
 	for(unsigned int i = 0; i < players->size(); i++) {
 		p = players->at(i);
 		if(is_intersecting(rect, p->position))
-			p->bounce_up();
+			p->bounce_up(source);
 	}
 
 	/*
@@ -214,6 +214,7 @@ void Gameplay::reset_game() {
 	
 	countdown_sec_left = 4;
 	countdown_start = frame;
+	strcpy(countdown_pre_text, "GET READY");
 
 	level->reset();
 	
@@ -264,11 +265,12 @@ void Gameplay::draw_countdown() {
 	char text[5];
 	SDL_Surface * surf;
 
-	if(countdown_sec_left == 4) return;
-
-	sprintf_s(text, 5, "%d", countdown_sec_left);
-
-	surf = Main::text->render_text_large(text);
+	if(countdown_sec_left == 4) {
+		surf = Main::text->render_text_large(countdown_pre_text);
+	} else {
+		sprintf_s(text, 5, "%d", countdown_sec_left);
+		surf = Main::text->render_text_large(text);
+	}
 
 	SDL_Rect rect;
 	rect.x = (screen->w - surf->w) / 2;
@@ -307,10 +309,10 @@ bool Gameplay::is_intersecting(SDL_Rect * one, SDL_Rect * two) {
 
 	// Normal collision
 	intersect = true;
-	if(l1 > r2) intersect = false;
-	if(r1 < l2) intersect = false;
-	if(t1 > b2) intersect = false;
-	if(b1 < t2) intersect = false;
+	if(l1 >= r2) intersect = false;
+	if(r1 <= l2) intersect = false;
+	if(t1 >= b2) intersect = false;
+	if(b1 <= t2) intersect = false;
 	if(intersect) return true;
 
 	// Collisions that go through the sides

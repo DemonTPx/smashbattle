@@ -136,7 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdl.lib sdlmain.lib sdl_ttf.lib sdl_mixer.lib"
+				AdditionalDependencies="sdl.lib sdlmain.lib sdl_mixer.lib zdll.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"

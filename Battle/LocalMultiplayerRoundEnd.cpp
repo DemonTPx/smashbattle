@@ -69,6 +69,8 @@ void LocalMultiplayerRoundEnd::init() {
 	SDL_Rect r_block;
 	double accuracy;
 	char str[30];
+	short temp;
+	Player * pl;
 
 	controls1 = Main::instance->controls1;
 	controls2 = Main::instance->controls2;
@@ -97,27 +99,39 @@ void LocalMultiplayerRoundEnd::init() {
 		surf_result = Main::text->render_text_large(str);
 	}
 
-	// Round number
-	sprintf_s(str, 20, "ROUND %d", round);
-	surf_round = Main::text->render_text_large(str);
+	// Determine player positions
+	for(int i = 0; i < players; i++) {
+		order[i] = i;
+	}
+	for(short i = 0; i < players - 1; i++ ) {
+		for(short j = i; j < players - 1; j++) {
+			if(player[order[j]]->score < player[order[j + 1]]->score) {
+				temp = order[j];
+				order[j] = order[j + 1];
+				order[j + 1] = temp;
+			}
+		}
+	}
 
 	// Player statistics
 	surf_statistics = new std::vector<SDL_Surface*>(0);
-	
+
 	r_block.x = 0;
 	r_block.y = 0;
 	r_block.w = WINDOW_WIDTH - 20;
 	r_block.h = 72;
 
 	for(int i = 0; i < players; i++) {
+		pl = player[order[i]];
+
 		surface = SDL_CreateRGBSurface(0, r_block.w, r_block.h, 32, 0, 0, 0, 0);
 
-		SDL_FillRect(surface, &r_block, Player::COLORS[i]);
+		SDL_FillRect(surface, &r_block, Player::COLORS[order[i]]);
 
 		// Player number
 		rect.x = r_block.x + 72;
 		rect.y = r_block.y + 10;
-		sprintf_s(str, 5, "P%d", (i + 1));
+		sprintf_s(str, 5, "P%d", (order[i] + 1));
 		text = Main::text->render_text_large(str);
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
@@ -125,7 +139,7 @@ void LocalMultiplayerRoundEnd::init() {
 		// Player name
 		rect.x = r_block.x + 72;
 		rect.y = r_block.y + 48;
-		text = Main::text->render_text_medium(player[i]->name);
+		text = Main::text->render_text_medium(pl->name);
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
 
@@ -138,7 +152,7 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.h = 8;
 		SDL_BlitSurface(Main::graphics->weapons, &rect_s, surface, &rect);
 
-		sprintf_s(str, 20, "%06d", player[i]->bullets_fired);
+		sprintf_s(str, 20, "%d", pl->bullets_fired);
 		text = Main::text->render_text_medium_gray(str);
 		rect.x = r_block.x + 220;
 		rect.y = r_block.y + 8;
@@ -154,13 +168,13 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.h = 16;
 		SDL_BlitSurface(Main::graphics->common, &rect_s, surface, &rect);
 
-		if(player[i]->bullets_fired == 0)
+		if(pl->bullets_fired == 0)
 			accuracy = 0;
 		else
-			accuracy = ((double)player[i]->bullets_hit / (double)player[i]->bullets_fired) * 100;
-		sprintf_s(str, 20, "%3.0f%%", accuracy);
+			accuracy = ((double)pl->bullets_hit / (double)pl->bullets_fired) * 100;
+		sprintf_s(str, 20, "%1.0f%%", accuracy);
 		text = Main::text->render_text_medium_gray(str);
-		rect.x = r_block.x + 390 - text->w;
+		rect.x = r_block.x + 352;
 		rect.y = r_block.y + 8;
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
@@ -174,7 +188,7 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.h = 16;
 		SDL_BlitSurface(Main::graphics->bombs, &rect_s, surface, &rect);
 
-		sprintf_s(str, 20, "%06d", player[i]->bombs_fired);
+		sprintf_s(str, 20, "%d", pl->bombs_fired);
 		text = Main::text->render_text_medium_gray(str);
 		rect.x = r_block.x + 220;
 		rect.y = r_block.y + 30;
@@ -190,13 +204,13 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.h = 16;
 		SDL_BlitSurface(Main::graphics->common, &rect_s, surface, &rect);
 
-		if(player[i]->bombs_fired == 0)
+		if(pl->bombs_fired == 0)
 			accuracy = 0;
 		else
-			accuracy = ((double)player[i]->bombs_hit / (double)player[i]->bombs_fired) * 100;
-		sprintf_s(str, 20, "%3.0f%%", accuracy);
+			accuracy = ((double)pl->bombs_hit / (double)pl->bombs_fired) * 100;
+		sprintf_s(str, 20, "%1.0f%%", accuracy);
 		text = Main::text->render_text_medium_gray(str);
-		rect.x = r_block.x + 390 - text->w;
+		rect.x = r_block.x + 352;
 		rect.y = r_block.y + 30;
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
@@ -210,38 +224,26 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.h = 16;
 		SDL_BlitSurface(Main::graphics->common, &rect_s, surface, &rect);
 
-		sprintf_s(str, 20, "%06d", player[i]->headstomps);
+		sprintf_s(str, 20, "%d", pl->headstomps);
 		text = Main::text->render_text_medium_gray(str);
 		rect.x = r_block.x + 220;
 		rect.y = r_block.y + 52;
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
-		
-		// Rounds draw
-		text = Main::text->render_text_medium_gray("DRAW");
-		rect.x = r_block.x + r_block.w - 133;
-		rect.y = r_block.y + 6;
-		SDL_BlitSurface(text, NULL, surface, &rect);
-		SDL_FreeSurface(text);
 
-		sprintf_s(str, 4, "%02d", player[i]->rounds_draw);
+		// Score
+		sprintf_s(str, 4, "%d", pl->score);
 		text = Main::text->render_text_large(str);
-		rect.x = r_block.x + r_block.w - 130;
-		rect.y = r_block.y + 32;
+		rect.x = r_block.x + r_block.w - text->w - 22;
+		rect.y = r_block.y + 10;
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
 
 		// Rounds won
-		text = Main::text->render_text_medium_gray("WON");
-		rect.x = r_block.x + r_block.w - 56;
-		rect.y = r_block.y + 6;
-		SDL_BlitSurface(text, NULL, surface, &rect);
-		SDL_FreeSurface(text);
-
-		sprintf_s(str, 4, "%02d", player[i]->rounds_won);
-		text = Main::text->render_text_large(str);
-		rect.x = r_block.x + r_block.w - 60;
-		rect.y = r_block.y + 32;
+		sprintf_s(str, 20, "%d", pl->rounds_won);
+		text = Main::text->render_text_medium_gray(str);
+		rect.x = r_block.x + r_block.w - text->w - 22;
+		rect.y = r_block.y + r_block.h - text->h - 10;
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
 
@@ -262,7 +264,6 @@ void LocalMultiplayerRoundEnd::cleanup() {
 	delete surf_items_clip;
 
 	SDL_FreeSurface(surf_result);
-	SDL_FreeSurface(surf_round);
 
 	for(unsigned int i = 0; i < surf_statistics->size(); i++) {
 		SDL_FreeSurface(surf_statistics->at(i));
@@ -280,34 +281,9 @@ void LocalMultiplayerRoundEnd::draw() {
 
 	SDL_FillRect(screen, NULL, 0);
 	
+	// MENU
 	if(frame >= BEGIN_DELAY) {
-		/*
-		SDL_BlitSurface(Main::graphics->bg_menu, NULL, screen, NULL);
-
-		rect.x = (WINDOW_WIDTH - title->w) / 2;
-		rect.y = 40;
-		SDL_BlitSurface(title, NULL, screen, &rect);
-
-		rect_s.x = 0;
-		rect_s.y = 0;
-		rect_s.w = TILE_W;
-		rect_s.h = TILE_H;
-
-		rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
-		rect.y = MENU_TOP_OFFSET - TILE_H;
-		for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
-			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-			rect.x += TILE_W;
-		}*/
-
 		for(i = 0; i < ITEMCOUNT; i++) {
-			/*
-			rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
-			rect.y = surf_items_clip->at(i)->y - 6;
-			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-			rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
-			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-			*/
 
 			text = surf_items->at(i);
 			
@@ -322,28 +298,15 @@ void LocalMultiplayerRoundEnd::draw() {
 
 			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 		}
-		/*
-		rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
-		rect.y = MENU_TOP_OFFSET + (ITEMCOUNT * MENU_ITEM_HEIGHT);
-		for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
-			SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-			rect.x += TILE_W;
-		}
-		*/
 	}
 
 	SDL_Rect r_block;
 	
 	// RESULTS
-	rect.x = 10;
+	rect.x = (WINDOW_WIDTH - surf_result->w) / 2;
 	rect.y = 10;
 	if(!(frame & 0x20))
 		SDL_BlitSurface(surf_result, NULL, screen, &rect);
-
-	// Round number
-	rect.x = WINDOW_WIDTH - 10 - surf_round->w;
-	rect.y = 10;
-	SDL_BlitSurface(surf_round, NULL, screen, &rect);
 
 	r_block.w = WINDOW_WIDTH - 20;
 	r_block.h = 72;
@@ -358,10 +321,10 @@ void LocalMultiplayerRoundEnd::draw() {
 		// Avatar
 		rect.x = r_block.x + 14;
 		rect.y = r_block.y + 14;
-		if(i == winner && (frame & 0x10))
-			SDL_BlitSurface(player[i]->sprites, Main::graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
+		if(order[i] == winner && (frame & 0x10))
+			SDL_BlitSurface(player[order[i]]->sprites, Main::graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
 		else
-			SDL_BlitSurface(player[i]->sprites, Main::graphics->player_clip[SPR_AVATAR], screen, &rect);
+			SDL_BlitSurface(player[order[i]]->sprites, Main::graphics->player_clip[SPR_AVATAR], screen, &rect);
 	}
 }
 

@@ -21,6 +21,8 @@ protected:
 	
 	int end_avatar_start_frame;
 
+	int round;
+
 	Player * winner;
 	bool draw;
 

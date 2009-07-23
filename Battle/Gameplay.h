@@ -30,7 +30,7 @@ public:
 	void add_player(Player * player);
 
 	void add_object(GameplayObject * obj);
-	void bounce_up_players_and_npcs(SDL_Rect * rect);
+	void bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source);
 
 	static bool is_intersecting(SDL_Rect * one, SDL_Rect * two);
 protected:
@@ -65,6 +65,7 @@ protected:
 	bool countdown;
 	int countdown_sec_left;
 	int countdown_start;
+	char countdown_pre_text[20];
 
 	bool ended;
 	int end_start;
