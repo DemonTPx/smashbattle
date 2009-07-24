@@ -164,17 +164,28 @@ void ControlsOptions::redefine_keyboard() {
 
 int ControlsOptions::poll_keyboard(const char * question) {
 	SDL_Event event;
+	bool has_key = false;
+	int key = 0;
 
 	show_notification(question);
 
-	Main::instance->flip();
+	while(Main::running && !has_key) {
+		while(SDL_PollEvent(&event)) {
+			Main::instance->handle_event(&event);
 
-	SDL_PollEvent(&event);
-	while(event.type != SDL_KEYDOWN) {
-		SDL_WaitEvent(&event);
+			if(event.type == SDL_KEYDOWN) {
+				key = event.key.keysym.sym;
+			}
+			if(event.type == SDL_KEYUP) {
+				if(event.key.keysym.sym == key) {
+					has_key = true;
+					break;
+				}
+			}
+		}
 	}
 	
-	return event.key.keysym.sym;
+	return key;
 }
 
 void ControlsOptions::redefine_joystick() {
@@ -201,15 +212,30 @@ void ControlsOptions::redefine_joystick() {
 
 int ControlsOptions::poll_joystick(int index, const char * question) {
 	SDL_Event event;
+	bool has_button = false;
+	int button = 0;
 
 	show_notification(question);
 
-	SDL_PollEvent(&event);
-	while(event.type != SDL_JOYBUTTONDOWN || event.jbutton.which != index) {
-		SDL_WaitEvent(&event);
+	while(Main::running && !has_button) {
+		while(SDL_PollEvent(&event)) {
+			Main::instance->handle_event(&event);
+			
+			if(event.jbutton.which == index) {
+				if(event.type == SDL_JOYBUTTONDOWN) {
+					button = event.jbutton.button;
+				}
+				if(event.type == SDL_JOYBUTTONUP) {
+					if(event.jbutton.button == button) {
+						has_button = true;
+						break;
+					}
+				}
+			}
+		}
 	}
 	
-	return event.jbutton.button;
+	return button;
 }
 
 void ControlsOptions::show_notification(const char * text) {

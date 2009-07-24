@@ -107,7 +107,7 @@ void LocalMultiplayerRoundEnd::init() {
 		order[i] = i;
 	}
 	for(short i = 0; i < players - 1; i++ ) {
-		for(short j = i; j < players - 1; j++) {
+		for(short j = 0; j < players - 1; j++) {
 			if(player[order[j]]->score < player[order[j + 1]]->score) {
 				temp = order[j];
 				order[j] = order[j + 1];
