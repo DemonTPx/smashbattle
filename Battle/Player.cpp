@@ -12,7 +12,7 @@
 
 #define BULLETS_UNLIMITED -1
 
-const int Player::CHARACTER_COUNT = 12;
+const int Player::CHARACTER_COUNT = 16;
 const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	//      Name               Filename            sp wt wp bd
 	{(char*)"BERT",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
@@ -27,6 +27,10 @@ const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	{(char*)"ROB",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
 	{(char*)"EVA",		(char*)"gfx/eva.bmp",		1, 2, 0, 1},
 	{(char*)"TOBIAS",	(char*)"gfx/tobias.bmp",	1, 1, 2, 0},
+	{(char*)"ARJAN",	(char*)"gfx/arjan.bmp",		0, 2, 2, 0},
+	{(char*)"RUUD",		(char*)"gfx/ruud.bmp",		2, 0, 0, 2},
+	{(char*)"ANTON",	(char*)"gfx/anton.bmp",		1, 1, 0, 2},
+	{(char*)"RUTGER",	(char*)"gfx/rutger.bmp",	2, 0, 2, 0},
 };
 const int Player::COLORS[4] = {
 	0xaa0000,

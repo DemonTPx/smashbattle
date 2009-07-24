@@ -415,6 +415,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\arjan.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\music\battle.ogg"
 				>
 			</File>
@@ -431,6 +435,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\bg_grey.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\bg_orange.bmp"
 				>
 			</File>
@@ -443,10 +451,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\charselect.bmp"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\common.bmp"
 				>
 			</File>
@@ -456,6 +460,10 @@
 			</File>
 			<File
 				RelativePath=".\sfx\countdown.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\cups.bmp"
 				>
 			</File>
 			<File
@@ -576,6 +584,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\rutger.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\ruud.bmp"
 				>
 			</File>
 			<File

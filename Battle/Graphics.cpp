@@ -22,7 +22,7 @@ void Graphics::load_all() {
 	surface = SDL_LoadBMP("gfx/bomb.bmp");
 	bombs = SDL_DisplayFormat(surface);
 	colorkey = SDL_MapRGB(bombs->format, 0, 255, 255);
-	SDL_SetColorKey(bombs, SDL_SRCCOLORKEY, colorkey); 
+	SDL_SetColorKey(bombs, SDL_SRCCOLORKEY, colorkey);
 	SDL_FreeSurface(surface);
 
 	surface = SDL_LoadBMP("gfx/powerups.bmp");
@@ -51,13 +51,19 @@ void Graphics::load_all() {
 	colorkey = SDL_MapRGB(pmarker->format, 0, 255, 255);
 	SDL_SetColorKey(pmarker, SDL_SRCCOLORKEY, colorkey);
 	
-	surface = SDL_LoadBMP("gfx/charselect.bmp");
-	bg_charselect = SDL_DisplayFormat(surface);
+	surface = SDL_LoadBMP("gfx/bg_grey.bmp");
+	bg_grey = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
 
 	surface = SDL_LoadBMP("gfx/title_screen.bmp");
 	bg_menu = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
+
+	surface = SDL_LoadBMP("gfx/cups.bmp");
+	cups = SDL_DisplayFormat(surface);
+	SDL_FreeSurface(surface);
+	colorkey = SDL_MapRGB(cups->format, 0, 255, 255);
+	SDL_SetColorKey(cups, SDL_SRCCOLORKEY, colorkey);
 
 	surface = SDL_LoadBMP("gfx/tiles.bmp");
 	tiles = SDL_DisplayFormat(surface);
@@ -97,8 +103,10 @@ void Graphics::clear_all() {
 
 	SDL_FreeSurface(pmarker);
 
-	SDL_FreeSurface(bg_charselect);
+	SDL_FreeSurface(bg_grey);
 	SDL_FreeSurface(bg_menu);
+	
+	SDL_FreeSurface(cups);
 
 	SDL_FreeSurface(tiles);
 

@@ -270,14 +270,14 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_BlitSurface(player2->sprites, Main::graphics->player_clip[SPR_L], screen, &rect);
 
 	// Health bar player 1
-	rect.x = 3;
-	rect.y = WINDOW_HEIGHT - 29;
-	rect.w = 120;
-	rect.h = 9;
+	rect.x = 2;
+	rect.y = WINDOW_HEIGHT - 30;
+	rect.w = 122;
+	rect.h = 10;
 	SDL_FillRect(screen, &rect, 0);
 
 	rect_s.w = (int)(1.18 * player1->hitpoints);
-	rect_s.h = 7;
+	rect_s.h = 8;
 	rect_s.x = 0;
 	rect_s.y = 0;
 	rect.x = 4;
@@ -285,17 +285,17 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_BlitSurface(Main::instance->graphics->player1hp, &rect_s, screen, &rect);
 
 	// Health bar player 2
-	rect.x = WINDOW_WIDTH - 123;
-	rect.y = WINDOW_HEIGHT - 29;
-	rect.w = 120;
-	rect.h = 9;
+	rect.x = WINDOW_WIDTH - 124;
+	rect.y = WINDOW_HEIGHT - 30;
+	rect.w = 122;
+	rect.h = 10;
 	SDL_FillRect(screen, &rect, 0);
 
 	rect_s.w = (int)(1.18 * player2->hitpoints);
-	rect_s.h = 7;
+	rect_s.h = 8;
 	rect_s.x = 118 - rect_s.w;
 	rect_s.y = 0;
-	rect.x = WINDOW_WIDTH - 3 - rect_s.w;
+	rect.x = WINDOW_WIDTH - rect_s.w - 4;
 	rect.y = WINDOW_HEIGHT - 28;
 	SDL_BlitSurface(Main::instance->graphics->player2hp, &rect_s, screen, &rect);
 
@@ -313,7 +313,7 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_FreeSurface(surface);
 
 	// Show score
-	sprintf_s(str, 40, "%02d-%02d", player1->score, player2->score);
+	sprintf_s(str, 40, "%d-%d", player1->score, player2->score);
 	surface = Main::text->render_text_large(str);
 	rect.x = (WINDOW_WIDTH - surface->w) / 2;
 	rect.y = WINDOW_HEIGHT - surface->h - 2;
@@ -341,7 +341,7 @@ void LocalMultiplayer::draw_score_duel() {
 		sprintf_s(str, 3, "%02d", player1->bombs);
 		surface = Main::text->render_text_medium(str);
 		rect.x = 18;
-		rect.y = 462;
+		rect.y = 464;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 	} else {
@@ -353,12 +353,12 @@ void LocalMultiplayer::draw_score_duel() {
 	if(player2->bombs != -1) {
 		sprintf_s(str, 3, "%02d", player2->bombs);
 		surface = Main::text->render_text_medium(str);
-		rect.x = 624 - surface->w;
-		rect.y = 462;
+		rect.x = 622 - surface->w;
+		rect.y = 464;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 	} else {
-		rect.x = 624 - Main::graphics->common->w;
+		rect.x = 622 - Main::graphics->common->w;
 		rect.y = 462;
 		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 	}
@@ -382,7 +382,7 @@ void LocalMultiplayer::draw_score_duel() {
 		sprintf_s(str, 3, "%02d", ammount);
 		surface = Main::text->render_text_medium(str);
 		rect.x = 74;
-		rect.y = 462;
+		rect.y = 464;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 	} else {
@@ -413,7 +413,7 @@ void LocalMultiplayer::draw_score_duel() {
 		sprintf_s(str, 3, "%02d", ammount);
 		surface = Main::text->render_text_medium(str);
 		rect.x = 566 - surface->w;
-		rect.y = 462;
+		rect.y = 464;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 	} else {

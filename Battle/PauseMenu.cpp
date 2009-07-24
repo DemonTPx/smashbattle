@@ -150,12 +150,12 @@ void PauseMenu::draw() {
 		rect.x = (screen->w - (width - 12)) / 2;
 		rect.y += 20;
 		rect.w = width - 12;
-		rect.h = 20;
+		rect.h = 22;
 
 		if(selected_option == i) {
-			rect.y -= 2;
+			rect.y -= 4;
 			SDL_FillRect(screen, &rect, color);
-			rect.y += 2;
+			rect.y += 4;
 		}
 
 		surface = Main::text->render_text_medium(text);

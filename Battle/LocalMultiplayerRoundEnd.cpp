@@ -70,6 +70,8 @@ void LocalMultiplayerRoundEnd::init() {
 	double accuracy;
 	char str[30];
 	short temp;
+	int last_score;
+	int cup;
 	Player * pl;
 
 	controls1 = Main::instance->controls1;
@@ -79,6 +81,7 @@ void LocalMultiplayerRoundEnd::init() {
 
 	selected_item = 0;
 
+	// Menu
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
 	for(int i = 0; i < ITEMCOUNT; i++) {
@@ -121,12 +124,21 @@ void LocalMultiplayerRoundEnd::init() {
 	r_block.w = WINDOW_WIDTH - 20;
 	r_block.h = 72;
 
+	last_score = -1;
+	cup = 0;
+
 	for(int i = 0; i < players; i++) {
 		pl = player[order[i]];
 
 		surface = SDL_CreateRGBSurface(0, r_block.w, r_block.h, 32, 0, 0, 0, 0);
 
 		SDL_FillRect(surface, &r_block, Player::COLORS[order[i]]);
+
+		rect.x = r_block.x + 4;
+		rect.y = r_block.y + 4;
+		rect.w = r_block.w - 8;
+		rect.h = r_block.h - 8;
+		SDL_FillRect(surface, &rect, 0);
 
 		// Player number
 		rect.x = r_block.x + 72;
@@ -143,8 +155,24 @@ void LocalMultiplayerRoundEnd::init() {
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
 
+		// Cup
+		if(cup < 3) {
+			if(last_score == -1 || last_score > pl->score) {
+				if(last_score != -1)
+					cup++;
+				last_score = pl->score;
+			}
+			rect_s.x = (CUP_W * cup);
+			rect_s.y = 0;
+			rect_s.w = CUP_W;
+			rect_s.h = CUP_H;
+			rect.x = r_block.x + 130;
+			rect.y = r_block.y + 10;
+			SDL_BlitSurface(Main::graphics->cups, &rect_s, surface, &rect);
+		}
+
 		// Bullets fired
-		rect.x = r_block.x + 204;
+		rect.x = r_block.x + 224;
 		rect.y = r_block.y + 10;
 		rect_s.x = 0;
 		rect_s.y = 0;
@@ -154,7 +182,7 @@ void LocalMultiplayerRoundEnd::init() {
 
 		sprintf_s(str, 20, "%d", pl->bullets_fired);
 		text = Main::text->render_text_medium_gray(str);
-		rect.x = r_block.x + 220;
+		rect.x = r_block.x + 240;
 		rect.y = r_block.y + 8;
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
@@ -180,9 +208,9 @@ void LocalMultiplayerRoundEnd::init() {
 		SDL_FreeSurface(text);
 
 		// Bombs fired
-		rect.x = r_block.x + 202;
+		rect.x = r_block.x + 222;
 		rect.y = r_block.y + 28;
-		rect_s.x = 0;
+		rect_s.x = 12;
 		rect_s.y = 0;
 		rect_s.w = 12;
 		rect_s.h = 16;
@@ -190,7 +218,7 @@ void LocalMultiplayerRoundEnd::init() {
 
 		sprintf_s(str, 20, "%d", pl->bombs_fired);
 		text = Main::text->render_text_medium_gray(str);
-		rect.x = r_block.x + 220;
+		rect.x = r_block.x + 240;
 		rect.y = r_block.y + 30;
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
@@ -216,7 +244,7 @@ void LocalMultiplayerRoundEnd::init() {
 		SDL_FreeSurface(text);
 
 		// Headstomps
-		rect.x = r_block.x + 200;
+		rect.x = r_block.x + 220;
 		rect.y = r_block.y + 50;
 		rect_s.x = 0;
 		rect_s.y = 32;
@@ -226,7 +254,7 @@ void LocalMultiplayerRoundEnd::init() {
 
 		sprintf_s(str, 20, "%d", pl->headstomps);
 		text = Main::text->render_text_medium_gray(str);
-		rect.x = r_block.x + 220;
+		rect.x = r_block.x + 240;
 		rect.y = r_block.y + 52;
 		SDL_BlitSurface(text, NULL, surface, &rect);
 		SDL_FreeSurface(text);
@@ -279,7 +307,13 @@ void LocalMultiplayerRoundEnd::draw() {
 
 	screen = Main::instance->screen;
 
-	SDL_FillRect(screen, NULL, 0);
+	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
+		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
+			rect.x = x;
+			rect.y = y;
+			SDL_BlitSurface(Main::graphics->bg_grey, NULL, screen, &rect);
+		}
+	}
 	
 	// MENU
 	if(frame >= BEGIN_DELAY) {
@@ -289,7 +323,7 @@ void LocalMultiplayerRoundEnd::draw() {
 			
 			if(selected_item == i) {
 				rect.x = surf_items_clip->at(i)->x - TILE_W;
-				rect.y = surf_items_clip->at(i)->y - 6;
+				rect.y = surf_items_clip->at(i)->y - 8;
 				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
 				rect.h = MENU_ITEM_HEIGHT;
 

@@ -324,7 +324,13 @@ void CharacterSelect::draw() {
 
 	screen = Main::instance->screen;
 
-	SDL_BlitSurface(Main::graphics->bg_charselect, NULL, screen, NULL);
+	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
+		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
+			rect.x = x;
+			rect.y = y;
+			SDL_BlitSurface(Main::graphics->bg_grey, NULL, screen, &rect);
+		}
+	}
 
 	// CHARACTERS
 
@@ -543,7 +549,7 @@ void CharacterSelect::draw() {
 		SDL_FillRect(screen, &r_pnumber, Player::COLORS[i]);
 
 		sprintf_s(str, 3, "P%1d", (i + 1));
-		surface = Main::text->render_text_medium(str);
+		surface = Main::text->render_text_large(str);
 		r_pnumber.x += (r_pnumber.w - surface->w) / 2;
 		r_pnumber.y += 10;
 		SDL_BlitSurface(surface, NULL, screen, &r_pnumber);

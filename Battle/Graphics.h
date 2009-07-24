@@ -34,6 +34,9 @@
 #define PLAYER_SURF_COLS 10
 #define PLAYER_SURF_COUNT 20
 
+#define CUP_W 30
+#define CUP_H 28
+
 class Graphics {
 public:
 	Graphics();
@@ -59,8 +62,10 @@ public:
 	SDL_Surface * common;
 	SDL_Surface * pmarker;
 
-	SDL_Surface * bg_charselect;
+	SDL_Surface * bg_grey;
 	SDL_Surface * bg_menu;
+
+	SDL_Surface * cups;
 
 	SDL_Surface * tiles;
 
