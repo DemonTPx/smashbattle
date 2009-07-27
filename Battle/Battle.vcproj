@@ -467,10 +467,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\desertstrike.stg"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\donja.bmp"
 				>
 			</File>
@@ -616,10 +612,6 @@
 			</File>
 			<File
 				RelativePath=".\music\title.ogg"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\title_screen.bmp"
 				>
 			</File>
 			<File
