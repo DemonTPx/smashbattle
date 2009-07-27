@@ -37,7 +37,7 @@ void LocalMultiplayer::on_game_reset() {
 	Player * p;
 	int pstart;
 	
-	if(round == 5) {
+	if(round >= 5) {
 		int highest = 0;
 		bool we_have_a_winner = false;
 		for(unsigned int idx = 0; idx < players->size(); idx++) {
@@ -62,7 +62,7 @@ void LocalMultiplayer::on_game_reset() {
 
 		x = level->playerstart[pstart].x * TILE_W + ((TILE_W - PLAYER_W) / 2);
 		y = level->playerstart[pstart].y * TILE_H - PLAYER_H;
-		sprite = (level->playerstart[idx].facing_right ? SPR_R : SPR_L);
+		sprite = (level->playerstart[pstart].facing_right ? SPR_R : SPR_L);
 		
 		p->position->x = x;
 		p->position->y = y;
@@ -318,17 +318,15 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_BlitSurface(Main::instance->graphics->player2hp, &rect_s, screen, &rect);
 
 	// Player names
-	surface = Main::text->render_text_medium(player1->name);
+	surface = Main::graphics->playername->at(player1->character);
 	rect.x = 240 - surface->w;
 	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
-	SDL_FreeSurface(surface);
 
-	surface = Main::text->render_text_medium(player2->name);
+	surface = Main::graphics->playername->at(player2->character);
 	rect.x = 400;
 	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
-	SDL_FreeSurface(surface);
 
 	// Show score
 	sprintf_s(str, 40, "%d-%d", player1->score, player2->score);

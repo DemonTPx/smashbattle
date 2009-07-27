@@ -49,6 +49,12 @@ void LevelSelect::run() {
 	ready = false;
 	ready_level = false;
 	cancel = false;
+
+	random = false;
+	random_start = 0;
+	random_before = 0;
+
+	srand(SDL_GetTicks());
 	
 	level = 0;
 	select(DIRECTION_NONE);
@@ -62,6 +68,8 @@ void LevelSelect::run() {
 		}
 
 		process_cursors();
+
+		process_random();
 
 		frame++;
 
@@ -191,16 +199,21 @@ void LevelSelect::process_cursors() {
 	int delay;
 
 	for(int i = 0; i < players; i++) {
-		if(cursor_enter[i]) {
+		// Enter
+		if(cursor_enter[i] && !ready_level) {
 			cursor_enter[i] = false;
 			Main::audio->play(SND_SELECT_CHARACTER);
 			if(!ready_level) {
 				ready_level = true;
+
+				random = false;
+
 				flicker = true;
 				flicker_frame = 0;
 			}
 		}
 
+		// Direction
 		if(cursor_direction[i] != DIRECTION_NONE) {
 			if(cursor_first[i])
 				delay = 0;
@@ -218,28 +231,72 @@ void LevelSelect::process_cursors() {
 	}
 }
 
-void LevelSelect::select(int direction) {
-	if(direction & DIRECTION_LEFT) {
-		if(level % LEVELS_PER_LINE == 0)
-			level += LEVELS_PER_LINE;
-		level--;
+void LevelSelect::process_random() {
+	if(random && (frame - random_start == 6)) {
+		int last;
+		bool is_last;
+
+		last = level;
+
+		do {
+			is_last = false;
+			level = rand() % Level::LEVEL_COUNT;
+
+			if(level == last) is_last = true;
+		} while(is_last);
+
+		random_start = frame;
 	}
-	if(direction & DIRECTION_RIGHT) {
-		if(level % LEVELS_PER_LINE == LEVELS_PER_LINE - 1)
-			level -= LEVELS_PER_LINE;
-		level++;
+}
+
+void LevelSelect::select(int direction) {
+	if(!random) {
+		if(direction & DIRECTION_LEFT) {
+			if(level % LEVELS_PER_LINE == 0)
+				level += LEVELS_PER_LINE;
+			level--;
+		}
+		if(direction & DIRECTION_RIGHT) {
+			if(level % LEVELS_PER_LINE == LEVELS_PER_LINE - 1)
+				level -= LEVELS_PER_LINE;
+			level++;
+		}
 	}
 	if(direction & DIRECTION_UP) {
-		level -= LEVELS_PER_LINE;
+		if(random) {
+			if(random_before >= Level::LEVEL_COUNT - LEVELS_PER_LINE) {
+				level = random_before;
+			} else {
+				level = random_before - LEVELS_PER_LINE + Level::LEVEL_COUNT;
+			}
+			random = false;
+		} else if(level < LEVELS_PER_LINE) {
+			random = true;
+			random_before = level;
+			random_start = frame;
+		} else {
+			level -= LEVELS_PER_LINE;
+		}
 	}
 	if(direction & DIRECTION_DOWN) {
-		level += LEVELS_PER_LINE;
+		if(random) {
+			if(random_before < LEVELS_PER_LINE) {
+				level = random_before;
+			} else {
+				level = random_before + LEVELS_PER_LINE - Level::LEVEL_COUNT;
+			}
+			random = false;
+		} else if(level >= Level::LEVEL_COUNT - LEVELS_PER_LINE) {
+			random = true;
+			random_before = level;
+			random_start = frame;
+		} else {
+			level += LEVELS_PER_LINE;
+		}
 	}
 
 	if(level < 0) level += Level::LEVEL_COUNT;
 	if(level >= Level::LEVEL_COUNT) level -= Level::LEVEL_COUNT;
-
-	name = Level::LEVELS[level].name;
 }
 
 void LevelSelect::draw() {
@@ -255,7 +312,7 @@ void LevelSelect::draw() {
 
 	// TILES
 	rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
-	rect.y = MENU_TOP_OFFSET - 32 - TILE_H;
+	rect.y = MENU_TOP_OFFSET - 40 - TILE_H;
 	rect.w = TILES_COLS * TILE_W;
 	rect.h = TILES_ROWS * TILE_H;
 
@@ -267,15 +324,15 @@ void LevelSelect::draw() {
 	rect_s.h = TILE_H;
 
 	rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
-	rect.y = MENU_TOP_OFFSET - 32 - TILE_H;
+	rect.y = MENU_TOP_OFFSET - 40 - TILE_H;
 	for(int i = 0; i < TILES_COLS; i++) {
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
 
-	for(int i = 1; i < TILES_ROWS - 1; i++) {
+	for(int i = 1; i < TILES_ROWS; i++) {
 		rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
-		rect.y = (MENU_TOP_OFFSET - 32 - TILE_H) + (TILE_H * i);
+		rect.y = (MENU_TOP_OFFSET - 40 - TILE_H) + (TILE_H * i);
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		
 		rect.x = rect.x + ((TILES_COLS - 1) * TILE_W);
@@ -283,21 +340,39 @@ void LevelSelect::draw() {
 	}
 
 	rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
-	rect.y = (MENU_TOP_OFFSET - 32 - TILE_H) + ((TILES_ROWS - 1) * TILE_H);
+	rect.y = (MENU_TOP_OFFSET - 40 - TILE_H) + (TILES_ROWS * TILE_H);
 	for(int i = 0; i < TILES_COLS; i++) {
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
 
 	// STAGES
-	surface = Main::text->render_text_medium(name);
-	rect.x = (screen->w - surface->w) / 2;
-	rect.y = MENU_TOP_OFFSET - 20;
-	SDL_BlitSurface(surface, NULL, screen, &rect);
-	SDL_FreeSurface(surface);
-
 	width = (LEVEL_WIDTH + (LEVEL_SPACING * 2)) * LEVELS_PER_LINE;
+	
+	// Stage random
+	if(random) {
+		rect.x = (WINDOW_WIDTH - width) / 2;
+		rect.y = MENU_TOP_OFFSET - 32;
+		rect.w = width;
+		rect.h = 32;
 
+		color = 0x0088ff;
+		SDL_FillRect(screen, &rect, color);
+
+		rect.x += LEVEL_SPACING;
+		rect.y += LEVEL_SPACING;
+		rect.w -= (LEVEL_SPACING * 2);
+		rect.h -= (LEVEL_SPACING * 2);
+
+		SDL_FillRect(screen, &rect, 0);
+	}
+
+	surface = Main::graphics->text_random;
+	rect.x = (screen->w - surface->w) / 2;
+	rect.y = MENU_TOP_OFFSET - 24;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+
+	// Stage thumbnails
 	rect_b.x = (screen->w - width) / 2;
 	rect_b.y = MENU_TOP_OFFSET;
 	rect_b.w = LEVEL_WIDTH + (LEVEL_SPACING * 2);
@@ -331,6 +406,13 @@ void LevelSelect::draw() {
 
 		rect_b.x += LEVEL_WIDTH + (LEVEL_SPACING * 2);
 	}
+	
+	// Stage name
+	surface = Main::text->render_text_medium(Level::LEVELS[level].name);
+	rect.x = (screen->w - surface->w) / 2;
+	rect.y = MENU_TOP_OFFSET + ((LEVEL_HEIGHT + (LEVEL_SPACING * 2)) * (Level::LEVEL_COUNT / LEVELS_PER_LINE)) + 10;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
 }
 
 void LevelSelect::load_sprites() {

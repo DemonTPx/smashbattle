@@ -71,11 +71,11 @@ bool Main::init() {
 	audio->open_audio();
 	audio->load_files();
 
-	graphics = new Graphics();
-	graphics->load_all();
-
 	text = new Text();
 	text->load_all();
+
+	graphics = new Graphics();
+	graphics->load_all();
 
 	// enable joystick throughout the game
 	SDL_JoystickEventState(SDL_ENABLE);

@@ -68,6 +68,7 @@ public:
 	void reset();
 
 	char * name;
+	int character;
 	int number;
 
 	SDL_Rect * position;

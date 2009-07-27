@@ -55,9 +55,7 @@ void Graphics::load_all() {
 	bg_grey = SDL_DisplayFormat(surface);
 	SDL_FreeSurface(surface);
 
-	surface = SDL_LoadBMP("gfx/title_screen.bmp");
-	bg_menu = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
+	bg_menu = Level::get_preview("stage/titlescreen.lvl");
 
 	surface = SDL_LoadBMP("gfx/cups.bmp");
 	cups = SDL_DisplayFormat(surface);
@@ -71,6 +69,18 @@ void Graphics::load_all() {
 	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
 	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
 
+	statsblock[0] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRect(statsblock[0], NULL, 0x880000);
+
+	statsblock[1] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRect(statsblock[1], NULL, 0x888800);
+
+	statsblock[2] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRect(statsblock[2], NULL, 0x008800);
+
+	text_ready = Main::text->render_text_medium("READY");
+	text_random = Main::text->render_text_medium("RANDOM");
+
 	load_players();
 	set_player_clips();
 }
@@ -80,6 +90,7 @@ void Graphics::load_players() {
 	Uint32 colorkey;
 
 	player = new std::vector<SDL_Surface *>(0);
+	playername = new std::vector<SDL_Surface *>(0);
 
 	for(int i = 0; i < Player::CHARACTER_COUNT; i++) {
 		loaded = SDL_LoadBMP(Player::CHARACTERS[i].filename);
@@ -88,6 +99,8 @@ void Graphics::load_players() {
 		colorkey = SDL_MapRGB(surface->format, 0, 255, 255);
 		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey); 
 		player->push_back(surface);
+
+		playername->push_back(Main::text->render_text_medium(Player::CHARACTERS[i].name));
 	}
 }
 
@@ -110,6 +123,13 @@ void Graphics::clear_all() {
 
 	SDL_FreeSurface(tiles);
 
+	SDL_FreeSurface(statsblock[0]);
+	SDL_FreeSurface(statsblock[1]);
+	SDL_FreeSurface(statsblock[2]);
+
+	SDL_FreeSurface(text_ready);
+	SDL_FreeSurface(text_random);
+
 	clear_players();
 	clear_player_clips();
 }
@@ -120,6 +140,12 @@ void Graphics::clear_players() {
 	}
 	player->clear();
 	delete player;
+	
+	for(unsigned int i = 0; i < playername->size(); i++) {
+		SDL_FreeSurface(playername->at(i));
+	}
+	playername->clear();
+	delete playername;
 }
 
 void Graphics::set_player_clips() {

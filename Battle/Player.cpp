@@ -87,6 +87,7 @@ const int Player::jump_height = 144;
 
 Player::Player(int character, int number) {
 	name = CHARACTERS[character].name;
+	this->character = character;
 	this->number = number;
 
 	speedclass = CHARACTERS[character].speedclass;
@@ -137,6 +138,7 @@ Player::~Player() {
 
 void Player::set_character(int character) {
 	name = CHARACTERS[character].name;
+	this->character = character;
 
 	speedclass = CHARACTERS[character].speedclass;
 	weightclass = CHARACTERS[character].weightclass;

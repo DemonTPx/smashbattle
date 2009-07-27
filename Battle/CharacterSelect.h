@@ -16,16 +16,30 @@ public:
 	bool cancel;
 private:
 	void draw();
+
 	void handle_input(SDL_Event * event);
+
+	void init();
+	void clean_up();
+
+	void prerender_background();
 
 	void process_cursors();
 
-	void select(int * select, int direction);
+	void process_random_players();
+
+	void select(int player);
+
+	SDL_Surface * background;
 
 	int players;
 
 	bool ready;
 	bool player_ready[4];
+
+	bool player_random[4];
+	int player_random_start[4];
+	int player_random_before[4];
 
 	PlayerAnimation * playeranimation[4];
 	

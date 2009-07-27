@@ -18,12 +18,18 @@ private:
 
 	void process_cursors();
 
+	void process_random();
+
 	void select(int direction);
 
 	int players;
 	
 	bool ready;
 	bool ready_level;
+
+	bool random;
+	int random_start;
+	int random_before;
 	
 	int cursor_direction[4];
 	bool cursor_first[4];
@@ -34,7 +40,6 @@ private:
 	
 	int flicker, flicker_frame;
 
-	char * name;
 	std::vector<SDL_Surface*> * thumbs;
 	std::vector<SDL_Surface*> * backgrounds;
 

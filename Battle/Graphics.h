@@ -69,7 +69,14 @@ public:
 
 	SDL_Surface * tiles;
 
+	SDL_Surface * statsblock[3];
+
+	SDL_Surface * text_ready;
+	SDL_Surface * text_random;
+
 	std::vector<SDL_Surface*> * player;
+	std::vector<SDL_Surface*> * playername;
+
 	SDL_Rect * player_clip[SPR_COUNT];
 	SDL_Rect * pmarker_clip_above[4];
 	SDL_Rect * pmarker_clip_below[4];

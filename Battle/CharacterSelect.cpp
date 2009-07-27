@@ -28,6 +28,52 @@ CharacterSelect::CharacterSelect(int players) {
 void CharacterSelect::run() {
 	SDL_Event event;
 
+	ready = false;
+	cancel = false;
+
+	init();
+
+	frame = 0;
+
+	while (Main::running && !ready && !cancel) {
+		while(SDL_PollEvent(&event)) {
+			Main::instance->handle_event(&event);
+			handle_input(&event);
+		}
+
+		process_cursors();
+
+		for(int i = 0; i < players; i++) {
+			name[i] = Player::CHARACTERS[player_select[i]].name;
+			file[i] = Player::CHARACTERS[player_select[i]].filename;
+
+			playeranimation[i]->move();
+		}
+
+		process_random_players();
+
+		frame++;
+
+		draw();
+
+		ready = true;
+		for(int i = 0; i < players; i++) {
+			if(!player_ready[i] || flicker[i]) {
+				ready = false;
+			}
+		}
+
+		Main::instance->flip();
+	}
+
+	clean_up();
+
+	if(!ready)
+		cancel = true;
+}
+
+void CharacterSelect::init() {
+	// Cursor
 	for(int i = 0; i < players; i++) {
 		player_ready[i] = false;
 	
@@ -35,15 +81,17 @@ void CharacterSelect::run() {
 		cursor_direction_start[i] = 0;
 		cursor_first[i] = true;
 		cursor_enter[i] = false;
+
+		player_random[i] = false;
+		player_random_start[i] = 0;
 	}
+	
 	controls[0] = Main::instance->controls1;
 	controls[1] = Main::instance->controls2;
 	controls[2] = Main::instance->controls3;
 	controls[3] = Main::instance->controls4;
 
-	ready = false;
-	cancel = false;
-
+	// Set inital cursor positions
 	player_select[0] = 0;
 	if(Player::CHARACTER_COUNT <= CHARACTERS_PER_LINE) {
 		player_select[1] = 1;
@@ -55,6 +103,7 @@ void CharacterSelect::run() {
 		player_select[3] = Player::CHARACTER_COUNT - 1;
 	}
 
+	// Create player animations
 	for(int i = 0; i < players; i++) {
 		playeranimation[i] = new PlayerAnimation(player_select[i]);
 		playeranimation[i]->animate_in_place = true;
@@ -84,43 +133,129 @@ void CharacterSelect::run() {
 		}
 	}
 
-	frame = 0;
+	srand(SDL_GetTicks());
 
-	while (Main::running && !ready && !cancel) {
-		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
-			handle_input(&event);
-		}
+	prerender_background();
+}
 
-		process_cursors();
-
-		for(int i = 0; i < players; i++) {
-			name[i] = Player::CHARACTERS[player_select[i]].name;
-			file[i] = Player::CHARACTERS[player_select[i]].filename;
-
-			playeranimation[i]->move();
-		}
-
-		frame++;
-
-		draw();
-
-		ready = true;
-		for(int i = 0; i < players; i++) {
-			if(!player_ready[i] || flicker[i]) {
-				ready = false;
-			}
-		}
-
-		Main::instance->flip();
-	}
-
+void CharacterSelect::clean_up() {
 	for(int i = 0; i < players; i++) {
 		delete playeranimation[i];
 	}
 
-	if(!ready)
-		cancel = true;
+	SDL_FreeSurface(background);
+}
+
+void CharacterSelect::prerender_background() {
+	SDL_Surface * surface;
+	SDL_Rect rect;
+	char str[5];
+
+	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
+
+	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
+		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
+			rect.x = x;
+			rect.y = y;
+			SDL_BlitSurface(Main::graphics->bg_grey, NULL, background, &rect);
+		}
+	}
+
+	// PLAYERS
+	SDL_Rect r_block, r_pnumber;
+	SDL_Rect r_stats;
+	int stats_w, stats_h;
+	int direction;
+	stats_w = 100;
+	stats_h = 20;
+
+	for(int i = 0; i < players; i++) {
+		r_block.w = 190;
+		r_block.h = 200;
+		r_pnumber.w = 60;
+		r_pnumber.h = 50;
+		switch(i) {
+			case 0:
+				r_block.x = 10;
+				r_block.y = 10;
+				r_pnumber.x = r_block.x + r_block.w;
+				r_pnumber.y = r_block.y;
+				r_stats.x = 22;
+				r_stats.y = 120;
+				direction = 1;
+				break;
+			case 1:
+				r_block.x = 440;
+				r_block.y = 10;
+				r_pnumber.x = r_block.x - r_pnumber.w;
+				r_pnumber.y = r_block.y;
+				r_stats.x = 616;
+				r_stats.y = 120;
+				direction = -1;
+				break;
+			case 2:
+				r_block.x = 10;
+				r_block.y = 270;
+				r_pnumber.x = r_block.x + r_block.w;
+				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
+				r_stats.x = 22;
+				r_stats.y = 380;
+				direction = 1;
+				break;
+			case 3:
+				r_block.x = 440;
+				r_block.y = 270;
+				r_pnumber.x = r_block.x - r_pnumber.w;
+				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
+				r_stats.x = 616;
+				r_stats.y = 380;
+				direction = -1;
+				break;
+		}
+		SDL_FillRect(background, &r_block, Player::COLORS[i]);
+		r_block.x += 4; r_block.w -= 8;
+		r_block.y += 4; r_block.h -= 8;
+		SDL_FillRect(background, &r_block, 0);
+
+		// Player number
+		SDL_FillRect(background, &r_pnumber, Player::COLORS[i]);
+
+		sprintf_s(str, 3, "P%1d", (i + 1));
+		surface = Main::text->render_text_large(str);
+		r_pnumber.x += (r_pnumber.w - surface->w) / 2;
+		r_pnumber.y += 10;
+		SDL_BlitSurface(surface, NULL, background, &r_pnumber);
+		SDL_FreeSurface(surface);
+
+		// Stats
+		surface = Main::text->render_text_medium("SPEED");
+		rect.x = r_stats.x;
+		rect.y = r_stats.y + 2;
+		if(direction == -1) rect.x -= surface->w;
+		SDL_BlitSurface(surface, NULL, background, &rect);
+		SDL_FreeSurface(surface);
+
+		surface = Main::text->render_text_medium("WEIGHT");
+		rect.x = r_stats.x;
+		rect.y = r_stats.y + stats_h + 2;
+		if(direction == -1) rect.x -= surface->w;
+		SDL_BlitSurface(surface, NULL, background, &rect);
+		SDL_FreeSurface(surface);
+
+		surface = Main::text->render_text_medium("WEAPON");
+		rect.x = r_stats.x;
+		rect.y = r_stats.y + (stats_h * 2) + 2;
+		if(direction == -1) rect.x -= surface->w;
+		SDL_BlitSurface(surface, NULL, background, &rect);
+		SDL_FreeSurface(surface);
+
+		surface = Main::text->render_text_medium("BOMB");
+		rect.x = r_stats.x;
+		rect.y = r_stats.y + (stats_h * 3) + 2;
+		if(direction == -1) rect.x -= surface->w;
+		SDL_BlitSurface(surface, NULL, background, &rect);
+		SDL_FreeSurface(surface);
+	}
 }
 
 void CharacterSelect::handle_input(SDL_Event * event) {
@@ -242,6 +377,7 @@ void CharacterSelect::process_cursors() {
 	}
 
 	for(int i = 0; i < players; i++) {
+		// Enter
 		if(cursor_enter[i]) {
 			cursor_enter[i] = false;
 			if(!player_ready[i]) {
@@ -254,14 +390,19 @@ void CharacterSelect::process_cursors() {
 				}
 				if(can_select) {
 					player_ready[i] = true;
+
+					player_random[i] = false;
+
 					flicker[i] = true;
 					flicker_frame[i] = 0;
+
 					playeranimation[i]->is_walking = true;
 					Main::audio->play(SND_SELECT_CHARACTER);
 				}
 			}
 		}
 
+		// Direction
 		if(cursor_direction[i] != DIRECTION_NONE) {
 			if(cursor_first[i])
 				delay = 0;
@@ -271,7 +412,7 @@ void CharacterSelect::process_cursors() {
 				cursor_direction_start[i] = frame;
 				cursor_first[i] = false;
 				if(!player_ready[i]) {
-					select(&player_select[i], cursor_direction[i]);
+					select(i);
 					playeranimation[i]->set_character(player_select[i]);
 					Main::audio->play(SND_SELECT);
 				}
@@ -280,64 +421,160 @@ void CharacterSelect::process_cursors() {
 	}
 }
 
-void CharacterSelect::select(int * select, int direction) {
-	if(direction & DIRECTION_LEFT) {
-		if(*select % CHARACTERS_PER_LINE == 0)
-			*select += CHARACTERS_PER_LINE;
-		*select -= 1;
-	}
-	if(direction & DIRECTION_RIGHT) {
-		if(*select % CHARACTERS_PER_LINE == CHARACTERS_PER_LINE - 1)
-			*select -= CHARACTERS_PER_LINE;
-		*select += 1;
-	}
-	if(direction & DIRECTION_UP) {
-		*select -= CHARACTERS_PER_LINE;
-	}
-	if(direction & DIRECTION_DOWN) {
-		*select += CHARACTERS_PER_LINE;
-	}
+void CharacterSelect::process_random_players() {
+	int last;
+	bool is_last;
+	bool can_select;
 
-	while(*select < Player::CHARACTER_COUNT) {
-		*select += Player::CHARACTER_COUNT;
-	}
-	while(*select >= Player::CHARACTER_COUNT) {
-		*select -= Player::CHARACTER_COUNT;
-	}
-
-	/*
 	for(int i = 0; i < players; i++) {
-		if(&player_select[i] == select) continue;
-		if(player_select[i] == *select)
-			this->select(select, direction);
-	}*/
+		if(player_random[i] && (frame - player_random_start[i] == 6)) {
+			last = player_select[i];
+
+			do {
+				is_last = false;
+				player_select[i] = rand() % Player::CHARACTER_COUNT;
+
+				if(player_select[i] == last) is_last = true;
+				
+				can_select = true;
+				if(!is_last) {
+					for(int idx = 0; idx < players; idx++) {
+						if(i == idx) continue;
+						if(player_ready[idx] && (player_select[idx] == player_select[i])) {
+							can_select = false;
+							break;
+						}
+					}
+				}
+			} while(!can_select || is_last);
+
+			playeranimation[i]->set_character(player_select[i]);
+
+			player_random_start[i] = frame;
+		}
+	}
+}
+
+void CharacterSelect::select(int player) {
+	if(!player_random[player]) {
+		// Left
+		if(cursor_direction[player] & DIRECTION_LEFT) {
+			if(player_select[player] % CHARACTERS_PER_LINE == 0)
+				player_select[player] += CHARACTERS_PER_LINE;
+			player_select[player] -= 1;
+		}
+
+		// Right
+		if(cursor_direction[player] & DIRECTION_RIGHT) {
+			if(player_select[player] % CHARACTERS_PER_LINE == CHARACTERS_PER_LINE - 1)
+				player_select[player] -= CHARACTERS_PER_LINE;
+			player_select[player] += 1;
+		}
+	}
+
+	// Up
+	if(cursor_direction[player] & DIRECTION_UP) {
+		if(player_random[player]) {
+			if(player_random_before[player] >= CHARACTERS_PER_LINE)
+				player_select[player] = player_random_before[player];
+			else
+				player_select[player] = player_random_before[player] - CHARACTERS_PER_LINE + Player::CHARACTER_COUNT;
+			player_random[player] = false;
+		} else if(player_select[player] < CHARACTERS_PER_LINE) {
+			player_random[player] = true;
+			player_random_start[player] = frame;
+			player_random_before[player] = player_select[player];
+		} else {
+			player_select[player] -= CHARACTERS_PER_LINE;
+		}
+	}
+
+	// Down
+	if(cursor_direction[player] & DIRECTION_DOWN) {
+		if(player_random[player]) {
+			if(player_random_before[player] < CHARACTERS_PER_LINE)
+				player_select[player] = player_random_before[player];
+			else
+				player_select[player] = player_random_before[player] + CHARACTERS_PER_LINE - Player::CHARACTER_COUNT;
+			player_random[player] = false;
+		} else if(player_select[player] >= Player::CHARACTER_COUNT - CHARACTERS_PER_LINE) {
+			player_random[player] = true;
+			player_random_start[player] = frame;
+			player_random_before[player] = player_select[player];
+		} else {
+			player_select[player] += CHARACTERS_PER_LINE;
+		}
+	}
 }
 
 void CharacterSelect::draw() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
-	SDL_Surface * statsblock[3];
 	SDL_Rect rect, rect_b, rect_c, rect_s;
 	SDL_Rect * clip;
 	Uint32 color, color_back;
-	char str[5];
 
 	screen = Main::instance->screen;
 
-	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
-		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
-			rect.x = x;
-			rect.y = y;
-			SDL_BlitSurface(Main::graphics->bg_grey, NULL, screen, &rect);
+	SDL_BlitSurface(background, 0, screen, 0);
+
+	// CHARACTERS: Random
+	rect_b.x = (screen->clip_rect.w - ((Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2)) * CHARACTERS_PER_LINE)) / 2;
+	rect_b.y = (screen->clip_rect.h - ((Main::graphics->player_clip[SPR_AVATAR]->h + (CHARACTER_SPACING * 2)) * ((Player::CHARACTER_COUNT / CHARACTERS_PER_LINE) + 1))) / 2;
+	rect_b.w = Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2);
+	rect_b.h = Main::graphics->player_clip[SPR_AVATAR]->h + (CHARACTER_SPACING * 2);
+
+	rect.x = rect_b.x;
+	rect.y = rect_b.y;
+	rect.w = (Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2)) * CHARACTERS_PER_LINE;
+	rect.h = rect_b.h;
+
+	color = 0;
+
+	for(int i = 0; i < players; i++) {
+		if(player_random[i]) {
+			if(color != 0)
+				color = Graphics::combine_colors(color, Player::COLORS[i]);
+			else
+				color = Player::COLORS[i];
+		}
+	}
+	
+	SDL_FillRect(screen, &rect, color);
+
+	rect_c.x = rect_b.x + CHARACTER_SPACING;
+	rect_c.y = rect_b.y + CHARACTER_SPACING;
+	rect_c.w = (rect_b.w * CHARACTERS_PER_LINE) - (CHARACTER_SPACING * 2);
+	rect_c.h = rect_b.h - (CHARACTER_SPACING * 2);
+	SDL_FillRect(screen, &rect_c, 0);
+
+	surface = Main::graphics->text_random;
+	rect.x = (WINDOW_WIDTH - surface->w) / 2;
+	rect.y = rect_b.y + 16;
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+
+	// Player corner
+	for(int i = 0; i < players; i++) {
+		rect_c.x = rect_b.x;
+		rect_c.y = rect_b.y;
+		if(i == 1 || i == 3) rect_c.x += 182;
+		if(i == 2 || i == 3) rect_c.y += 26;
+
+		rect_s.x = 16;
+		rect_s.y = 0;
+		rect_s.w = 26;
+		rect_s.h = 26;
+
+		if(i == 1 || i == 3) rect_s.x += 26;
+		if(i == 2 || i == 3) rect_s.y += 26;
+
+		if(player_random[i]) {
+			SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect_c);
 		}
 	}
 
 	// CHARACTERS
-
-	rect_b.x = (screen->clip_rect.w - ((Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2)) * CHARACTERS_PER_LINE)) / 2;
-	rect_b.y = (screen->clip_rect.h - ((Main::graphics->player_clip[SPR_AVATAR]->h + (CHARACTER_SPACING * 2)) * (Player::CHARACTER_COUNT / CHARACTERS_PER_LINE))) / 2;
-	rect_b.w = Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2);
-	rect_b.h = Main::graphics->player_clip[SPR_AVATAR]->h + (CHARACTER_SPACING * 2);
+	rect_b.y += Main::graphics->player_clip[SPR_AVATAR]->h + (CHARACTER_SPACING * 2);
 
 	for(int idx = 0; idx < Player::CHARACTER_COUNT; idx++) {
 		if(idx > 0 && idx % CHARACTERS_PER_LINE == 0) {
@@ -377,10 +614,10 @@ void CharacterSelect::draw() {
 		}
 
 		SDL_FillRect(screen, &rect_b, color);
-		rect_c.x = rect_b.x + 4;
-		rect_c.y = rect_b.y + 4;
-		rect_c.w = rect_b.w - 8;
-		rect_c.h = rect_b.h - 8;
+		rect_c.x = rect_b.x + CHARACTER_SPACING;
+		rect_c.y = rect_b.y + CHARACTER_SPACING;
+		rect_c.w = rect_b.w - (CHARACTER_SPACING * 2);
+		rect_c.h = rect_b.h - (CHARACTER_SPACING * 2);
 		SDL_FillRect(screen, &rect_c, color_back);
 
 		SDL_BlitSurface(Main::graphics->player->at(idx), clip, screen, &rect);
@@ -406,16 +643,6 @@ void CharacterSelect::draw() {
 
 		rect_b.x += Main::graphics->player_clip[SPR_AVATAR]->w + (CHARACTER_SPACING * 2);
 	}
-
-	// Player stats blocks
-	statsblock[0] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[0], NULL, 0x880000);
-
-	statsblock[1] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[1], NULL, 0x888800);
-
-	statsblock[2] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[2], NULL, 0x008800);
 
 	// PLAYERS
 	SDL_Rect r_block, r_pnumber,r_playername, r_ready;
@@ -463,8 +690,6 @@ void CharacterSelect::draw() {
 			case 2:
 				r_block.x = 10;
 				r_block.y = 270;
-				r_pnumber.x = r_block.x + r_block.w;
-				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
 				clip_direction = Main::graphics->player_clip[SPR_R];
 				r_playername.x = 50 + PLAYER_W;
 				r_playername.y = 290;
@@ -477,8 +702,6 @@ void CharacterSelect::draw() {
 			case 3:
 				r_block.x = 440;
 				r_block.y = 270;
-				r_pnumber.x = r_block.x - r_pnumber.w;
-				r_pnumber.y = r_block.y + r_block.h - r_pnumber.h;
 				clip_direction = Main::graphics->player_clip[SPR_L];
 				r_playername.x = 590 - PLAYER_W;
 				r_playername.y = 290;
@@ -489,15 +712,10 @@ void CharacterSelect::draw() {
 				direction = -1;
 				break;
 		}
-		SDL_FillRect(screen, &r_block, Player::COLORS[i]);
-		r_block.x += 4; r_block.w -= 8;
-		r_block.y += 4; r_block.h -= 8;
-		SDL_FillRect(screen, &r_block, 0);
-
 
 		// Player animation and background
-		r_block.x += 10; r_block.w -= 22;
-		r_block.y += 8; r_block.h -= 16;
+		r_block.x += 14; r_block.w -= 30;
+		r_block.y += 12; r_block.h -= 24;
 
 		r_block.h = (TILE_H * 2) + 18;
 		SDL_FillRect(screen, &r_block, 0x2288ff);
@@ -532,88 +750,47 @@ void CharacterSelect::draw() {
 		playeranimation[i]->draw(screen);
 
 		// Player name
-		surface = Main::text->render_text_medium(name[i]);
+		surface = Main::graphics->playername->at(player_select[i]);
 		if(direction == -1) r_playername.x -= surface->w;
 		SDL_BlitSurface(surface, NULL, screen, &r_playername);
-		SDL_FreeSurface(surface);
 
 		// Player ready
 		if(player_ready[i]) {
-			surface = Main::text->render_text_medium("READY");
+			surface = Main::graphics->text_ready;
 			if(direction == -1) r_ready.x -= surface->w;
 			SDL_BlitSurface(surface, NULL, screen, &r_ready);
-			SDL_FreeSurface(surface);
 		}
 
-		// Player number
-		SDL_FillRect(screen, &r_pnumber, Player::COLORS[i]);
-
-		sprintf_s(str, 3, "P%1d", (i + 1));
-		surface = Main::text->render_text_large(str);
-		r_pnumber.x += (r_pnumber.w - surface->w) / 2;
-		r_pnumber.y += 10;
-		SDL_BlitSurface(surface, NULL, screen, &r_pnumber);
-		SDL_FreeSurface(surface);
-
-		// Stats
-		surface = Main::text->render_text_medium("SPEED");
-		rect.x = r_stats.x;
-		rect.y = r_stats.y;
-		if(direction == -1) rect.x -= surface->w;
-		SDL_BlitSurface(surface, NULL, screen, &rect);
-		SDL_FreeSurface(surface);
-
+		// Stats: speed
 		for(int j = 0; j <= Player::CHARACTERS[player_select[i]].speedclass; j++) {
 			rect.x = r_stats.x + ((stats_w + (j * 18)) * direction);
 			rect.y = r_stats.y;
 			if(direction == -1) rect.x -= 18;
-			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
+			SDL_BlitSurface(Main::graphics->statsblock[j], NULL, screen, &rect);
 		}
 
-		surface = Main::text->render_text_medium("WEIGHT");
-		rect.x = r_stats.x;
-		rect.y = r_stats.y + stats_h;
-		if(direction == -1) rect.x -= surface->w;
-		SDL_BlitSurface(surface, NULL, screen, &rect);
-		SDL_FreeSurface(surface);
-
+		// Stats: weight
 		for(int j = 0; j <= Player::CHARACTERS[player_select[i]].weightclass; j++) {
 			rect.x = r_stats.x + ((stats_w + (j * 18)) * direction);
 			rect.y = r_stats.y + stats_h;
 			if(direction == -1) rect.x -= 18;
-			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
+			SDL_BlitSurface(Main::graphics->statsblock[j], NULL, screen, &rect);
 		}
 
-		surface = Main::text->render_text_medium("WEAPON");
-		rect.x = r_stats.x;
-		rect.y = r_stats.y + (stats_h * 2);
-		if(direction == -1) rect.x -= surface->w;
-		SDL_BlitSurface(surface, NULL, screen, &rect);
-		SDL_FreeSurface(surface);
-
+		// Stats: weapon
 		for(int j = 0; j <= Player::CHARACTERS[player_select[i]].weaponclass; j++) {
 			rect.x = r_stats.x + ((stats_w + (j * 18)) * direction);
 			rect.y = r_stats.y + (stats_h * 2);
 			if(direction == -1) rect.x -= 18;
-			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
+			SDL_BlitSurface(Main::graphics->statsblock[j], NULL, screen, &rect);
 		}
 
-		surface = Main::text->render_text_medium("BOMB");
-		rect.x = r_stats.x;
-		rect.y = r_stats.y + (stats_h * 3);
-		if(direction == -1) rect.x -= surface->w;
-		SDL_BlitSurface(surface, NULL, screen, &rect);
-		SDL_FreeSurface(surface);
-
+		// Stats: bomb
 		for(int j = 0; j <= Player::CHARACTERS[player_select[i]].bombpowerclass; j++) {
 			rect.x = r_stats.x + ((stats_w + (j * 18)) * direction);
 			rect.y = r_stats.y + (stats_h * 3);
 			if(direction == -1) rect.x -= 18;
-			SDL_BlitSurface(statsblock[j], NULL, screen, &rect);
+			SDL_BlitSurface(Main::graphics->statsblock[j], NULL, screen, &rect);
 		}
 	}
-
-	SDL_FreeSurface(statsblock[0]);
-	SDL_FreeSurface(statsblock[1]);
-	SDL_FreeSurface(statsblock[2]);
 }
