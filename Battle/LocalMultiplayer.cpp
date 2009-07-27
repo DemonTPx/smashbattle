@@ -279,11 +279,11 @@ void LocalMultiplayer::draw_score_duel() {
 	player2 = players->at(1);
 	
 	// Show player avatars
-	rect.x = 250 - PLAYER_W;
+	rect.x = 274 - PLAYER_W;
 	rect.y = 450;
 	SDL_BlitSurface(player1->sprites, Main::graphics->player_clip[SPR_R], screen, &rect);
 
-	rect.x = 390;
+	rect.x = 366;
 	rect.y = 450;
 	SDL_BlitSurface(player2->sprites, Main::graphics->player_clip[SPR_L], screen, &rect);
 
@@ -319,13 +319,13 @@ void LocalMultiplayer::draw_score_duel() {
 
 	// Player names
 	surface = Main::text->render_text_medium(player1->name);
-	rect.x = 220 - surface->w;
+	rect.x = 240 - surface->w;
 	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
 	surface = Main::text->render_text_medium(player2->name);
-	rect.x = 420;
+	rect.x = 400;
 	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
@@ -453,38 +453,44 @@ void LocalMultiplayer::draw_score_multi() {
 	char str[40];
 
 	int player_count;
-
+	
 	int x, y, w, h;
 
+	int item_w, spacing;
+
 	player_count = (int)players->size();
+
+	item_w = 160;
 
 	x = 0;
 	y = WINDOW_HEIGHT - 32;
 	w = WINDOW_WIDTH / player_count;
 	h = 32;
 
+	spacing = (WINDOW_WIDTH - (item_w * player_count)) / (player_count - 1);
+
 	Player * player;
 
 	for(unsigned int i = 0; i < players->size(); i++) {
 		player = players->at(i);
 
-		x = i * w;
+		x = i * (item_w + spacing);
 
 		// Avatar
-		rect.x = x + 2;
+		rect.x = x + 6;
 		rect.y = y + 2;
 		SDL_BlitSurface(player->sprites, Main::graphics->player_clip[SPR_R], screen, &rect);
 
 		// Score
 		sprintf_s(str, 40, "%02d", player->score);
 		surface = Main::text->render_text_medium(str);
-		rect.x = x + 28;
+		rect.x = x + 32;
 		rect.y = y + 14;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);
 
 		// Healthbar
-		rect.x = x + 30;
+		rect.x = x + 32;
 		rect.y = y + 2;
 		rect.w = 122;
 		rect.h = 10;
@@ -494,7 +500,7 @@ void LocalMultiplayer::draw_score_multi() {
 		rect_s.h = 8;
 		rect_s.x = 0;
 		rect_s.y = 0;
-		rect.x = x + 32;
+		rect.x = x + 34;
 		rect.y = y + 4;
 		SDL_BlitSurface(Main::instance->graphics->player1hp, &rect_s, screen, &rect);
 
@@ -503,7 +509,7 @@ void LocalMultiplayer::draw_score_multi() {
 		rect_s.y = 0;
 		rect_s.w = 8;
 		rect_s.h = 8;
-		rect.x = x + 116;
+		rect.x = x + 118;
 		rect.y = y + 18;
 		if(player->doubledamagebullets == -1 || player->doubledamagebullets > 0) rect_s.x = 8;
 		if(player->instantkillbullets == -1 || player->instantkillbullets > 0) rect_s.x = 16;
@@ -515,13 +521,21 @@ void LocalMultiplayer::draw_score_multi() {
 			ammount = player->bullets;
 		}
 
-		if(ammount > 0) {
+		if(ammount != -1) {
 			sprintf_s(str, 3, "%02d", ammount);
 			surface = Main::text->render_text_medium_gray(str);
-			rect.x = x + 130;
+			rect.x = x + 132;
 			rect.y = y + 14;
 			SDL_BlitSurface(surface, NULL, screen, &rect);
 			SDL_FreeSurface(surface);
+		} else {
+			rect_s.x = 0;
+			rect_s.y = 0;
+			rect_s.w = 16;
+			rect_s.h = 16;
+			rect.x = x + 132;
+			rect.y = y + 14;
+			SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 		}
 
 		// Bombs
@@ -529,7 +543,7 @@ void LocalMultiplayer::draw_score_multi() {
 		rect_s.y = 0;
 		rect_s.w = 12;
 		rect_s.h = 16;
-		rect.x = x + 70;
+		rect.x = x + 66;
 		rect.y = y + 14;
 		SDL_BlitSurface(Main::instance->graphics->bombs, &rect_s, screen, &rect);
 
@@ -540,6 +554,14 @@ void LocalMultiplayer::draw_score_multi() {
 			rect.y = y + 14;
 			SDL_BlitSurface(surface, NULL, screen, &rect);
 			SDL_FreeSurface(surface);
+		} else {
+			rect_s.x = 0;
+			rect_s.y = 0;
+			rect_s.w = 16;
+			rect_s.h = 16;
+			rect.x = x + 84;
+			rect.y = y + 14;
+			SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 		}
 	}
 }

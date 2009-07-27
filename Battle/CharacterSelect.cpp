@@ -482,7 +482,7 @@ void CharacterSelect::draw() {
 				clip_direction = Main::graphics->player_clip[SPR_L];
 				r_playername.x = 590 - PLAYER_W;
 				r_playername.y = 290;
-				r_ready.x = 590 + PLAYER_W;
+				r_ready.x = 590 - PLAYER_W;
 				r_ready.y = 310;
 				r_stats.x = 616;
 				r_stats.y = 380;
