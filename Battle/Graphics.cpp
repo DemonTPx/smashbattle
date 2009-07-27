@@ -145,11 +145,17 @@ void Graphics::set_player_clips() {
 	player_clip[SPR_AVATAR_SELECTED]->h = PLAYER_H;
 
 	for(int i = 0; i < 4; i++) {
-		pmarker_clip[i] = new SDL_Rect();
-		pmarker_clip[i]->x = 16 * i;
-		pmarker_clip[i]->y = 0;
-		pmarker_clip[i]->w = 16;
-		pmarker_clip[i]->h = 20;
+		pmarker_clip_below[i] = new SDL_Rect();
+		pmarker_clip_below[i]->x = 16 * i;
+		pmarker_clip_below[i]->y = 0;
+		pmarker_clip_below[i]->w = 16;
+		pmarker_clip_below[i]->h = 22;
+
+		pmarker_clip_above[i] = new SDL_Rect();
+		pmarker_clip_above[i]->x = 16 * i;
+		pmarker_clip_above[i]->y = 22;
+		pmarker_clip_above[i]->w = 16;
+		pmarker_clip_above[i]->h = 22;
 	}
 }
 
@@ -158,7 +164,8 @@ void Graphics::clear_player_clips() {
 		delete player_clip[i];
 	}
 	for(int i = 0; i < 4; i++) {
-		delete pmarker_clip[i];
+		delete pmarker_clip_above[i];
+		delete pmarker_clip_below[i];
 	}
 }
 

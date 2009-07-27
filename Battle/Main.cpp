@@ -80,20 +80,14 @@ bool Main::init() {
 
 	// enable joystick throughout the game
 	SDL_JoystickEventState(SDL_ENABLE);
-	if(SDL_NumJoysticks() >= 1)
-		joystick1 = SDL_JoystickOpen(0);
-	if(SDL_NumJoysticks() >= 2)
-		joystick2 = SDL_JoystickOpen(1);
-	if(SDL_NumJoysticks() >= 3)
-		joystick3 = SDL_JoystickOpen(2);
-	if(SDL_NumJoysticks() >= 4)
-		joystick4 = SDL_JoystickOpen(3);
+	for(int i = 0; i < SDL_NumJoysticks(); i++) {
+		joystick[i] = SDL_JoystickOpen(i);
+	}
 
 	return true;
 }
 
 void Main::clean_up() {
-
 	SDL_FreeSurface(screen);
 
 	delete fps;
@@ -110,14 +104,11 @@ void Main::clean_up() {
 	text->clear_all();
 	delete text;
 
-	if(SDL_JoystickOpened(3))
-		SDL_JoystickClose(joystick4);
-	if(SDL_JoystickOpened(2))
-		SDL_JoystickClose(joystick3);
-	if(SDL_JoystickOpened(1))
-		SDL_JoystickClose(joystick2);
-	if(SDL_JoystickOpened(0))
-		SDL_JoystickClose(joystick1);
+	for(int i = 0; i < 10; i++) {
+		if(SDL_JoystickOpened(i)) {
+			SDL_JoystickClose(joystick[i]);;
+		}
+	}
 
 	//Quit SDL
 	SDL_Quit();

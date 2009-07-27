@@ -73,7 +73,8 @@ public:
 	SDL_Rect * position;
 	SDL_Rect * last_position;
 	SDL_Surface * sprites;
-	SDL_Rect * marker_clip;
+	SDL_Rect * marker_clip_above;
+	SDL_Rect * marker_clip_below;
 
 	int speedclass;
 	int weightclass;
@@ -139,7 +140,7 @@ public:
 
 	void handle_event(SDL_Event * event);
 
-	void draw(SDL_Surface * screen);
+	void draw(SDL_Surface * screen, bool marker = false);
 
 	void move(Level * level);
 	void process();

@@ -70,6 +70,7 @@ void LocalMultiplayerRoundEnd::init() {
 	double accuracy;
 	char str[30];
 	short temp;
+	bool swapped;
 	int last_score;
 	int cup;
 	Player * pl;
@@ -106,15 +107,17 @@ void LocalMultiplayerRoundEnd::init() {
 	for(int i = 0; i < players; i++) {
 		order[i] = i;
 	}
-	for(short i = 0; i < players - 1; i++ ) {
-		for(short j = 0; j < players - 1; j++) {
-			if(player[order[j]]->score < player[order[j + 1]]->score) {
-				temp = order[j];
-				order[j] = order[j + 1];
-				order[j + 1] = temp;
+	do {
+		swapped = false;
+		for(short i = 0; i < players - 1; i++) {
+			if(player[order[i]]->score < player[order[i + 1]]->score) {
+				temp = order[i];
+				order[i] = order[i + 1];
+				order[i + 1] = temp;
+				swapped = true;
 			}
 		}
-	}
+	} while(swapped);
 
 	// Player statistics
 	surf_statistics = new std::vector<SDL_Surface*>(0);

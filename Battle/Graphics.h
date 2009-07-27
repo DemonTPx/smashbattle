@@ -71,7 +71,8 @@ public:
 
 	std::vector<SDL_Surface*> * player;
 	SDL_Rect * player_clip[SPR_COUNT];
-	SDL_Rect * pmarker_clip[4];
+	SDL_Rect * pmarker_clip_above[4];
+	SDL_Rect * pmarker_clip_below[4];
 };
 
 #endif

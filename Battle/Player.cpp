@@ -126,7 +126,8 @@ Player::Player(int character, int number) {
 	position->h = PLAYER_H;
 
 	sprites = Main::graphics->player->at(character);
-	marker_clip = Main::graphics->pmarker_clip[(number - 1)];
+	marker_clip_above = Main::graphics->pmarker_clip_above[(number - 1)];
+	marker_clip_below = Main::graphics->pmarker_clip_below[(number - 1)];
 }
 
 Player::~Player() {
@@ -205,7 +206,7 @@ void Player::reset() {
 	cycle_direction = CYCLE_UP;
 }
 
-void Player::draw(SDL_Surface * screen) {
+void Player::draw(SDL_Surface * screen, bool marker) {
 	SDL_Rect rect;
 
 	rect.x = position->x;
@@ -240,9 +241,16 @@ void Player::draw(SDL_Surface * screen) {
 
 	// Show marker if the player is above the screen
 	if(position->y + position->h <= 0) {
-		rect.x = position->x + ((PLAYER_W - marker_clip->w) / 2);
+		rect.x = position->x + ((PLAYER_W - marker_clip_below->w) / 2);
 		rect.y = 0;
-		SDL_BlitSurface(Main::graphics->pmarker, marker_clip, screen, &rect);
+		SDL_BlitSurface(Main::graphics->pmarker, marker_clip_below, screen, &rect);
+	}
+
+	// Show marker above the player
+	if(marker) {
+		rect.x = position->x + ((PLAYER_W - marker_clip_above->w) / 2);
+		rect.y = position->y - marker_clip_above->h - 4;
+		SDL_BlitSurface(Main::graphics->pmarker, marker_clip_above, screen, &rect);
 	}
 }
 

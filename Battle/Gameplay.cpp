@@ -115,7 +115,10 @@ void Gameplay::run() {
 
 		for(unsigned int idx = 0; idx < players->size(); idx++) {
 			Player * p = players->at(idx);
-			p->draw(screen);
+			if(countdown)
+				p->draw(screen, true);
+			else
+				p->draw(screen);
 		}
 	/*	for(unsigned int idx = 0; idx < npcs->size(); idx++) {
 			NPC * npc = npcs->at(idx);
@@ -212,7 +215,7 @@ void Gameplay::reset_game() {
 	ended = false;
 	countdown = true;
 	
-	countdown_sec_left = 4;
+	countdown_sec_left = 5;
 	countdown_start = frame;
 	strcpy(countdown_pre_text, "GET READY");
 
@@ -265,7 +268,7 @@ void Gameplay::draw_countdown() {
 	char text[5];
 	SDL_Surface * surf;
 
-	if(countdown_sec_left == 4) {
+	if(countdown_sec_left > 3) {
 		surf = Main::text->render_text_medium(countdown_pre_text);
 	} else {
 		sprintf_s(text, 5, "%d", countdown_sec_left);
@@ -388,7 +391,8 @@ void Gameplay::process_countdown() {
 		countdown_sec_left--;
 		countdown_start = frame;
 
-		Main::audio->play(SND_COUNTDOWN);
+		if(countdown_sec_left <= 3)
+			Main::audio->play(SND_COUNTDOWN);
 	}
 }
 

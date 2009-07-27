@@ -66,10 +66,7 @@ public:
 	static Graphics * graphics;
 	static Text * text;
 
-	SDL_Joystick * joystick1;
-	SDL_Joystick * joystick2;
-	SDL_Joystick * joystick3;
-	SDL_Joystick * joystick4;
+	SDL_Joystick * joystick[10];
 
 	ControlScheme controls1;
 	ControlScheme controls2;

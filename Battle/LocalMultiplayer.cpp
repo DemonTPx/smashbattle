@@ -35,12 +35,22 @@ void LocalMultiplayer::on_game_reset() {
 	int x, y;
 	int sprite;
 	Player * p;
-
-	round++;
+	int pstart;
 	
-	for(unsigned int idx = 0; idx < players->size(); idx++) {
-		p = players->at(idx);
-		if(p->score >= (int)((players->size() - 1) * 5)) {
+	if(round == 5) {
+		int highest = 0;
+		bool we_have_a_winner = false;
+		for(unsigned int idx = 0; idx < players->size(); idx++) {
+			p = players->at(idx);
+			if(p->score == highest) {
+				we_have_a_winner = false;
+			}
+			if(p->score > highest) {
+				highest = p->score;
+				we_have_a_winner = true;
+			}
+		}
+		if(we_have_a_winner) {
 			game_running = false;
 		}
 	}
@@ -48,8 +58,10 @@ void LocalMultiplayer::on_game_reset() {
 	for(unsigned int idx = 0; idx < players->size(); idx++) {
 		p = players->at(idx);
 
-		x = level->playerstart[idx].x * TILE_W + ((TILE_W - PLAYER_W) / 2);
-		y = level->playerstart[idx].y * TILE_H - PLAYER_H;
+		pstart = (idx + round) % 4;
+
+		x = level->playerstart[pstart].x * TILE_W + ((TILE_W - PLAYER_W) / 2);
+		y = level->playerstart[pstart].y * TILE_H - PLAYER_H;
 		sprite = (level->playerstart[idx].facing_right ? SPR_R : SPR_L);
 		
 		p->position->x = x;
@@ -76,9 +88,15 @@ void LocalMultiplayer::on_game_reset() {
 		p->set_sprite(sprite);
 	}
 
-	winner = NULL;
+	round++;
 
-	sprintf_s(countdown_pre_text, 20, "ROUND %d", round);
+	winner = NULL;
+	if(round == 5)
+		sprintf_s(countdown_pre_text, 20, "FINAL ROUND", round);
+	else if(round > 5)
+		sprintf_s(countdown_pre_text, 20, "EXTRA ROUND", round);
+	else
+		sprintf_s(countdown_pre_text, 20, "ROUND %d", round);
 }
 
 void LocalMultiplayer::on_pre_processing() {}
