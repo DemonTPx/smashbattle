@@ -1,6 +1,6 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 
+#include "Gameplay.h"
 #include "Bomb.h"
 
 const int Bomb::FRAME_COUNT = 3;
@@ -46,7 +46,7 @@ Bomb::~Bomb() {
 	delete clip[FRAME_EXPLOSION];
 }
 
-void Bomb::show(SDL_Surface * screen) {
+void Bomb::draw(SDL_Surface * screen) {
 	SDL_Rect rect;
 
 	rect.x = position->x;
@@ -88,6 +88,96 @@ void Bomb::show(SDL_Surface * screen) {
 		rect.y = rect.y;
 		SDL_BlitSurface(sprite, clip[current_frame], screen, &rect);
 	}
+}
+
+void Bomb::hit_player(Player * p) {
+	if(exploded)
+		return;
+
+	if(p != owner)
+		explode();
+}
+
+void Bomb::move(Level * level) {
+	int speed;
+
+	if(!exploded) {
+		// Move the bomb
+		speed = (int)(speedy / 10);
+
+		if(speed != 0) {
+			position->y += speed;
+
+			if(level->is_intersecting(position)) {
+				position->y -= speed;
+				speedy = 0;
+			}
+		}
+		
+		// Check if the bomb is on the floor, fall if not
+		if(!level->is_on_bottom(position)) {
+			if(speedy > -20)
+				speedy += 2;
+		}
+	}
+}
+
+void Bomb::process() {
+	if(!exploded) {
+		// Animate bomb
+		if(Gameplay::frame - frame_change_start >= frame_change_count) {
+			current_frame = current_frame == FRAME_NORMAL ? FRAME_FLASH : FRAME_NORMAL;
+			frame_change_start = Gameplay::frame;
+		}
+
+		// Explode
+		if(Gameplay::frame - frame_start >= time) {
+			explode();
+		}
+	}
+}
+
+void Bomb::explode() {
+	if(exploded)
+		return;
+
+	exploded = true;
+
+	Main::audio->play(SND_EXPLODE);
+
+	Player * p;
+	SDL_Rect * rect_bomb;
+	SDL_Rect * rect_player = NULL;
+	bool player_hit = false;
+
+	rect_bomb = get_damage_rect();
+
+	for(unsigned int i = 0; i < Gameplay::instance->players->size(); i++) {
+		p = Gameplay::instance->players->at(i);
+		if(p == owner)
+			continue;
+
+		rect_player = p->get_rect();
+
+		if(Gameplay::is_intersecting(rect_bomb, rect_player)) {
+			p->hitpoints -= damage;
+			p->is_hit = true;
+			p->hit_start = Gameplay::frame;
+			player_hit = true;
+		}
+
+		delete rect_player;
+	}
+
+	if(player_hit)
+		owner->bombs_hit++;
+
+	// Tiles below are also to be damaged
+	rect_bomb->h += TILE_H;
+
+	Gameplay::instance->level->damage_tiles(rect_bomb, damage);
+
+	delete rect_bomb;
 }
 
 SDL_Rect * Bomb::get_damage_rect() {

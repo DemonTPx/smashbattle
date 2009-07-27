@@ -8,7 +8,8 @@
 
 const char * AudioController::music_files[MUSICFILES] = {
 	"music/title.ogg",
-	"music/battle.ogg"
+	"music/battle.ogg",
+	"music/end.ogg"
 };
 
 const char * AudioController::sound_files[SOUNDFILES] = {

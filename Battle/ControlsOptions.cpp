@@ -1,6 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include "ControlsOptions.h"
 
@@ -14,71 +12,71 @@ ControlsOptions::ControlsOptions(ControlScheme * controls) {
 	joystick_idx_changed = false;
 
 	item = new OptionItem();
-	item->name = (char*)"Use keyboard";
+	item->name = (char*)"USE KEYBOARD";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"Yes");
-	item->options->push_back((char*)"No");
+	item->options->push_back((char*)"YES");
+	item->options->push_back((char*)"NO");
 	item->selected = controls->use_keyboard ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Redefine keyboard controls";
+	item->name = (char*)"REDEFINE KEYBOARD CONTROLS";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Use joystick";
+	item->name = (char*)"USE JOYSTICK";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"Yes");
-	item->options->push_back((char*)"No");
+	item->options->push_back((char*)"YES");
+	item->options->push_back((char*)"NO");
 	item->selected = controls->use_joystick ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Select joystick";
+	item->name = (char*)"SELECT JOYSTICK";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Use x axis for movement";
+	item->name = (char*)"USE X AXIS FOR MOVEMENT";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"Yes");
-	item->options->push_back((char*)"No");
+	item->options->push_back((char*)"YES");
+	item->options->push_back((char*)"NO");
 	item->selected = controls->use_axis_x ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Use y axis for jump";
+	item->name = (char*)"USE Y AXIS FOR JUMP";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"Yes");
-	item->options->push_back((char*)"No");
+	item->options->push_back((char*)"YES");
+	item->options->push_back((char*)"NO");
 	item->selected = controls->use_axis_up ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Use y axis for duck";
+	item->name = (char*)"USE Y AXIS FOR DUCK";
 	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"Yes");
-	item->options->push_back((char*)"No");
+	item->options->push_back((char*)"YES");
+	item->options->push_back((char*)"NO");
 	item->selected = controls->use_axis_down ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Redefine joystick controls";
+	item->name = (char*)"REDEFINE JOYSTICK CONTROLS";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Return and save";
+	item->name = (char*)"RETURN AND SAVE";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Return and cancel";
+	item->name = (char*)"RETURN AND CANCEL";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
@@ -112,7 +110,7 @@ void ControlsOptions::item_selected() {
 			break;
 		case 8: // Return save
 			if(items->at(0)->selected == 1 && items->at(2)->selected == 1) {
-				show_notification("Enable keyboard or joystick");
+				show_notification("ENABLE KEYBOARD OR JOYSTICK");
 				SDL_Delay(1000);
 				return;
 			}
@@ -129,6 +127,8 @@ void ControlsOptions::item_selected() {
 				controls->kb_start = new_controls.kb_start;
 			}
 			controls->use_joystick = items->at(2)->selected == 0 ? true : false;
+			if(joystick_idx_changed)
+				controls->joystick_idx = new_controls.joystick_idx;
 			if(joystick_redefined) {
 				controls->js_left = new_controls.js_left;
 				controls->js_right = new_controls.js_right;
@@ -149,32 +149,43 @@ void ControlsOptions::item_selected() {
 }
 
 void ControlsOptions::redefine_keyboard() {
-	new_controls.kb_left = poll_keyboard("Press left");
-	new_controls.kb_right = poll_keyboard("Press right");
-	new_controls.kb_up = poll_keyboard("Press up");
-	new_controls.kb_down = poll_keyboard("Press down");
-	new_controls.kb_run = poll_keyboard("Press run");
-	new_controls.kb_jump = poll_keyboard("Press jump");
-	new_controls.kb_shoot = poll_keyboard("Press shoot");
-	new_controls.kb_bomb = poll_keyboard("Press bomb");
-	new_controls.kb_start = poll_keyboard("Press start");
+	new_controls.kb_left = poll_keyboard("PRESS LEFT");
+	new_controls.kb_right = poll_keyboard("PRESS RIGHT");
+	new_controls.kb_up = poll_keyboard("PRESS UP");
+	new_controls.kb_down = poll_keyboard("PRESS DOWN");
+	new_controls.kb_run = poll_keyboard("PRESS RUN");
+	new_controls.kb_jump = poll_keyboard("PRESS JUMP");
+	new_controls.kb_shoot = poll_keyboard("PRESS SHOOT");
+	new_controls.kb_bomb = poll_keyboard("PRESS BOMB");
+	new_controls.kb_start = poll_keyboard("PRESS START");
 
 	keyboard_redefined = true;
 }
 
 int ControlsOptions::poll_keyboard(const char * question) {
 	SDL_Event event;
+	bool has_key = false;
+	int key = 0;
 
 	show_notification(question);
 
-	Main::instance->flip();
+	while(Main::running && !has_key) {
+		while(SDL_PollEvent(&event)) {
+			Main::instance->handle_event(&event);
 
-	SDL_PollEvent(&event);
-	while(event.type != SDL_KEYDOWN) {
-		SDL_WaitEvent(&event);
+			if(event.type == SDL_KEYDOWN) {
+				key = event.key.keysym.sym;
+			}
+			if(event.type == SDL_KEYUP) {
+				if(event.key.keysym.sym == key) {
+					has_key = true;
+					break;
+				}
+			}
+		}
 	}
 	
-	return event.key.keysym.sym;
+	return key;
 }
 
 void ControlsOptions::redefine_joystick() {
@@ -182,34 +193,49 @@ void ControlsOptions::redefine_joystick() {
 	idx = joystick_idx_changed ? new_controls.joystick_idx : controls->joystick_idx;
 
 	if(items->at(4)->selected == 1) { // Only poll for left and right buttons, if we do not use the axis for this
-		new_controls.js_left = poll_joystick(idx, "Press left");
-		new_controls.js_right = poll_joystick(idx, "Press right");
+		new_controls.js_left = poll_joystick(idx, "PRESS LEFT");
+		new_controls.js_right = poll_joystick(idx, "PRESS RIGHT");
 	}
-	new_controls.js_run = poll_joystick(idx, "Press run");
+	new_controls.js_run = poll_joystick(idx, "PRESS RUN");
 	if(items->at(5)->selected == 1) { // Only poll for jump button, if we do not use the axis for this
-		new_controls.js_jump = poll_joystick(idx, "Press jump");
+		new_controls.js_jump = poll_joystick(idx, "PRESS JUMP");
 	}
 	if(items->at(6)->selected == 1) { // Only poll for down/duck button, if we do not use the axis for this
-		new_controls.js_down = poll_joystick(idx, "Press down");
+		new_controls.js_down = poll_joystick(idx, "PRESS DOWN");
 	}
-	new_controls.js_shoot = poll_joystick(idx, "Press shoot");
-	new_controls.js_bomb = poll_joystick(idx, "Press bomb");
-	new_controls.js_start = poll_joystick(idx, "Press start");
+	new_controls.js_shoot = poll_joystick(idx, "PRESS SHOOT");
+	new_controls.js_bomb = poll_joystick(idx, "PRESS BOMB");
+	new_controls.js_start = poll_joystick(idx, "PRESS START");
 
 	joystick_redefined = true;
 }
 
 int ControlsOptions::poll_joystick(int index, const char * question) {
 	SDL_Event event;
+	bool has_button = false;
+	int button = 0;
 
 	show_notification(question);
 
-	SDL_PollEvent(&event);
-	while(event.type != SDL_JOYBUTTONDOWN || event.jbutton.which != index) {
-		SDL_WaitEvent(&event);
+	while(Main::running && !has_button) {
+		while(SDL_PollEvent(&event)) {
+			Main::instance->handle_event(&event);
+			
+			if(event.jbutton.which == index) {
+				if(event.type == SDL_JOYBUTTONDOWN) {
+					button = event.jbutton.button;
+				}
+				if(event.type == SDL_JOYBUTTONUP) {
+					if(event.jbutton.button == button) {
+						has_button = true;
+						break;
+					}
+				}
+			}
+		}
 	}
 	
-	return event.jbutton.button;
+	return button;
 }
 
 void ControlsOptions::show_notification(const char * text) {
@@ -231,7 +257,7 @@ void ControlsOptions::show_notification(const char * text) {
 	rect.h -= 4;
 	SDL_FillRect(screen, &rect, 0);
 
-	surface = TTF_RenderText_Solid(font26, text, fontColor);
+	surface = Main::text->render_text_medium(text);
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = (screen->h - surface->h) / 2;
 	SDL_BlitSurface(surface, NULL, screen, &rect);

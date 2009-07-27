@@ -1,6 +1,4 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include "AudioOptions.h"
 #include "ControlsOptions.h"
@@ -11,25 +9,37 @@ Options::Options() {
 	OptionItem * item;
 
 	item = new OptionItem();
-	item->name = (char*)"Controls Player 1";
+	item->name = (char*)"CONTROLS PLAYER 1";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Controls Player 2";
+	item->name = (char*)"CONTROLS PLAYER 2";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Sound and music";
+	item->name = (char*)"CONTROLS PLAYER 3";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"Return";
+	item->name = (char*)"CONTROLS PLAYER 4";
+	item->options = NULL;
+	item->selected = 0;
+	add_item(item);
+
+	item = new OptionItem();
+	item->name = (char*)"SOUND AND MUSIC";
+	item->options = NULL;
+	item->selected = 0;
+	add_item(item);
+
+	item = new OptionItem();
+	item->name = (char*)"RETURN";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
@@ -58,12 +68,26 @@ void Options::item_selected() {
 			reload_controls();
 			break;
 		case 2:
+			ControlsOptions * controlsoptions3;
+			controlsoptions3 = new ControlsOptions(&Main::instance->controls3);
+			controlsoptions3->run();
+			delete controlsoptions3;
+			reload_controls();
+			break;
+		case 3:
+			ControlsOptions * controlsoptions4;
+			controlsoptions4 = new ControlsOptions(&Main::instance->controls4);
+			controlsoptions4->run();
+			delete controlsoptions4;
+			reload_controls();
+			break;
+		case 4:
 			AudioOptions * audiooptions;
 			audiooptions = new AudioOptions();
 			audiooptions->run();
 			delete audiooptions;
 			break;
-		case 3:
+		case 5:
 			running = false;
 			break;
 	}

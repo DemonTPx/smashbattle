@@ -1,74 +1,46 @@
 #ifndef _CHARACTERSELECT_H
 #define _CHARACTERSELECT_H
 
-#include "Battle.h"
+#include "PlayerAnimation.h"
 
 class CharacterSelect {
 public:
-	CharacterSelect(Battle * parent);
+	CharacterSelect(int players);
 	void run();
 
-	char * name1,* name2;
-	char * file1,* file2;
+	char * name[4];
+	char * file[4];
 
-	int select1, select2;
-
-	int stage;
-	int ruleset;
+	int player_select[4];
 
 	bool cancel;
 private:
 	void draw();
-
-	void load_fonts();
-	void free_fonts();
-
-	void load_sprites();
-	void free_sprites();
-
 	void handle_input(SDL_Event * event);
 
 	void process_cursors();
 
 	void select(int * select, int direction);
-	void select_stage(int direction);
-	void select_ruleset(int direction);
+
+	int players;
 
 	bool ready;
-	bool ready_stage;
-	bool ready1, ready2;
+	bool player_ready[4];
+
+	PlayerAnimation * playeranimation[4];
 	
-	int cursor1_direction;
-	bool cursor1_first;
-	int cursor1_direction_start;
-	bool cursor1_enter;
-
-	int cursor2_direction;
-	bool cursor2_first;
-	int cursor2_direction_start;
-	bool cursor2_enter;
-
-	Battle * parent;
+	int cursor_direction[4];
+	bool cursor_first[4];
+	int cursor_direction_start[4];
+	bool cursor_enter[4];
 	
-	ControlScheme controls1, controls2;
+	ControlScheme controls[4];
 
-	std::vector<SDL_Surface*> * character_sprites;
-	SDL_Rect * clip_avatar, * clip_avatar_selected, * clip_left, * clip_right;
-
-	bool flicker1, flicker2;
-	int flicker1_start, flicker2_start;
-	int flicker1_frame, flicker2_frame;
-	int flicker_stage, flicker_stage_frame;
-
-	char * stage_name;
-	char * stage_author;
-	std::vector<SDL_Surface*> * stage_thumbs;
+	bool flicker[4];
+	int flicker_start[4];
+	int flicker_frame[4];
 
 	int frame;
-
-	TTF_Font * font26;
-	TTF_Font * font13;
-	SDL_Color fontColor;
 };
 
 #endif

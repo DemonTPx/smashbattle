@@ -44,7 +44,6 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -61,11 +60,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdl.lib sdlmain.lib sdl_ttf.lib sdl_mixer.lib"
+				AdditionalDependencies="sdl.lib sdlmain.lib sdl_mixer.lib zdll.lib"
 				LinkIncremental="2"
-				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -137,7 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdl.lib sdlmain.lib sdl_ttf.lib sdl_mixer.lib"
+				AdditionalDependencies="sdl.lib sdlmain.lib sdl_mixer.lib zdll.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -192,14 +191,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Battle.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Block.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Bomb.cpp"
 				>
 			</File>
@@ -220,11 +211,39 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Gameplay.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameplayObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HealthPowerUp.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\InstantKillBulletPowerUp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Level.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LevelSelect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LocalMultiplayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LocalMultiplayerRoundEnd.cpp"
 				>
 			</File>
 			<File
@@ -244,7 +263,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PauseMenu.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Player.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayerAnimation.cpp"
 				>
 			</File>
 			<File
@@ -252,7 +279,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TetrisTest.cpp"
+				RelativePath=".\Text.cpp"
 				>
 			</File>
 			<File
@@ -278,14 +305,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Battle.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Block.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Bomb.h"
 				>
 			</File>
@@ -306,11 +325,39 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Gameplay.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameplayObject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Graphics.h"
+				>
+			</File>
+			<File
 				RelativePath=".\HealthPowerUp.h"
 				>
 			</File>
 			<File
 				RelativePath=".\InstantKillBulletPowerUp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Level.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LevelSelect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LocalMultiplayer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LocalMultiplayerRoundEnd.h"
 				>
 			</File>
 			<File
@@ -330,7 +377,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PauseMenu.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Player.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayerAnimation.h"
 				>
 			</File>
 			<File
@@ -342,7 +397,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TetrisTest.h"
+				RelativePath=".\Text.h"
 				>
 			</File>
 			<File
@@ -360,6 +415,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\arjan.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\music\battle.ogg"
 				>
 			</File>
@@ -368,11 +427,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\bg_bluesky.bmp"
+				RelativePath=".\gfx\bg_black.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\blastbowl.stg"
+				RelativePath=".\gfx\bg_blue.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\bg_grey.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\bg_orange.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\blastbowl.lvl"
 				>
 			</File>
 			<File
@@ -380,11 +451,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\commongrounds.bmp"
+				RelativePath=".\gfx\common.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\commongrounds.stg"
+				RelativePath=".\stage\commongrounds.lvl"
 				>
 			</File>
 			<File
@@ -392,11 +463,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\cups.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\desertstrike.stg"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\donja.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\ducknhunt.stg"
+				RelativePath=".\stage\ducknhunt.lvl"
+				>
+			</File>
+			<File
+				RelativePath=".\music\end.ogg"
 				>
 			</File>
 			<File
@@ -405,6 +488,18 @@
 			</File>
 			<File
 				RelativePath=".\sfx\explode.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\font_l.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\font_m.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\font_s.bmp"
 				>
 			</File>
 			<File
@@ -436,22 +531,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\level_01.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\level_02.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\lvl_okke_01.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\lvl_okke_02.bmp"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\marcel.bmp"
 				>
 			</File>
@@ -464,15 +543,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\pitfall.stg"
+				RelativePath=".\stage\pitfall.lvl"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\pitofdeath.stg"
+				RelativePath=".\stage\pitofdeath.lvl"
 				>
 			</File>
 			<File
-				RelativePath=".\stage\platformalley.stg"
+				RelativePath=".\stage\platformalley.lvl"
 				>
 			</File>
 			<File
@@ -488,7 +567,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\pogostick.stg"
+				RelativePath=".\stage\pogostick.lvl"
 				>
 			</File>
 			<File
@@ -496,7 +575,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\props.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\rob.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\rutger.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\ruud.bmp"
 				>
 			</File>
 			<File
@@ -512,15 +603,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fonts\slick.ttf"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\steven.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\stage\stg-files.txt"
 				>
 			</File>
 			<File
@@ -532,15 +615,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\tiles_02.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\gfx\title.bmp"
-				>
-			</File>
-			<File
 				RelativePath=".\music\title.ogg"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\title_screen.bmp"
 				>
 			</File>
 			<File
@@ -548,7 +627,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stage\trainingdojo.stg"
+				RelativePath=".\stage\trainingdojo.lvl"
 				>
 			</File>
 			<File

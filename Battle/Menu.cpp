@@ -1,20 +1,23 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include "SDL/SDL_mixer.h"
 
 #include <vector>
 
 #include "Main.h"
 #include "Timer.h"
 #include "AudioController.h"
-#include "Main.h"
-#include "Battle.h"
+#include "CharacterSelect.h"
+#include "LevelSelect.h"
+#include "Gameplay.h"
+#include "LocalMultiplayer.h"
+#include "LocalMultiplayerRoundEnd.h"
 #include "Options.h"
+#include "PlayerAnimation.h"
 
 #include "Menu.h"
 
-#define MENU_TOP_OFFSET 200
-#define MENU_ITEM_HEIGHT 26
+#define MENU_TOP_OFFSET 160
+#define MENU_ITEM_HEIGHT TILE_H
+#define MENU_ITEM_WIDTH 128
 
 #define DIRECTION_NONE	0
 #define DIRECTION_LEFT	1
@@ -22,8 +25,8 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-const int Menu::ITEMCOUNT = 3;
-const char * Menu::item[ITEMCOUNT] = {"START", "OPTIONS", "QUIT"};
+const int Menu::ITEMCOUNT = 5;
+const char * Menu::item[ITEMCOUNT] = {"2P DUEL", "3P BATTLE", "4P BATTLE", "OPTIONS", "QUIT"};
 
 Menu::Menu() {
 }
@@ -38,6 +41,8 @@ void Menu::run() {
 
 	controls1 = Main::instance->controls1;
 	controls2 = Main::instance->controls2;
+	controls3 = Main::instance->controls3;
+	controls4 = Main::instance->controls4;
 	
 	Main::audio->play_music(MUSIC_TITLE);
 
@@ -54,7 +59,10 @@ void Menu::run() {
 			handle_input(&event);
 		}
 		process_cursor();
-		
+
+		process_playeranimation();
+		playeranimation->move();
+
 		draw();
 
 		Main::instance->flip();
@@ -67,30 +75,59 @@ void Menu::run() {
 
 void Menu::draw() {
 	int i;
-	SDL_Surface * text, * highlight;
-	SDL_Rect rect;
+	SDL_Surface * text;
+	SDL_Rect rect, rect_s;
 	SDL_Surface * screen;
 
 	screen = Main::instance->screen;
 
-	SDL_BlitSurface(bg, NULL, screen, NULL);
+	SDL_BlitSurface(Main::graphics->bg_menu, NULL, screen, NULL);
+
+	rect.x = (WINDOW_WIDTH - title->w) / 2;
+	rect.y = 40;
+	SDL_BlitSurface(title, NULL, screen, &rect);
+
+	rect_s.x = 0;
+	rect_s.y = 0;
+	rect_s.w = TILE_W;
+	rect_s.h = TILE_H;
+
+	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
+	rect.y = MENU_TOP_OFFSET - TILE_H;
+	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		rect.x += TILE_W;
+	}
 
 	for(i = 0; i < ITEMCOUNT; i++) {
+		rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
+		rect.y = surf_items_clip->at(i)->y - 8;
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+
 		text = surf_items->at(i);
 		
 		if(selected_item == i) {
-			highlight = SDL_CreateRGBSurface(NULL, text->w + 10, MENU_ITEM_HEIGHT, 32, 0, 0, 0, 0);
-			SDL_FillRect(highlight, NULL, 0x444488);
-			
-			rect.x = surf_items_clip->at(i)->x - 5;
-			rect.y = surf_items_clip->at(i)->y - 3;
+			rect.x = surf_items_clip->at(i)->x - TILE_W;
+			rect.y = surf_items_clip->at(i)->y - 8;
+			rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
+			rect.h = MENU_ITEM_HEIGHT;
 
-			SDL_BlitSurface(highlight, NULL, screen, &rect);
-			SDL_FreeSurface(highlight);
+			SDL_FillRect(screen, &rect, 0x0088ff);
 		}
 
 		SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 	}
+
+	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
+	rect.y = MENU_TOP_OFFSET + (ITEMCOUNT * MENU_ITEM_HEIGHT);
+	for(i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
+		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		rect.x += TILE_W;
+	}
+
+	playeranimation->draw(Main::instance->screen);
 
 	rect.x = (WINDOW_WIDTH - credits->at(0)->w) / 2;
 	rect.y = WINDOW_HEIGHT - 35;
@@ -307,25 +344,188 @@ void Menu::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
-			Battle * battle;
-			battle = new Battle();
-			battle->run();
-			delete battle;
+			start_local_multiplayer(2);
 			break;
 		case 1:
+			start_local_multiplayer(3);
+			break;
+		case 2:
+			start_local_multiplayer(4);
+			break;
+		case 3:
 			Options * options;
 			options = new Options();
 			options->run();
 			delete options;
 			controls1 = Main::instance->controls1;
 			controls2 = Main::instance->controls2;
+			controls3 = Main::instance->controls3;
+			controls4 = Main::instance->controls4;
 			break;
-		case 2:
+		case 4:
 			SDL_Delay(500);
 			Main::running = false;
 			break;
 	}
 	Main::audio->play_music(MUSIC_TITLE);
+}
+
+void Menu::start_local_multiplayer(int players) {
+	Player ** player;
+
+	Level * level;
+	LocalMultiplayer * lmp;
+	LocalMultiplayerRoundEnd * end;
+	CharacterSelect * cs;
+	LevelSelect * ls;
+
+	int round;
+
+	int winner;
+	int highest_score;
+
+	bool running;
+	bool change_character;
+	bool change_level;
+
+	player = new Player*[players];
+
+	level = NULL;
+	for(int i = 0; i < players; i++) {
+		player[i] = new Player(0, (i + 1));
+		if(i == 0) player[i]->controls = controls1;
+		if(i == 1) player[i]->controls = controls2;
+		if(i == 2) player[i]->controls = controls3;
+		if(i == 3) player[i]->controls = controls4;
+	}
+
+	running = true;
+	round = 0;
+
+	cs = new CharacterSelect(players);
+	ls = new LevelSelect(players);
+
+	change_level = true;
+	change_character = true;
+
+	while(Main::running && running) {
+		round++;
+
+		if(change_character) {
+			cs->run();
+			if(cs->cancel) break;
+
+			for(int i = 0; i < players; i++) {
+				player[i]->set_character(cs->player_select[i]);
+			}
+		}
+
+		for(int i = 0; i < players; i++) {
+			player[i]->reset();
+		}
+
+		if(change_level) {
+			ls->run();
+			if(ls->cancel) break;
+
+			if(level != NULL)
+				delete level;
+
+			level = new Level();
+			level->load(Level::LEVELS[ls->level].filename);
+		}
+
+		lmp = new LocalMultiplayer();
+		lmp->set_level(level);
+
+		for(int i = 0; i < players; i++) {
+			lmp->add_player(player[i]);
+		}
+		lmp->run();
+
+		highest_score = 0;
+		winner = -1;
+		for(int i = 0; i < players; i++) {
+			if(player[i]->score == highest_score) {
+				winner = -1;
+			}
+			if(player[i]->score > highest_score) {
+				winner = i;
+				highest_score = player[i]->score;
+			}
+		}
+
+		if(winner != -1) {
+			player[winner]->rounds_won++;
+		}
+
+		end = new LocalMultiplayerRoundEnd(players);
+		end->player = player;
+		end->winner = winner;
+		end->round = round;
+		end->run();
+		if(end->result == ROUNDEND_CHANGE_CHARACTER) {
+			change_level = true;
+			change_character = true;
+		}
+		if(end->result == ROUNDEND_CHANGE_LEVEL) {
+			change_character = false;
+			change_level = true;
+		}
+		if(end->result == ROUNDEND_QUIT)
+			running = false;
+		delete end;
+
+		delete lmp;
+	}
+
+	delete cs;
+	delete ls;
+	if(level != NULL)
+		delete level;
+	for(int i = 0; i < players; i++) {
+		if(player[i] != NULL)
+			delete player[i];
+	}
+	delete player;
+}
+
+void Menu::process_playeranimation() {
+	if(playeranimation->position->x < -PLAYER_W)
+		next_playeranimation();
+	if(frame - animation_start == 0) {
+		playeranimation->position->x = WINDOW_WIDTH;
+		playeranimation->position->y = (TILE_H * 13) - PLAYER_H;
+		playeranimation->is_walking = true;
+		playeranimation->is_running = true;
+		playeranimation->momentumx = -20;
+		playeranimation->animate_in_place = false;
+		playeranimation->direction = -1;
+	}
+	if(frame - animation_start == 32) {
+		playeranimation->direction = 1;
+	}
+	if(playeranimation->momentumx == 0) {
+		playeranimation->is_walking = false;
+		playeranimation->direction = -1;
+	}
+	if(playeranimation->character == 2 && frame - animation_start == 100) {
+		playeranimation->is_duck = true;
+	}
+	if(frame - animation_start == 140) {
+		playeranimation->is_duck = false;
+		playeranimation->is_walking = true;
+		playeranimation->direction = -1;
+	}
+}
+
+void Menu::next_playeranimation() {
+	int character;
+	character = playeranimation->character;
+	delete playeranimation;
+
+	playeranimation = new PlayerAnimation((character + 1) % Player::CHARACTER_COUNT);
+	animation_start = frame;
 }
 
 void Menu::select_up() {
@@ -352,43 +552,36 @@ void Menu::init() {
 	SDL_Surface * surface;
 	SDL_Rect * rect;
 
-	font26 = TTF_OpenFont("fonts/slick.ttf", 26);
-	font13 = TTF_OpenFont("fonts/slick.ttf", 13);
-	fontColor.r = 255;
-	fontColor.g = 255;
-	fontColor.b = 255;
-
 	selected_item = 0;
 
-	surface = SDL_LoadBMP("gfx/title.bmp");
-	bg = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
+	title = Main::text->render_text_large("SMASH BATTLE");
 
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
 	for(int i = 0; i < ITEMCOUNT; i++) {
-		surface = TTF_RenderText_Solid(font26, item[i], fontColor);
+		surface = Main::text->render_text_medium(item[i]);
 		surf_items->push_back(surface);
 
 		rect = new SDL_Rect();
-		rect->x = (WINDOW_WIDTH - surface->w) / 2;
-		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT);
+		rect->x = (WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2;
+		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) + 8;
 		surf_items_clip->push_back(rect);
 	}
 
 	credits = new std::vector<SDL_Surface*>(0);
-	surface = TTF_RenderText_Solid(font13, "Programming by Bert Hekman", fontColor);
+	surface = Main::text->render_text_small("PROGRAMMING BY BERT HEKMAN");
 	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(font13, "Graphics by Jeroen Groeneweg and Okke Voerman", fontColor);
+	surface = Main::text->render_text_small("GRAPHICS BY JEROEN GROENEWEG AND OKKE VOERMAN");
 	credits->push_back(surface);
-	surface = TTF_RenderText_Solid(font13, "Music by Nick Perrin", fontColor);
+	surface = Main::text->render_text_small("MUSIC BY NICK PERRIN");
 	credits->push_back(surface);
 
+	playeranimation = new PlayerAnimation(0);
+	animation_start = 0;
 }
 
 void Menu::cleanup() {
-	TTF_CloseFont(font26);
-	TTF_CloseFont(font13);
+	SDL_FreeSurface(title);
 
 	for(unsigned int i = 0; i < surf_items->size(); i++) {
 		SDL_FreeSurface(surf_items->at(i));
@@ -408,5 +601,5 @@ void Menu::cleanup() {
 	credits->clear();
 	delete credits;
 
-	SDL_FreeSurface(bg);
+	delete playeranimation;
 }

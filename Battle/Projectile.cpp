@@ -1,6 +1,6 @@
 #include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
 
+#include "Gameplay.h"
 #include "Projectile.h"
 
 #define WINDOW_WIDTH 640
@@ -21,7 +21,7 @@ Projectile::Projectile(SDL_Surface * surface, SDL_Rect * clip) {
 	speedx = 0;
 	speedy = 0;
 	distance_traveled = 0;
-	max_distance = WINDOW_WIDTH >> 1;
+	max_distance = WINDOW_WIDTH / 2;
 	hit = false;
 
 	damage = 0;
@@ -42,6 +42,55 @@ Projectile::~Projectile() {
 }
 
 void Projectile::show(SDL_Surface * screen) {
+	draw(screen);
+}
+
+void Projectile::move(Level * level) {
+	position->x += speedx;
+	distance_traveled += speedx;
+	if(position->x < 0)
+		position->x += WINDOW_WIDTH;
+	if(position->x > WINDOW_WIDTH)
+		position->x -= WINDOW_WIDTH;
+
+	position->y += speedy;
+	distance_traveled += speedy;
+	
+	if(position->y < 0)
+		done = true;
+	if(position->y > WINDOW_HEIGHT)
+		done = true;
+
+	if(distance_traveled > max_distance || distance_traveled < -max_distance)
+		done = true;
+
+	if(level->is_intersecting(position))
+		done = true;
+}
+
+void Projectile::process() {
+	// One frame after the bullet hit, we mark it as done
+	if(hit) done = true;
+}
+
+void Projectile::hit_player(Player * player) {
+	if(hit)
+		return;
+
+	if(player->is_hit)
+		return;
+
+	if(player == owner)
+		return;
+
+	player->hitpoints -= damage;
+	player->hit_start = Gameplay::frame;
+	player->is_hit = true;
+	hit = true;
+	owner->bullets_hit++;
+}
+
+void Projectile::draw(SDL_Surface * screen) {
 	SDL_Rect rect;
 
 	rect.x = position->x;

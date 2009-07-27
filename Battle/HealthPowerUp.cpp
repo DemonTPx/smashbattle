@@ -1,4 +1,6 @@
-#include "PowerUp.h"
+#include "SDL/SDL.h"
+
+#include "GameplayObject.h"
 #include "HealthPowerUp.h"
 
 HealthPowerUp::HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp) {
@@ -6,19 +8,33 @@ HealthPowerUp::HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * 
 	this->clip = clip;
 	this->position = position;
 	this->hp = hp;
+	is_powerup = true;
 }
 
-void HealthPowerUp::cleanup() {
+HealthPowerUp::~HealthPowerUp() {
 	delete clip;
 	delete position;
 }
 
-void HealthPowerUp::got_powerup(Player * p) {
+void HealthPowerUp::hit_player(Player * p) {
+	Main::audio->play(SND_ITEM);
+
 	p->hitpoints += hp;
+
 	if(p->hitpoints > 100)
 		p->hitpoints = 100;
+
+	done = true;
 }
 
-void HealthPowerUp::show(SDL_Surface * screen) {
+void HealthPowerUp::draw(SDL_Surface * screen) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
+
+void HealthPowerUp::move(Level * level) {
+	if(!level->is_on_bottom(position)) {
+		done = true;
+	}
+}
+
+void HealthPowerUp::process() {}

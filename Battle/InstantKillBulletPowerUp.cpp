@@ -1,4 +1,6 @@
-#include "PowerUp.h"
+#include "SDL/SDL.h"
+
+#include "GameplayObject.h"
 #include "InstantKillBulletPowerUp.h"
 
 InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo) {
@@ -6,19 +8,33 @@ InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Re
 	this->clip = clip;
 	this->position = position;
 	this->ammo = ammo;
+	is_powerup = true;
 }
 
-void InstantKillBulletPowerUp::cleanup() {
+InstantKillBulletPowerUp::~InstantKillBulletPowerUp() {
 	delete clip;
 	delete position;
 }
 
-void InstantKillBulletPowerUp::got_powerup(Player * p) {
+void InstantKillBulletPowerUp::hit_player(Player * p) {
+	Main::audio->play(SND_ITEM);
+
 	p->instantkillbullets += ammo;
-	if(p->instantkillbullets > 9)
-		p->instantkillbullets = 9;
+
+	if(p->instantkillbullets > 99)
+		p->instantkillbullets = 99;
+
+	done = true;
 }
 
-void InstantKillBulletPowerUp::show(SDL_Surface * screen) {
+void InstantKillBulletPowerUp::draw(SDL_Surface * screen) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
+
+void InstantKillBulletPowerUp::move(Level * level) {
+	if(!level->is_on_bottom(position)) {
+		done = true;
+	}
+}
+
+void InstantKillBulletPowerUp::process() {}

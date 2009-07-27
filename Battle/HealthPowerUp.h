@@ -1,13 +1,16 @@
 #ifndef _HEALTHPOWERUP_H
 #define _HEALTHPOWERUP_H
 
-class HealthPowerUp : public PowerUp {
+class HealthPowerUp : public GameplayObject {
 public:
 	HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp);
-	void cleanup();
+	~HealthPowerUp();
 
-	void got_powerup(Player *);
-	void show(SDL_Surface *);
+	virtual void move(Level * level);
+	virtual void process();
+
+	virtual void hit_player(Player * player);
+	virtual void draw(SDL_Surface * screen);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;
