@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <ctime>
 
 #include "Timer.h"
 #include "Menu.h"
@@ -28,6 +29,8 @@ bool Main::running = false;
 int Main::frame_delay = 0;
 int Main::frame = 0;
 bool Main::fps_cap = false;
+
+bool Main::screenshot_next_flip = false;
 
 Timer * Main::fps = NULL;
 
@@ -116,6 +119,11 @@ void Main::clean_up() {
 void Main::flip() {
 	fps_count();
 
+	if(screenshot_next_flip) {
+		take_screenshot();
+		screenshot_next_flip = false;
+	}
+
 	SDL_Flip(screen);
 	frame++;
 	if((fps_cap == true) && (fps->get_ticks() < frame_delay)) {
@@ -160,7 +168,19 @@ void Main::fps_count() {
 	}
 }
 
-void Main::handle_event(SDL_Event * event) {
+void Main::take_screenshot() {
+	time_t rawtime;
+	struct tm * timeinfo;
+	char filename[80];
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	strftime(filename, 80, "screenshot_%y%m%d-%H%M%S.bmp", timeinfo);
+
+	SDL_SaveBMP(screen, filename);
+}
+
+void Main::handle_event(SDL_Event * event) {	
 	/* Catch quit event and ALT-F4 */
 	if(event->type == SDL_QUIT) {
 		running = false;
@@ -176,6 +196,9 @@ void Main::handle_event(SDL_Event * event) {
 		}
 		if(event->key.keysym.sym == SDLK_F11) {
 			fps_counter_visible = !fps_counter_visible;
+		}
+		if(event->key.keysym.sym == SDLK_PRINT) {
+			screenshot_next_flip = true;
 		}
 	}
 }

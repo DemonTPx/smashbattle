@@ -48,6 +48,8 @@ public:
 	static int frame;
 	static bool fps_cap;
 
+	static bool screenshot_next_flip;
+
 	static const int FRAMES_PER_SECOND;
 
 	static const int CONTROLS_REPEAT_DELAY;
@@ -83,6 +85,8 @@ private:
 	void clean_up();
 
 	void fps_count();
+
+	void take_screenshot();
 
 	void load_options();
 	void save_options();
