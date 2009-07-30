@@ -62,7 +62,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="sdl.lib sdlmain.lib sdl_mixer.lib zdll.lib"
 				LinkIncremental="2"
-				IgnoreDefaultLibraryNames=""
+				IgnoreDefaultLibraryNames="msvcrt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -211,6 +211,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GameInput.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Gameplay.cpp"
 				>
 			</File>
@@ -325,6 +329,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GameInput.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Gameplay.h"
 				>
 			</File>
@@ -394,6 +402,10 @@
 			</File>
 			<File
 				RelativePath=".\Projectile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
@@ -575,6 +587,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\resources.rc"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\rob.bmp"
 				>
 			</File>
@@ -584,6 +600,14 @@
 			</File>
 			<File
 				RelativePath=".\gfx\ruud.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\SB.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\SB.ico"
 				>
 			</File>
 			<File

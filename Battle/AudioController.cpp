@@ -1,6 +1,8 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_mixer.h"
 
+#include <iostream>
+
 #include "Main.h"
 #include "AudioController.h"
 
@@ -43,8 +45,8 @@ const int AudioController::soundvolume[SOUNDFILES] = {
 };
 
 AudioController::AudioController() {
-	sound_volume = 100;
-	music_volume = 100;
+	options.sound_volume = 100;
+	options.music_volume = 100;
 }
 
 AudioController::~AudioController() {
@@ -89,7 +91,7 @@ void AudioController::close_files() {
 }
 
 void AudioController::play_music(int music) {
-	if(music_volume == 0)
+	if(options.music_volume == 0)
 		return;
 
 	if(music < 0 || music >= MUSICFILES)
@@ -99,7 +101,7 @@ void AudioController::play_music(int music) {
 		return;
 
 	Mix_HaltMusic();
-	Mix_VolumeMusic(music_volume);
+	Mix_VolumeMusic(options.music_volume);
 	Mix_PlayMusic(this->music[music], -1);
 }
 
@@ -119,7 +121,7 @@ void AudioController::unpause_music() {
 // play_sound(SND_JUMP);
 
 void AudioController::play(int sound) {
-	if(sound_volume == 0)
+	if(options.sound_volume == 0)
 		return;
 
 	if(sound < 0 || sound >= SOUNDFILES)
@@ -139,8 +141,16 @@ void AudioController::play(int sound) {
 	if(chan >= AUDIO_CHANNELS)
 		return;
 
-	volume = (int)(((double)sound_volume / 100) * soundvolume[sound]);
+	volume = (int)(((double)options.sound_volume / 100) * soundvolume[sound]);
 
 	Mix_Volume(chan, volume);
 	Mix_PlayChannel(chan, this->sound[sound], 0);
+}
+
+void AudioController::save_options(std::ostream * stream) {
+	stream->write((char*)&options, sizeof(SoundOptions));
+}
+
+void AudioController::load_options(std::istream * stream) {
+	stream->read((char*)&options, sizeof(SoundOptions));
 }

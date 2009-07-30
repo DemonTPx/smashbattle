@@ -27,7 +27,7 @@ int Main::flags = SDL_SWSURFACE;
 
 bool Main::running = false;
 int Main::frame_delay = 0;
-int Main::frame = 0;
+unsigned int Main::frame = 0;
 bool Main::fps_cap = false;
 
 bool Main::screenshot_next_flip = false;
@@ -56,6 +56,15 @@ Main::~Main() {
 bool Main::init() {
 	//Start SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
+
+	SDL_Surface * icon;
+	Uint8 * mask;
+
+	icon = Graphics::load_icon("gfx/SB.bmp", &mask, 0x00ffff);
+	SDL_WM_SetIcon(icon, mask);
+
+	SDL_FreeSurface(icon);
+	delete mask;
 	
 	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
 	SDL_ShowCursor(0);
@@ -80,10 +89,10 @@ bool Main::init() {
 	graphics = new Graphics();
 	graphics->load_all();
 
-	// enable joystick throughout the game
 	SDL_JoystickEventState(SDL_ENABLE);
-	for(int i = 0; i < SDL_NumJoysticks(); i++) {
-		joystick[i] = SDL_JoystickOpen(i);
+
+	for(int i = 0; i < 4; i++) {
+		input[i] = new GameInput();
 	}
 
 	return true;
@@ -106,10 +115,8 @@ void Main::clean_up() {
 	text->clear_all();
 	delete text;
 
-	for(int i = 0; i < 10; i++) {
-		if(SDL_JoystickOpened(i)) {
-			SDL_JoystickClose(joystick[i]);;
-		}
+	for(int i = 0; i < 4; i++) {
+		delete input[i];
 	}
 
 	//Quit SDL
@@ -246,100 +253,133 @@ int main(int argc, char* args[]) {
 
 void Main::load_options() {
 	std::ifstream file;
-	ControlScheme * controls;
+	SaveHeader hdr;
 
-	file.open("options.dat", std::ifstream::in | std::ifstream::binary);
+	file.open("battle.sav", std::ifstream::in | std::ifstream::binary);
 
 	if(file.eof() || file.fail()) {
-		audio->sound_volume = 100;
-		audio->music_volume = 100;
+		audio->options.sound_volume = 100;
+		audio->options.music_volume = 100;
 		set_default_controlschemes();
 		file.close();
 		return;
 	}
 
-	file.read((char*)&audio->sound_volume, sizeof(int));
-	file.read((char*)&audio->music_volume, sizeof(int));
+	file.read((char*)&hdr, sizeof(SaveHeader));
+	
+	if(hdr.signature != SAVE_SIGNATURE || hdr.version != SAVE_VERSION) {
+		audio->options.sound_volume = 100;
+		audio->options.music_volume = 100;
+		set_default_controlschemes();
+		file.close();
+		return;
+	}
+
+	audio->load_options(&file);
 
 	for(int i = 0; i < 4; i++) {
-		if(i == 0) controls = &controls1;
-		if(i == 1) controls = &controls2;
-		if(i == 2) controls = &controls3;
-		if(i == 3) controls = &controls4;
-
-		file.read((char*)controls, sizeof(ControlScheme));
-
-		if(file.eof()) break;
+		input[i]->load_options(&file);
 	}
+
 	file.close();
 }
 
 void Main::save_options() {
 	std::ofstream file;
-	ControlScheme * controls;
+	SaveHeader hdr;
 
-	file.open("options.dat", std::ofstream::out | std::ofstream::binary | std::ofstream::trunc);
+	file.open("battle.sav", std::ofstream::out | std::ofstream::binary | std::ofstream::trunc);
 
 	if(file.fail()) {
 		file.close();
 	}
 
-	file.write((char*)&audio->sound_volume, 4);
-	file.write((char*)&audio->music_volume, 4);
-	
+	hdr.signature = SAVE_SIGNATURE;
+	hdr.version = SAVE_VERSION;
+
+	file.write((char *)&hdr, sizeof(SaveHeader));
+
+	audio->save_options(&file);
 
 	for(int i = 0; i < 4; i++) {
-		if(i == 0) controls = &controls1;
-		if(i == 1) controls = &controls2;
-		if(i == 2) controls = &controls3;
-		if(i == 3) controls = &controls4;
-
-		file.write((char*)controls, sizeof(ControlScheme));
+		input[i]->save_options(&file);
 	}
 
 	file.close();
 }
 
 void Main::set_default_controlschemes() {
-	controls1.use_keyboard = true;
-	controls1.kb_left = SDLK_a;
-	controls1.kb_right = SDLK_d;
-	controls1.kb_up = SDLK_w;
-	controls1.kb_down = SDLK_s;
-	controls1.kb_jump = SDLK_w;
-	controls1.kb_run = SDLK_LSHIFT;
-	controls1.kb_shoot = SDLK_LCTRL;
-	controls1.kb_bomb = SDLK_LALT;
-	controls1.kb_start = SDLK_ESCAPE;
-	controls1.use_joystick = true;
-	controls1.use_axis_x = true;
-	controls1.use_axis_up = false;
-	controls1.use_axis_down = true;
-	controls1.joystick_idx = 0;
-	controls1.js_jump = 2;
-	controls1.js_run = 3;
-	controls1.js_shoot = 5;
-	controls1.js_bomb = 7;
-	controls1.js_start = 9;
+	// Player 1
+	input[0]->enable_keyboard(true);
 
-	controls2.use_keyboard = true;
-	controls2.kb_left = SDLK_LEFT;
-	controls2.kb_right = SDLK_RIGHT;
-	controls2.kb_up = SDLK_UP;
-	controls2.kb_down = SDLK_DOWN;
-	controls2.kb_jump = SDLK_UP;
-	controls2.kb_run = SDLK_RSHIFT;
-	controls2.kb_shoot = SDLK_RCTRL;
-	controls2.kb_bomb = SDLK_RALT;
-	controls2.kb_start = SDLK_RETURN;
-	controls2.use_joystick = true;
-	controls2.use_axis_x = true;
-	controls2.use_axis_up = false;
-	controls2.use_axis_down = true;
-	controls2.joystick_idx = 1;
-	controls2.js_jump = 2;
-	controls2.js_run = 3;
-	controls2.js_shoot = 5;
-	controls2.js_bomb = 7;
-	controls2.js_start = 9;
+	input[0]->bind_key(SDLK_a, A_LEFT);
+	input[0]->bind_key(SDLK_d, A_RIGHT);
+	input[0]->bind_key(SDLK_w, A_UP);
+	input[0]->bind_key(SDLK_s, A_DOWN);
+	
+	input[0]->bind_key(SDLK_w, A_JUMP);
+	input[0]->bind_key(SDLK_LSHIFT, A_RUN);
+	
+	input[0]->bind_key(SDLK_LCTRL, A_SHOOT);
+	input[0]->bind_key(SDLK_LALT, A_BOMB);
+
+	input[0]->bind_key(SDLK_ESCAPE, A_START);
+
+	input[0]->enable_joystick(true);
+	input[0]->open_joystick(0);
+
+	input[0]->bind_joyaxis(0, false, A_LEFT);
+	input[0]->bind_joyaxis(0, true, A_RIGHT);
+	input[0]->bind_joyaxis(1, false, A_UP);
+	input[0]->bind_joyaxis(1, true, A_DOWN);
+
+	input[0]->bind_joybutton(2, A_JUMP);
+	input[0]->bind_joybutton(2, A_RUN);
+
+	input[0]->bind_joybutton(5, A_SHOOT);
+	input[0]->bind_joybutton(7, A_BOMB);
+
+	input[0]->bind_joybutton(9, A_START);
+
+	input[0]->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
+	input[0]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
+	input[0]->bind_joyhat(0, SDL_HAT_UP, A_UP);
+	input[0]->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
+	
+	// Player 2
+	input[1]->enable_keyboard(true);
+
+	input[1]->bind_key(SDLK_LEFT, A_LEFT);
+	input[1]->bind_key(SDLK_RIGHT, A_RIGHT);
+	input[1]->bind_key(SDLK_UP, A_UP);
+	input[1]->bind_key(SDLK_DOWN, A_DOWN);
+
+	input[1]->bind_key(SDLK_UP, A_JUMP);
+	input[1]->bind_key(SDLK_RSHIFT, A_RUN);
+	
+	input[1]->bind_key(SDLK_RCTRL, A_SHOOT);
+	input[1]->bind_key(SDLK_RALT, A_BOMB);
+
+	input[1]->bind_key(SDLK_RETURN, A_START);
+
+	input[1]->enable_joystick(true);
+	input[1]->open_joystick(1);
+
+	input[1]->bind_joyaxis(0, false, A_LEFT);
+	input[1]->bind_joyaxis(0, true, A_RIGHT);
+	input[1]->bind_joyaxis(1, false, A_UP);
+	input[1]->bind_joyaxis(1, true, A_DOWN);
+
+	input[1]->bind_joybutton(2, A_JUMP);
+	input[1]->bind_joybutton(2, A_RUN);
+
+	input[1]->bind_joybutton(5, A_SHOOT);
+	input[1]->bind_joybutton(7, A_BOMB);
+
+	input[1]->bind_joybutton(9, A_START);
+
+	input[1]->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
+	input[1]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
+	input[1]->bind_joyhat(0, SDL_HAT_UP, A_UP);
+	input[1]->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
 }

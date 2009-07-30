@@ -39,24 +39,21 @@ void Menu::run() {
 
 	init();
 
-	controls1 = Main::instance->controls1;
-	controls2 = Main::instance->controls2;
-	controls3 = Main::instance->controls3;
-	controls4 = Main::instance->controls4;
+	for(int i = 0; i < 4; i++) {
+		input[i] = Main::instance->input[i];
+		input[i]->set_delay();
+	}
 	
 	Main::audio->play_music(MUSIC_TITLE);
 
 	frame = 0;
 
-	cursor_direction = 0;
-	cursor_direction_start = 0;
-	cursor_enter = false;
-	cursor_first = false;
-
 	while (Main::running) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
-			handle_input(&event);
+			for(int i = 0; i < 4; i++) {
+				input[i]->handle_event(&event);
+			}
 		}
 		process_cursor();
 
@@ -142,201 +139,17 @@ void Menu::draw() {
 	SDL_BlitSurface(credits->at(2), NULL, screen, &rect);
 }
 
-void Menu::handle_input(SDL_Event * event) {
-	int old_direction;
-	old_direction = cursor_direction;
-
-	if(event->type == SDL_KEYDOWN) {
-		// Keyboard 1
-		if(controls1.use_keyboard) {
-			if(event->key.keysym.sym == controls1.kb_left)
-				cursor_direction |= DIRECTION_LEFT;
-			if(event->key.keysym.sym == controls1.kb_right)
-				cursor_direction |= DIRECTION_RIGHT;
-			if(event->key.keysym.sym == controls1.kb_up)
-				cursor_direction |= DIRECTION_UP;
-			if(event->key.keysym.sym == controls1.kb_down)
-				cursor_direction |= DIRECTION_DOWN;
-			else if(event->key.keysym.sym == controls1.kb_shoot || 
-				event->key.keysym.sym == controls1.kb_run ||
-				event->key.keysym.sym == controls1.kb_start ||
-				(controls1.kb_up != controls1.kb_jump &&
-				event->key.keysym.sym == controls1.kb_jump)) {
-					cursor_enter = true;
-			}
-		}
-		// Keyboard 2
-		if(controls2.use_keyboard) {
-			if(event->key.keysym.sym == controls2.kb_left)
-				cursor_direction |= DIRECTION_LEFT;
-			if(event->key.keysym.sym == controls2.kb_right)
-				cursor_direction |= DIRECTION_RIGHT;
-			if(event->key.keysym.sym == controls2.kb_up)
-				cursor_direction |= DIRECTION_UP;
-			if(event->key.keysym.sym == controls2.kb_down)
-				cursor_direction |= DIRECTION_DOWN;
-			else if(event->key.keysym.sym == controls2.kb_shoot || 
-				event->key.keysym.sym == controls2.kb_run ||
-				event->key.keysym.sym == controls2.kb_start ||
-				(controls2.kb_up != controls2.kb_jump &&
-				event->key.keysym.sym == controls2.kb_jump)) {
-					cursor_enter = true;
-			}
-		}
-	}
-	if(event->type == SDL_KEYUP) {
-		// Keyboard 1
-		if(controls1.use_keyboard) {
-			if(event->key.keysym.sym == controls1.kb_left && cursor_direction & DIRECTION_LEFT)
-				cursor_direction ^= DIRECTION_LEFT;
-			if(event->key.keysym.sym == controls1.kb_right && cursor_direction & DIRECTION_RIGHT)
-				cursor_direction ^= DIRECTION_RIGHT;
-			if(event->key.keysym.sym == controls1.kb_up && cursor_direction & DIRECTION_UP)
-				cursor_direction ^= DIRECTION_UP;
-			if(event->key.keysym.sym == controls1.kb_down && cursor_direction & DIRECTION_DOWN)
-				cursor_direction ^= DIRECTION_DOWN;
-		}
-		// Keyboard 2
-		if(controls2.use_keyboard) {
-			if(event->key.keysym.sym == controls2.kb_left && cursor_direction & DIRECTION_LEFT)
-				cursor_direction ^= DIRECTION_LEFT;
-			if(event->key.keysym.sym == controls2.kb_right && cursor_direction & DIRECTION_RIGHT)
-				cursor_direction ^= DIRECTION_RIGHT;
-			if(event->key.keysym.sym == controls2.kb_up && cursor_direction & DIRECTION_UP)
-				cursor_direction ^= DIRECTION_UP;
-			if(event->key.keysym.sym == controls2.kb_down && cursor_direction & DIRECTION_DOWN)
-				cursor_direction ^= DIRECTION_DOWN;
-		}
-	}
-	if(event->type == SDL_JOYBUTTONDOWN) {
-		// Joystick 1 Buttons
-		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
-			if(event->jbutton.button == controls1.js_left)
-				cursor_direction |= DIRECTION_LEFT;
-			if(event->jbutton.button == controls1.js_right)
-				cursor_direction |= DIRECTION_RIGHT;
-			if(event->jbutton.button == controls1.js_jump ||
-				event->jbutton.button == controls1.js_run ||
-				event->jbutton.button == controls1.js_shoot ||
-				event->jbutton.button == controls1.js_start) {
-					cursor_enter = true;
-			}
-		}
-		// Joystick 2 Buttons
-		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
-			if(event->jbutton.button == controls2.js_left)
-				cursor_direction |= DIRECTION_LEFT;
-			if(event->jbutton.button == controls2.js_right)
-				cursor_direction |= DIRECTION_RIGHT;
-			if(event->jbutton.button == controls2.js_jump ||
-				event->jbutton.button == controls2.js_run ||
-				event->jbutton.button == controls2.js_shoot ||
-				event->jbutton.button == controls2.js_start) {
-					cursor_enter = true;
-			}
-		}
-	}
-	if(event->type == SDL_JOYBUTTONUP) {
-		// Joystick 1 Buttons
-		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
-			if(event->jbutton.button == controls1.js_left && cursor_direction & DIRECTION_LEFT)
-				cursor_direction ^= DIRECTION_LEFT;
-			if(event->jbutton.button == controls1.js_right && cursor_direction & DIRECTION_RIGHT)
-				cursor_direction ^= DIRECTION_RIGHT;
-		}
-		// Joystick 2 Buttons
-		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
-			if(event->jbutton.button == controls2.js_left && cursor_direction & DIRECTION_LEFT)
-				cursor_direction ^= DIRECTION_LEFT;
-			if(event->jbutton.button == controls2.js_right && cursor_direction & DIRECTION_RIGHT)
-				cursor_direction ^= DIRECTION_RIGHT;
-		}
-	}
-	if(event->type == SDL_JOYAXISMOTION) {
-		// Joystick 1 Axis
-		if(controls1.use_joystick && event->jbutton.which == controls1.joystick_idx) {
-			if(event->jaxis.axis == 0) {
-				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
-					cursor_direction |= DIRECTION_LEFT;
-				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
-					cursor_direction |= DIRECTION_RIGHT;
-				else {
-					if(cursor_direction & DIRECTION_LEFT)
-						cursor_direction ^= DIRECTION_LEFT;
-					if(cursor_direction & DIRECTION_RIGHT)
-						cursor_direction ^= DIRECTION_RIGHT;
-				}
-			}
-			if(event->jaxis.axis == 1) {
-				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
-					cursor_direction |= DIRECTION_UP;
-				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
-					cursor_direction |= DIRECTION_DOWN;
-				else {
-					if(cursor_direction & DIRECTION_UP)
-						cursor_direction ^= DIRECTION_UP;
-					if(cursor_direction & DIRECTION_DOWN)
-						cursor_direction ^= DIRECTION_DOWN;
-				}
-			}
-		}
-		// Joystick 2 Axis
-		if(controls2.use_joystick && event->jbutton.which == controls2.joystick_idx) {
-			if(event->jaxis.axis == 0) {
-				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
-					cursor_direction |= DIRECTION_LEFT;
-				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
-					cursor_direction |= DIRECTION_RIGHT;
-				else {
-					if(cursor_direction & DIRECTION_LEFT)
-						cursor_direction ^= DIRECTION_LEFT;
-					if(cursor_direction & DIRECTION_RIGHT)
-						cursor_direction ^= DIRECTION_RIGHT;
-				}
-			}
-			if(event->jaxis.axis == 1) {
-				if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
-					cursor_direction |= DIRECTION_UP;
-				else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
-					cursor_direction |= DIRECTION_DOWN;
-				else {
-					if(cursor_direction & DIRECTION_UP)
-						cursor_direction ^= DIRECTION_UP;
-					if(cursor_direction & DIRECTION_DOWN)
-						cursor_direction ^= DIRECTION_DOWN;
-				}
-			}
-		}
-	}
-	if(old_direction != cursor_direction) {
-		cursor_first = true;
-	}
-}
-
-
 void Menu::process_cursor() {
-	int delay;
-
-	if(cursor_enter) {
-		cursor_enter = false;
-		select();
-	}
-
-	if(cursor_direction != 0) {
-		if(cursor_first)
-			delay = 0;
-		else
-			delay = Main::CONTROLS_REPEAT_SPEED;
-		if(frame - cursor_direction_start > delay) {
-			cursor_direction_start = frame;
-			cursor_first = false;
-			if(cursor_direction & DIRECTION_UP) {
-				select_up();
-			}
-			if(cursor_direction & DIRECTION_DOWN) {
-				select_down();
-			}
+	for(int i = 0; i < 4; i++) {
+		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
+				input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
+			select();
 		}
+
+		if(input[i]->is_pressed(A_UP))
+			select_up();
+		if(input[i]->is_pressed(A_DOWN))
+			select_down();
 	}
 }
 
@@ -357,10 +170,6 @@ void Menu::select() {
 			options = new Options();
 			options->run();
 			delete options;
-			controls1 = Main::instance->controls1;
-			controls2 = Main::instance->controls2;
-			controls3 = Main::instance->controls3;
-			controls4 = Main::instance->controls4;
 			break;
 		case 4:
 			SDL_Delay(500);
@@ -393,10 +202,7 @@ void Menu::start_local_multiplayer(int players) {
 	level = NULL;
 	for(int i = 0; i < players; i++) {
 		player[i] = new Player(0, (i + 1));
-		if(i == 0) player[i]->controls = controls1;
-		if(i == 1) player[i]->controls = controls2;
-		if(i == 2) player[i]->controls = controls3;
-		if(i == 3) player[i]->controls = controls4;
+		player[i]->input = input[i];
 	}
 
 	running = true;

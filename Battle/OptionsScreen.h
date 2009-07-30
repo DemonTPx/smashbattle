@@ -42,12 +42,10 @@ protected:
 
 	void add_item(OptionItem *);
 
-	void reload_controls();
-
 	virtual void item_selected();
 	virtual void selection_changed();
 private:	
-	ControlScheme controls1, controls2;
+	GameInput * input[4];
 
 	std::vector<SDL_Surface *> * surf_items;
 	std::vector<SDL_Rect *> * surf_items_clip;
@@ -58,12 +56,6 @@ private:
 
 	void draw();
 
-	int cursor_direction;
-	bool cursor_first;
-	int cursor_direction_start;
-	bool cursor_enter;
-
-	void handle_input(SDL_Event * event);
 	void process_cursor();
 	
 	void select_up();

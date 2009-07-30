@@ -95,28 +95,9 @@ Player::Player(int character, int number) {
 	weaponclass = CHARACTERS[character].weaponclass;
 	bombpowerclass = CHARACTERS[character].bombpowerclass;
 
-	controls.use_keyboard = true;
-	controls.kb_right = SDLK_RIGHT;
-	controls.kb_left = SDLK_LEFT;
-	controls.kb_jump = SDLK_UP;
-	controls.kb_down = SDLK_DOWN;
-	controls.kb_run = SDLK_RSHIFT;
-	controls.kb_shoot = SDLK_RCTRL;
-	controls.kb_bomb = SDLK_RALT;
-	controls.kb_start = SDLK_ESCAPE;
-
-	controls.use_joystick = true;
-	controls.use_axis_x = true;
-	controls.use_axis_up = false;
-	controls.use_axis_down = false;
-	controls.joystick_idx = 0;
-	controls.js_jump = 0;
-	controls.js_run = 0;
-	controls.js_shoot = 1;
-	controls.js_bomb = 3;
-	controls.js_start = 2;
-
 	rounds_won = 0;
+
+	input = NULL;
 
 	reset();
 
@@ -163,13 +144,8 @@ void Player::reset() {
 	is_jumping = false;
 	is_falling = false;
 
-	keydn_l = false;
-	keydn_r = false;
-	keydn_u = false;
-	keydn_d = false;
-	keydn_run = false;
-	keydn_shoot = false;
-	keydn_bomb = false;
+	if(input != NULL)
+		input->reset();
 
 	is_hit = false;
 	hit_start = 0;
@@ -270,141 +246,6 @@ SDL_Rect * Player::get_rect() {
 	return rect;
 }
 
-void Player::handle_event(SDL_Event * event) {
-	if(controls.use_keyboard) {
-		if(event->type == SDL_KEYDOWN) {
-			if(event->key.keysym.sym == controls.kb_right) {
-				keydn_r = true;
-			}
-			if(event->key.keysym.sym == controls.kb_left) {
-				keydn_l = true;
-			}
-			if(event->key.keysym.sym == controls.kb_jump) {
-				keydn_u = true;
-			}
-			if(event->key.keysym.sym == controls.kb_down) {
-				keydn_d = true;
-			}
-			if(event->key.keysym.sym == controls.kb_run) {
-				keydn_run = true;
-			}
-			if(event->key.keysym.sym == controls.kb_shoot) {
-				keydn_shoot = true;
-			}
-			if(event->key.keysym.sym == controls.kb_bomb) {
-				keydn_bomb = true;
-			}
-		}
-		if(event->type == SDL_KEYUP) {
-			if(event->key.keysym.sym == controls.kb_right) {
-				keydn_r = false;
-			}
-			if(event->key.keysym.sym == controls.kb_left) {
-				keydn_l = false;
-			}
-			if(event->key.keysym.sym == controls.kb_jump) {
-				keydn_u = false;
-			}
-			if(event->key.keysym.sym == controls.kb_down) {
-				keydn_d = false;
-			}
-			if(event->key.keysym.sym == controls.kb_run) {
-				keydn_run = false;
-			}
-			if(event->key.keysym.sym == controls.kb_shoot) {
-				keydn_shoot = false;
-			}
-			if(event->key.keysym.sym == controls.kb_bomb) {
-				keydn_bomb = false;
-			}
-		}
-	}
-	if(controls.use_joystick) {
-		if(event->jaxis.which == controls.joystick_idx) {
-			if(event->type == SDL_JOYAXISMOTION) {
-				if(controls.use_axis_x && event->jaxis.axis == 0) {
-					if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD) {
-						keydn_l = true;
-						keydn_r = false;
-					}
-					else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
-						keydn_l = false;
-						keydn_r = true;
-					}
-					else {
-						keydn_l = false;
-						keydn_r = false;
-					}
-				}
-				if(event->jaxis.axis == 1) {
-					if(controls.use_axis_down && event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
-						keydn_d = true;
-						if(controls.use_axis_up) keydn_u = false;
-					}
-					else if(controls.use_axis_up && event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD) {
-						keydn_u = true;
-						if(controls.use_axis_down) keydn_d = false;
-					}
-					else {
-						if(controls.use_axis_up) keydn_u = false;
-						if(controls.use_axis_down) keydn_d = false;
-					}
-				}
-			}
-			if(event->type == SDL_JOYBUTTONDOWN) {
-				if(event->jbutton.which == controls.joystick_idx) {
-					if(!controls.use_axis_up && event->jbutton.button == controls.js_jump) {
-						keydn_u = true;
-					}
-					if(!controls.use_axis_down && event->jbutton.button == controls.js_down) {
-						keydn_d = true;
-					}
-					if(!controls.use_axis_x && event->jbutton.button == controls.js_left) {
-						keydn_l = true;
-					}
-					if(!controls.use_axis_x && event->jbutton.button == controls.js_right) {
-						keydn_r = true;
-					}
-					if(event->jbutton.button == controls.js_run) {
-						keydn_run = true;
-					}
-					if(event->jbutton.button == controls.js_shoot) {
-						keydn_shoot = true;
-					}
-					if(event->jbutton.button == controls.js_bomb) {
-						keydn_bomb = true;
-					}
-				}
-			}
-			if(event->type == SDL_JOYBUTTONUP) {
-				if(event->jbutton.which == controls.joystick_idx) {
-					if(!controls.use_axis_up && event->jbutton.button == controls.js_jump) {
-						keydn_u = false;
-					}
-					if(!controls.use_axis_down && event->jbutton.button == controls.js_down) {
-						keydn_d = false;
-					}
-					if(!controls.use_axis_x && event->jbutton.button == controls.js_left) {
-						keydn_l = false;
-					}
-					if(!controls.use_axis_x && event->jbutton.button == controls.js_right) {
-						keydn_r = false;
-					}
-					if(event->jbutton.button == controls.js_run) {
-						keydn_run = false;
-					}
-					if(event->jbutton.button == controls.js_shoot) {
-						keydn_shoot = false;
-					}
-					if(event->jbutton.button == controls.js_bomb) {
-						keydn_bomb = false;
-					}
-				}
-			}
-		}
-	}
-}
-
 void Player::move(Level * level) {
 	int speedx, speedy;
 	int maxx;
@@ -444,7 +285,7 @@ void Player::move(Level * level) {
 	momentumx_old = momentumx;
 	
 	// Are we running?
-	if(keydn_run) {
+	if(input->is_pressed(A_RUN)) {
 		is_running = true;
 		//maxx = MAX_MOMENTUM_RUN;
 		maxx = SPEEDCLASSES[speedclass].run_speed;
@@ -454,7 +295,7 @@ void Player::move(Level * level) {
 	}
 	
 	// Are we ducking?
-	if(keydn_d) {
+	if(input->is_pressed(A_DOWN)) {
 		is_duck = true;
 	}
 	else {
@@ -485,19 +326,19 @@ void Player::move(Level * level) {
 		}
 	}
 
-	if(!is_frozen && keydn_l) {
+	if(!is_frozen && input->is_pressed(A_LEFT)) {
 		// Move more to the left
 		if(momentumx > 0) momentumx -= MOMENTUM_INTERV_HORIZ;
 		if(momentumx >= -maxx) momentumx -= MOMENTUM_INTERV_HORIZ;
 		else momentumx += MOMENTUM_INTERV_HORIZ;
 	}
-	if(!is_frozen && keydn_r) {
+	if(!is_frozen && input->is_pressed(A_RIGHT)) {
 		// Move more to the right
 		if(momentumx < 0) momentumx += MOMENTUM_INTERV_HORIZ;
 		if(momentumx <= maxx) momentumx += MOMENTUM_INTERV_HORIZ;
 		else momentumx -= MOMENTUM_INTERV_HORIZ;
 	}
-	if(is_frozen || (!keydn_l && !keydn_r)) {
+	if(is_frozen || (!input->is_pressed(A_LEFT) && !input->is_pressed(A_RIGHT))) {
 		// Slide until we're standing still
 		if(momentumx < 0) momentumx += MOMENTUM_INTERV_HORIZ;
 		if(momentumx > 0) momentumx -= MOMENTUM_INTERV_HORIZ;
@@ -510,7 +351,7 @@ void Player::move(Level * level) {
 	// Which sprite do we want to show?
 	if(momentumx == 0) {
 		// Standing still
-		if(!keydn_l && !keydn_r) {
+		if(!input->is_pressed(A_LEFT) && !input->is_pressed(A_RIGHT)) {
 			if(current_sprite >= SPR_L && current_sprite <= SPR_L_DUCK) {
 				if(is_duck) {
 					set_sprite(SPR_L_DUCK);
@@ -531,13 +372,13 @@ void Player::move(Level * level) {
 			}
 		}
 		else {
-			if(keydn_l && !keydn_r) {
+			if(input->is_pressed(A_LEFT) && !input->is_pressed(A_RIGHT)) {
 				if(is_duck)
 					set_sprite(SPR_L_DUCK);
 				else
 					set_sprite(SPR_L_WALK1);
 			}
-			if(!keydn_l && keydn_r) {
+			if(!input->is_pressed(A_LEFT) && input->is_pressed(A_RIGHT)) {
 				if(is_duck)
 					set_sprite(SPR_R_DUCK);
 				else
@@ -562,7 +403,7 @@ void Player::move(Level * level) {
 					set_sprite(SPR_L_WALK1);
 				}
 			}
-			if(keydn_r) {
+			if(input->is_pressed(A_RIGHT)) {
 				set_sprite(SPR_L_BRAKE);
 				distance_walked = 0;
 			}
@@ -592,7 +433,7 @@ void Player::move(Level * level) {
 					set_sprite(SPR_R_WALK1);
 				}
 			}
-			if(keydn_l) {
+			if(input->is_pressed(A_LEFT)) {
 				set_sprite(SPR_R_BRAKE);
 				distance_walked = 0;
 			}
@@ -633,14 +474,14 @@ void Player::move(Level * level) {
 
 	// Jumping
 
-	if(keydn_u && !is_falling && !is_jumping && !is_frozen) {
+	if(input->is_pressed(A_JUMP) && !is_falling && !is_jumping && !is_frozen) {
 		// Start the jump
 		momentumy = MAX_MOMENTUM_JUMP;
 		is_jumping = true;
 
 		Main::instance->audio->play(SND_JUMP);
 	}
-	if(!keydn_u && is_jumping) {
+	if(!input->is_pressed(A_JUMP) && is_jumping) {
 		// The up key is released, so fall faster
 		is_jumping = false;
 		is_falling = true;
@@ -750,7 +591,7 @@ void Player::bounce(Player * other) {
 	// Players hit each others top
 	if(is_above) {
 		bounce_direction_y = -1;
-		if(keydn_u) {
+		if(input->is_pressed(A_JUMP)) {
 			Main::audio->play(SND_JUMP);
 			momentumy = MAX_MOMENTUM_JUMP;
 			is_falling = false;
@@ -814,7 +655,7 @@ void Player::process() {
 	if(is_dead)
 		return;
 
-	if(keydn_shoot) {
+	if(input->is_pressed(A_SHOOT)) {
 		if(Gameplay::frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
 			(((bullets == BULLETS_UNLIMITED) ||  bullets > 0) ||
 			((doubledamagebullets == BULLETS_UNLIMITED) ||  doubledamagebullets > 0) ||
@@ -875,7 +716,7 @@ void Player::process() {
 			Main::instance->audio->play(SND_SHOOT);
 		}
 	}
-	if(keydn_bomb) {
+	if(input->is_pressed(A_BOMB)) {
 		if(Gameplay::frame > bomb_start + bomb_delay && (bombs > 0 || bombs == -1)) {
 			bomb_start = Gameplay::frame;
 			Bomb * b;

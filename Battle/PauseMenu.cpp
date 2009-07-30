@@ -33,77 +33,55 @@ int PauseMenu::pause(Player * p) {
 
 	selected_option = 0;
 
+	player->input->set_delay();
+	player->input->reset();
+
 	while(Main::running && paused) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
 
-			handle_input(&event);
-
 			// Handle player input
 			for(unsigned int idx = 0; idx < Gameplay::instance->players->size(); idx++) {
 				Player * p = Gameplay::instance->players->at(idx);
-				p->handle_event(&event);
+				p->input->handle_event(&event);
 			}
 		}
+
+		process();
 
 		draw();
 
 		Main::instance->flip();
 	}
 
+	player->input->unset_delay();
+
 	Main::audio->unpause_music();
 	return selected_option;
 }
 
-void PauseMenu::handle_input(SDL_Event * event) {
-	if(event->type == SDL_KEYDOWN) {
-		if(event->key.keysym.sym == player->controls.kb_down) {
-			Main::audio->play(SND_SELECT);
-			selected_option = (selected_option + 1) % (int)options->size();
-		}
-		if(event->key.keysym.sym == player->controls.kb_up) {
-			Main::audio->play(SND_SELECT);
-			if(selected_option == 0) selected_option += (int)options->size();
-			selected_option = selected_option - 1;
-		}
-		if(event->key.keysym.sym == player->controls.kb_shoot ||
-			event->key.keysym.sym == player->controls.kb_run ||
-			(player->controls.kb_jump != player->controls.kb_up &&
-			event->key.keysym.sym == player->controls.kb_jump)) {
-				Main::audio->play(SND_SELECT);
-				paused = false;
-		}
-		if(event->key.keysym.sym == player->controls.kb_start) {
-			Main::audio->play(SND_PAUSE);
-			selected_option = 0;
-			paused = false;
-		}
+void PauseMenu::process() {
+	if(player->input->is_pressed(A_DOWN)) {
+		Main::audio->play(SND_SELECT);
+		selected_option = (selected_option + 1) % (int)options->size();
 	}
-	if(event->type == SDL_JOYAXISMOTION && event->jbutton.which == player->controls.joystick_idx) {
-		if(event->jaxis.axis == 1) {
-			if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD) {
-				Main::audio->play(SND_SELECT);
-				selected_option = (selected_option + 1) % (int)options->size();
-			}
-			if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD) {
-				Main::audio->play(SND_SELECT);
-				if(selected_option == 0) selected_option += (int)options->size();
-				selected_option = selected_option - 1;
-			}
-		}
+
+	if(player->input->is_pressed(A_UP)) {
+		Main::audio->play(SND_SELECT);
+		if(selected_option == 0) selected_option += (int)options->size();
+		selected_option = selected_option - 1;
 	}
-	if(event->type == SDL_JOYBUTTONDOWN && event->jbutton.which == player->controls.joystick_idx) {
-		if(event->jbutton.button == player->controls.js_run ||
-			event->jbutton.button == player->controls.js_jump ||
-			event->jbutton.button == player->controls.js_shoot) {
-				Main::audio->play(SND_SELECT);
-				paused = false;
-		}
-		if(event->jbutton.button == player->controls.js_start) {
-			Main::audio->play(SND_PAUSE);
-			selected_option = 0;
-			paused = false;
-		}
+
+	if(player->input->is_pressed(A_START)) {
+		Main::audio->play(SND_PAUSE);
+		selected_option = 0;
+		paused = false;
+	}
+
+	if(player->input->is_pressed(A_JUMP) || player->input->is_pressed(A_RUN) ||
+		player->input->is_pressed(A_SHOOT) || player->input->is_pressed(A_BOMB)) {
+		Main::audio->play(SND_SELECT);
+		paused = false;
 	}
 }
 

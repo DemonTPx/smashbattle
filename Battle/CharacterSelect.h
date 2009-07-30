@@ -17,8 +17,6 @@ public:
 private:
 	void draw();
 
-	void handle_input(SDL_Event * event);
-
 	void init();
 	void clean_up();
 
@@ -28,7 +26,7 @@ private:
 
 	void process_random_players();
 
-	void select(int player);
+	void select(int player, int direction);
 
 	SDL_Surface * background;
 
@@ -42,13 +40,8 @@ private:
 	int player_random_before[4];
 
 	PlayerAnimation * playeranimation[4];
-	
-	int cursor_direction[4];
-	bool cursor_first[4];
-	int cursor_direction_start[4];
-	bool cursor_enter[4];
-	
-	ControlScheme controls[4];
+
+	GameInput * input[4];
 
 	bool flicker[4];
 	int flicker_start[4];

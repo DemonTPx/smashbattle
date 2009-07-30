@@ -38,7 +38,14 @@ void CharacterSelect::run() {
 	while (Main::running && !ready && !cancel) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
-			handle_input(&event);
+
+			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+				cancel = true;
+			}
+			
+			for(int i = 0; i < players; i++) {
+				input[i]->handle_event(&event);
+			}
 		}
 
 		process_cursors();
@@ -76,20 +83,15 @@ void CharacterSelect::init() {
 	// Cursor
 	for(int i = 0; i < players; i++) {
 		player_ready[i] = false;
-	
-		cursor_direction[i] = DIRECTION_NONE;
-		cursor_direction_start[i] = 0;
-		cursor_first[i] = true;
-		cursor_enter[i] = false;
 
 		player_random[i] = false;
 		player_random_start[i] = 0;
 	}
 	
-	controls[0] = Main::instance->controls1;
-	controls[1] = Main::instance->controls2;
-	controls[2] = Main::instance->controls3;
-	controls[3] = Main::instance->controls4;
+	for(int i = 0; i < 4; i++) {
+		input[i] = Main::instance->input[i];
+		input[i]->reset();
+	}
 
 	// Set inital cursor positions
 	player_select[0] = 0;
@@ -258,117 +260,10 @@ void CharacterSelect::prerender_background() {
 	}
 }
 
-void CharacterSelect::handle_input(SDL_Event * event) {
-	int old_direction[4];
-
-	for(int i = 0; i < players; i++) {
-		old_direction[i] = cursor_direction[i];
-
-		// Keyboard
-		if(event->type == SDL_KEYDOWN) {
-			// Escape key always returns to main menu
-			if(event->key.keysym.sym == SDLK_ESCAPE) {
-				ready = true;
-				cancel = true;
-			}
-
-			if(controls[i].use_keyboard) {
-				if(event->key.keysym.sym == controls[i].kb_left)
-					cursor_direction[i] |= DIRECTION_LEFT;
-				if(event->key.keysym.sym == controls[i].kb_right)
-					cursor_direction[i] |= DIRECTION_RIGHT;
-				if(event->key.keysym.sym == controls[i].kb_up)
-					cursor_direction[i] |= DIRECTION_UP;
-				if(event->key.keysym.sym == controls[i].kb_down)
-					cursor_direction[i] |= DIRECTION_DOWN;
-				else if(event->key.keysym.sym == controls[i].kb_shoot || 
-					event->key.keysym.sym == controls[i].kb_run ||
-					(controls[i].kb_up != controls[i].kb_jump &&
-					event->key.keysym.sym == controls[i].kb_jump)) {
-						cursor_enter[i] = true;
-				}
-			}
-		}
-		if(event->type == SDL_KEYUP) {
-			if(controls[i].use_keyboard) {
-				if(event->key.keysym.sym == controls[i].kb_left && cursor_direction[i] & DIRECTION_LEFT)
-					cursor_direction[i] ^= DIRECTION_LEFT;
-				if(event->key.keysym.sym == controls[i].kb_right && cursor_direction[i] & DIRECTION_RIGHT)
-					cursor_direction[i] ^= DIRECTION_RIGHT;
-				if(event->key.keysym.sym == controls[i].kb_up && cursor_direction[i] & DIRECTION_UP)
-					cursor_direction[i] ^= DIRECTION_UP;
-				if(event->key.keysym.sym == controls[i].kb_down && cursor_direction[i] & DIRECTION_DOWN)
-					cursor_direction[i] ^= DIRECTION_DOWN;
-				else if(event->key.keysym.sym == controls[i].kb_shoot || 
-					event->key.keysym.sym == controls[i].kb_run ||
-					(controls[i].kb_up != controls[i].kb_jump &&
-					event->key.keysym.sym == controls[i].kb_jump)) {
-						cursor_enter[i] = false;
-				}
-			}
-		}
-		// Joystick Buttons
-		if(event->type == SDL_JOYBUTTONDOWN) {
-			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
-				if(event->jbutton.button == controls[i].js_left)
-					cursor_direction[i] |= DIRECTION_LEFT;
-				if(event->jbutton.button == controls[i].js_right)
-					cursor_direction[i] |= DIRECTION_RIGHT;
-				if(event->jbutton.button == controls[i].js_jump ||
-					event->jbutton.button == controls[i].js_run ||
-					event->jbutton.button == controls[i].js_shoot) {
-						cursor_enter[i] = true;
-				}
-			}
-		}
-		if(event->type == SDL_JOYBUTTONUP) {
-			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
-				if(event->jbutton.button == controls[i].js_left && cursor_direction[i] & DIRECTION_LEFT)
-					cursor_direction[i] ^= DIRECTION_LEFT;
-				if(event->jbutton.button == controls[i].js_right && cursor_direction[i] & DIRECTION_RIGHT)
-					cursor_direction[i] ^= DIRECTION_RIGHT;
-			}
-		}
-		// Joystick Axis
-		if(event->type == SDL_JOYAXISMOTION) {
-			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
-				if(event->jaxis.axis == 0) {
-					if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
-						cursor_direction[i] |= DIRECTION_LEFT;
-					else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
-						cursor_direction[i] |= DIRECTION_RIGHT;
-					else {
-						if(cursor_direction[i] & DIRECTION_LEFT)
-							cursor_direction[i] ^= DIRECTION_LEFT;
-						if(cursor_direction[i] & DIRECTION_RIGHT)
-							cursor_direction[i] ^= DIRECTION_RIGHT;
-					}
-				} 
-				if(event->jaxis.axis == 1) {
-					if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
-						cursor_direction[i] |= DIRECTION_UP;
-					else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
-						cursor_direction[i] |= DIRECTION_DOWN;
-					else {
-						if(cursor_direction[i] & DIRECTION_UP)
-							cursor_direction[i] ^= DIRECTION_UP;
-						if(cursor_direction[i] & DIRECTION_DOWN)
-							cursor_direction[i] ^= DIRECTION_DOWN;
-					}
-				}
-			}
-		}
-
-		if(cursor_direction[i] != old_direction[i]) {
-			cursor_first[i] = true;
-		}
-	}
-}
-
 void CharacterSelect::process_cursors() {
-	int delay;
 	bool players_ready;
 	bool can_select;
+	int direction;
 
 	players_ready = true;
 	for(int i = 0; i < players; i++) {
@@ -377,45 +272,40 @@ void CharacterSelect::process_cursors() {
 	}
 
 	for(int i = 0; i < players; i++) {
-		// Enter
-		if(cursor_enter[i]) {
-			cursor_enter[i] = false;
-			if(!player_ready[i]) {
-				can_select = true;
-				for(int idx = 0; idx < players; idx++) {
-					if(i == idx) continue;
-					if(player_ready[idx] && (player_select[idx] == player_select[i])) {
-						can_select = false;
+		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
+			input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
+				if(!player_ready[i]) {
+					can_select = true;
+					for(int idx = 0; idx < players; idx++) {
+						if(i == idx) continue;
+						if(player_ready[idx] && (player_select[idx] == player_select[i])) {
+							can_select = false;
+						}
+					}
+					if(can_select) {
+						player_ready[i] = true;
+
+						player_random[i] = false;
+
+						flicker[i] = true;
+						flicker_frame[i] = 0;
+
+						playeranimation[i]->is_walking = true;
+						Main::audio->play(SND_SELECT_CHARACTER);
 					}
 				}
-				if(can_select) {
-					player_ready[i] = true;
-
-					player_random[i] = false;
-
-					flicker[i] = true;
-					flicker_frame[i] = 0;
-
-					playeranimation[i]->is_walking = true;
-					Main::audio->play(SND_SELECT_CHARACTER);
-				}
-			}
 		}
 
-		// Direction
-		if(cursor_direction[i] != DIRECTION_NONE) {
-			if(cursor_first[i])
-				delay = 0;
-			else
-				delay = Main::CONTROLS_REPEAT_SPEED;
-			if(frame - cursor_direction_start[i] > delay) {
-				cursor_direction_start[i] = frame;
-				cursor_first[i] = false;
-				if(!player_ready[i]) {
-					select(i);
-					playeranimation[i]->set_character(player_select[i]);
-					Main::audio->play(SND_SELECT);
-				}
+		direction = 0;
+		if(input[i]->is_pressed(A_LEFT)) direction |= DIRECTION_LEFT;
+		if(input[i]->is_pressed(A_RIGHT)) direction |= DIRECTION_RIGHT;
+		if(input[i]->is_pressed(A_UP)) direction |= DIRECTION_UP;
+		if(input[i]->is_pressed(A_DOWN)) direction |= DIRECTION_DOWN;
+		if(direction != DIRECTION_NONE) {
+			if(!player_ready[i]) {
+				select(i, direction);
+				playeranimation[i]->set_character(player_select[i]);
+				Main::audio->play(SND_SELECT);
 			}
 		}
 	}
@@ -455,17 +345,17 @@ void CharacterSelect::process_random_players() {
 	}
 }
 
-void CharacterSelect::select(int player) {
+void CharacterSelect::select(int player, int direction) {
 	if(!player_random[player]) {
 		// Left
-		if(cursor_direction[player] & DIRECTION_LEFT) {
+		if(direction & DIRECTION_LEFT) {
 			if(player_select[player] % CHARACTERS_PER_LINE == 0)
 				player_select[player] += CHARACTERS_PER_LINE;
 			player_select[player] -= 1;
 		}
 
 		// Right
-		if(cursor_direction[player] & DIRECTION_RIGHT) {
+		if(direction & DIRECTION_RIGHT) {
 			if(player_select[player] % CHARACTERS_PER_LINE == CHARACTERS_PER_LINE - 1)
 				player_select[player] -= CHARACTERS_PER_LINE;
 			player_select[player] += 1;
@@ -473,7 +363,7 @@ void CharacterSelect::select(int player) {
 	}
 
 	// Up
-	if(cursor_direction[player] & DIRECTION_UP) {
+	if(direction & DIRECTION_UP) {
 		if(player_random[player]) {
 			if(player_random_before[player] >= CHARACTERS_PER_LINE)
 				player_select[player] = player_random_before[player];
@@ -490,7 +380,7 @@ void CharacterSelect::select(int player) {
 	}
 
 	// Down
-	if(cursor_direction[player] & DIRECTION_DOWN) {
+	if(direction & DIRECTION_DOWN) {
 		if(player_random[player]) {
 			if(player_random_before[player] < CHARACTERS_PER_LINE)
 				player_select[player] = player_random_before[player];

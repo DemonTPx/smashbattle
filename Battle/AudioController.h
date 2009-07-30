@@ -28,6 +28,11 @@
 #define SND_COUNTDOWN 10
 #define SND_GO 11
 
+struct SoundOptions {
+	int sound_volume;
+	int music_volume;
+};
+
 class AudioController {
 public:
 	AudioController();
@@ -44,12 +49,13 @@ public:
 
 	void play(int sound);
 
-	int sound_volume;
-	int music_volume;
+	void load_options(std::istream * stream);
+	void save_options(std::ostream * stream);
+
+	SoundOptions options;
 private:
 	Mix_Music * music[MUSICFILES];
 	Mix_Chunk * sound[SOUNDFILES];
-
 
 	static const char * music_files[];
 	static const char * sound_files[];

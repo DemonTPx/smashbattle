@@ -2,10 +2,10 @@
 
 #include "ControlsOptions.h"
 
-ControlsOptions::ControlsOptions(ControlScheme * controls) {
+ControlsOptions::ControlsOptions(/*ControlScheme * controls*/) {
 	OptionItem * item;
 
-	this->controls = controls;
+	//this->controls = controls;
 
 	keyboard_redefined = false;
 	joystick_redefined = false;
@@ -16,7 +16,7 @@ ControlsOptions::ControlsOptions(ControlScheme * controls) {
 	item->options = new std::vector<char *>(0);
 	item->options->push_back((char*)"YES");
 	item->options->push_back((char*)"NO");
-	item->selected = controls->use_keyboard ? 0 : 1;
+	//item->selected = controls->use_keyboard ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
@@ -30,7 +30,7 @@ ControlsOptions::ControlsOptions(ControlScheme * controls) {
 	item->options = new std::vector<char *>(0);
 	item->options->push_back((char*)"YES");
 	item->options->push_back((char*)"NO");
-	item->selected = controls->use_joystick ? 0 : 1;
+	//item->selected = controls->use_joystick ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
@@ -44,7 +44,7 @@ ControlsOptions::ControlsOptions(ControlScheme * controls) {
 	item->options = new std::vector<char *>(0);
 	item->options->push_back((char*)"YES");
 	item->options->push_back((char*)"NO");
-	item->selected = controls->use_axis_x ? 0 : 1;
+	//item->selected = controls->use_axis_x ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
@@ -52,7 +52,7 @@ ControlsOptions::ControlsOptions(ControlScheme * controls) {
 	item->options = new std::vector<char *>(0);
 	item->options->push_back((char*)"YES");
 	item->options->push_back((char*)"NO");
-	item->selected = controls->use_axis_up ? 0 : 1;
+	//item->selected = controls->use_axis_up ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
@@ -60,7 +60,7 @@ ControlsOptions::ControlsOptions(ControlScheme * controls) {
 	item->options = new std::vector<char *>(0);
 	item->options->push_back((char*)"YES");
 	item->options->push_back((char*)"NO");
-	item->selected = controls->use_axis_down ? 0 : 1;
+	//item->selected = controls->use_axis_down ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
@@ -96,6 +96,7 @@ void ControlsOptions::item_selected() {
 			redefine_keyboard();
 			break;
 		case 3: // Select joystick
+			/*
 			JoystickSelect * joystickselect;
 			joystickselect = new JoystickSelect(controls->joystick_idx);
 			joystickselect->run();
@@ -104,6 +105,7 @@ void ControlsOptions::item_selected() {
 				new_controls.joystick_idx = joystickselect->index;
 			}
 			delete joystickselect;
+			*/
 			break;
 		case 7: // Redefine joystick controls
 			redefine_joystick();
@@ -114,6 +116,7 @@ void ControlsOptions::item_selected() {
 				SDL_Delay(1000);
 				return;
 			}
+			/*
 			controls->use_keyboard = items->at(0)->selected == 0 ? true : false;
 			if(keyboard_redefined) {
 				controls->kb_left = new_controls.kb_left;
@@ -142,6 +145,7 @@ void ControlsOptions::item_selected() {
 			controls->use_axis_x = items->at(4)->selected == 0 ? true : false;
 			controls->use_axis_up = items->at(5)->selected == 0 ? true : false;
 			controls->use_axis_down = items->at(6)->selected == 0 ? true : false;
+			*/
 		case 9: // Return cancel
 			running = false;
 			break;
@@ -149,6 +153,7 @@ void ControlsOptions::item_selected() {
 }
 
 void ControlsOptions::redefine_keyboard() {
+	/*
 	new_controls.kb_left = poll_keyboard("PRESS LEFT");
 	new_controls.kb_right = poll_keyboard("PRESS RIGHT");
 	new_controls.kb_up = poll_keyboard("PRESS UP");
@@ -160,6 +165,7 @@ void ControlsOptions::redefine_keyboard() {
 	new_controls.kb_start = poll_keyboard("PRESS START");
 
 	keyboard_redefined = true;
+	*/
 }
 
 int ControlsOptions::poll_keyboard(const char * question) {
@@ -189,6 +195,7 @@ int ControlsOptions::poll_keyboard(const char * question) {
 }
 
 void ControlsOptions::redefine_joystick() {
+	/*
 	int idx;
 	idx = joystick_idx_changed ? new_controls.joystick_idx : controls->joystick_idx;
 
@@ -208,6 +215,7 @@ void ControlsOptions::redefine_joystick() {
 	new_controls.js_start = poll_joystick(idx, "PRESS START");
 
 	joystick_redefined = true;
+	*/
 }
 
 int ControlsOptions::poll_joystick(int index, const char * question) {

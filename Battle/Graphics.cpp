@@ -10,64 +10,23 @@ Graphics::~Graphics() {
 }
 
 void Graphics::load_all() {
-	SDL_Surface * surface;
-	Uint32 colorkey;
+	weapons = load_bmp("gfx/weapons.bmp");
+	bombs = load_bmp("gfx/bomb.bmp");
+	powerups = load_bmp("gfx/powerups.bmp");
 
-	surface = SDL_LoadBMP("gfx/weapons.bmp");
-	weapons = SDL_DisplayFormat(surface);
-	colorkey = SDL_MapRGB(weapons->format, 0, 255, 255);
-	SDL_SetColorKey(weapons, SDL_SRCCOLORKEY, colorkey); 
-	SDL_FreeSurface(surface);
+	player1hp = load_bmp("gfx/player1hp.bmp");
+	player2hp = load_bmp("gfx/player2hp.bmp");
 
-	surface = SDL_LoadBMP("gfx/bomb.bmp");
-	bombs = SDL_DisplayFormat(surface);
-	colorkey = SDL_MapRGB(bombs->format, 0, 255, 255);
-	SDL_SetColorKey(bombs, SDL_SRCCOLORKEY, colorkey);
-	SDL_FreeSurface(surface);
-
-	surface = SDL_LoadBMP("gfx/powerups.bmp");
-	powerups = SDL_DisplayFormat(surface);
-	colorkey = SDL_MapRGB(powerups->format, 0, 255, 255);
-	SDL_SetColorKey(powerups, SDL_SRCCOLORKEY, colorkey); 
-	SDL_FreeSurface(surface);
-
-	surface = SDL_LoadBMP("gfx/player1hp.bmp");
-	player1hp = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
-
-	surface = SDL_LoadBMP("gfx/player2hp.bmp");
-	player2hp = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
-
-	surface = SDL_LoadBMP("gfx/common.bmp");
-	common = SDL_DisplayFormat(surface);
-	colorkey = SDL_MapRGB(common->format, 0, 255, 255);
-	SDL_SetColorKey(common, SDL_SRCCOLORKEY, colorkey); 
-	SDL_FreeSurface(surface);
-
-	surface = SDL_LoadBMP("gfx/pmarkers.bmp");
-	pmarker = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
-	colorkey = SDL_MapRGB(pmarker->format, 0, 255, 255);
-	SDL_SetColorKey(pmarker, SDL_SRCCOLORKEY, colorkey);
+	common = load_bmp("gfx/common.bmp");
+	pmarker = load_bmp("gfx/pmarkers.bmp");
 	
-	surface = SDL_LoadBMP("gfx/bg_grey.bmp");
-	bg_grey = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
+	bg_grey = load_bmp("gfx/bg_grey.bmp");
 
 	bg_menu = Level::get_preview("stage/titlescreen.lvl");
 
-	surface = SDL_LoadBMP("gfx/cups.bmp");
-	cups = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
-	colorkey = SDL_MapRGB(cups->format, 0, 255, 255);
-	SDL_SetColorKey(cups, SDL_SRCCOLORKEY, colorkey);
+	cups = load_bmp("gfx/cups.bmp");
 
-	surface = SDL_LoadBMP("gfx/tiles.bmp");
-	tiles = SDL_DisplayFormat(surface);
-	SDL_FreeSurface(surface);
-	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
-	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
+	tiles = load_bmp("gfx/tiles.bmp");
 
 	statsblock[0] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
 	SDL_FillRect(statsblock[0], NULL, 0x880000);
@@ -83,6 +42,23 @@ void Graphics::load_all() {
 
 	load_players();
 	set_player_clips();
+}
+
+SDL_Surface * Graphics::load_bmp(const char * filename) {
+	SDL_Surface * loaded, * surface;
+	Uint32 colorkey;
+
+	loaded = SDL_LoadBMP(filename);
+	if(loaded == NULL) {
+		printf("Could not load '%s'", filename);
+		return NULL;
+	}
+	surface = SDL_DisplayFormat(loaded);
+	SDL_FreeSurface(loaded);
+	colorkey = SDL_MapRGB(surface->format, 0, 255, 255);
+	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey);
+
+	return surface;
 }
 
 void Graphics::load_players() {
@@ -205,4 +181,36 @@ Uint32 Graphics::combine_colors(Uint32 color1, Uint32 color2) {
 	g2 = (color2 & 0xff00) >> 8;
 	b2 = color2 & 0xff;
 	return (((r1 + r2) / 2) << 16) + (((g1 + g2) / 2) << 8) + ((b1 + b2) / 2);
+}
+
+SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, Uint32 color) {
+	SDL_Surface * icon;
+	Uint8 *pixels;
+	Uint32 this_pixel;
+	int num_pixels, p, m;
+	int this_mask;
+
+	*mask = NULL;
+
+	icon = SDL_LoadBMP(filename);
+	pixels = (Uint8*)icon->pixels;
+	num_pixels = icon->w * icon->h;
+	*mask = (Uint8 *)malloc(num_pixels / 8);
+	memset(*mask, 0, num_pixels / 8);
+	m = 0;
+	p = 0;
+	this_mask = icon->format->Rmask | icon->format->Gmask | icon->format->Bmask;
+	for(int i = 0; i < num_pixels * icon->format->BytesPerPixel; i += icon->format->BytesPerPixel) {
+		if(m == 8) {
+			m = 0;
+			p++;
+		}
+		this_pixel = *((Uint32*)(pixels + i)) & this_mask;
+
+		if(this_pixel != color)
+			(*mask)[p] |= 0x80 >> m;
+		m++;
+	}
+
+	return icon;
 }

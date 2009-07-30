@@ -21,9 +21,8 @@ private:
 	int selected_item;
 
 	int frame;
-	
-	ControlScheme controls1, controls2;
-	ControlScheme controls3, controls4;
+
+	GameInput * input[4];
 
 	std::vector<SDL_Surface*> * credits;
 	std::vector<SDL_Surface*> * surf_items;
@@ -34,11 +33,6 @@ private:
 
 	static const char * item[];
 	static const int ITEMCOUNT;
-
-	int cursor_direction;
-	bool cursor_first;
-	int cursor_direction_start;
-	bool cursor_enter;
 
 	void handle_input(SDL_Event * event);
 	void process_cursor();

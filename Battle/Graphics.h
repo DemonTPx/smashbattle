@@ -51,6 +51,7 @@ public:
 	void clear_player_clips();
 
 	static Uint32 combine_colors(Uint32 color1, Uint32 color2);
+	static SDL_Surface * load_icon(const char * filename, Uint8 ** mask, Uint32 color);
 
 	SDL_Surface * weapons;
 	SDL_Surface * bombs;
@@ -80,6 +81,8 @@ public:
 	SDL_Rect * player_clip[SPR_COUNT];
 	SDL_Rect * pmarker_clip_above[4];
 	SDL_Rect * pmarker_clip_below[4];
+private:
+	SDL_Surface * load_bmp(const char * filename);
 };
 
 #endif

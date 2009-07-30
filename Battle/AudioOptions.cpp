@@ -15,7 +15,7 @@ AudioOptions::AudioOptions() {
 	item->options->push_back((char*)"60");
 	item->options->push_back((char*)"80");
 	item->options->push_back((char*)"100");
-	item->selected = Main::instance->audio->sound_volume / 20;
+	item->selected = Main::instance->audio->options.sound_volume / 20;
 	add_item(item);
 
 	item = new OptionItem();
@@ -27,7 +27,7 @@ AudioOptions::AudioOptions() {
 	item->options->push_back((char*)"60");
 	item->options->push_back((char*)"80");
 	item->options->push_back((char*)"100");
-	item->selected = Main::instance->audio->music_volume / 20;
+	item->selected = Main::instance->audio->options.music_volume / 20;
 	add_item(item);
 
 	item = new OptionItem();
@@ -54,12 +54,12 @@ void AudioOptions::item_selected() {
 void AudioOptions::selection_changed() {
 	switch(selected_item) {
 		case 0: // sound volume
-			Main::instance->audio->sound_volume = items->at(0)->selected * 20;
+			Main::instance->audio->options.sound_volume = items->at(0)->selected * 20;
 			Main::instance->audio->play(SND_SELECT);
 			break;
 		case 1: // music volume
-			Main::instance->audio->music_volume = items->at(1)->selected * 20;
-			if(Main::instance->audio->music_volume == 0)
+			Main::instance->audio->options.music_volume = items->at(1)->selected * 20;
+			if(Main::instance->audio->options.music_volume == 0)
 				Main::instance->audio->stop_music();
 			else
 				Main::instance->audio->play_music(MUSIC_TITLE);

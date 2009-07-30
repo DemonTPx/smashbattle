@@ -36,15 +36,9 @@ void LevelSelect::run() {
 	load_sprites();
 
 	for(int i = 0; i < players; i++) {
-		cursor_direction[i] = DIRECTION_NONE;
-		cursor_direction_start[i] = 0;
-		cursor_first[i] = true;
-		cursor_enter[i] = false;
+		input[i] = Main::instance->input[i];
+		input[i]->reset();
 	}
-	controls[0] = Main::instance->controls1;
-	controls[1] = Main::instance->controls2;
-	controls[2] = Main::instance->controls3;
-	controls[3] = Main::instance->controls4;
 
 	ready = false;
 	ready_level = false;
@@ -64,7 +58,15 @@ void LevelSelect::run() {
 	while (Main::running && !ready) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
-			handle_input(&event);
+			
+			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+				ready = true;
+				cancel = true;
+			}
+
+			for(int i = 0; i < players; i++) {
+				input[i]->handle_event(&event);
+			}
 		}
 
 		process_cursors();
@@ -88,144 +90,33 @@ void LevelSelect::run() {
 	free_sprites();
 }
 
-void LevelSelect::handle_input(SDL_Event * event) {
-	int old_direction[4];
-
-	for(int i = 0; i < players; i++) {
-		old_direction[i] = cursor_direction[i];
-
-		// Keyboard
-		if(event->type == SDL_KEYDOWN) {
-			// Escape key always returns to main menu
-			if(event->key.keysym.sym == SDLK_ESCAPE) {
-				ready = true;
-				cancel = true;
-			}
-
-			if(controls[i].use_keyboard) {
-				if(event->key.keysym.sym == controls[i].kb_left)
-					cursor_direction[i] |= DIRECTION_LEFT;
-				if(event->key.keysym.sym == controls[i].kb_right)
-					cursor_direction[i] |= DIRECTION_RIGHT;
-				if(event->key.keysym.sym == controls[i].kb_up)
-					cursor_direction[i] |= DIRECTION_UP;
-				if(event->key.keysym.sym == controls[i].kb_down)
-					cursor_direction[i] |= DIRECTION_DOWN;
-				else if(event->key.keysym.sym == controls[i].kb_shoot || 
-					event->key.keysym.sym == controls[i].kb_run ||
-					(controls[i].kb_up != controls[i].kb_jump &&
-					event->key.keysym.sym == controls[i].kb_jump)) {
-						cursor_enter[i] = true;
-				}
-			}
-		}
-		if(event->type == SDL_KEYUP) {
-			if(controls[i].use_keyboard) {
-				if(event->key.keysym.sym == controls[i].kb_left && cursor_direction[i] & DIRECTION_LEFT)
-					cursor_direction[i] ^= DIRECTION_LEFT;
-				if(event->key.keysym.sym == controls[i].kb_right && cursor_direction[i] & DIRECTION_RIGHT)
-					cursor_direction[i] ^= DIRECTION_RIGHT;
-				if(event->key.keysym.sym == controls[i].kb_up && cursor_direction[i] & DIRECTION_UP)
-					cursor_direction[i] ^= DIRECTION_UP;
-				if(event->key.keysym.sym == controls[i].kb_down && cursor_direction[i] & DIRECTION_DOWN)
-					cursor_direction[i] ^= DIRECTION_DOWN;
-				else if(event->key.keysym.sym == controls[i].kb_shoot || 
-					event->key.keysym.sym == controls[i].kb_run ||
-					(controls[i].kb_up != controls[i].kb_jump &&
-					event->key.keysym.sym == controls[i].kb_jump)) {
-						cursor_enter[i] = false;
-				}
-			}
-		}
-		// Joystick Buttons
-		if(event->type == SDL_JOYBUTTONDOWN) {
-			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
-				if(event->jbutton.button == controls[i].js_left)
-					cursor_direction[i] |= DIRECTION_LEFT;
-				if(event->jbutton.button == controls[i].js_right)
-					cursor_direction[i] |= DIRECTION_RIGHT;
-				if(event->jbutton.button == controls[i].js_jump ||
-					event->jbutton.button == controls[i].js_run ||
-					event->jbutton.button == controls[i].js_shoot) {
-						cursor_enter[i] = true;
-				}
-			}
-		}
-		if(event->type == SDL_JOYBUTTONUP) {
-			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
-				if(event->jbutton.button == controls[i].js_left && cursor_direction[i] & DIRECTION_LEFT)
-					cursor_direction[i] ^= DIRECTION_LEFT;
-				if(event->jbutton.button == controls[i].js_right && cursor_direction[i] & DIRECTION_RIGHT)
-					cursor_direction[i] ^= DIRECTION_RIGHT;
-			}
-		}
-		// Joystick Axis
-		if(event->type == SDL_JOYAXISMOTION) {
-			if(controls[i].use_joystick && event->jbutton.which == controls[i].joystick_idx) {
-				if(event->jaxis.axis == 0) {
-					if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
-						cursor_direction[i] |= DIRECTION_LEFT;
-					else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
-						cursor_direction[i] |= DIRECTION_RIGHT;
-					else {
-						if(cursor_direction[i] & DIRECTION_LEFT)
-							cursor_direction[i] ^= DIRECTION_LEFT;
-						if(cursor_direction[i] & DIRECTION_RIGHT)
-							cursor_direction[i] ^= DIRECTION_RIGHT;
-					}
-				} 
-				if(event->jaxis.axis == 1) {
-					if(event->jaxis.value < -Main::JOYSTICK_AXIS_THRESHOLD)
-						cursor_direction[i] |= DIRECTION_UP;
-					else if(event->jaxis.value > Main::JOYSTICK_AXIS_THRESHOLD)
-						cursor_direction[i] |= DIRECTION_DOWN;
-					else {
-						if(cursor_direction[i] & DIRECTION_UP)
-							cursor_direction[i] ^= DIRECTION_UP;
-						if(cursor_direction[i] & DIRECTION_DOWN)
-							cursor_direction[i] ^= DIRECTION_DOWN;
-					}
-				}
-			}
-		}
-
-		if(cursor_direction[i] != old_direction[i]) {
-			cursor_first[i] = true;
-		}
-	}
-}
-
 void LevelSelect::process_cursors() {
-	int delay;
+	int direction;
 
 	for(int i = 0; i < players; i++) {
-		// Enter
-		if(cursor_enter[i] && !ready_level) {
-			cursor_enter[i] = false;
-			Main::audio->play(SND_SELECT_CHARACTER);
-			if(!ready_level) {
-				ready_level = true;
-
-				random = false;
-
-				flicker = true;
-				flicker_frame = 0;
-			}
-		}
-
-		// Direction
-		if(cursor_direction[i] != DIRECTION_NONE) {
-			if(cursor_first[i])
-				delay = 0;
-			else
-				delay = Main::CONTROLS_REPEAT_SPEED;
-			if(frame - cursor_direction_start[i] > delay) {
-				cursor_direction_start[i] = frame;
-				cursor_first[i] = false;
+		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
+			input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
 				if(!ready_level) {
-					select(cursor_direction[i]);
-					Main::audio->play(SND_SELECT);
+					ready_level = true;
+					
+					Main::audio->play(SND_SELECT_CHARACTER);
+
+					random = false;
+
+					flicker = true;
+					flicker_frame = 0;
 				}
+		}
+		
+		direction = 0;
+		if(input[i]->is_pressed(A_LEFT)) direction |= DIRECTION_LEFT;
+		if(input[i]->is_pressed(A_RIGHT)) direction |= DIRECTION_RIGHT;
+		if(input[i]->is_pressed(A_UP)) direction |= DIRECTION_UP;
+		if(input[i]->is_pressed(A_DOWN)) direction |= DIRECTION_DOWN;
+		if(direction != DIRECTION_NONE) {
+			if(!ready_level) {
+				select(direction);
+				Main::audio->play(SND_SELECT);
 			}
 		}
 	}

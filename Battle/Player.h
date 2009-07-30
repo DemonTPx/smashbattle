@@ -98,9 +98,7 @@ public:
 	int cycle_direction;
 	int distance_walked;
 
-	bool keydn_l, keydn_r, keydn_u, keydn_d, keydn_run, keydn_shoot, keydn_bomb;
-
-	ControlScheme controls;
+	GameInput * input;
 
 	bool is_hit;
 	int hit_start;
@@ -138,8 +136,6 @@ public:
 	unsigned int headstomps;
 
 	static const int jump_height;
-
-	void handle_event(SDL_Event * event);
 
 	void draw(SDL_Surface * screen, bool marker = false);
 

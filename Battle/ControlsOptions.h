@@ -4,13 +4,13 @@
 
 class ControlsOptions : public OptionsScreen {
 public:
-	ControlsOptions(ControlScheme * controls);
+	ControlsOptions(/*ControlScheme * controls*/);
 
 	void run();
 	void item_selected();
 private:
-	ControlScheme * controls;
-	ControlScheme new_controls;
+	//ControlScheme * controls;
+	//ControlScheme new_controls;
 	bool keyboard_redefined;
 	bool joystick_redefined;
 	bool joystick_idx_changed;

@@ -22,7 +22,6 @@ private:
 
 	void draw();
 
-	void handle_input(SDL_Event * event);
 	void process_cursor();
 
 	void select_up();
@@ -46,15 +45,9 @@ private:
 
 	int frame;
 	
-	ControlScheme controls1, controls2;
-	ControlScheme controls3, controls4;
+	GameInput * input[4];
 
 	int selected_item;
-
-	int cursor_direction;
-	bool cursor_first;
-	int cursor_direction_start;
-	bool cursor_enter;
 };
 
 #endif

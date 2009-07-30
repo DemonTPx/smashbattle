@@ -14,8 +14,6 @@ private:
 	void load_sprites();
 	void free_sprites();
 
-	void handle_input(SDL_Event * event);
-
 	void process_cursors();
 
 	void process_random();
@@ -31,12 +29,7 @@ private:
 	int random_start;
 	int random_before;
 	
-	int cursor_direction[4];
-	bool cursor_first[4];
-	int cursor_direction_start[4];
-	bool cursor_enter[4];
-	
-	ControlScheme controls[4];
+	GameInput * input[4];
 	
 	int flicker, flicker_frame;
 

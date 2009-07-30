@@ -44,6 +44,12 @@ void Gameplay::run() {
 	reset_game();
 
 	game_running = true;
+	
+	// Set the input defaults
+	for(unsigned int idx = 0; idx < players->size(); idx++) {
+		Player * p = players->at(idx);
+		p->input->unset_delay();
+	}
 
 	while(Main::running && game_running) {
 		// Event handling
@@ -55,7 +61,7 @@ void Gameplay::run() {
 			// Handle player input
 			for(unsigned int idx = 0; idx < players->size(); idx++) {
 				Player * p = players->at(idx);
-				p->handle_event(&event);
+				p->input->handle_event(&event);
 			}
 		}
 
@@ -154,17 +160,8 @@ void Gameplay::handle_pause_input(SDL_Event * event) {
 	for(unsigned int i = 0; i < players->size(); i++) {
 		player = players->at(i);
 
-		if(event->type == SDL_KEYDOWN) {
-			if(event->key.keysym.sym == player->controls.kb_start) {
-				pause(player);
-			}
-		}
-		if(event->type == SDL_JOYBUTTONDOWN) {
-			if((player->controls.use_joystick &&
-				event->jbutton.which == player->controls.joystick_idx &&
-				event->jbutton.button == player->controls.js_start)) {
-					pause(player);
-			}
+		if(player->input->is_pressed(A_START)) {
+			pause(player);
 		}
 	}
 }

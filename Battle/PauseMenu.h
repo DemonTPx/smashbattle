@@ -10,7 +10,7 @@ public:
 	void add_option(char * name);
 
 private:
-	void handle_input(SDL_Event * event);
+	void process();
 	void draw();
 
 	SDL_Surface * screen;
