@@ -64,7 +64,11 @@ public:
 	GameInput();
 	~GameInput();
 
+	GameInput * clone(bool clone_binds = true);
+	void copy_from(GameInput * gi);
+
 	bool open_joystick(int index);
+	int get_joystick_idx();
 
 	void enable_keyboard(bool enable);
 	void enable_joystick(bool enable);
@@ -94,6 +98,12 @@ public:
 
 	void load_options(std::istream * stream);
 	void save_options(std::ostream * stream);
+
+	void flush_keybinds();
+	void flush_joybinds();
+
+	bool keyboard_enabled;
+	bool joystick_enabled;
 protected:
 	SDL_Joystick * joystick;
 	int joystick_idx;
@@ -102,9 +112,6 @@ protected:
 	std::vector<GameInputJoyButtonBind> * joybuttonbinds;
 	std::vector<GameInputJoyAxisBind> * joyaxisbinds;
 	std::vector<GameInputJoyHatBind> * joyhatbinds;
-
-	bool keyboard_enabled;
-	bool joystick_enabled;
 
 	int delay;
 	int interval;

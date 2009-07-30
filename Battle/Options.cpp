@@ -53,32 +53,30 @@ void Options::run() {
 
 void Options::item_selected() {
 	switch(selected_item) {
-		/*
 		case 0:
-			ControlsOptions * controlsoptions1;
-			controlsoptions1 = new ControlsOptions(&Main::instance->controls1);
-			controlsoptions1->run();
-			delete controlsoptions1;
+			ControlsOptions * co1;
+			co1 = new ControlsOptions(Main::instance->input[0]);
+			co1->run();
+			delete co1;
 			break;
 		case 1:
-			ControlsOptions * controlsoptions2;
-			controlsoptions2 = new ControlsOptions(&Main::instance->controls2);
-			controlsoptions2->run();
-			delete controlsoptions2;
+			ControlsOptions * co2;
+			co2 = new ControlsOptions(Main::instance->input[1]);
+			co2->run();
+			delete co2;
 			break;
 		case 2:
-			ControlsOptions * controlsoptions3;
-			controlsoptions3 = new ControlsOptions(&Main::instance->controls3);
-			controlsoptions3->run();
-			delete controlsoptions3;
+			ControlsOptions * co3;
+			co3 = new ControlsOptions(Main::instance->input[2]);
+			co3->run();
+			delete co3;
 			break;
 		case 3:
-			ControlsOptions * controlsoptions4;
-			controlsoptions4 = new ControlsOptions(&Main::instance->controls4);
-			controlsoptions4->run();
-			delete controlsoptions4;
+			ControlsOptions * co4;
+			co4 = new ControlsOptions(Main::instance->input[3]);
+			co4->run();
+			delete co4;
 			break;
-			*/
 		case 4:
 			AudioOptions * audiooptions;
 			audiooptions = new AudioOptions();

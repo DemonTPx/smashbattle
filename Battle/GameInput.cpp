@@ -37,6 +37,59 @@ GameInput::~GameInput() {
 	delete joyhatbinds;
 }
 
+GameInput * GameInput::clone(bool clone_binds) {
+	GameInput * gi = new GameInput();
+	
+	gi->enable_keyboard(keyboard_enabled);
+	gi->enable_joystick(joystick_enabled);
+	gi->open_joystick(get_joystick_idx());
+
+	if(clone_binds) {
+		for(unsigned int i = 0; i < keybinds->size(); i++) {
+			gi->bind_key(keybinds->at(i).key, keybinds->at(i).action);
+		}
+
+		for(unsigned int i = 0; i < joybuttonbinds->size(); i++) {
+			gi->bind_joybutton(joybuttonbinds->at(i).button, joybuttonbinds->at(i).action);
+		}
+
+		for(unsigned int i = 0; i < joyaxisbinds->size(); i++) {
+			gi->bind_joyaxis(joyaxisbinds->at(i).axis, joyaxisbinds->at(i).threshold, joyaxisbinds->at(i).action);
+		}
+
+		for(unsigned int i = 0; i < joyhatbinds->size(); i++) {
+			gi->bind_joyhat(joyhatbinds->at(i).hat, joyhatbinds->at(i).direction, joyhatbinds->at(i).action);
+		}
+	}
+
+	return gi;
+}
+
+void GameInput::copy_from(GameInput * gi) {
+	enable_keyboard(gi->keyboard_enabled);
+	enable_joystick(gi->joystick_enabled);
+	open_joystick(gi->get_joystick_idx());
+
+	flush_keybinds();
+	flush_joybinds();
+
+	for(unsigned int i = 0; i < gi->keybinds->size(); i++) {
+		bind_key(gi->keybinds->at(i).key, gi->keybinds->at(i).action);
+	}
+
+	for(unsigned int i = 0; i < gi->joybuttonbinds->size(); i++) {
+		bind_joybutton(gi->joybuttonbinds->at(i).button, gi->joybuttonbinds->at(i).action);
+	}
+
+	for(unsigned int i = 0; i < gi->joyaxisbinds->size(); i++) {
+		bind_joyaxis(gi->joyaxisbinds->at(i).axis, gi->joyaxisbinds->at(i).threshold, gi->joyaxisbinds->at(i).action);
+	}
+
+	for(unsigned int i = 0; i < gi->joyhatbinds->size(); i++) {
+		bind_joyhat(gi->joyhatbinds->at(i).hat, gi->joyhatbinds->at(i).direction, gi->joyhatbinds->at(i).action);
+	}
+}
+
 // Enable keyboard
 void GameInput::enable_keyboard(bool enable) {
 	keyboard_enabled = enable;
@@ -62,6 +115,10 @@ bool GameInput::open_joystick(int index) {
 	joystick_enabled = true;
 
 	return true;
+}
+
+int GameInput::get_joystick_idx() {
+	return joystick_idx;
 }
 
 // Bind a keyboard key to an action
@@ -236,7 +293,7 @@ void GameInput::handle_event(SDL_Event *event) {
 			if(event->jhat.which != joystick_idx)
 				return;
 
-			for(idx = 0; idx < joyaxisbinds->size(); idx++) {
+			for(idx = 0; idx < joyhatbinds->size(); idx++) {
 				bind = joyhatbinds->at(idx);
 
 				if(bind.hat == event->jhat.hat) {
@@ -470,4 +527,14 @@ void GameInput::save_options(std::ostream * stream) {
 	for(unsigned int i = 0; i < joyhatbinds->size(); i++) {
 		stream->write((char *)&joyhatbinds->at(i), sizeof(GameInputJoyHatBind));
 	}
+}
+
+void GameInput::flush_keybinds() {
+	keybinds->clear();
+}
+
+void GameInput::flush_joybinds() {
+	joybuttonbinds->clear();
+	joyaxisbinds->clear();
+	joyhatbinds->clear();
 }

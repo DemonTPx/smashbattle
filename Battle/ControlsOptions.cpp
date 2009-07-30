@@ -2,21 +2,19 @@
 
 #include "ControlsOptions.h"
 
-ControlsOptions::ControlsOptions(/*ControlScheme * controls*/) {
+ControlsOptions::ControlsOptions(GameInput * input) {
 	OptionItem * item;
 
-	//this->controls = controls;
+	this->input = input;
 
-	keyboard_redefined = false;
-	joystick_redefined = false;
-	joystick_idx_changed = false;
+	new_input = input->clone();
 
 	item = new OptionItem();
 	item->name = (char*)"USE KEYBOARD";
 	item->options = new std::vector<char *>(0);
 	item->options->push_back((char*)"YES");
 	item->options->push_back((char*)"NO");
-	//item->selected = controls->use_keyboard ? 0 : 1;
+	item->selected = input->keyboard_enabled ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
@@ -30,7 +28,7 @@ ControlsOptions::ControlsOptions(/*ControlScheme * controls*/) {
 	item->options = new std::vector<char *>(0);
 	item->options->push_back((char*)"YES");
 	item->options->push_back((char*)"NO");
-	//item->selected = controls->use_joystick ? 0 : 1;
+	item->selected = input->joystick_enabled ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
@@ -40,33 +38,17 @@ ControlsOptions::ControlsOptions(/*ControlScheme * controls*/) {
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"USE X AXIS FOR MOVEMENT";
-	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"YES");
-	item->options->push_back((char*)"NO");
-	//item->selected = controls->use_axis_x ? 0 : 1;
-	add_item(item);
-
-	item = new OptionItem();
-	item->name = (char*)"USE Y AXIS FOR JUMP";
-	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"YES");
-	item->options->push_back((char*)"NO");
-	//item->selected = controls->use_axis_up ? 0 : 1;
-	add_item(item);
-
-	item = new OptionItem();
-	item->name = (char*)"USE Y AXIS FOR DUCK";
-	item->options = new std::vector<char *>(0);
-	item->options->push_back((char*)"YES");
-	item->options->push_back((char*)"NO");
-	//item->selected = controls->use_axis_down ? 0 : 1;
-	add_item(item);
-
-	item = new OptionItem();
 	item->name = (char*)"REDEFINE JOYSTICK CONTROLS";
 	item->options = NULL;
 	item->selected = 0;
+	add_item(item);
+
+	item = new OptionItem();
+	item->name = (char*)"ENABLE POV HAT FOR MOVEMENT";
+	item->options = new std::vector<char *>(0);
+	item->options->push_back((char*)"YES");
+	item->options->push_back((char*)"NO");
+	item->selected = input->joystick_enabled ? 0 : 1;
 	add_item(item);
 
 	item = new OptionItem();
@@ -93,29 +75,43 @@ void ControlsOptions::run() {
 void ControlsOptions::item_selected() {
 	switch(selected_item) {
 		case 1: // Redefine keyboard controls
+			new_input->flush_keybinds();
 			redefine_keyboard();
 			break;
 		case 3: // Select joystick
-			/*
 			JoystickSelect * joystickselect;
-			joystickselect = new JoystickSelect(controls->joystick_idx);
+			joystickselect = new JoystickSelect(new_input->get_joystick_idx());
 			joystickselect->run();
 			if(joystickselect->index > -1) {
-				joystick_idx_changed = true;
-				new_controls.joystick_idx = joystickselect->index;
+				new_input->open_joystick(joystickselect->index);
 			}
 			delete joystickselect;
-			*/
 			break;
-		case 7: // Redefine joystick controls
+		case 4: // Redefine joystick controls
+			if(items->at(2)->selected == 1) {
+				show_notification("ENABLE JOYSTICK FIRST");
+				SDL_Delay(1000);
+				return;
+			}
+			new_input->flush_joybinds();
 			redefine_joystick();
-			break;
-		case 8: // Return save
+			break; 
+		case 6: // Return save
 			if(items->at(0)->selected == 1 && items->at(2)->selected == 1) {
 				show_notification("ENABLE KEYBOARD OR JOYSTICK");
 				SDL_Delay(1000);
 				return;
 			}
+
+			input->copy_from(new_input);
+
+			if(items->at(5)->selected == 0) {
+				input->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
+				input->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
+				input->bind_joyhat(0, SDL_HAT_UP, A_UP);
+				input->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
+			}
+			
 			/*
 			controls->use_keyboard = items->at(0)->selected == 0 ? true : false;
 			if(keyboard_redefined) {
@@ -146,9 +142,13 @@ void ControlsOptions::item_selected() {
 			controls->use_axis_up = items->at(5)->selected == 0 ? true : false;
 			controls->use_axis_down = items->at(6)->selected == 0 ? true : false;
 			*/
-		case 9: // Return cancel
+		case 7: // Return cancel
 			running = false;
 			break;
+	}
+
+	for(int i = 0; i < 4; i++) {
+		Main::instance->input[i]->reset();
 	}
 }
 
@@ -163,8 +163,6 @@ void ControlsOptions::redefine_keyboard() {
 	new_controls.kb_shoot = poll_keyboard("PRESS SHOOT");
 	new_controls.kb_bomb = poll_keyboard("PRESS BOMB");
 	new_controls.kb_start = poll_keyboard("PRESS START");
-
-	keyboard_redefined = true;
 	*/
 }
 
@@ -195,55 +193,25 @@ int ControlsOptions::poll_keyboard(const char * question) {
 }
 
 void ControlsOptions::redefine_joystick() {
-	/*
 	int idx;
-	idx = joystick_idx_changed ? new_controls.joystick_idx : controls->joystick_idx;
+	idx = input->get_joystick_idx();
 
-	if(items->at(4)->selected == 1) { // Only poll for left and right buttons, if we do not use the axis for this
-		new_controls.js_left = poll_joystick(idx, "PRESS LEFT");
-		new_controls.js_right = poll_joystick(idx, "PRESS RIGHT");
-	}
-	new_controls.js_run = poll_joystick(idx, "PRESS RUN");
-	if(items->at(5)->selected == 1) { // Only poll for jump button, if we do not use the axis for this
-		new_controls.js_jump = poll_joystick(idx, "PRESS JUMP");
-	}
-	if(items->at(6)->selected == 1) { // Only poll for down/duck button, if we do not use the axis for this
-		new_controls.js_down = poll_joystick(idx, "PRESS DOWN");
-	}
-	new_controls.js_shoot = poll_joystick(idx, "PRESS SHOOT");
-	new_controls.js_bomb = poll_joystick(idx, "PRESS BOMB");
-	new_controls.js_start = poll_joystick(idx, "PRESS START");
+	poll_joystick(A_LEFT, "PRESS LEFT");
+	poll_joystick(A_RIGHT, "PRESS RIGHT");
+	poll_joystick(A_UP, "PRESS UP");
+	poll_joystick(A_DOWN, "PRESS DOWN");
+	poll_joystick(A_RUN, "PRESS RUN");
+	poll_joystick(A_JUMP, "PRESS JUMP");
+	poll_joystick(A_SHOOT, "PRESS SHOOT");
+	poll_joystick(A_BOMB, "PRESS BOMB");
+	poll_joystick(A_START, "PRESS START");
 
-	joystick_redefined = true;
-	*/
+	input->reset();
 }
 
-int ControlsOptions::poll_joystick(int index, const char * question) {
-	SDL_Event event;
-	bool has_button = false;
-	int button = 0;
-
+void ControlsOptions::poll_joystick(int action, const char * question) {
 	show_notification(question);
-
-	while(Main::running && !has_button) {
-		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
-			
-			if(event.jbutton.which == index) {
-				if(event.type == SDL_JOYBUTTONDOWN) {
-					button = event.jbutton.button;
-				}
-				if(event.type == SDL_JOYBUTTONUP) {
-					if(event.jbutton.button == button) {
-						has_button = true;
-						break;
-					}
-				}
-			}
-		}
-	}
-	
-	return button;
+	new_input->joystick_wait_event_bind(action);
 }
 
 void ControlsOptions::show_notification(const char * text) {

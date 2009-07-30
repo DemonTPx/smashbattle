@@ -333,7 +333,7 @@ void Main::set_default_controlschemes() {
 	input[0]->bind_joyaxis(1, false, A_UP);
 	input[0]->bind_joyaxis(1, true, A_DOWN);
 
-	input[0]->bind_joybutton(2, A_JUMP);
+	input[0]->bind_joybutton(1, A_JUMP);
 	input[0]->bind_joybutton(2, A_RUN);
 
 	input[0]->bind_joybutton(5, A_SHOOT);
@@ -370,7 +370,7 @@ void Main::set_default_controlschemes() {
 	input[1]->bind_joyaxis(1, false, A_UP);
 	input[1]->bind_joyaxis(1, true, A_DOWN);
 
-	input[1]->bind_joybutton(2, A_JUMP);
+	input[1]->bind_joybutton(1, A_JUMP);
 	input[1]->bind_joybutton(2, A_RUN);
 
 	input[1]->bind_joybutton(5, A_SHOOT);

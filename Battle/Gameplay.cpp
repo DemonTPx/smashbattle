@@ -56,13 +56,14 @@ void Gameplay::run() {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
 
-			handle_pause_input(&event);
-
 			// Handle player input
 			for(unsigned int idx = 0; idx < players->size(); idx++) {
 				Player * p = players->at(idx);
 				p->input->handle_event(&event);
 			}
+
+			handle_pause_input(&event);
+
 		}
 
 		// Gameplay processing
