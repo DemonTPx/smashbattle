@@ -5,6 +5,7 @@
 class ControlsOptions : public OptionsScreen {
 public:
 	ControlsOptions(GameInput * input);
+	~ControlsOptions();
 
 	void run();
 	void item_selected();
@@ -13,8 +14,9 @@ private:
 	GameInput * new_input;
 
 	void redefine_keyboard();
-	int poll_keyboard(const char * question);
 	void redefine_joystick();
+
+	void poll_keyboard(int action, const char * question);
 	void poll_joystick(int action, const char * question);
 	void show_notification(const char * text);
 };

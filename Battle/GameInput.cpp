@@ -71,7 +71,9 @@ void GameInput::copy_from(GameInput * gi) {
 	open_joystick(gi->get_joystick_idx());
 
 	flush_keybinds();
-	flush_joybinds();
+	flush_joybuttons();
+	flush_joyaxes();
+	flush_joyhats();
 
 	for(unsigned int i = 0; i < gi->keybinds->size(); i++) {
 		bind_key(gi->keybinds->at(i).key, gi->keybinds->at(i).action);
@@ -119,6 +121,18 @@ bool GameInput::open_joystick(int index) {
 
 int GameInput::get_joystick_idx() {
 	return joystick_idx;
+}
+
+int GameInput::num_buttons() {
+	return SDL_JoystickNumButtons(joystick);
+}
+
+int GameInput::num_axes() {
+	return SDL_JoystickNumAxes(joystick);
+}
+
+int GameInput::num_hats() {
+	return SDL_JoystickNumHats(joystick);
 }
 
 // Bind a keyboard key to an action
@@ -533,8 +547,14 @@ void GameInput::flush_keybinds() {
 	keybinds->clear();
 }
 
-void GameInput::flush_joybinds() {
+void GameInput::flush_joybuttons() {
 	joybuttonbinds->clear();
+}
+
+void GameInput::flush_joyaxes() {
 	joyaxisbinds->clear();
+}
+
+void GameInput::flush_joyhats() {
 	joyhatbinds->clear();
 }

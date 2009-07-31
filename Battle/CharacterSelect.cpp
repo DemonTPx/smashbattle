@@ -274,24 +274,26 @@ void CharacterSelect::process_cursors() {
 	for(int i = 0; i < players; i++) {
 		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
 			input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
-				if(!player_ready[i]) {
-					can_select = true;
-					for(int idx = 0; idx < players; idx++) {
-						if(i == idx) continue;
-						if(player_ready[idx] && (player_select[idx] == player_select[i])) {
-							can_select = false;
+				if(!(input[i]->is_pressed(A_JUMP) && input[i]->is_pressed(A_UP)))  { // It's likely that up and jump are the same keybind
+					if(!player_ready[i]) {
+						can_select = true;
+						for(int idx = 0; idx < players; idx++) {
+							if(i == idx) continue;
+							if(player_ready[idx] && (player_select[idx] == player_select[i])) {
+								can_select = false;
+							}
 						}
-					}
-					if(can_select) {
-						player_ready[i] = true;
+						if(can_select) {
+							player_ready[i] = true;
 
-						player_random[i] = false;
+							player_random[i] = false;
 
-						flicker[i] = true;
-						flicker_frame[i] = 0;
+							flicker[i] = true;
+							flicker_frame[i] = 0;
 
-						playeranimation[i]->is_walking = true;
-						Main::audio->play(SND_SELECT_CHARACTER);
+							playeranimation[i]->is_walking = true;
+							Main::audio->play(SND_SELECT_CHARACTER);
+						}
 					}
 				}
 		}

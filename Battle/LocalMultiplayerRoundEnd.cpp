@@ -368,8 +368,10 @@ void LocalMultiplayerRoundEnd::process_cursor() {
 
 	for(int i = 0; i < players; i++) {
 		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
-			input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
+				input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
+			if(!(input[i]->is_pressed(A_JUMP) && input[i]->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
 				select();
+			}
 		}
 
 		if(input[i]->is_pressed(A_UP))

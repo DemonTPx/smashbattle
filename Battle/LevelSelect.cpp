@@ -96,15 +96,17 @@ void LevelSelect::process_cursors() {
 	for(int i = 0; i < players; i++) {
 		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
 			input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
-				if(!ready_level) {
-					ready_level = true;
-					
-					Main::audio->play(SND_SELECT_CHARACTER);
+				if(!(input[i]->is_pressed(A_JUMP) && input[i]->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
+					if(!ready_level) {
+						ready_level = true;
+						
+						Main::audio->play(SND_SELECT_CHARACTER);
 
-					random = false;
+						random = false;
 
-					flicker = true;
-					flicker_frame = 0;
+						flicker = true;
+						flicker_frame = 0;
+					}
 				}
 		}
 		

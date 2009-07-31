@@ -80,8 +80,10 @@ void PauseMenu::process() {
 
 	if(player->input->is_pressed(A_JUMP) || player->input->is_pressed(A_RUN) ||
 		player->input->is_pressed(A_SHOOT) || player->input->is_pressed(A_BOMB)) {
-		Main::audio->play(SND_SELECT);
-		paused = false;
+		if(!(player->input->is_pressed(A_JUMP) && player->input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
+			Main::audio->play(SND_SELECT);
+			paused = false;
+		}
 	}
 }
 

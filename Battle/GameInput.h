@@ -70,6 +70,10 @@ public:
 	bool open_joystick(int index);
 	int get_joystick_idx();
 
+	int num_buttons();
+	int num_axes();
+	int num_hats();
+
 	void enable_keyboard(bool enable);
 	void enable_joystick(bool enable);
 
@@ -87,7 +91,7 @@ public:
 
 	void reset();
 
-	void set_delay(int delay = 30, int interval = 6);
+	void set_delay(int delay = 18, int interval = 6);
 	void unset_delay();
 
 	int keyboard_wait_event();
@@ -100,7 +104,9 @@ public:
 	void save_options(std::ostream * stream);
 
 	void flush_keybinds();
-	void flush_joybinds();
+	void flush_joybuttons();
+	void flush_joyaxes();
+	void flush_joyhats();
 
 	bool keyboard_enabled;
 	bool joystick_enabled;
