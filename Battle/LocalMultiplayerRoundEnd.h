@@ -36,7 +36,7 @@ private:
 
 	SDL_Surface * surf_result;
 
-	std::vector<SDL_Surface*> * surf_statistics;
+	SDL_Surface * background;
 
 	int players;
 	short order[4];
