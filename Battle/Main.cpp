@@ -64,7 +64,7 @@ bool Main::init() {
 	SDL_WM_SetIcon(icon, mask);
 
 	SDL_FreeSurface(icon);
-	delete mask;
+	delete[] mask;
 	
 	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
 	SDL_ShowCursor(0);
@@ -151,8 +151,7 @@ void Main::fps_count() {
 
 	// Show FPS
 	if(fps_counter_visible) {
-		char * cap;
-		cap = new char[20];
+		char cap[20];
 
 		SDL_Surface * surf;
 		SDL_Rect rect;
@@ -171,7 +170,6 @@ void Main::fps_count() {
 		SDL_BlitSurface(surf, NULL, screen, &rect);
 
 		SDL_FreeSurface(surf);
-		delete cap;
 	}
 }
 

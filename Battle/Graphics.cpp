@@ -195,7 +195,7 @@ SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, Uint32 c
 	icon = SDL_LoadBMP(filename);
 	pixels = (Uint8*)icon->pixels;
 	num_pixels = icon->w * icon->h;
-	*mask = (Uint8 *)malloc(num_pixels / 8);
+	*mask = new Uint8[num_pixels / 8];
 	memset(*mask, 0, num_pixels / 8);
 	m = 0;
 	p = 0;
