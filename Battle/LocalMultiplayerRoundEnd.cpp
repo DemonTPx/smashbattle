@@ -338,8 +338,6 @@ void LocalMultiplayerRoundEnd::draw() {
 			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 		}
 	}
-
-	SDL_Rect r_block;
 	
 	// RESULTS
 	rect.x = (WINDOW_WIDTH - surf_result->w) / 2;
@@ -347,12 +345,9 @@ void LocalMultiplayerRoundEnd::draw() {
 	if(!(frame & 0x20))
 		SDL_BlitSurface(surf_result, NULL, screen, &rect);
 
-	r_block.w = WINDOW_WIDTH - 20;
-	r_block.h = 72;
-
 	for(int i = 0; i < players; i++) {
-		r_block.x = 24;
-		r_block.y = 64 + (76 * i);
+		rect.x = 24;
+		rect.y = 64 + (76 * i);
 
 		// Avatar
 		if(order[i] == winner) {
