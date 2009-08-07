@@ -9,6 +9,7 @@ SRCS=AmmoPowerUp.cpp\
 	CharacterSelect.cpp\
 	ControlsOptions.cpp\
 	DoubleDamagePowerUp.cpp\
+	GameInput.cpp\
 	Gameplay.cpp\
 	GameplayObject.cpp\
 	Graphics.cpp\
@@ -36,6 +37,7 @@ OBJS=AmmoPowerUp.o\
 	CharacterSelect.o\
 	ControlsOptions.o\
 	DoubleDamagePowerUp.o\
+	GameInput.o\
 	Gameplay.o\
 	GameplayObject.o\
 	Graphics.o\

@@ -1,6 +1,8 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
+#include <iostream>
+
 #include "Timer.h"
 #include "Text.h"
 #include "Graphics.h"

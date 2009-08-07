@@ -92,9 +92,9 @@ void LocalMultiplayer::on_game_reset() {
 
 	winner = NULL;
 	if(round == 5)
-		sprintf_s(countdown_pre_text, 20, "FINAL ROUND", round);
+		strcpy(countdown_pre_text, "FINAL ROUND");
 	else if(round > 5)
-		sprintf_s(countdown_pre_text, 20, "EXTRA ROUND", round);
+		strcpy(countdown_pre_text, "EXTRA ROUND");
 	else
 		sprintf_s(countdown_pre_text, 20, "ROUND %d", round);
 }
