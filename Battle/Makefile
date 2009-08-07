@@ -29,34 +29,7 @@ SRCS=AmmoPowerUp.cpp\
 	Projectile.cpp\
 	Text.cpp\
 	Timer.cpp
-OBJS=AmmoPowerUp.o\
-	AudioController.o\
-	AudioOptions.o\
-	Bomb.o\
-	BombPowerUp.o\
-	CharacterSelect.o\
-	ControlsOptions.o\
-	DoubleDamagePowerUp.o\
-	GameInput.o\
-	Gameplay.o\
-	GameplayObject.o\
-	Graphics.o\
-	HealthPowerUp.o\
-	InstantKillBulletPowerUp.o\
-	Level.o\
-	LevelSelect.o\
-	LocalMultiplayer.o\
-	LocalMultiplayerRoundEnd.o\
-	Main.o\
-	Menu.o\
-	Options.o\
-	OptionsScreen.o\
-	PauseMenu.o\
-	Player.o\
-	PlayerAnimation.o\
-	Projectile.o\
-	Text.o\
-	Timer.o
+OBJS=$(SRCS:.cpp=.o)
 EXECUTABLE=battle
 
 all: $(EXECUTABLE)
@@ -69,3 +42,16 @@ $(EXECUTABLE): $(OBJS)
 
 clean:
 	-rm -rf *.o battle
+
+install:
+	mkdir -p /usr/share/games/smashbattle
+	cp $(EXECUTABLE) /usr/share/games/smashbattle
+	mkdir -p /usr/share/games/smashbattle/gfx
+	mkdir -p /usr/share/games/smashbattle/sfx
+	mkdir -p /usr/share/games/smashbattle/music
+	mkdir -p /usr/share/games/smashbattle/stage
+	cp -R gfx/* /usr/share/games/smashbattle/gfx/
+	cp -R sfx/* /usr/share/games/smashbattle/sfx/
+	cp -R music/* /usr/share/games/smashbattle/music/
+	cp -R stage/* /usr/share/games/smashbattle/stage/
+	cp smashbattle /usr/local/bin/

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Smash Battle
+GenericName=Arcade mutliplayer shooter
+Icon=/usr/share/games/smashbattle/gfx/SB.png
+Exec=/usr/local/bin/smashbattle
+Categories=Game;ArcadeGame;
+
