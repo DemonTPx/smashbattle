@@ -380,4 +380,10 @@ void Main::set_default_controlschemes() {
 	input[1]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
 	input[1]->bind_joyhat(0, SDL_HAT_UP, A_UP);
 	input[1]->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
+
+	// Players 3 and 4
+	input[2]->enable_keyboard(false);
+	input[2]->enable_joystick(false);
+	input[3]->enable_keyboard(false);
+	input[3]->enable_joystick(false);
 }

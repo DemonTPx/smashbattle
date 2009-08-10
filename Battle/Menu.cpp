@@ -177,7 +177,6 @@ void Menu::select() {
 			Main::running = false;
 			break;
 	}
-	Main::audio->play_music(MUSIC_TITLE);
 }
 
 void Menu::start_local_multiplayer(int players) {
@@ -295,6 +294,8 @@ void Menu::start_local_multiplayer(int players) {
 			delete player[i];
 	}
 	delete player;
+	
+	Main::audio->play_music(MUSIC_TITLE);
 }
 
 void Menu::process_playeranimation() {

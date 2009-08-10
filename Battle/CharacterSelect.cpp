@@ -41,6 +41,7 @@ void CharacterSelect::run() {
 
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
 				cancel = true;
+				break;
 			}
 			
 			for(int i = 0; i < players; i++) {

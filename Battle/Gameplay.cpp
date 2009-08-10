@@ -44,6 +44,8 @@ void Gameplay::run() {
 	reset_game();
 
 	game_running = true;
+	Main::instance->audio->stop_music();
+	music_playing = false;
 	
 	// Set the input defaults
 	for(unsigned int idx = 0; idx < players->size(); idx++) {
@@ -229,7 +231,7 @@ void Gameplay::reset_game() {
 
 	on_game_reset();
 
-	Main::audio->stop_music();
+	//Main::audio->stop_music();
 
 	srand(SDL_GetTicks());
 }
@@ -383,7 +385,10 @@ void Gameplay::process_countdown() {
 		if(countdown_sec_left == 1) {
 			countdown = false;
 			Main::audio->play(SND_GO);
-			Main::audio->play_music(MUSIC_BATTLE);
+			if(!music_playing) {
+				Main::audio->play_music(MUSIC_BATTLE);
+				music_playing = true;
+			}
 			return;
 		}
 		countdown_sec_left--;

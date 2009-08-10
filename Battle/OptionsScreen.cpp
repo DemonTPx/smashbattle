@@ -39,6 +39,11 @@ void OptionsScreen::run() {
 	while (Main::running && running) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
+
+			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+				running = false;
+				break;
+			}
 			
 			for(int i = 0; i < 4; i++) {
 				input[i]->handle_event(&event);
@@ -120,7 +125,6 @@ void OptionsScreen::process_cursor() {
 void OptionsScreen::select() {
 	Main::audio->play(SND_SELECT);
 	item_selected();
-	Main::audio->play_music(MUSIC_TITLE);
 }
 
 void OptionsScreen::select_up() {

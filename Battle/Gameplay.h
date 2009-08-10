@@ -70,6 +70,8 @@ protected:
 	bool ended;
 	int end_start;
 
+	bool music_playing;
+
 	SDL_Surface * screen;
 
 	// Do players collide with each other?

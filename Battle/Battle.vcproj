@@ -435,6 +435,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\berry.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\bert.bmp"
 				>
 			</File>
@@ -539,6 +543,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\kim.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\marcel.bmp"
 				>
 			</File>
@@ -548,6 +556,10 @@
 			</File>
 			<File
 				RelativePath=".\sfx\pause.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\peter.bmp"
 				>
 			</File>
 			<File
@@ -644,6 +656,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\tobias.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\ton.bmp"
 				>
 			</File>
 			<File
