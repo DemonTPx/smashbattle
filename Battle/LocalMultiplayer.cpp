@@ -9,6 +9,7 @@
 #include "DoubleDamagePowerUp.h"
 #include "InstantKillBulletPowerUp.h"
 #include "BombPowerUp.h"
+#include "AirstrikePowerUp.h"
 
 #include "LocalMultiplayer.h"
 
@@ -27,6 +28,7 @@ void LocalMultiplayer::initialize() {
 	powerup_doubledamage_rate = 6;
 	powerup_instantkill_rate = 1;
 	powerup_bomb_rate = 6;
+	powerup_airstrike_rate = 1;
 
 	round = 0;
 }
@@ -147,7 +149,7 @@ void LocalMultiplayer::on_post_processing() {
 		}
 
 		// Generate powerup
-		generate_powerup(false);
+		generate_powerup();
 	}
 }
 
@@ -200,7 +202,7 @@ void LocalMultiplayer::generate_powerup(bool force) {
 	pos->y = (row * TILE_H) + 16;
 
 	max = powerup_health_rate + powerup_bullet_rate + powerup_doubledamage_rate +
-		powerup_instantkill_rate + powerup_bomb_rate;
+		powerup_instantkill_rate + powerup_bomb_rate + powerup_airstrike_rate;
 	
 	r = rand() % max;
 	
@@ -243,6 +245,13 @@ void LocalMultiplayer::generate_powerup(bool force) {
 	if(r >= first && r < last) {
 		rect->x = 16; rect->y = 0;
 		gpo = new BombPowerUp(Main::graphics->powerups, rect, pos, 1);
+	}
+
+	first = last;
+	last = first + powerup_airstrike_rate;
+	if(r >= first && r < last) {
+		rect->x = 80; rect->y = 0;
+		gpo = new AirstrikePowerUp(Main::graphics->powerups, rect, pos);
 	}
 
 	if(gpo != NULL)

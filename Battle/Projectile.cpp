@@ -55,11 +55,6 @@ void Projectile::move(Level * level) {
 
 	position->y += speedy;
 	distance_traveled += speedy;
-	
-	if(position->y < 0)
-		done = true;
-	if(position->y > WINDOW_HEIGHT)
-		done = true;
 
 	if(distance_traveled > max_distance || distance_traveled < -max_distance)
 		done = true;

@@ -17,7 +17,7 @@ protected:
 	void draw_score_duel();
 	void draw_score_multi();
 
-	void generate_powerup(bool force);
+	void generate_powerup(bool force = false);
 	
 	int end_avatar_start_frame;
 
@@ -34,6 +34,7 @@ protected:
 	int powerup_doubledamage_rate;
 	int powerup_instantkill_rate;
 	int powerup_bomb_rate;
+	int powerup_airstrike_rate;
 };
 
 #endif

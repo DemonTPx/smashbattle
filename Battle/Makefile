@@ -1,7 +1,9 @@
 CC=g++
 CFLAGS=-c -Wall
 LDFLAGS=-lSDL -lSDL_mixer -lz -lstdc++
-SRCS=AmmoPowerUp.cpp\
+SRCS=Airstrike.cpp\
+	AirstrikePowerUp.cpp\
+	AmmoPowerUp.cpp\
 	AudioController.cpp\
 	AudioOptions.cpp\
 	Bomb.cpp\
