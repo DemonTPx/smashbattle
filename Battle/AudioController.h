@@ -49,7 +49,7 @@ public:
 	void pause_music();
 	void unpause_music();
 
-	void play(int sound);
+	void play(int sound, int x = -1);
 
 	void load_options(std::istream * stream);
 	void save_options(std::ostream * stream);

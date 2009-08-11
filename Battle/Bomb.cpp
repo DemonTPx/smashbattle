@@ -154,7 +154,7 @@ void Bomb::explode() {
 
 	exploded = true;
 
-	Main::audio->play(SND_EXPLODE);
+	Main::audio->play(SND_EXPLODE, position->x);
 
 	Player * p;
 	SDL_Rect * rect_bomb;

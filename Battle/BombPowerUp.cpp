@@ -17,7 +17,7 @@ BombPowerUp::~BombPowerUp() {
 }
 
 void BombPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM);
+	Main::audio->play(SND_ITEM, p->position->x);
 
 	p->bombs += ammount;
 

@@ -119,7 +119,7 @@ void LocalMultiplayer::on_post_processing() {
 				continue;
 
 			if(p->hitpoints <= 0) {
-				Main::audio->play(SND_YOULOSE);
+				Main::audio->play(SND_YOULOSE, p->position->x);
 
 				p->is_dead = true;
 				p->dead_start = Gameplay::frame;

@@ -17,7 +17,7 @@ AmmoPowerUp::~AmmoPowerUp() {
 }
 
 void AmmoPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM);
+	Main::audio->play(SND_ITEM, p->position->x);
 
 	p->bullets += ammo;
 

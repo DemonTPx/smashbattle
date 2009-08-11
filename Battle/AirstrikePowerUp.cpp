@@ -20,7 +20,7 @@ AirstrikePowerUp::~AirstrikePowerUp() {
 void AirstrikePowerUp::hit_player(Player * p) {
 	Airstrike * as;
 
-	Main::audio->play(SND_ITEM);
+	Main::audio->play(SND_ITEM, p->position->x);
 
 	as = new Airstrike();
 	as->owner = p;

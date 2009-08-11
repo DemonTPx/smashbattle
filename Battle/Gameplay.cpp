@@ -363,7 +363,7 @@ void Gameplay::process_player_collission() {
 			r2 = p2->get_rect();
 
 			if(is_intersecting(r1, r2)) {
-				Main::audio->play(SND_BOUNCE);
+				Main::audio->play(SND_BOUNCE, (p1->position->x + p2->position->x) / 2);
 
 				// Move players out of collision zone
 

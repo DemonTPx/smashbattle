@@ -122,7 +122,7 @@ void AudioController::unpause_music() {
 // TODO: change these functions into something with constantes like:
 // play_sound(SND_JUMP);
 
-void AudioController::play(int sound) {
+void AudioController::play(int sound, int x) {
 	if(options.sound_volume == 0)
 		return;
 
@@ -134,6 +134,9 @@ void AudioController::play(int sound) {
 	
 	int chan;
 	int volume;
+	int window_middle;
+	float x_step;
+	int other_volume;
 
 	chan = 0;
 	while(Mix_Playing(chan))
@@ -142,6 +145,24 @@ void AudioController::play(int sound) {
 	// Do not play the sound when we are out of channels
 	if(chan >= AUDIO_CHANNELS)
 		return;
+
+	window_middle = WINDOW_WIDTH / 2;
+	x_step = (float)0xff / WINDOW_WIDTH;
+
+	if(x > WINDOW_WIDTH)
+		x -= WINDOW_WIDTH;
+
+	Mix_SetPanning(chan, 0xff, 0xff);
+	if(x > -1 && x != window_middle) {
+		if(x < window_middle) {
+			other_volume = (int)(x_step * x);
+			Mix_SetPanning(chan, 0xff, other_volume);
+		}
+		if(x > window_middle){
+			other_volume = (int)(x_step * (WINDOW_WIDTH - x));
+			Mix_SetPanning(chan, other_volume, 0xff);
+		}
+	}
 
 	volume = (int)(((double)options.sound_volume / 100) * soundvolume[sound]);
 

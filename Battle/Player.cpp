@@ -483,7 +483,7 @@ void Player::move(Level * level) {
 		momentumy = MAX_MOMENTUM_JUMP;
 		is_jumping = true;
 
-		Main::instance->audio->play(SND_JUMP);
+		Main::instance->audio->play(SND_JUMP, position->x);
 	}
 	if(!input->is_pressed(A_JUMP) && is_jumping) {
 		// The up key is released, so fall faster
@@ -596,7 +596,7 @@ void Player::bounce(Player * other) {
 	if(is_above) {
 		bounce_direction_y = -1;
 		if(input->is_pressed(A_JUMP)) {
-			Main::audio->play(SND_JUMP);
+			Main::audio->play(SND_JUMP, position->x);
 			momentumy = MAX_MOMENTUM_JUMP;
 			is_falling = false;
 			is_jumping = true;
@@ -717,7 +717,7 @@ void Player::process() {
 			
 			bullets_fired++;
 
-			Main::instance->audio->play(SND_SHOOT);
+			Main::instance->audio->play(SND_SHOOT, pr->position->x);
 		}
 	}
 	if(input->is_pressed(A_BOMB)) {
@@ -741,7 +741,7 @@ void Player::process() {
 
 			bombs_fired++;
 
-			Main::instance->audio->play(SND_SHOOT);
+			Main::instance->audio->play(SND_SHOOT, b->position->x);
 		}
 	}
 }
