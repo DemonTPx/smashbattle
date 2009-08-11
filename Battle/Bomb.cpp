@@ -120,6 +120,8 @@ void Bomb::move(Level * level) {
 				if(hit_on_impact)
 					explode();
 			}
+			if(position->y > WINDOW_HEIGHT)
+				done = true;
 		}
 		
 		// Check if the bomb is on the floor, fall if not
