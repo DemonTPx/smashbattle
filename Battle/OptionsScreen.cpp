@@ -69,8 +69,7 @@ void OptionsScreen::draw() {
 
 	screen = Main::instance->screen;
 
-	SDL_FillRect(screen, NULL, 0);
-	//SDL_BlitSurface(bg, NULL, screen, NULL);
+	SDL_BlitSurface(background, NULL, screen, NULL);
 
 	for(i = 0; i < items->size(); i++) {
 		item = items->at(i);
@@ -191,8 +190,19 @@ void OptionsScreen::selection_changed() { }
 void OptionsScreen::init() {
 	SDL_Surface * surface;
 	SDL_Rect * rect;
+	SDL_Rect rect_d;
 	OptionItem * item;
 	int x;
+	
+	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
+
+	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
+		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
+			rect_d.x = x;
+			rect_d.y = y;
+			SDL_BlitSurface(Main::graphics->bg_grey, NULL, background, &rect_d);
+		}
+	}
 
 	if(selected_item < 0 || selected_item >= (int)items->size())
 		selected_item = 0;
@@ -261,4 +271,6 @@ void OptionsScreen::cleanup() {
 	}
 	items->clear();
 	delete items;
+
+	SDL_FreeSurface(background);
 }

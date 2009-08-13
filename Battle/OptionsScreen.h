@@ -50,6 +50,8 @@ private:
 	std::vector<SDL_Surface *> * surf_items;
 	std::vector<SDL_Rect *> * surf_items_clip;
 
+	SDL_Surface * background;
+
 	int frame;
 
 	int screen_w, screen_h;

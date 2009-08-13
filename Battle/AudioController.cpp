@@ -147,20 +147,20 @@ void AudioController::play(int sound, int x) {
 		return;
 
 	window_middle = WINDOW_WIDTH / 2;
-	x_step = (float)0xff / WINDOW_WIDTH;
+	x_step = (float)0x7f / window_middle;
 
 	if(x > WINDOW_WIDTH)
 		x -= WINDOW_WIDTH;
 
-	Mix_SetPanning(chan, 0xff, 0xff);
+	Mix_SetPanning(chan, 0x7f, 0x7f);
 	if(x > -1 && x != window_middle) {
 		if(x < window_middle) {
 			other_volume = (int)(x_step * x);
-			Mix_SetPanning(chan, 0xff, other_volume);
+			Mix_SetPanning(chan, 0xff - other_volume, other_volume);
 		}
 		if(x > window_middle){
 			other_volume = (int)(x_step * (WINDOW_WIDTH - x));
-			Mix_SetPanning(chan, other_volume, 0xff);
+			Mix_SetPanning(chan, other_volume, 0xff - other_volume);
 		}
 	}
 
