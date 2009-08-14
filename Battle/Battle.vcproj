@@ -287,6 +287,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PoisonPowerUp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Projectile.cpp"
 				>
 			</File>
@@ -410,6 +414,10 @@
 			</File>
 			<File
 				RelativePath=".\PlayerAnimation.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PoisonPowerUp.h"
 				>
 			</File>
 			<File
