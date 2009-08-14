@@ -47,6 +47,7 @@ public:
 
 	void load_players();
 	void clear_players();
+	//void create_player_masks();
 	void set_player_clips();
 	void clear_player_clips();
 

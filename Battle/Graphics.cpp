@@ -78,7 +78,45 @@ void Graphics::load_players() {
 
 		playername->push_back(Main::text->render_text_medium(Player::CHARACTERS[i].name));
 	}
+
 }
+
+/*
+void Graphics::create_player_masks() {
+	SDL_Surface * surface;
+	Uint32 colorkey;
+	Uint32 maskcolor;
+	Uint32 pixel;
+	Uint32 * p;
+	Uint8 * pixels;
+	int pixelcount;
+	int mask;
+
+	player_poisoned = new std::vector<SDL_Surface *>();
+
+	for(int i = 0; i < Player::CHARACTER_COUNT; i++) {
+		surface = SDL_DisplayFormat(player->at(i));
+
+		pixels = (Uint8*)surface->pixels;
+		colorkey = SDL_MapRGB(surface->format, 0, 255, 255);
+		maskcolor = SDL_MapRGB(surface->format, 0, 128, 0);
+
+		pixelcount = surface->w * surface->h;
+
+		mask = surface->format->Rmask | surface->format->Gmask | surface->format->Bmask;
+
+		for(int x = 0; x < pixelcount * surface->format->BytesPerPixel; x += surface->format->BytesPerPixel) {
+			pixel = *((Uint32 *)(pixels + x)) & mask;
+			p = ((Uint32 *)(pixels + x));
+			if(pixel != colorkey) {
+				*p = maskcolor;
+			}
+		}
+
+		player_poisoned->push_back(surface);
+	}
+}
+*/
 
 void Graphics::clear_all() {
 	SDL_FreeSurface(weapons);
