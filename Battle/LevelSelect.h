@@ -29,7 +29,7 @@ private:
 	int random_start;
 	int random_before;
 	
-	GameInput * input[4];
+	GameInput * input;
 	
 	int flicker, flicker_frame;
 

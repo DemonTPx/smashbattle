@@ -75,6 +75,8 @@ public:
 
 	SDL_Surface * text_ready;
 	SDL_Surface * text_random;
+	
+	SDL_Surface * text_pressstart;
 
 	std::vector<SDL_Surface*> * player;
 	std::vector<SDL_Surface*> * playername;

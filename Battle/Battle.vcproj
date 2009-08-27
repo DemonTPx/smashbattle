@@ -563,6 +563,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\lamoustache.lvl"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\marcel.bmp"
 				>
 			</File>
@@ -615,6 +619,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\rabbithole.lvl"
+				>
+			</File>
+			<File
 				RelativePath=".\resources.rc"
 				>
 			</File>
@@ -651,11 +659,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\stayhigh.lvl"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\steven.bmp"
 				>
 			</File>
 			<File
 				RelativePath=".\gfx\tedje.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\thefunnel.lvl"
 				>
 			</File>
 			<File

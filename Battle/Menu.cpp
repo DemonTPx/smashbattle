@@ -48,6 +48,9 @@ void Menu::run() {
 
 	frame = 0;
 
+	started = false;
+	input_master = Main::instance->input_master;
+
 	while (Main::running) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
@@ -84,6 +87,7 @@ void Menu::draw() {
 	rect.y = 40;
 	SDL_BlitSurface(title, NULL, screen, &rect);
 
+	// Tile border
 	rect_s.x = 0;
 	rect_s.y = 0;
 	rect_s.w = TILE_W;
@@ -95,26 +99,13 @@ void Menu::draw() {
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
-
+	
 	for(i = 0; i < ITEMCOUNT; i++) {
 		rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
 		rect.y = surf_items_clip->at(i)->y - 8;
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
 		rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
 		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
-
-		text = surf_items->at(i);
-		
-		if(selected_item == i) {
-			rect.x = surf_items_clip->at(i)->x - TILE_W;
-			rect.y = surf_items_clip->at(i)->y - 8;
-			rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
-			rect.h = MENU_ITEM_HEIGHT;
-
-			SDL_FillRect(screen, &rect, 0x0088ff);
-		}
-
-		SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 	}
 
 	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
@@ -124,8 +115,35 @@ void Menu::draw() {
 		rect.x += TILE_W;
 	}
 
+	if(started) {
+		// The menu
+		for(i = 0; i < ITEMCOUNT; i++) {
+			text = surf_items->at(i);
+			
+			if(selected_item == i) {
+				rect.x = surf_items_clip->at(i)->x - TILE_W;
+				rect.y = surf_items_clip->at(i)->y - 8;
+				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
+				rect.h = MENU_ITEM_HEIGHT;
+
+				SDL_FillRect(screen, &rect, 0x0088ff);
+			}
+
+			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
+		}
+	} else {
+		// Press start
+		if(!(frame & 0x20) || !(frame & 0x8)) {
+			rect.x = (WINDOW_WIDTH - Main::graphics->text_pressstart->w) / 2;
+			rect.y = (WINDOW_HEIGHT - Main::graphics->text_pressstart->h) / 2;
+			SDL_BlitSurface(Main::graphics->text_pressstart, NULL, screen, &rect);
+		}
+	}
+
+	// Player animation
 	playeranimation->draw(Main::instance->screen);
 
+	// Credits
 	rect.x = (WINDOW_WIDTH - credits->at(0)->w) / 2;
 	rect.y = WINDOW_HEIGHT - 35;
 	SDL_BlitSurface(credits->at(0), NULL, screen, &rect);
@@ -140,17 +158,28 @@ void Menu::draw() {
 }
 
 void Menu::process_cursor() {
-	for(int i = 0; i < 4; i++) {
-		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
-				input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
-			if(!(input[i]->is_pressed(A_JUMP) && input[i]->is_pressed(A_UP))) // It's likely that up and jump are the same keybind
+	if(started) {
+		if(input_master->is_pressed(A_RUN) || input_master->is_pressed(A_JUMP) ||
+				input_master->is_pressed(A_SHOOT) || input_master->is_pressed(A_BOMB)) {
+			if(!(input_master->is_pressed(A_JUMP) && input_master->is_pressed(A_UP))) // It's likely that up and jump are the same keybind
 				select();
 		}
 
-		if(input[i]->is_pressed(A_UP))
+		if(input_master->is_pressed(A_UP))
 			select_up();
-		if(input[i]->is_pressed(A_DOWN))
+		if(input_master->is_pressed(A_DOWN))
 			select_down();
+	} else {
+		for(int i = 0; i < 4; i++) {
+			if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
+					input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB) ||
+					input[i]->is_pressed(A_START)) {
+				started = true;
+
+				Main::instance->input_master = input[i];
+				input_master = input[i];
+			}
+		}
 	}
 }
 

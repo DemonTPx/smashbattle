@@ -30,11 +30,9 @@ void OptionsScreen::run() {
 
 	running = true;
 
-	for(int i = 0; i < 4; i++) {
-		input[i] = Main::instance->input[i];
-		input[i]->set_delay();
-		input[i]->reset();
-	}
+	input = Main::instance->input_master;
+	input->set_delay();
+	input->reset();
 
 	while (Main::running && running) {
 		while(SDL_PollEvent(&event)) {
@@ -44,10 +42,8 @@ void OptionsScreen::run() {
 				running = false;
 				break;
 			}
-			
-			for(int i = 0; i < 4; i++) {
-				input[i]->handle_event(&event);
-			}
+
+			input->handle_event(&event);
 		}
 		process_cursor();
 		
@@ -103,22 +99,20 @@ void OptionsScreen::draw() {
 }
 
 void OptionsScreen::process_cursor() {
-	for(int i = 0; i < 4; i++) {
-		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
-				input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
-			if(!(input[i]->is_pressed(A_JUMP) && input[i]->is_pressed(A_UP))) // It's likely that up and jump are the same keybind
-				select();
-		}
-
-		if(input[i]->is_pressed(A_LEFT))
-			select_left();
-		if(input[i]->is_pressed(A_RIGHT))
-			select_right();
-		if(input[i]->is_pressed(A_UP))
-			select_up();
-		if(input[i]->is_pressed(A_DOWN))
-			select_down();
+	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
+			input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
+		if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) // It's likely that up and jump are the same keybind
+			select();
 	}
+
+	if(input->is_pressed(A_LEFT))
+		select_left();
+	if(input->is_pressed(A_RIGHT))
+		select_right();
+	if(input->is_pressed(A_UP))
+		select_up();
+	if(input->is_pressed(A_DOWN))
+		select_down();
 }
 
 void OptionsScreen::select() {

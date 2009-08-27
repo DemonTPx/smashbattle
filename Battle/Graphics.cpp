@@ -39,6 +39,8 @@ void Graphics::load_all() {
 
 	text_ready = Main::text->render_text_medium("READY");
 	text_random = Main::text->render_text_medium("RANDOM");
+	
+	text_pressstart = Main::text->render_text_medium("PRESS START");
 
 	load_players();
 	set_player_clips();
@@ -143,6 +145,8 @@ void Graphics::clear_all() {
 
 	SDL_FreeSurface(text_ready);
 	SDL_FreeSurface(text_random);
+
+	SDL_FreeSurface(text_pressstart);
 
 	clear_players();
 	clear_player_clips();

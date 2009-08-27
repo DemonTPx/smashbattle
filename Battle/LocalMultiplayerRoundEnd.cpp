@@ -15,7 +15,7 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-#define BEGIN_DELAY 150
+#define BEGIN_DELAY 60
 
 #ifndef WIN32
 #define sprintf_s snprintf
@@ -38,19 +38,15 @@ void LocalMultiplayerRoundEnd::run() {
 	ready = false;
 	frame = 0;
 
-	for(int i = 0; i < players; i++) {
-		input[i] = player[i]->input;
-		input[i]->set_delay();
-		input[i]->reset();
-	}
+	input = Main::instance->input_master;
+	input->set_delay();
+	input->reset();
 	
 	while (Main::running && !ready) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
 			
-			for(int i = 0; i < players; i++) {
-				input[i]->handle_event(&event);
-			}
+			input->handle_event(&event);
 		}
 		process_cursor();
 
@@ -363,19 +359,17 @@ void LocalMultiplayerRoundEnd::process_cursor() {
 	if(frame < BEGIN_DELAY)
 		return;
 
-	for(int i = 0; i < players; i++) {
-		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
-				input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
-			if(!(input[i]->is_pressed(A_JUMP) && input[i]->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
-				select();
-			}
+	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
+			input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
+		if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
+			select();
 		}
-
-		if(input[i]->is_pressed(A_UP))
-			select_up();
-		if(input[i]->is_pressed(A_DOWN))
-			select_down();
 	}
+
+	if(input->is_pressed(A_UP))
+		select_up();
+	if(input->is_pressed(A_DOWN))
+		select_down();
 }
 
 void LocalMultiplayerRoundEnd::select() {

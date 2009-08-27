@@ -22,9 +22,9 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-#define MENU_TOP_OFFSET 180
+#define MENU_TOP_OFFSET 160
 #define TILES_COLS		10
-#define TILES_ROWS		6
+#define TILES_ROWS		7
 
 LevelSelect::LevelSelect(int players) {
 	this->players = players;
@@ -35,10 +35,7 @@ void LevelSelect::run() {
 
 	load_sprites();
 
-	for(int i = 0; i < players; i++) {
-		input[i] = Main::instance->input[i];
-		input[i]->reset();
-	}
+	input = Main::instance->input_master;
 
 	ready = false;
 	ready_level = false;
@@ -66,7 +63,7 @@ void LevelSelect::run() {
 			}
 
 			for(int i = 0; i < players; i++) {
-				input[i]->handle_event(&event);
+				input->handle_event(&event);
 			}
 		}
 
@@ -94,33 +91,31 @@ void LevelSelect::run() {
 void LevelSelect::process_cursors() {
 	int direction;
 
-	for(int i = 0; i < players; i++) {
-		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
-			input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB)) {
-				if(!(input[i]->is_pressed(A_JUMP) && input[i]->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
-					if(!ready_level) {
-						ready_level = true;
-						
-						Main::audio->play(SND_SELECT_CHARACTER);
+	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
+		input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
+			if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
+				if(!ready_level) {
+					ready_level = true;
+					
+					Main::audio->play(SND_SELECT_CHARACTER);
 
-						random = false;
+					random = false;
 
-						flicker = true;
-						flicker_frame = 0;
-					}
+					flicker = true;
+					flicker_frame = 0;
 				}
-		}
-		
-		direction = 0;
-		if(input[i]->is_pressed(A_LEFT)) direction |= DIRECTION_LEFT;
-		if(input[i]->is_pressed(A_RIGHT)) direction |= DIRECTION_RIGHT;
-		if(input[i]->is_pressed(A_UP)) direction |= DIRECTION_UP;
-		if(input[i]->is_pressed(A_DOWN)) direction |= DIRECTION_DOWN;
-		if(direction != DIRECTION_NONE) {
-			if(!ready_level) {
-				select(direction);
-				Main::audio->play(SND_SELECT);
 			}
+	}
+	
+	direction = 0;
+	if(input->is_pressed(A_LEFT)) direction |= DIRECTION_LEFT;
+	if(input->is_pressed(A_RIGHT)) direction |= DIRECTION_RIGHT;
+	if(input->is_pressed(A_UP)) direction |= DIRECTION_UP;
+	if(input->is_pressed(A_DOWN)) direction |= DIRECTION_DOWN;
+	if(direction != DIRECTION_NONE) {
+		if(!ready_level) {
+			select(direction);
+			Main::audio->play(SND_SELECT);
 		}
 	}
 }

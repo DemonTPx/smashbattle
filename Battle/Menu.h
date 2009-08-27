@@ -23,6 +23,8 @@ private:
 	int frame;
 
 	GameInput * input[4];
+	GameInput * input_master;
+	bool started;
 
 	std::vector<SDL_Surface*> * credits;
 	std::vector<SDL_Surface*> * surf_items;

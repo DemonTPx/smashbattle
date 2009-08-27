@@ -45,7 +45,7 @@ private:
 
 	int frame;
 	
-	GameInput * input[4];
+	GameInput * input;
 
 	int selected_item;
 };

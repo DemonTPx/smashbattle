@@ -94,6 +94,7 @@ bool Main::init() {
 	for(int i = 0; i < 4; i++) {
 		input[i] = new GameInput();
 	}
+	input_master = NULL;
 
 	return true;
 }

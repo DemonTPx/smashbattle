@@ -55,6 +55,7 @@ public:
 	SDL_Joystick * joystick[10];
 
 	GameInput * input[4];
+	GameInput * input_master;
 
 	Main();
 	~Main();

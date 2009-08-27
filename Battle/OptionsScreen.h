@@ -45,7 +45,7 @@ protected:
 	virtual void item_selected();
 	virtual void selection_changed();
 private:	
-	GameInput * input[4];
+	GameInput * input;
 
 	std::vector<SDL_Surface *> * surf_items;
 	std::vector<SDL_Rect *> * surf_items_clip;

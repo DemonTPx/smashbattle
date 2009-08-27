@@ -8,16 +8,20 @@
 #include "Gameplay.h"
 #include "Level.h"
 
-const int Level::LEVEL_COUNT = 8;
+const int Level::LEVEL_COUNT = 12;
 const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.lvl"},
-	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.lvl"},
 	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.lvl"},
-	{(char*)"POGOSTICK", (char*)"stage/pogostick.lvl"},
 	{(char*)"PITTFALL", (char*)"stage/pitfall.lvl"},
+	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.lvl"},
+	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.lvl"},
+	{(char*)"POGOSTICK", (char*)"stage/pogostick.lvl"},
+	{(char*)"LA MOUSTACHE", (char*)"stage/lamoustache.lvl"},
+	{(char*)"THE FUNNEL", (char*)"stage/thefunnel.lvl"},
 	{(char*)"BLAST BOWL", (char*)"stage/blastbowl.lvl"},
 	{(char*)"PIT OF DEATH", (char*)"stage/pitofdeath.lvl"},
-	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.lvl"}
+	{(char*)"RABBIT HOLE", (char*)"stage/rabbithole.lvl"},
+	{(char*)"STAY HIGH", (char*)"stage/stayhigh.lvl"}
 };
 
 Level::Level() {
@@ -592,6 +596,8 @@ void Level::bounce_tile(SDL_Rect * rect) {
 	if(level[pos] == -1) pos = tile_pos(l, y); // tile at left-top?
 	if(level[pos] == -1) pos = tile_pos(r, y); // tile at right-top?
 	if(level[pos] == -1) return; // No tile at all
+
+	if(!tile[pos].bouncing) return; // Tile is not bouncable
 
 	// Cancel if the tile is already bouncing
 	if(level_bounce[pos] != 0) return;
