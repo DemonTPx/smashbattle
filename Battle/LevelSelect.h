@@ -3,7 +3,7 @@
 
 class LevelSelect {
 public:
-	LevelSelect(int players);
+	LevelSelect();
 	void run();
 
 	int level;

@@ -7,15 +7,16 @@
 
 class LocalMultiplayerRoundEnd {
 public:
-	LocalMultiplayerRoundEnd(int players);
+	LocalMultiplayerRoundEnd();
+	~LocalMultiplayerRoundEnd();
 
 	void run();
 
 	int result;
-	int winner;
+	Player * winner;
 	int round;
 
-	Player ** player;
+	void add_player(Player * p);
 private:
 	void init();
 	void cleanup();
@@ -37,8 +38,9 @@ private:
 	SDL_Surface * surf_result;
 
 	SDL_Surface * background;
+	
+	std::vector<Player*> * players;
 
-	int players;
 	short order[4];
 
 	bool ready;

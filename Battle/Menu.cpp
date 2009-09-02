@@ -26,7 +26,7 @@
 #define DIRECTION_DOWN	8
 
 const int Menu::ITEMCOUNT = 5;
-const char * Menu::item[ITEMCOUNT] = {"2P DUEL", "3P BATTLE", "4P BATTLE", "OPTIONS", "QUIT"};
+const char * Menu::item[ITEMCOUNT] = {"MISSIONS", "MULTIPLAYER", "TRAINING", "OPTIONS", "QUIT"};
 
 Menu::Menu() {
 }
@@ -174,6 +174,7 @@ void Menu::process_cursor() {
 			if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
 					input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB) ||
 					input[i]->is_pressed(A_START)) {
+				Main::audio->play(SND_SELECT);
 				started = true;
 
 				Main::instance->input_master = input[i];
@@ -187,13 +188,11 @@ void Menu::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
-			start_local_multiplayer(2);
 			break;
 		case 1:
-			start_local_multiplayer(3);
+			start_local_multiplayer();
 			break;
 		case 2:
-			start_local_multiplayer(4);
 			break;
 		case 3:
 			Options * options;
@@ -208,7 +207,7 @@ void Menu::select() {
 	}
 }
 
-void Menu::start_local_multiplayer(int players) {
+void Menu::start_local_multiplayer() {
 	Player ** player;
 
 	Level * level;
@@ -226,10 +225,10 @@ void Menu::start_local_multiplayer(int players) {
 	bool change_character;
 	bool change_level;
 
-	player = new Player*[players];
+	player = new Player*[4];
 
 	level = NULL;
-	for(int i = 0; i < players; i++) {
+	for(int i = 0; i < 4; i++) {
 		player[i] = new Player(0, (i + 1));
 		player[i]->input = input[i];
 	}
@@ -237,8 +236,8 @@ void Menu::start_local_multiplayer(int players) {
 	running = true;
 	round = 0;
 
-	cs = new CharacterSelect(players);
-	ls = new LevelSelect(players);
+	cs = new CharacterSelect();
+	ls = new LevelSelect();
 
 	change_level = true;
 	change_character = true;
@@ -250,13 +249,15 @@ void Menu::start_local_multiplayer(int players) {
 			cs->run();
 			if(cs->cancel) break;
 
-			for(int i = 0; i < players; i++) {
-				player[i]->set_character(cs->player_select[i]);
+			for(int i = 0; i < 4; i++) {
+				if(cs->player_joined[i])
+					player[i]->set_character(cs->player_select[i]);
 			}
 		}
 
-		for(int i = 0; i < players; i++) {
-			player[i]->reset();
+		for(int i = 0; i < 4; i++) {
+			if(cs->player_joined[i])
+				player[i]->reset();
 		}
 
 		if(change_level) {
@@ -273,20 +274,23 @@ void Menu::start_local_multiplayer(int players) {
 		lmp = new LocalMultiplayer();
 		lmp->set_level(level);
 
-		for(int i = 0; i < players; i++) {
-			lmp->add_player(player[i]);
+		for(int i = 0; i < 4; i++) {
+			if(cs->player_joined[i])
+				lmp->add_player(player[i]);
 		}
 		lmp->run();
 
 		highest_score = 0;
 		winner = -1;
-		for(int i = 0; i < players; i++) {
-			if(player[i]->score == highest_score) {
-				winner = -1;
-			}
-			if(player[i]->score > highest_score) {
-				winner = i;
-				highest_score = player[i]->score;
+		for(int i = 0; i < 4; i++) {
+			if(cs->player_joined[i]) {
+				if(player[i]->score == highest_score) {
+					winner = -1;
+				}
+				if(player[i]->score > highest_score) {
+					winner = i;
+					highest_score = player[i]->score;
+				}
 			}
 		}
 
@@ -294,9 +298,16 @@ void Menu::start_local_multiplayer(int players) {
 			player[winner]->rounds_won++;
 		}
 
-		end = new LocalMultiplayerRoundEnd(players);
-		end->player = player;
-		end->winner = winner;
+		end = new LocalMultiplayerRoundEnd();
+		for(int i = 0; i < 4; i++) {
+			if(cs->player_joined[i]) {
+				end->add_player(player[i]);
+			}
+		}
+		if(winner != -1)
+			end->winner = player[winner];
+		else
+			end->winner = NULL;
 		end->round = round;
 		end->run();
 		if(end->result == ROUNDEND_CHANGE_CHARACTER) {
@@ -318,7 +329,7 @@ void Menu::start_local_multiplayer(int players) {
 	delete ls;
 	if(level != NULL)
 		delete level;
-	for(int i = 0; i < players; i++) {
+	for(int i = 0; i < 4; i++) {
 		if(player[i] != NULL)
 			delete player[i];
 	}

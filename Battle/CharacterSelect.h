@@ -5,12 +5,13 @@
 
 class CharacterSelect {
 public:
-	CharacterSelect(int players);
+	CharacterSelect();
 	void run();
 
 	char * name[4];
 	char * file[4];
 
+	bool player_joined[4];
 	int player_select[4];
 
 	bool cancel;
@@ -29,8 +30,6 @@ private:
 	void select(int player, int direction);
 
 	SDL_Surface * background;
-
-	int players;
 
 	bool ready;
 	bool player_ready[4];

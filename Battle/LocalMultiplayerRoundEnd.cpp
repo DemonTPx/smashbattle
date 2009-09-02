@@ -24,8 +24,12 @@
 const int LocalMultiplayerRoundEnd::ITEMCOUNT = 3;
 const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE LEVEL", "CHANGE CHARACTER", "QUIT TO MENU"};
 
-LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd(int players) {
-	this->players = players;
+LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd() {
+	players = new std::vector<Player *>();
+}
+
+LocalMultiplayerRoundEnd::~LocalMultiplayerRoundEnd() {
+	delete players;
 }
 
 void LocalMultiplayerRoundEnd::run() {
@@ -89,21 +93,21 @@ void LocalMultiplayerRoundEnd::init() {
 	}
 
 	// Result
-	if(winner == -1) {
+	if(winner == NULL) {
 		surf_result = Main::text->render_text_large("DRAW");
 	} else {
-		sprintf_s(str, 30, "%s WINS", player[winner]->name);
+		sprintf_s(str, 30, "%s WINS", winner->name);
 		surf_result = Main::text->render_text_large(str);
 	}
 
 	// Determine player positions
-	for(int i = 0; i < players; i++) {
+	for(unsigned int i = 0; i < players->size(); i++) {
 		order[i] = i;
 	}
 	do {
 		swapped = false;
-		for(short i = 0; i < players - 1; i++) {
-			if(player[order[i]]->score < player[order[i + 1]]->score) {
+		for(unsigned short i = 0; i < players->size() - 1; i++) {
+			if(players->at(order[i])->score < players->at(order[i + 1])->score) {
 				temp = order[i];
 				order[i] = order[i + 1];
 				order[i + 1] = temp;
@@ -133,13 +137,13 @@ void LocalMultiplayerRoundEnd::init() {
 	last_score = -1;
 	cup = 0;
 
-	for(int i = 0; i < players; i++) {
-		pl = player[order[i]];
+	for(unsigned int i = 0; i < players->size(); i++) {
+		pl = players->at(order[i]);
 
 		r_block.x = 10;
 		r_block.y = 50 + (76 * i);
 
-		SDL_FillRect(background, &r_block, Player::COLORS[order[i]]);
+		SDL_FillRect(background, &r_block, Player::COLORS[players->at(order[i])->number - 1]);
 
 		rect.x = r_block.x + 4;
 		rect.y = r_block.y + 4;
@@ -150,7 +154,7 @@ void LocalMultiplayerRoundEnd::init() {
 		// Player number
 		rect.x = r_block.x + 72;
 		rect.y = r_block.y + 10;
-		sprintf_s(str, 5, "P%d", (order[i] + 1));
+		sprintf_s(str, 5, "P%d", players->at(order[i])->number);
 		text = Main::text->render_text_large(str);
 		SDL_BlitSurface(text, NULL, background, &rect);
 		SDL_FreeSurface(text);
@@ -165,8 +169,8 @@ void LocalMultiplayerRoundEnd::init() {
 		// Static avatars
 		rect.x = r_block.x + 14;
 		rect.y = r_block.y + 14;
-		if(order[i] != winner)
-			SDL_BlitSurface(player[order[i]]->sprites, Main::graphics->player_clip[SPR_AVATAR], background, &rect);
+		if(players->at(order[i]) != winner)
+			SDL_BlitSurface(players->at(order[i])->sprites, Main::graphics->player_clip[SPR_AVATAR], background, &rect);
 
 		// Cup
 		if(cup < 3) {
@@ -341,16 +345,16 @@ void LocalMultiplayerRoundEnd::draw() {
 	if(!(frame & 0x20))
 		SDL_BlitSurface(surf_result, NULL, screen, &rect);
 
-	for(int i = 0; i < players; i++) {
+	for(unsigned int i = 0; i < players->size(); i++) {
 		rect.x = 24;
 		rect.y = 64 + (76 * i);
 
 		// Avatar
-		if(order[i] == winner) {
+		if(players->at(order[i]) == winner) {
 			if(frame & 0x10)
-				SDL_BlitSurface(player[order[i]]->sprites, Main::graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
+				SDL_BlitSurface(players->at(order[i])->sprites, Main::graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
 			else
-				SDL_BlitSurface(player[order[i]]->sprites, Main::graphics->player_clip[SPR_AVATAR], screen, &rect);
+				SDL_BlitSurface(players->at(order[i])->sprites, Main::graphics->player_clip[SPR_AVATAR], screen, &rect);
 		}
 	}
 }
@@ -409,4 +413,8 @@ void LocalMultiplayerRoundEnd::select_down() {
 	if(selected_item == ITEMCOUNT) {
 		selected_item = 0;
 	}
+}
+
+void LocalMultiplayerRoundEnd::add_player(Player *p) {
+	players->push_back(p);
 }

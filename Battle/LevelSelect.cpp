@@ -26,8 +26,7 @@
 #define TILES_COLS		10
 #define TILES_ROWS		7
 
-LevelSelect::LevelSelect(int players) {
-	this->players = players;
+LevelSelect::LevelSelect() {
 }
 
 void LevelSelect::run() {
@@ -62,9 +61,7 @@ void LevelSelect::run() {
 				break;
 			}
 
-			for(int i = 0; i < players; i++) {
-				input->handle_event(&event);
-			}
+			input->handle_event(&event);
 		}
 
 		process_cursors();
