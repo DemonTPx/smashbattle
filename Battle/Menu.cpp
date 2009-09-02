@@ -5,12 +5,21 @@
 #include "Main.h"
 #include "Timer.h"
 #include "AudioController.h"
+
 #include "CharacterSelect.h"
 #include "LevelSelect.h"
+
 #include "Gameplay.h"
+
+#include "ChickNPC.h"
+
+#include "Mission.h"
+
 #include "LocalMultiplayer.h"
 #include "LocalMultiplayerRoundEnd.h"
+
 #include "Options.h"
+
 #include "PlayerAnimation.h"
 
 #include "Menu.h"
@@ -188,6 +197,41 @@ void Menu::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
+			Mission * mission;
+			Player * player;
+			NPC * npc;
+			Level * level;
+
+			mission = new Mission();
+
+			player = new Player(0, 1);
+			player->input = input_master;
+			
+			npc = new ChickNPC();
+			npc->position->x = 160;
+			npc->position->y = -30;
+			npc->move_direction = -1;
+			mission->add_npc(npc);
+			npc = new ChickNPC();
+			npc->position->x = 190;
+			npc->position->y = -30;
+			npc->move_direction = -1;
+			mission->add_npc(npc);
+			npc = new ChickNPC();
+			npc->position->x = 220;
+			npc->position->y = -60;
+			npc->move_direction = -1;
+			mission->add_npc(npc);
+			
+			level = new Level();
+			level->load("stage/tryout.lvl");
+
+			mission->add_player(player);
+			mission->set_level(level);
+
+			mission->run();
+
+			delete mission;
 			break;
 		case 1:
 			start_local_multiplayer();

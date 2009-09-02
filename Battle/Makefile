@@ -9,6 +9,7 @@ SRCS=Airstrike.cpp\
 	Bomb.cpp\
 	BombPowerUp.cpp\
 	CharacterSelect.cpp\
+	ChickNPC.cpp\
 	ControlsOptions.cpp\
 	DoubleDamagePowerUp.cpp\
 	GameInput.cpp\
@@ -23,6 +24,8 @@ SRCS=Airstrike.cpp\
 	LocalMultiplayerRoundEnd.cpp\
 	Main.cpp\
 	Menu.cpp\
+	Mission.cpp\
+	NPC.cpp\
 	Options.cpp\
 	OptionsScreen.cpp\
 	PauseMenu.cpp\

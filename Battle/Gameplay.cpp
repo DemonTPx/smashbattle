@@ -22,6 +22,7 @@ Gameplay::Gameplay() {
 
 	game_running = false;
 	players = new std::vector<Player*>();
+	npcs = new std::vector<NPC*>();
 	objects = new std::vector<GameplayObject*>();
 	
 	players_collide = true;
@@ -81,11 +82,11 @@ void Gameplay::run() {
 			process_player_collission();
 
 			// Move and process NPCs
-		/*	for(unsigned int idx = 0; idx < npcs->size(); idx++) {
+			for(unsigned int idx = 0; idx < npcs->size(); idx++) {
 				NPC * npc = npcs->at(idx);
-				npc->move();
+				npc->move(level);
 				npc->process();
-			}*/
+			}
 
 			process_npc_collission();
 
@@ -129,10 +130,10 @@ void Gameplay::run() {
 			else
 				p->draw(screen);
 		}
-	/*	for(unsigned int idx = 0; idx < npcs->size(); idx++) {
+		for(unsigned int idx = 0; idx < npcs->size(); idx++) {
 			NPC * npc = npcs->at(idx);
 			npc->draw(screen);
-		}*/
+		}
 
 		for(unsigned int idx = 0; idx < objects->size(); idx++) {
 			GameplayObject * obj = objects->at(idx);
@@ -187,6 +188,12 @@ void Gameplay::add_player(Player * p) {
 	}
 }
 
+void Gameplay::add_npc(NPC * npc) {
+	if(!game_running) {
+		npcs->push_back(npc);
+	}
+}
+
 void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source) {
 	Player * p;
 	for(unsigned int i = 0; i < players->size(); i++) {
@@ -195,13 +202,12 @@ void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source) {
 			p->bounce_up(source);
 	}
 
-	/*
 	NPC * npc;
 	for(unsigned int i = 0; i < npcs->size(); i++) {
 		npc = npcs->at(i);
 		if(is_intersecting(rect, npc->position))
-			npc->bounce_up();
-	}*/
+			npc->bounce_up(source);
+	}
 }
 
 void Gameplay::add_object(GameplayObject * obj) {
@@ -247,9 +253,13 @@ void Gameplay::deinitialize() {
 	if(!countdown)
 		Main::audio->stop_music();
 
-	// Clear players (we don't delete the players, because they are not created in this class
+	// Clear players (we don't delete the players, because they are not created in this class)
 	players->clear();
 	delete players;
+
+	// Clear NPC's
+	npcs->clear();
+	delete npcs;
 
 	// Clear gameplay objects
 	GameplayObject * obj;
@@ -378,6 +388,41 @@ void Gameplay::process_player_collission() {
 	}
 }
 
+void Gameplay::process_npc_collission() {
+	if(!npcs_collide)
+		return;
+
+	NPC * c1, * c2;
+	SDL_Rect * r1, * r2;
+
+	for(unsigned int i1 = 0; i1 < npcs->size(); i1++) {
+		c1 = npcs->at(i1);
+		
+		if(c1->is_dead) continue;
+
+		for(unsigned int i2 = (i1 + 1); i2 < npcs->size(); i2++) {
+			c2 = npcs->at(i2);
+
+			if(c2->is_dead) continue;
+
+			r1 = c1->get_rect();
+			r2 = c2->get_rect();
+
+			if(is_intersecting(r1, r2)) {
+				c1->bounce(c2);
+				c2->bounce(c1);
+
+				//c1->momentumx = c1->newmomentumx;
+				//c2->momentumx = c2->newmomentumx;
+			}
+
+			delete r1;
+			delete r2;
+		}
+	}
+}
+
+
 void Gameplay::process_countdown() {
 	if(frame - countdown_start >= 60) {
 		if(countdown_sec_left == 1) {
@@ -396,5 +441,3 @@ void Gameplay::process_countdown() {
 			Main::audio->play(SND_COUNTDOWN);
 	}
 }
-
-void Gameplay::process_npc_collission() {}

@@ -211,6 +211,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ChickNPC.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ControlsOptions.cpp"
 				>
 			</File>
@@ -264,6 +268,14 @@
 			</File>
 			<File
 				RelativePath=".\Menu.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Mission.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC.cpp"
 				>
 			</File>
 			<File
@@ -337,6 +349,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ChickNPC.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ControlsOptions.h"
 				>
 			</File>
@@ -390,6 +406,14 @@
 			</File>
 			<File
 				RelativePath=".\Menu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Mission.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NPC.h"
 				>
 			</File>
 			<File

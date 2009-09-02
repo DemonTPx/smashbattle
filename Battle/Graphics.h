@@ -71,6 +71,8 @@ public:
 
 	SDL_Surface * tiles;
 
+	SDL_Surface * npc_chick;
+
 	SDL_Surface * statsblock[3];
 
 	SDL_Surface * text_ready;

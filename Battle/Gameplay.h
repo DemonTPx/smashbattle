@@ -5,6 +5,7 @@
 
 #include "Level.h"
 #include "Player.h"
+#include "NPC.h"
 #include "PauseMenu.h"
 #include "GameplayObject.h"
 
@@ -20,7 +21,7 @@ public:
 	Level * level;
 
 	std::vector<Player*> * players;
-	//std::vector<NPC*> * npcs;
+	std::vector<NPC*> * npcs;
 	
 	std::vector<GameplayObject*> * objects;
 
@@ -28,6 +29,7 @@ public:
 
 	void set_level(Level * level);
 	void add_player(Player * player);
+	void add_npc(NPC * npc);
 
 	void add_object(GameplayObject * obj);
 	void bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source);

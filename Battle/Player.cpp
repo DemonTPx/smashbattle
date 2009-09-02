@@ -194,6 +194,7 @@ void Player::draw(SDL_Surface * screen, bool marker) {
 	rect.x = position->x;
 	rect.y = position->y;
 
+	// Dead players are not visible
 	if(is_dead && Gameplay::frame - dead_start > 120) {
 		return;
 	}
