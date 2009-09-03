@@ -507,6 +507,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\chick.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\common.bmp"
 				>
 			</File>
@@ -720,6 +724,10 @@
 			</File>
 			<File
 				RelativePath=".\stage\trainingdojo.lvl"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\tryout.lvl"
 				>
 			</File>
 			<File

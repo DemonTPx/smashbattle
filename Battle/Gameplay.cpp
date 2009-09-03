@@ -86,9 +86,16 @@ void Gameplay::run() {
 				NPC * npc = npcs->at(idx);
 				npc->move(level);
 				npc->process();
+
+				if(npc->done) {
+					npcs->erase(npcs->begin() + idx);
+					delete npc;
+				}
 			}
 
 			process_npc_collission();
+
+			process_player_npc_collission();
 
 			// Move and process objects
 			for(unsigned int idx = 0; idx < objects->size(); idx++) {
@@ -412,8 +419,8 @@ void Gameplay::process_npc_collission() {
 				c1->bounce(c2);
 				c2->bounce(c1);
 
-				//c1->momentumx = c1->newmomentumx;
-				//c2->momentumx = c2->newmomentumx;
+				c1->momentumx = c1->newmomentumx;
+				c2->momentumx = c2->newmomentumx;
 			}
 
 			delete r1;
@@ -422,6 +429,40 @@ void Gameplay::process_npc_collission() {
 	}
 }
 
+
+void Gameplay::process_player_npc_collission() {
+	if(!npcs_collide)
+		return;
+
+	Player * player;
+	NPC * npc;
+	SDL_Rect * r_player, * r_npc;
+
+	for(unsigned int i1 = 0; i1 < players->size(); i1++) {
+		player = players->at(i1);
+		
+		if(player->is_dead) continue;
+
+		for(unsigned int i2 = 0; i2 < npcs->size(); i2++) {
+			npc = npcs->at(i2);
+
+			if(npc->is_dead) continue;
+
+			r_player = player->get_rect();
+			r_npc = npc->get_rect();
+
+			if(is_intersecting(r_player, r_npc)) {
+				npc->bounce(player);
+
+				player->momentumx = player->newmomentumx;
+				npc->momentumx = npc->newmomentumx;
+			}
+
+			delete r_player;
+			delete r_npc;
+		}
+	}
+}
 
 void Gameplay::process_countdown() {
 	if(frame - countdown_start >= 60) {

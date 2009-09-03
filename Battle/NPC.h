@@ -19,7 +19,7 @@ public:
 	void draw(SDL_Surface * screen);
 
 	virtual void move(Level * level);
-	virtual void process() = 0;
+	virtual void process();
 	
 	void bounce(Player * other);
 	void bounce(NPC * other);
@@ -33,6 +33,10 @@ public:
 
 	int momentumx;
 	int momentumy;
+	
+	int newmomentumx;
+
+	bool done;
 
 	bool is_jumping;
 	bool is_falling;
@@ -78,6 +82,8 @@ protected:
 	int cycle_direction;
 	int distance_walked;
 	int jump_cycle_start;
+
+	int bounce_direction_x, bounce_direction_y;
 };
 
 #endif

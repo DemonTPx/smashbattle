@@ -12,6 +12,8 @@
 #define FRAME_CYCLE_DISTANCE 24
 
 NPC::NPC() {
+	done = false;
+
 	frame_w = 0;
 	frame_h = 0;
 	current_sprite = 0;
@@ -126,12 +128,221 @@ void NPC::draw(SDL_Surface * screen) {
 	}
 }
 
-void NPC::bounce_up(SDL_Rect * source) {
+void NPC::process() {
+	if(!is_dead && hitpoints <= 0) {
+		is_dead = true;
+		dead_start = Gameplay::frame;
+		set_sprite(frame_dead);
+	}
+	if(is_dead && (Gameplay::frame - dead_start >= 30)) {
+		done = true;
+	}
+}
 
+void NPC::bounce_up(SDL_Rect * source) {
+	is_falling = true;
+	is_frozen = true;
+	freeze_start = Gameplay::frame;
+	momentumy = 30;
+	
+	if(position->x < source->x) {
+		momentumx -= 15;
+	}
+	if(position->x > source->x) {
+		momentumx += 15;
+	}
+
+	if(momentumx > max_speed)
+		momentumx = max_speed;
+	if(momentumx < -max_speed)
+		momentumx = -max_speed;
+}
+
+void NPC::bounce(Player * other) {
+	SDL_Rect * rect, * source;
+
+	rect = last_position;
+	source = other->last_position;
+
+	int l, r, t, b;
+	int ls, rs, ts, bs;
+	bool is_above, is_below;
+	bool is_left, is_right;
+
+	l = rect->x;
+	t = rect->y;
+	r = rect->x + rect->w;
+	b = rect->y + rect->h;
+
+	ls = source->x;
+	ts = source->y;
+	rs = source->x + source->w;
+	bs = source->y + source->h;
+
+	if(l - ls > (WINDOW_WIDTH / 2)) {
+		ls += WINDOW_WIDTH;
+		rs += WINDOW_WIDTH;
+	}
+	if(ls - l > (WINDOW_WIDTH / 2)) {
+		l += WINDOW_WIDTH;
+		r += WINDOW_WIDTH;
+	}
+
+	is_above = (b <= ts);
+	is_below = (t >= bs);
+	is_left = (r <= ls);
+	is_right = (l >= rs);
+
+	if(!is_above && !is_below && !is_left && !is_right) {
+		if(bounce_direction_y == -1) is_above = true;
+		if(bounce_direction_y == 1) is_below = true;
+		if(bounce_direction_x == -1) is_left = true;
+		if(bounce_direction_x == 1) is_right = true;
+	}
+
+	// NPCs hit each others top
+	if(is_above) {
+		bounce_direction_y = -1;
+		momentumy = 30;
+
+		other->bounce_direction_y = 1;
+		other->is_duck_forced = true;
+		other->duck_force_start = Gameplay::frame;
+		if(!other->is_hit) {
+			other->is_hit = true;
+			other->hit_start = Gameplay::frame;
+			other->momentumy = -10;
+			other->hitpoints -= 5;
+		}
+	}
+	if(is_below) {
+		bounce_direction_y = 1;
+		momentumy = -10;
+		if(!is_hit) {
+			is_hit = true;
+			hit_start = Gameplay::frame;
+			hitpoints -= Player::WEIGHTCLASSES[other->weightclass].headjump_damage;
+		}
+
+		other->bounce_direction_y = -1;
+		if(other->input->is_pressed(A_JUMP)) {
+			Main::audio->play(SND_JUMP, position->x);
+			other->momentumy = 40;
+			other->is_falling = false;
+			other->is_jumping = true;
+		}
+		other->momentumy = 30;
+	}
+	if(!is_above && !is_below) {
+		bounce_direction_y = 0;
+	}
+
+	newmomentumx = momentumx;
+	other->newmomentumx = other->momentumx;
+	// NPCs hit each others side
+	if(is_left || is_right) {
+		newmomentumx = other->momentumx;
+		
+		if(is_left) {
+			bounce_direction_x = -1;
+			newmomentumx -= 10;
+			if(move_direction == 1) move_direction = -1;
+
+			other->bounce_direction_x = 1;
+			other->newmomentumx = 10;
+		}
+		if(is_right) {
+			bounce_direction_x = 1;
+			newmomentumx += 10;
+			if(move_direction == -1) move_direction = 1;
+			
+			other->bounce_direction_x = -1;
+			other->newmomentumx = -10;
+		}
+	} else {
+		bounce_direction_x = 0;
+	}
 }
 
 void NPC::bounce(NPC * other) {
+	SDL_Rect * rect, * source;
 
+	rect = last_position;
+	source = other->last_position;
+
+	int l, r, t, b;
+	int ls, rs, ts, bs;
+	bool is_above, is_below;
+	bool is_left, is_right;
+
+	l = rect->x;
+	t = rect->y;
+	r = rect->x + rect->w;
+	b = rect->y + rect->h;
+
+	ls = source->x;
+	ts = source->y;
+	rs = source->x + source->w;
+	bs = source->y + source->h;
+
+	if(l - ls > (WINDOW_WIDTH / 2)) {
+		ls += WINDOW_WIDTH;
+		rs += WINDOW_WIDTH;
+	}
+	if(ls - l > (WINDOW_WIDTH / 2)) {
+		l += WINDOW_WIDTH;
+		r += WINDOW_WIDTH;
+	}
+
+	is_above = (b <= ts);
+	is_below = (t >= bs);
+	is_left = (r <= ls);
+	is_right = (l >= rs);
+
+	if(!is_above && !is_below && !is_left && !is_right) {
+		if(bounce_direction_y == -1) is_above = true;
+		if(bounce_direction_y == 1) is_below = true;
+		if(bounce_direction_x == -1) is_left = true;
+		if(bounce_direction_x == 1) is_right = true;
+	}
+
+	// NPCs hit each others top
+	if(is_above) {
+		bounce_direction_y = -1;
+		momentumy = 30;
+	}
+	if(is_below) {
+		bounce_direction_y = 1;
+		/*
+		if(!is_hit) {
+			is_hit = true;
+			hit_start = Gameplay::frame;
+			momentumy = -10;
+			hitpoints -= WEIGHTCLASSES[other->weightclass].headjump_damage;
+		}*/
+	}
+	if(!is_above && !is_below) {
+		bounce_direction_y = 0;
+	}
+
+	newmomentumx = momentumx;
+	// NPCs hit each others side
+	if(is_left || is_right) {
+		newmomentumx = other->momentumx;
+		
+		if(is_left) {
+			bounce_direction_x = -1;
+			newmomentumx -= 10;
+			if(move_direction == 1) move_direction = -1;
+		}
+		if(is_right) {
+			bounce_direction_x = 1;
+			newmomentumx += 10;
+			if(move_direction == -1) move_direction = 1;
+		}
+	} else {
+		bounce_direction_x = 0;
+	}
 }
 
 void NPC::move(Level * level) {
@@ -277,6 +488,7 @@ void NPC::move(Level * level) {
 		// Stop if colliding with the level
 		position->x -= speedx;
 		momentumx = 0;
+		move_direction = -move_direction;
 	}
 
 	// Move through the sides

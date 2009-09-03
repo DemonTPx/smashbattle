@@ -51,7 +51,7 @@ ChickNPC::ChickNPC() : NPC() {
 	max_speed = 20;
 	jump_height = 0;
 
-	hitpoints = 10;
+	hitpoints = 1;
 
 	move_direction = 1;
 }
@@ -62,6 +62,8 @@ ChickNPC::~ChickNPC() {
 }
 
 void ChickNPC::process() {
+	NPC::process();
+
 	SDL_Rect rect;
 
 	if(!is_falling && position->y > 360) {

@@ -206,20 +206,22 @@ void Menu::select() {
 
 			player = new Player(0, 1);
 			player->input = input_master;
+			player->position->x = 60;
+			player->position->y = 144;
 			
 			npc = new ChickNPC();
-			npc->position->x = 160;
-			npc->position->y = -30;
+			npc->position->x = 20;
+			npc->position->y = 68;
+			npc->move_direction = -1;
+			mission->add_npc(npc);
+			npc = new ChickNPC();
+			npc->position->x = 100;
+			npc->position->y = 68;
 			npc->move_direction = -1;
 			mission->add_npc(npc);
 			npc = new ChickNPC();
 			npc->position->x = 190;
-			npc->position->y = -30;
-			npc->move_direction = -1;
-			mission->add_npc(npc);
-			npc = new ChickNPC();
-			npc->position->x = 220;
-			npc->position->y = -60;
+			npc->position->y = 68;
 			npc->move_direction = -1;
 			mission->add_npc(npc);
 			
@@ -232,6 +234,9 @@ void Menu::select() {
 			mission->run();
 
 			delete mission;
+
+			input_master->reset();
+			input_master->set_delay();
 			break;
 		case 1:
 			start_local_multiplayer();

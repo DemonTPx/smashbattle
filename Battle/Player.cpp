@@ -609,10 +609,10 @@ void Player::bounce(Player * other) {
 		bounce_direction_y = 1;
 		is_duck_forced = true;
 		duck_force_start = Gameplay::frame;
+		momentumy = -10;
 		if(!is_hit) {
 			is_hit = true;
 			hit_start = Gameplay::frame;
-			momentumy = -10;
 			hitpoints -= WEIGHTCLASSES[other->weightclass].headjump_damage;
 			other->headstomps++;
 		}
