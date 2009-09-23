@@ -16,22 +16,22 @@ const int Player::CHARACTER_COUNT = 20;
 const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	//      Name               Filename            sp wt wp bd
 	{(char*)"BERT",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
-	{(char*)"JEROEN",	(char*)"gfx/jeroen.bmp",	2, 1, 1, 0},
-	{(char*)"STEVEN",	(char*)"gfx/steven.bmp",	0, 2, 1, 1},
-	{(char*)"TEDJE",	(char*)"gfx/tedje.bmp",		0, 1, 2, 1},
-	{(char*)"OKKE",		(char*)"gfx/okke.bmp",		2, 1, 0, 1},
-	{(char*)"JEREMY",	(char*)"gfx/jeremy.bmp",	1, 0, 1, 2},
-	{(char*)"MARCEL",	(char*)"gfx/marcel.bmp",	1, 0, 2, 1},
-	{(char*)"JAY",		(char*)"gfx/jay.bmp",		2, 1, 1, 0},
+	{(char*)"JEROEN",	(char*)"gfx/jeroen.bmp",	1, 1, 2, 0},
+	{(char*)"STEVEN",	(char*)"gfx/steven.bmp",	0, 2, 0, 2},
+	{(char*)"TEDJE",	(char*)"gfx/tedje.bmp",		1, 1, 2, 0},
+	{(char*)"OKKE",		(char*)"gfx/okke.bmp",		2, 0, 2, 0},
+	{(char*)"JEREMY",	(char*)"gfx/jeremy.bmp",	2, 0, 0, 2},
+	{(char*)"MARCEL",	(char*)"gfx/marcel.bmp",	2, 0, 1, 1},
+	{(char*)"JAY",		(char*)"gfx/jay.bmp",		0, 2, 1, 1},
 	{(char*)"DONJA",	(char*)"gfx/donja.bmp",		2, 0, 1, 1},
 	{(char*)"ROB",		(char*)"gfx/rob.bmp",		0, 2, 0, 2},
-	{(char*)"EVA",		(char*)"gfx/eva.bmp",		1, 2, 0, 1},
-	{(char*)"TOBIAS",	(char*)"gfx/tobias.bmp",	1, 1, 2, 0},
+	{(char*)"EVA",		(char*)"gfx/eva.bmp",		0, 2, 1, 1},
+	{(char*)"TOBIAS",	(char*)"gfx/tobias.bmp",	1, 1, 0, 2},
 	{(char*)"ARJAN",	(char*)"gfx/arjan.bmp",		0, 2, 2, 0},
 	{(char*)"RUUD",		(char*)"gfx/ruud.bmp",		2, 0, 0, 2},
-	{(char*)"PETER",	(char*)"gfx/peter.bmp",		1, 1, 2, 0},
-	{(char*)"BERRY",	(char*)"gfx/berry.bmp",		1, 1, 0, 2},
-	{(char*)"TON",		(char*)"gfx/ton.bmp",		1, 2, 0, 1},
+	{(char*)"PETER",	(char*)"gfx/peter.bmp",		1, 1, 1, 1},
+	{(char*)"BERRY",	(char*)"gfx/berry.bmp",		2, 0, 1, 1},
+	{(char*)"TON",		(char*)"gfx/ton.bmp",		0, 2, 2, 0},
 	{(char*)"ANTON",	(char*)"gfx/anton.bmp",		1, 1, 0, 2},
 	{(char*)"RUTGER",	(char*)"gfx/rutger.bmp",	2, 0, 2, 0},
 	{(char*)"KIM",		(char*)"gfx/kim.bmp",		1, 1, 1, 1},
@@ -46,19 +46,19 @@ const int Player::COLORS[4] = {
 const int Player::SPEEDCLASS_COUNT = 3;
 const SpeedClass Player::SPEEDCLASSES[Player::SPEEDCLASS_COUNT] = {
 	{30},
+	{35},
 	{40},
-	{50},
 };
 const int Player::WEIGHTCLASS_COUNT = 3;
 const WeightClass Player::WEIGHTCLASSES[Player::WEIGHTCLASS_COUNT] = {
-	{5,   0, 35, 20},
-	{10,  5, 30, 15},
-	{15, 10, 25, 10},
+	{5,   5, 35, 20},
+	{10, 10, 30, 15},
+	{15, 15, 25, 10},
 };
 const int Player::WEAPONCLASS_COUNT = 3;
 const WeaponClass Player::WEAPONCLASSES[Player::WEAPONCLASS_COUNT] = {
-	{12, 250, 10},
 	{10, 300, 10},
+	{ 9, 325, 10},
 	{ 8, 350, 10},
 };
 const int Player::BOMBPOWERCLASS_COUNT = 3;

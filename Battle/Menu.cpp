@@ -24,7 +24,7 @@
 
 #include "Menu.h"
 
-#define MENU_TOP_OFFSET 144
+#define MENU_TOP_OFFSET 180
 #define MENU_ITEM_HEIGHT TILE_H
 #define MENU_ITEM_WIDTH 128
 
@@ -34,8 +34,8 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-const int Menu::ITEMCOUNT = 5;
-const char * Menu::item[ITEMCOUNT] = {"MISSIONS", "MULTIPLAYER", "TRAINING", "OPTIONS", "QUIT"};
+const int Menu::ITEMCOUNT = 3;
+const char * Menu::item[ITEMCOUNT] = {"MULTIPLAYER", "OPTIONS", "QUIT"};
 
 Menu::Menu() {
 }
@@ -82,6 +82,9 @@ void Menu::run() {
 		if(!Main::running && Main::is_reset) {
 			Main::running = true;
 			Main::is_reset = false;
+
+			input_master->reset();
+			input_master->set_delay();
 
 			started = false;
 		}
@@ -210,7 +213,7 @@ void Menu::process_cursor() {
 void Menu::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
-		case 0:
+		/*case 0:
 			Mission * mission;
 			Player * player;
 			NPC * npc;
@@ -252,18 +255,21 @@ void Menu::select() {
 			input_master->reset();
 			input_master->set_delay();
 			break;
-		case 1:
+		case 1:*/
+		case 0:
 			start_local_multiplayer();
 			break;
-		case 2:
+		/*case 2:
 			break;
-		case 3:
+		case 3:*/
+		case 1:
 			Options * options;
 			options = new Options();
 			options->run();
 			delete options;
 			break;
-		case 4:
+		//case 4:
+		case 2:
 			SDL_Delay(500);
 			Main::running = false;
 			break;
@@ -413,7 +419,7 @@ void Menu::process_playeranimation() {
 		playeranimation->animate_in_place = false;
 		playeranimation->direction = -1;
 	}
-	if(frame - animation_start == 32) {
+	if(frame - animation_start == 41) {
 		playeranimation->direction = 1;
 	}
 	if(playeranimation->momentumx == 0) {
@@ -423,7 +429,7 @@ void Menu::process_playeranimation() {
 	if(playeranimation->character == 2 && frame - animation_start == 100) {
 		playeranimation->is_duck = true;
 	}
-	if(frame - animation_start == 140) {
+	if(frame - animation_start == 150) {
 		playeranimation->is_duck = false;
 		playeranimation->is_walking = true;
 		playeranimation->direction = -1;
