@@ -15,6 +15,8 @@
 
 const int Main::FRAMES_PER_SECOND = 60;
 
+const int Main::FRAMES_UNTIL_RESET = 7200;
+
 const int Main::CONTROLS_REPEAT_DELAY = 30;
 const int Main::CONTROLS_REPEAT_SPEED = 10;
 
@@ -42,6 +44,10 @@ bool Main::fps_counter_visible = false;
 AudioController * Main::audio = NULL;
 Graphics * Main::graphics = NULL;
 Text * Main::text = NULL;
+
+int Main::last_activity = 0;
+bool Main::autoreset = true;
+bool Main::is_reset = false;
 
 Main::Main() {
 	Main::instance = this;
@@ -139,6 +145,13 @@ void Main::flip() {
 	}
 
 	fps->start();
+
+	if(autoreset) {
+		if(frame - last_activity == FRAMES_UNTIL_RESET) {
+			running = false;
+			is_reset = true;
+		}
+	}
 }
 
 void Main::fps_count() {
@@ -206,6 +219,10 @@ void Main::handle_event(SDL_Event * event) {
 		if(event->key.keysym.sym == SDLK_PRINT) {
 			screenshot_next_flip = true;
 		}
+	}
+	if(event->type == SDL_KEYDOWN || event->type == SDL_KEYUP || event->type == SDL_JOYAXISMOTION ||
+		event->type == SDL_JOYBUTTONDOWN || event->type == SDL_JOYBUTTONUP || event->type == SDL_JOYHATMOTION) {
+		last_activity = frame;
 	}
 }
 

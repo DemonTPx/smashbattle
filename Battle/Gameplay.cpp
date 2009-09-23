@@ -40,6 +40,8 @@ void Gameplay::run() {
 
 	screen = Main::instance->screen;
 
+	Main::autoreset = false;
+
 	initialize();
 
 	reset_game();
@@ -164,6 +166,8 @@ void Gameplay::run() {
 	}
 
 	deinitialize();
+
+	Main::autoreset = true;
 }
 
 void Gameplay::handle_pause_input(SDL_Event * event) {

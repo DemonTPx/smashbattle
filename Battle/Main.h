@@ -36,6 +36,8 @@ public:
 
 	static const int FRAMES_PER_SECOND;
 
+	static const int FRAMES_UNTIL_RESET;
+
 	static const int CONTROLS_REPEAT_DELAY;
 	static const int CONTROLS_REPEAT_SPEED;
 
@@ -51,6 +53,10 @@ public:
 	static AudioController * audio;
 	static Graphics * graphics;
 	static Text * text;
+
+	static int last_activity;
+	static bool autoreset;
+	static bool is_reset;
 
 	SDL_Joystick * joystick[10];
 

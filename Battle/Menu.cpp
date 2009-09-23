@@ -24,7 +24,7 @@
 
 #include "Menu.h"
 
-#define MENU_TOP_OFFSET 160
+#define MENU_TOP_OFFSET 144
 #define MENU_ITEM_HEIGHT TILE_H
 #define MENU_ITEM_WIDTH 128
 
@@ -60,6 +60,8 @@ void Menu::run() {
 	started = false;
 	input_master = Main::instance->input_master;
 
+	Main::autoreset = true;
+
 	while (Main::running) {
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
@@ -76,6 +78,13 @@ void Menu::run() {
 
 		Main::instance->flip();
 		frame++;
+
+		if(!Main::running && Main::is_reset) {
+			Main::running = true;
+			Main::is_reset = false;
+
+			started = false;
+		}
 	}
 	Main::audio->stop_music();
 
@@ -144,13 +153,18 @@ void Menu::draw() {
 		// Press start
 		if(!(frame & 0x20) || !(frame & 0x8)) {
 			rect.x = (WINDOW_WIDTH - Main::graphics->text_pressstart->w) / 2;
-			rect.y = (WINDOW_HEIGHT - Main::graphics->text_pressstart->h) / 2;
+			rect.y = ((WINDOW_HEIGHT - Main::graphics->text_pressstart->h) / 2) - 16;
 			SDL_BlitSurface(Main::graphics->text_pressstart, NULL, screen, &rect);
 		}
 	}
 
 	// Player animation
-	playeranimation->draw(Main::instance->screen);
+	playeranimation->draw(screen);
+
+	// Player name
+	if(draw_playername) {
+		SDL_BlitSurface(Main::graphics->playername->at(playeranimation->character), 0, screen, &pos_playername);
+	}
 
 	// Credits
 	rect.x = (WINDOW_WIDTH - credits->at(0)->w) / 2;
@@ -413,6 +427,14 @@ void Menu::process_playeranimation() {
 		playeranimation->is_duck = false;
 		playeranimation->is_walking = true;
 		playeranimation->direction = -1;
+	}
+	if(!draw_playername && playeranimation->momentumx == 0) {
+		draw_playername = true;
+		pos_playername.x = (playeranimation->position->x + (playeranimation->position->w / 2)) - (Main::graphics->playername->at(playeranimation->character)->w / 2);
+		pos_playername.y = playeranimation->position->y - 20;
+	}
+	if(draw_playername && playeranimation->momentumx != 0) {
+		draw_playername = false;
 	}
 }
 
