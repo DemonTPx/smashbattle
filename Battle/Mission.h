@@ -3,8 +3,27 @@
 
 #include "Gameplay.h"
 
+enum MISSION_TYPE {
+	MT_KILL_NPCS,
+	MT_GET_ITEMS,
+};
+
+struct MISSION_TARGET {
+	MISSION_TYPE type;
+	int time_platinum;
+	int time_gold;
+	int time_silver;
+};
+
+struct MISSION_INFO {
+	char * name;
+	char * filename;
+};
+
 class Mission : public Gameplay {
 public:
+	static const int MISSION_COUNT;
+	static const MISSION_INFO MISSIONS[];
 protected:
 	virtual void initialize();
 

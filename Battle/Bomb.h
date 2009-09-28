@@ -46,7 +46,7 @@ public:
 	virtual void process();
 
 	virtual void hit_player(Player * player);
-	//virtual void hit_npc(NPC * npc);
+	virtual void hit_npc(NPC * npc);
 
 	void explode();
 

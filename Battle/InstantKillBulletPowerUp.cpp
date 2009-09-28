@@ -27,6 +27,8 @@ void InstantKillBulletPowerUp::hit_player(Player * p) {
 	done = true;
 }
 
+void InstantKillBulletPowerUp::hit_npc(NPC * npc) {}
+
 void InstantKillBulletPowerUp::draw(SDL_Surface * screen) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }

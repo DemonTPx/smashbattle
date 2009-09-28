@@ -42,6 +42,7 @@ private:
 	void handle_input(SDL_Event * event);
 	void process_cursor();
 
+	void start_missions();
 	void start_local_multiplayer();
 
 	void next_playeranimation();

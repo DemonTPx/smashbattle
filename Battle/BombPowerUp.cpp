@@ -27,6 +27,8 @@ void BombPowerUp::hit_player(Player * p) {
 	done = true;
 }
 
+void BombPowerUp::hit_npc(NPC * npc) {}
+
 void BombPowerUp::draw(SDL_Surface * screen) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }

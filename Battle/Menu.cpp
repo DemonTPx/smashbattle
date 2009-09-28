@@ -6,15 +6,16 @@
 #include "Timer.h"
 #include "AudioController.h"
 
-#include "CharacterSelect.h"
-#include "LevelSelect.h"
-
 #include "Gameplay.h"
 
-#include "ChickNPC.h"
-
+#include "MissionSelect.h"
 #include "Mission.h"
 
+#include "NPC.h"
+#include "ChickNPC.h"
+
+#include "CharacterSelect.h"
+#include "LevelSelect.h"
 #include "LocalMultiplayer.h"
 #include "LocalMultiplayerRoundEnd.h"
 
@@ -34,8 +35,8 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-const int Menu::ITEMCOUNT = 3;
-const char * Menu::item[ITEMCOUNT] = {"MULTIPLAYER", "OPTIONS", "QUIT"};
+const int Menu::ITEMCOUNT = 4;
+const char * Menu::item[ITEMCOUNT] = {"MISSIONS", "MULTIPLAYER", "OPTIONS", "QUIT"};
 
 Menu::Menu() {
 }
@@ -213,67 +214,80 @@ void Menu::process_cursor() {
 void Menu::select() {
 	Main::audio->play(SND_SELECT);
 	switch(selected_item) {
-		/*case 0:
-			Mission * mission;
-			Player * player;
-			NPC * npc;
-			Level * level;
-
-			mission = new Mission();
-
-			player = new Player(0, 1);
-			player->input = input_master;
-			player->position->x = 60;
-			player->position->y = 144;
-			
-			npc = new ChickNPC();
-			npc->position->x = 20;
-			npc->position->y = 68;
-			npc->move_direction = -1;
-			mission->add_npc(npc);
-			npc = new ChickNPC();
-			npc->position->x = 100;
-			npc->position->y = 68;
-			npc->move_direction = -1;
-			mission->add_npc(npc);
-			npc = new ChickNPC();
-			npc->position->x = 190;
-			npc->position->y = 68;
-			npc->move_direction = -1;
-			mission->add_npc(npc);
-			
-			level = new Level();
-			level->load("stage/tryout.lvl");
-
-			mission->add_player(player);
-			mission->set_level(level);
-
-			mission->run();
-
-			delete mission;
-
-			input_master->reset();
-			input_master->set_delay();
-			break;
-		case 1:*/
 		case 0:
+			start_missions();
+			break;
+		case 1:
 			start_local_multiplayer();
 			break;
-		/*case 2:
-			break;
-		case 3:*/
-		case 1:
+		case 2:
 			Options * options;
 			options = new Options();
 			options->run();
 			delete options;
 			break;
-		//case 4:
-		case 2:
+		case 3:
 			SDL_Delay(500);
 			Main::running = false;
 			break;
 	}
+}
+
+void Menu::start_missions() {
+	MissionSelect * ms;
+	Mission * m;
+	Level * level;
+	Player * player;
+	NPC * npc;
+
+	bool running;
+
+	running = true;
+
+	player = new Player(0, 1);
+	player->input = input_master;
+
+	ms = new MissionSelect();
+
+	while(Main::running && running) {
+		ms->run();
+
+		level = new Level();
+		level->load("stage/tryout.lvl");
+
+		m = new Mission();
+		m->add_player(player);
+		m->set_level(level);
+
+		player->position->x = 60;
+		player->position->y = 148;
+
+		npc = new ChickNPC();
+		npc->position->x = 20;
+		npc->position->y = 68;
+		npc->move_direction = -1;
+		m->add_npc(npc);
+		npc = new ChickNPC();
+		npc->position->x = 100;
+		npc->position->y = 68;
+		npc->move_direction = -1;
+		m->add_npc(npc);
+		npc = new ChickNPC();
+		npc->position->x = 190;
+		npc->position->y = 68;
+		npc->move_direction = -1;
+		m->add_npc(npc);
+
+		m->run();
+
+		delete level;
+		delete m;
+	}
+
+	delete ms;
+	delete player;
+	
+	Main::audio->play_music(MUSIC_TITLE);
 }
 
 void Menu::start_local_multiplayer() {

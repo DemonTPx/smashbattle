@@ -3,6 +3,7 @@
 
 #include "Level.h"
 #include "Player.h"
+#include "NPC.h"
 
 class GameplayObject {
 public:
@@ -13,7 +14,7 @@ public:
 	virtual void process() = 0;
 
 	virtual void hit_player(Player * player) = 0;
-	//virtual void hit_npc(NPC * npc) = 0;
+	virtual void hit_npc(NPC * npc) = 0;
 
 	virtual void draw(SDL_Surface * screen) = 0;
 

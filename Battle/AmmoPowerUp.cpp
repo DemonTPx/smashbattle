@@ -27,6 +27,8 @@ void AmmoPowerUp::hit_player(Player * p) {
 	done = true;
 }
 
+void AmmoPowerUp::hit_npc(NPC * npc) {}
+
 void AmmoPowerUp::draw(SDL_Surface * screen) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }

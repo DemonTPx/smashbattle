@@ -85,6 +85,20 @@ void Projectile::hit_player(Player * player) {
 	owner->bullets_hit++;
 }
 
+void Projectile::hit_npc(NPC * npc) {
+	if(hit)
+		return;
+
+	if(npc->is_hit)
+		return;
+
+	npc->hitpoints -= damage;
+	npc->hit_start = Gameplay::frame;
+	npc->is_hit = true;
+	hit = true;
+	owner->bullets_hit++;
+}
+
 void Projectile::draw(SDL_Surface * screen) {
 	SDL_Rect rect;
 

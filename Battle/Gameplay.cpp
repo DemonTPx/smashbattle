@@ -115,6 +115,17 @@ void Gameplay::run() {
 					}
 					delete rect;
 				}
+				for(unsigned int i = 0; i < npcs->size(); i++) {
+					NPC * npc = npcs->at(i);
+					if(npc->is_dead)
+						continue;
+					SDL_Rect * rect;
+					rect = npc->get_rect();
+					if(is_intersecting(rect, obj->position)) {
+						obj->hit_npc(npc);
+					}
+					delete rect;
+				}
 				if(obj->done) {
 					objects->erase(objects->begin() + idx);
 					delete obj;

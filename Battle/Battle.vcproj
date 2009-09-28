@@ -275,6 +275,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MissionSelect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\NPC.cpp"
 				>
 			</File>
@@ -410,6 +414,10 @@
 			</File>
 			<File
 				RelativePath=".\Mission.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MissionSelect.h"
 				>
 			</File>
 			<File

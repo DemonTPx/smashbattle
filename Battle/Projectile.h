@@ -27,7 +27,7 @@ public:
 	virtual void process();
 
 	virtual void hit_player(Player * player);
-	//virtual void hit_npc(NPC * npc) = 0;
+	virtual void hit_npc(NPC * npc);
 
 	virtual void draw(SDL_Surface * screen);
 private:

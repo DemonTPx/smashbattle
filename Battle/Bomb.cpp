@@ -104,6 +104,13 @@ void Bomb::hit_player(Player * p) {
 		explode();
 }
 
+void Bomb::hit_npc(NPC * npc) {
+	if(exploded)
+		return;
+
+	explode();
+}
+
 void Bomb::move(Level * level) {
 	int speed;
 
@@ -159,9 +166,12 @@ void Bomb::explode() {
 	Main::audio->play(SND_EXPLODE, position->x);
 
 	Player * p;
+	NPC * npc;
 	SDL_Rect * rect_bomb;
 	SDL_Rect * rect_player = NULL;
+	SDL_Rect * rect_npc = NULL;
 	bool player_hit = false;
+	bool npcs_hit = false;
 
 	rect_bomb = get_damage_rect();
 
@@ -180,6 +190,21 @@ void Bomb::explode() {
 		}
 
 		delete rect_player;
+	}
+
+	for(unsigned int i = 0; i < Gameplay::instance->npcs->size(); i++) {
+		npc = Gameplay::instance->npcs->at(i);
+
+		rect_npc = npc->get_rect();
+
+		if(Gameplay::is_intersecting(rect_bomb, rect_npc)) {
+			npc->hitpoints -= damage;
+			npc->is_hit = true;
+			npc->hit_start = Gameplay::frame;
+			player_hit = true;
+		}
+
+		delete rect_npc;
 	}
 
 	if(player_hit)
