@@ -247,6 +247,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\LaserBeam.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LaserBeamPowerUp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Level.cpp"
 				>
 			</File>
@@ -386,6 +394,14 @@
 			</File>
 			<File
 				RelativePath=".\InstantKillBulletPowerUp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LaserBeam.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LaserBeamPowerUp.h"
 				>
 			</File>
 			<File
@@ -600,6 +616,10 @@
 			</File>
 			<File
 				RelativePath=".\stage\lamoustache.lvl"
+				>
+			</File>
+			<File
+				RelativePath=".\sfx\laser.wav"
 				>
 			</File>
 			<File
