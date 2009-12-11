@@ -21,7 +21,7 @@
 void LocalMultiplayer::initialize() {
 	Gameplay::initialize();
 
-	powerup_rate = 600;
+	powerup_rate = 300;
 	powerup_max = 2;
 
 	powerup_health_rate = 10;
@@ -29,7 +29,7 @@ void LocalMultiplayer::initialize() {
 	powerup_doubledamage_rate = 6;
 	powerup_instantkill_rate = 1;
 	powerup_bomb_rate = 6;
-	powerup_airstrike_rate = 1;
+	powerup_airstrike_rate = 2;
 	powerup_laserbeam_rate = 3;
 
 	round = 0;

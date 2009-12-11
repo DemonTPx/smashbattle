@@ -40,14 +40,10 @@ void LaserBeam::process() {
 
 	if(frame == 1) {
 		Main::audio->play(SND_LASER);
+		position->x = target->position->x + (PLAYER_W / 2);
 	}
-	if(frame == 10) {
-		
-	}
-	if(frame >= 10) {
-		
-	}
-	if(frame >= 44) {
+
+	if(frame >= 28) {
 		done = true;
 	}
 }
@@ -73,6 +69,8 @@ void LaserBeam::draw(SDL_Surface * screen) {
 
 	frame = Gameplay::instance->frame - start;
 
+	if(frame < 0) return;
+
 	if(frame == 12) {
 		position->x -= 32;
 		position->w = 66;
@@ -92,9 +90,9 @@ void LaserBeam::draw(SDL_Surface * screen) {
 		SDL_FillRect(screen, &rect, color);
 	} else if(frame < 12) {
 		SDL_FillRect(screen, 0, color);
-	} else if(frame < 44) {
+	} else if(frame < 28) {
 		int offset;
-		offset = frame - 12;
+		offset = (frame - 12) * 2;
 		rect.h = WINDOW_HEIGHT;
 		rect.w += 32 - offset;
 

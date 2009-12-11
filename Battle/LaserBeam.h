@@ -19,6 +19,7 @@ public:
 	int start;
 
 	Player * owner;
+	Player * target;
 };
 
 #endif
