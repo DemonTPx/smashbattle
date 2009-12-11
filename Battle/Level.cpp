@@ -550,10 +550,17 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 	int l, r, t, b;
 
 	l = rect->x;
-	r = rect->x + rect->w + TILE_W;
+	r = rect->x + rect->w - 1;
 
 	t = rect->y;
 	b = rect->y + rect->h;
+
+	// Align rect to the tiles
+	l = l - (l % TILE_W);
+	r = r - (r % TILE_W) + TILE_W;
+
+	t = t - (t % TILE_H);
+	b = b - (t % TILE_H);
 
 	if(t < 0) t = 0;
 	if(b < 0) b = 0;

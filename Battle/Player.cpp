@@ -73,6 +73,7 @@ const int Player::jump_height = 144;
 // Movement constantes
 #define MAX_MOMENTUM_FALL 100
 #define MAX_MOMENTUM_JUMP 40
+#define MIN_MOMENTUM_STOMP 40
 #define MAX_MOMENTUM_HORIZ 20
 #define MAX_MOMENTUM_HORIZ_DUCKJUMP 10
 #define MAX_MOMENTUM_RUN 40
@@ -147,6 +148,8 @@ void Player::reset() {
 
 	is_jumping = false;
 	is_falling = false;
+	is_stomping = false;
+	has_jump_released = false;
 
 	if(input != NULL)
 		input->reset();
@@ -306,6 +309,12 @@ void Player::move(Level * level) {
 	else {
 		is_duck = false;
 	}
+
+	// Force player to duck if stomping
+	if(is_stomping) {
+		duck_force_start = Gameplay::frame;
+		is_duck_forced = true;
+	}
 	
 	// Are we forced to being ducked?
 	if(is_duck_forced) {
@@ -331,19 +340,19 @@ void Player::move(Level * level) {
 		}
 	}
 
-	if(!is_frozen && input->is_pressed(A_LEFT)) {
+	if(!is_frozen && !is_stomping && input->is_pressed(A_LEFT)) {
 		// Move more to the left
 		if(momentumx > 0) momentumx -= MOMENTUM_INTERV_HORIZ;
 		if(momentumx >= -maxx) momentumx -= MOMENTUM_INTERV_HORIZ;
 		else momentumx += MOMENTUM_INTERV_HORIZ;
 	}
-	if(!is_frozen && input->is_pressed(A_RIGHT)) {
+	if(!is_frozen && !is_stomping && input->is_pressed(A_RIGHT)) {
 		// Move more to the right
 		if(momentumx < 0) momentumx += MOMENTUM_INTERV_HORIZ;
 		if(momentumx <= maxx) momentumx += MOMENTUM_INTERV_HORIZ;
 		else momentumx -= MOMENTUM_INTERV_HORIZ;
 	}
-	if(is_frozen || (!input->is_pressed(A_LEFT) && !input->is_pressed(A_RIGHT))) {
+	if(is_frozen || is_stomping || (!input->is_pressed(A_LEFT) && !input->is_pressed(A_RIGHT))) {
 		// Slide until we're standing still
 		if(momentumx < 0) momentumx += MOMENTUM_INTERV_HORIZ;
 		if(momentumx > 0) momentumx -= MOMENTUM_INTERV_HORIZ;
@@ -490,8 +499,23 @@ void Player::move(Level * level) {
 		// The up key is released, so fall faster
 		is_jumping = false;
 		is_falling = true;
+		has_jump_released = true;
 	}
-	if(is_falling || is_jumping) {
+	if(input->is_pressed(A_JUMP) && input->is_pressed(A_DOWN) && has_jump_released) {
+		// Jump key is pressed again.. stomp!
+		is_stomping = true;
+	}
+	if(is_stomping) {
+		speedy = SPEED_VERT;
+		if(momentumy > -MIN_MOMENTUM_STOMP) {
+			momentumy = -MIN_MOMENTUM_STOMP;
+		}
+		if(momentumy > -MAX_MOMENTUM_FALL) {
+			// Double the momentum, because we are falling
+			momentumy -= MOMENTUM_INTERV_VERT * 2;
+		}
+	}
+	else if(is_falling || is_jumping) {
 		speedy = SPEED_VERT;
 		// Increase downward momentum (= decrease upward momentum)
 		if(momentumy > -MAX_MOMENTUM_FALL) {
@@ -499,7 +523,7 @@ void Player::move(Level * level) {
 		// Falling is faster than jumping (also.. we start to fall faster when the
 		// up key is not held down)
 			if(is_falling)
-				momentumy  -= MOMENTUM_INTERV_VERT;
+				momentumy -= MOMENTUM_INTERV_VERT;
 		}
 	}
 
@@ -522,6 +546,13 @@ void Player::move(Level * level) {
 	if(level->is_intersecting(&rect)) {
 		if(speedy > 0) {
 			level->bounce_tile(&rect);
+		} else {
+			if(is_stomping) {
+				Main::audio->play(SND_STOMP, (position->x + (PLAYER_W / 2)));
+				level->damage_tiles(&rect, 5);
+				is_frozen = true;
+				freeze_start = Gameplay::frame;
+			}
 		}
 
 		// Put the player back into the previous position
@@ -536,6 +567,8 @@ void Player::move(Level * level) {
 			// Stop at the bottom
 			is_jumping = false;
 			is_falling = false;
+			is_stomping = false;
+			has_jump_released = false;
 			momentumy = 0;
 		}
 	}

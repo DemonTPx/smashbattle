@@ -723,6 +723,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sfx\stomp.wav"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\tedje.bmp"
 				>
 			</File>
