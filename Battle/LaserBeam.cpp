@@ -63,7 +63,7 @@ void LaserBeam::hit_player(Player * player) {
 void LaserBeam::hit_npc(NPC * npc) {}
 
 void LaserBeam::draw(SDL_Surface * screen) {
-	SDL_Rect rect;
+	SDL_Rect rect, rect_b;
 	int frame;
 	Uint32 color;
 
@@ -81,6 +81,11 @@ void LaserBeam::draw(SDL_Surface * screen) {
 	rect.w = 4;
 	rect.h = 0;
 
+	rect_b.x = rect.x;
+	rect_b.y = rect.y;
+	rect_b.w = rect.w;
+	rect_b.h = rect.h;
+
 	color = 0xffffffff;
 	
 	// Preloading beam
@@ -88,21 +93,60 @@ void LaserBeam::draw(SDL_Surface * screen) {
 		rect.h = ((WINDOW_HEIGHT - TILE_W) / 10) * frame;
 
 		SDL_FillRect(screen, &rect, color);
+
+		if(rect.x < 0) {
+			rect_b.h = rect.h;
+			rect_b.x += WINDOW_WIDTH;
+			SDL_FillRect(screen, &rect_b, color);
+		}
+		if(rect.x  + rect.w >= WINDOW_WIDTH) {
+			rect_b.h = rect.h;
+			rect_b.x -= WINDOW_WIDTH;
+			SDL_FillRect(screen, &rect_b, color);
+		}
 	} else if(frame < 12) {
 		SDL_FillRect(screen, 0, color);
 	} else if(frame < 28) {
-		int offset;
+		int offset, width;
 		offset = (frame - 12) * 2;
+		width = 32 - offset;
+
 		rect.h = WINDOW_HEIGHT;
-		rect.w += 32 - offset;
+		rect.w += width;
 
 		color = 0xffffffff - (0x00000002 * offset);
 
 		SDL_FillRect(screen, &rect, color);
+		
+		if(rect.x < 0) {
+			rect_b.w = width;
+			rect_b.h = rect.h;
+			rect_b.x = rect.x + WINDOW_WIDTH;
+			SDL_FillRect(screen, &rect_b, color);
+		}
+		if(rect.x  + width >= WINDOW_WIDTH) {
+			rect_b.w = 32 - offset;
+			rect_b.h = rect.h;
+			rect_b.x = rect.x - WINDOW_WIDTH;
+			SDL_FillRect(screen, &rect_b, color);
+		}
 
 		rect.x += 32 + offset;
 		
 		SDL_FillRect(screen, &rect, color);
+		
+		if(rect.x < 0) {
+			rect_b.w = width;
+			rect_b.h = rect.h;
+			rect_b.x = rect.x + WINDOW_WIDTH;
+			SDL_FillRect(screen, &rect_b, color);
+		}
+		if(rect.x  + width >= WINDOW_WIDTH) {
+			rect_b.w = width;
+			rect_b.h = rect.h;
+			rect_b.x = rect.x - WINDOW_WIDTH;
+			SDL_FillRect(screen, &rect_b, color);
+		}
 	}
 }
  
