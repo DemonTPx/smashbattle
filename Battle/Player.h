@@ -93,7 +93,6 @@ public:
 
 	bool is_jumping, is_falling;
 	int jump_start;
-	bool has_jump_released, is_stomping;
 
 	int current_sprite;
 	int cycle_direction;
