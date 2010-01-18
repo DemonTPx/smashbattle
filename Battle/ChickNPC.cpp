@@ -40,16 +40,16 @@ ChickNPC::ChickNPC() : NPC() {
 
 	sprites = Main::graphics->npc_chick;
 	
-	position = new SDL_Rect();
 	position->w = frame_w;
 	position->h = frame_h;
 
-	last_position = new SDL_Rect();
 	last_position->w = frame_w;
 	last_position->h = frame_h;
 
 	max_speed = 20;
 	jump_height = 0;
+
+	bounce_weight = 10;
 
 	hitpoints = 1;
 

@@ -38,6 +38,8 @@ NPC::NPC() {
 	max_speed = 20;
 	jump_height = 20;
 
+	bounce_weight = 20;
+
 	move_direction = 0;
 
 	momentumx = 0;
@@ -245,19 +247,19 @@ void NPC::bounce(Player * other) {
 		
 		if(is_left) {
 			bounce_direction_x = -1;
-			newmomentumx -= 10;
+			newmomentumx -= (30 - bounce_weight);
 			if(move_direction == 1) move_direction = -1;
 
 			other->bounce_direction_x = 1;
-			other->newmomentumx = 10;
+			other->newmomentumx = other->newmomentumx + 10 + bounce_weight;
 		}
 		if(is_right) {
 			bounce_direction_x = 1;
-			newmomentumx += 10;
+			newmomentumx += (30 - bounce_weight);
 			if(move_direction == -1) move_direction = 1;
 			
 			other->bounce_direction_x = -1;
-			other->newmomentumx = -10;
+			other->newmomentumx = other->newmomentumx - 10 -bounce_weight;
 		}
 	} else {
 		bounce_direction_x = 0;
@@ -332,12 +334,12 @@ void NPC::bounce(NPC * other) {
 		
 		if(is_left) {
 			bounce_direction_x = -1;
-			newmomentumx -= 10;
+			newmomentumx -= (30 - bounce_weight);
 			if(move_direction == 1) move_direction = -1;
 		}
 		if(is_right) {
 			bounce_direction_x = 1;
-			newmomentumx += 10;
+			newmomentumx += (30 - bounce_weight);
 			if(move_direction == -1) move_direction = 1;
 		}
 	} else {

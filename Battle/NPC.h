@@ -78,6 +78,8 @@ protected:
 	int max_speed;
 	int jump_height;
 
+	int bounce_weight;
+
 	int current_sprite;
 	int cycle_direction;
 	int distance_walked;

@@ -280,6 +280,11 @@ void Gameplay::deinitialize() {
 	delete players;
 
 	// Clear NPC's
+	NPC * npc;
+	for(unsigned int i = 0; i < npcs->size(); i++) {
+		npc = npcs->at(i);
+		delete npc;
+	}
 	npcs->clear();
 	delete npcs;
 
