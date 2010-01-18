@@ -24,6 +24,13 @@ class Mission : public Gameplay {
 public:
 	static const int MISSION_COUNT;
 	static const MISSION_INFO MISSIONS[];
+
+	Mission();
+
+	int bullets;
+	int bombs;
+
+	int time;
 protected:
 	virtual void initialize();
 
@@ -31,6 +38,8 @@ protected:
 
 	virtual void on_pre_processing();
 	virtual void on_post_processing();
+	
+	virtual void draw_score();
 };
 
 #endif

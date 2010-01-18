@@ -20,9 +20,10 @@
 #define DIRECTION_DOWN	8
 
 #define MISSIONSELECT_HEIGHT 50
-#define MISSIONSELECT_COUNT 7
+#define MISSIONSELECT_COUNT 6
 
 MissionSelect::MissionSelect() {
+	cancel = false;
 }
 
 void MissionSelect::run() {
@@ -37,6 +38,7 @@ void MissionSelect::run() {
 	ready = false;
 	ready_mission = false;
 	cancel = false;
+	cancel_selected = false;
 
 	mission = 0;
 	mission_scroll_top = 0;
@@ -83,6 +85,10 @@ void MissionSelect::process_cursor() {
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
 		input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
 			if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
+				if(cancel_selected) {
+					ready = true;
+					cancel = true;
+				}
 				if(!ready_mission) {
 					ready_mission = true;
 					
@@ -113,23 +119,30 @@ void MissionSelect::select(int direction) {
 	if(direction & DIRECTION_RIGHT) {
 	}
 	if(direction & DIRECTION_UP) {
-		mission--;
-		if(mission_scroll_top != 0 && mission  == mission_scroll_top)
+		if(cancel_selected) {
+			mission = Mission::MISSION_COUNT - 1;
+			mission_scroll_top = Mission::MISSION_COUNT - MISSIONSELECT_COUNT;
+			cancel_selected = false;
+		} else if(mission == 0) {
+			cancel_selected = true;
+		} else {
+			mission--;
+		}
+		if(mission_scroll_top != 0 && mission == mission_scroll_top)
 			mission_scroll_top--;
 	}
 	if(direction & DIRECTION_DOWN) {
-		mission++;
+		if(cancel_selected) {
+			mission = 0;
+			mission_scroll_top = 0;
+			cancel_selected = false;
+		} else if(mission == (Mission::MISSION_COUNT - 1)) {
+			cancel_selected = true;
+		} else {
+			mission++;
+		}
 		if(mission_scroll_top != Mission::MISSION_COUNT - MISSIONSELECT_COUNT && mission == mission_scroll_top + MISSIONSELECT_COUNT - 1)
 			mission_scroll_top++;
-	}
-
-	if(mission < 0) {
-		mission += Mission::MISSION_COUNT;
-		mission_scroll_top = Mission::MISSION_COUNT - MISSIONSELECT_COUNT;
-	}
-	if(mission >= Mission::MISSION_COUNT) {
-		mission -= Mission::MISSION_COUNT;
-		mission_scroll_top = 0;
 	}
 }
 
@@ -164,7 +177,7 @@ void MissionSelect::draw() {
 		rect.h = r_block.h - 4;
 
 		color = 0;
-		if(mission == idx) {
+		if(!cancel_selected && mission == idx) {
 			color = 0x0088ff;
 			
 			if(ready_mission && flicker) {
@@ -214,6 +227,19 @@ void MissionSelect::draw() {
 			SDL_BlitSurface(Main::graphics->cups, &rect_s, screen, &rect);
 		}
 	}
+
+	surface = Main::text->render_text_medium((char*)"QUIT TO MENU\0");
+	rect.x = WINDOW_WIDTH - 30 - surface->w;
+	rect.y = WINDOW_HEIGHT - 30 - surface->h;
+	if(cancel_selected) {
+		rect_b.x = rect.x - 6;
+		rect_b.y = rect.y - 6;
+		rect_b.w = surface->w + 12;
+		rect_b.h = surface->h + 12;
+		SDL_FillRect(screen, &rect_b, 0x0088ff);
+	}
+	SDL_BlitSurface(surface, 0, screen, &rect);
+	SDL_FreeSurface(surface);
 }
 
 void MissionSelect::load_sprites() {

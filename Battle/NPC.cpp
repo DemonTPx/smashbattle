@@ -216,6 +216,8 @@ void NPC::bounce(Player * other) {
 			other->momentumy = -10;
 			other->hitpoints -= 5;
 		}
+
+		hit_player_top_bottom(other);
 	}
 	if(is_below) {
 		bounce_direction_y = 1;
@@ -234,6 +236,8 @@ void NPC::bounce(Player * other) {
 			other->is_jumping = true;
 		}
 		other->momentumy = 30;
+		
+		hit_player_top_bottom(other);
 	}
 	if(!is_above && !is_below) {
 		bounce_direction_y = 0;
@@ -261,6 +265,8 @@ void NPC::bounce(Player * other) {
 			other->bounce_direction_x = -1;
 			other->newmomentumx = other->newmomentumx - 10 -bounce_weight;
 		}
+		
+		hit_player_side(other);
 	} else {
 		bounce_direction_x = 0;
 	}
@@ -334,12 +340,12 @@ void NPC::bounce(NPC * other) {
 		
 		if(is_left) {
 			bounce_direction_x = -1;
-			newmomentumx -= (30 - bounce_weight);
+			newmomentumx -= (other->bounce_weight - bounce_weight);
 			if(move_direction == 1) move_direction = -1;
 		}
 		if(is_right) {
 			bounce_direction_x = 1;
-			newmomentumx += (30 - bounce_weight);
+			newmomentumx += (other->bounce_weight - bounce_weight);
 			if(move_direction == -1) move_direction = 1;
 		}
 	} else {
@@ -591,3 +597,6 @@ void NPC::cycle_sprite_updown(int first, int last) {
 	if(cycle_direction == CYCLE_UP) current_sprite++;
 	if(cycle_direction == CYCLE_DN) current_sprite--;
 }
+
+void NPC::hit_player_side(Player *p) {}
+void NPC::hit_player_top_bottom(Player *p) {}

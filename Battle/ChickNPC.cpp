@@ -82,3 +82,14 @@ void ChickNPC::process() {
 		}
 	}
 }
+
+void ChickNPC::hit_player_side(Player * p) {
+	if(!p->is_dead && !p->is_hit) {
+		Main::audio->play(SND_HIT, position->x);
+		p->is_hit = true;
+		p->hit_start = Gameplay::instance->frame;
+		p->hitpoints -= 10;
+	}
+}
+
+void ChickNPC::hit_player_top_bottom(Player * p) {}

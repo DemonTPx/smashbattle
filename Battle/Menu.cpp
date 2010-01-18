@@ -246,42 +246,64 @@ void Menu::start_missions() {
 
 	player = new Player(0, 1);
 	player->input = input_master;
+	player->set_character(2);
+	player->bullets = 0;
+	player->bombs = 0;
 
 	ms = new MissionSelect();
 
-	while(Main::running && running) {
+	while(Main::running && running && !ms->cancel) {
 		ms->run();
+		
+		if(Main::running && running && !ms->cancel) {
+			level = new Level();
+			level->load("stage/trainingdojo.lvl");
 
-		level = new Level();
-		level->load("stage/tryout.lvl");
+			m = new Mission();
+			m->add_player(player);
+			m->set_level(level);
+			m->bullets = 0;
+			m->bombs = 0;
 
-		m = new Mission();
-		m->add_player(player);
-		m->set_level(level);
+			player->position->x = 306;
+			player->position->y = 148;
 
-		player->position->x = 60;
-		player->position->y = 148;
+			npc = new ChickNPC();
+			npc->position->x = 26;
+			npc->position->y = 390;
+			npc->move_direction = -1;
+			m->add_npc(npc);
+			npc = new ChickNPC();
+			npc->position->x = 106;
+			npc->position->y = 390;
+			npc->move_direction = 1;
+			m->add_npc(npc);
+			npc = new ChickNPC();
+			npc->position->x = 186;
+			npc->position->y = 390;
+			npc->move_direction = -1;
+			m->add_npc(npc);
+			npc = new ChickNPC();
+			npc->position->x = 266;
+			npc->position->y = 390;
+			npc->move_direction = 1;
+			m->add_npc(npc);
+			npc = new ChickNPC();
+			npc->position->x = 346;
+			npc->position->y = 390;
+			npc->move_direction = -1;
+			m->add_npc(npc);
+			npc = new ChickNPC();
+			npc->position->x = 426;
+			npc->position->y = 390;
+			npc->move_direction = 1;
+			m->add_npc(npc);
 
-		npc = new ChickNPC();
-		npc->position->x = 20;
-		npc->position->y = 68;
-		npc->move_direction = -1;
-		m->add_npc(npc);
-		npc = new ChickNPC();
-		npc->position->x = 100;
-		npc->position->y = 68;
-		npc->move_direction = -1;
-		m->add_npc(npc);
-		npc = new ChickNPC();
-		npc->position->x = 190;
-		npc->position->y = 68;
-		npc->move_direction = -1;
-		m->add_npc(npc);
+			m->run();
 
-		m->run();
-
-		delete level;
-		delete m;
+			delete level;
+			delete m;
+		}
 	}
 
 	delete ms;

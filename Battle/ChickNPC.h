@@ -9,6 +9,9 @@ public:
 	~ChickNPC();
 protected:
 	virtual void process();
+
+	virtual void hit_player_side(Player * p);
+	virtual void hit_player_top_bottom(Player * p);
 };
 
 #endif
