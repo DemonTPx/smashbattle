@@ -157,6 +157,13 @@ void Level::load(const char * filename) {
 			rect_s.y = 0;
 			rect_s.w = TILE_W;
 			rect_s.h = TILE_H;
+			
+			if(tile[i].hp < 40) {
+				rect_s.y += TILE_H;
+			}
+			if(tile[i].hp < 20) {
+				rect_s.y += TILE_H;
+			}
 
 			rect.x = (i % TILE_COLS) * TILE_W;
 			rect.y = (i / TILE_COLS) * TILE_H;
@@ -356,12 +363,10 @@ SDL_Surface * Level::get_preview(const char * filename) {
 			rect_s.w = TILE_W;
 			rect_s.h = TILE_H;
 
-			if(!tile[i].indestructible) {
-				if(tile[i].hp < 40)
-					rect_s.y += TILE_H;
-				if(tile[i].hp < 20)
-					rect_s.y += TILE_H;
-			}
+			if(tile[i].hp < 40)
+				rect_s.y += TILE_H;
+			if(tile[i].hp < 20)
+				rect_s.y += TILE_H;
 
 			rect.x = (i % TILE_COLS) * TILE_W;
 			rect.y = (i / TILE_COLS) * TILE_H;
@@ -567,7 +572,7 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 	if(t >= WINDOW_HEIGHT) t = WINDOW_HEIGHT - 1;
 	if(b >= WINDOW_HEIGHT) b = WINDOW_HEIGHT - 1;
 
-	int wx;
+	int wx, pos;
 
 	for(int y = t; y < b; y += TILE_H) {
 		if(y < 0) continue;
@@ -578,10 +583,12 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 			if(x < 0) wx += WINDOW_WIDTH;
 			if(x > WINDOW_WIDTH) wx -= WINDOW_WIDTH;
 
-			if(level[tile_pos(wx, y)] != -1) {
-				level_hp[tile_pos(wx, y)] -= damage;
-				if(level_hp[tile_pos(wx, y)] < 0)
-					level[tile_pos(wx, y)] = -1;
+			pos = tile_pos(wx, y);
+
+			if(!tile[pos].indestructible) {
+				level_hp[pos] -= damage;
+				if(level_hp[pos] <= 0)
+					level[pos] = -1;
 			}
 		}
 	}
