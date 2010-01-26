@@ -9,7 +9,7 @@
 #define AUDIO_CHANNELS 8
 
 const char * AudioController::music_files[MUSICFILES] = {
-	"music/a_hero_rises.ogg",
+	"music/hydro_dreams.ogg",
 	"music/space_farer.ogg"
 };
 

@@ -6,7 +6,7 @@
 #define MUSICFILES 2
 
 #define MUSIC_TITLE 0
-#define MUSIC_END 0
+#define MUSIC_END 1
 
 #define SOUNDFILES 14
 

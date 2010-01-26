@@ -499,10 +499,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\music\battle.ogg"
-				>
-			</File>
-			<File
 				RelativePath=".\gfx\berry.bmp"
 				>
 			</File>
@@ -560,10 +556,6 @@
 			</File>
 			<File
 				RelativePath=".\stage\ducknhunt.lvl"
-				>
-			</File>
-			<File
-				RelativePath=".\music\end.ogg"
 				>
 			</File>
 			<File
@@ -748,10 +740,6 @@
 			</File>
 			<File
 				RelativePath=".\gfx\tiles.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\music\title.ogg"
 				>
 			</File>
 			<File
