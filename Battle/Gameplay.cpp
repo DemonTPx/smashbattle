@@ -490,7 +490,7 @@ void Gameplay::process_countdown() {
 			countdown = false;
 			Main::audio->play(SND_GO);
 			if(!music_playing) {
-				Main::audio->play_music(MUSIC_BATTLE);
+				Main::audio->play_music(level->music);
 				music_playing = true;
 			}
 			return;

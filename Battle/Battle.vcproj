@@ -483,6 +483,10 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath=".\music\a_hero_rises.ogg"
+				>
+			</File>
+			<File
 				RelativePath=".\sfx\airstrike.wav"
 				>
 			</File>
@@ -587,7 +591,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\music\graveyard.ogg"
+				>
+			</File>
+			<File
 				RelativePath=".\sfx\hit.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\music\hydro_dreams.ogg"
 				>
 			</File>
 			<File
@@ -715,6 +727,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\music\space_farer.ogg"
+				>
+			</File>
+			<File
 				RelativePath=".\stage\stayhigh.lvl"
 				>
 			</File>
@@ -756,6 +772,10 @@
 			</File>
 			<File
 				RelativePath=".\stage\tryout.lvl"
+				>
+			</File>
+			<File
+				RelativePath=".\music\victory.ogg"
 				>
 			</File>
 			<File

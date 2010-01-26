@@ -9,9 +9,8 @@
 #define AUDIO_CHANNELS 8
 
 const char * AudioController::music_files[MUSICFILES] = {
-	"music/title.ogg",
-	"music/battle.ogg",
-	"music/end.ogg"
+	"music/a_hero_rises.ogg",
+	"music/space_farer.ogg"
 };
 
 const char * AudioController::sound_files[SOUNDFILES] = {
@@ -107,6 +106,18 @@ void AudioController::play_music(int music) {
 	Mix_HaltMusic();
 	Mix_VolumeMusic(options.music_volume);
 	Mix_PlayMusic(this->music[music], -1);
+}
+
+void AudioController::play_music(Mix_Music * m) {
+	if(options.music_volume == 0)
+		return;
+
+	if(m == NULL)
+		return;
+
+	Mix_HaltMusic();
+	Mix_VolumeMusic(options.music_volume);
+	Mix_PlayMusic(m, -1);
 }
 
 void AudioController::stop_music() {

@@ -1,4 +1,5 @@
 #include "SDL/SDL.h"
+#include "SDL/SDL_mixer.h"
 #include "zlib.h"
 
 #include <iostream>
@@ -14,7 +15,8 @@ const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.lvl"},
 	{(char*)"PITTFALL", (char*)"stage/pitfall.lvl"},
 	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.lvl"},
-	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.lvl"},
+//	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.lvl"},
+	{(char*)"PIE PIT", (char*)"stage/piepit.lvl"},
 	{(char*)"POGOSTICK", (char*)"stage/pogostick.lvl"},
 	{(char*)"LA MOUSTACHE", (char*)"stage/lamoustache.lvl"},
 	{(char*)"THE FUNNEL", (char*)"stage/thefunnel.lvl"},
@@ -27,6 +29,8 @@ const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 Level::Level() {
 	background = NULL;
 	tiles = NULL;
+
+	music = NULL;
 }
 
 Level::~Level() {
@@ -34,17 +38,22 @@ Level::~Level() {
 		SDL_FreeSurface(background);
 	if(tiles != NULL)
 		SDL_FreeSurface(tiles);
+
+	if(music != NULL)
+		Mix_FreeMusic(music);
 }
 
 void Level::load(const char * filename) {
 	gzFile file;
 	LEVEL_HEADER header;
+	LEVEL_META meta;
 	LEVEL_PLAYERSTART pstart;
 	LEVEL_PROP * prop;
 	std::vector<LEVEL_PROP *> * props;
 	unsigned short block_id;
 
 	char tiles_file_full[35], bg_file_full[35], props_file_full[35];
+	char music_file_full[45];
 
 	SDL_Surface * loaded, * surface;
 	SDL_Rect rect, rect_s;
@@ -57,6 +66,8 @@ void Level::load(const char * filename) {
 		return;
 	if(header.version != LEVEL_VERSION) // Invalid version
 		return;
+
+	gzread(file, &meta, sizeof(LEVEL_META));
 
 	gzread(file, &tile, sizeof(tile));
 
@@ -81,7 +92,7 @@ void Level::load(const char * filename) {
 	// LOAD TILES SURFACE
 
 	strncpy(tiles_file_full, "gfx/\0", 5);
-	strncat(tiles_file_full, header.filename_tiles, 30);
+	strncat(tiles_file_full, meta.filename_tiles, 30);
 
 	surface = SDL_LoadBMP(tiles_file_full);
 	tiles = SDL_DisplayFormat(surface);
@@ -92,12 +103,12 @@ void Level::load(const char * filename) {
 	// PRE-RENDER THE BACKGROUND
 
 	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
-	SDL_FillRect(background, 0, header.background_color);
+	SDL_FillRect(background, 0, meta.background_color);
 
 	// Draw the background image (tiled) into the background
-	if(header.filename_background[0] != 0) {
+	if(meta.filename_background[0] != 0) {
 		strncpy(bg_file_full, "gfx/\0", 5);
-		strncat(bg_file_full, header.filename_background, 30);
+		strncat(bg_file_full, meta.filename_background, 30);
 
 		loaded = SDL_LoadBMP(bg_file_full);
 		surface = SDL_DisplayFormat(loaded);
@@ -117,9 +128,9 @@ void Level::load(const char * filename) {
 	}
 
 	// Draw the props into the background
-	if(header.filename_props[0] != 0) {
+	if(meta.filename_props[0] != 0) {
 		strncpy(props_file_full, "gfx/\0", 5);
-		strncat(props_file_full, header.filename_props, 30);
+		strncat(props_file_full, meta.filename_props, 30);
 
 		loaded = SDL_LoadBMP(props_file_full);
 		surface = SDL_DisplayFormat(loaded);
@@ -144,7 +155,7 @@ void Level::load(const char * filename) {
 	}
 
 	// Draw the static tiles into the background (static = non-bouncing indestructible)
-	if(header.filename_props[0] != 0) {
+	if(meta.filename_props[0] != 0) {
 		for(int i = 0; i < TILE_COUNT; i++) {
 			if(tile[i].tile == 0xffff)
 				continue;
@@ -171,6 +182,12 @@ void Level::load(const char * filename) {
 			SDL_BlitSurface(tiles, &rect_s, background, &rect);
 		}
 	}
+	
+	// Load music file
+	strncpy(music_file_full, "music/\0", 7);
+	strncat(music_file_full, meta.filename_music, 30);
+
+	music = Mix_LoadMUS(music_file_full);
 }
 
 LEVEL_HEADER * Level::get_header(const char *filename) {
@@ -192,9 +209,32 @@ LEVEL_HEADER * Level::get_header(const char *filename) {
 	return header;
 }
 
+LEVEL_META * Level::get_meta(const char * filename) {
+	gzFile file;
+	LEVEL_HEADER header;
+	LEVEL_META * meta;
+
+	file = gzopen(filename, "rb");
+	gzread(file, &header, sizeof(LEVEL_HEADER));
+	
+	if(header.id != LEVEL_ID) // Invalid file
+		return NULL;
+	if(header.version != LEVEL_VERSION) // Invalid version
+		return NULL;
+
+	meta = new LEVEL_META();
+
+	gzread(file, meta, sizeof(LEVEL_META));
+
+	gzclose(file);
+
+	return meta;
+}
+
 SDL_Surface * Level::get_thumbnail(const char * filename) {
 	gzFile file;
 	LEVEL_HEADER header;
+	LEVEL_META meta;
 	LEVEL_TILE tile[TILE_COUNT];
 
 	SDL_Rect rect;
@@ -210,6 +250,8 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 		return NULL;
 	if(header.version != LEVEL_VERSION) // Invalid version
 		return NULL;
+	
+	gzread(file, &meta, sizeof(LEVEL_META));
 
 	gzread(file, &tile, sizeof(tile));
 	gzclose(file);
@@ -245,6 +287,7 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 SDL_Surface * Level::get_preview(const char * filename) {
 	gzFile file;
 	LEVEL_HEADER header;
+	LEVEL_META meta;
 	LEVEL_TILE tile[TILE_COUNT];
 	LEVEL_PLAYERSTART pstart;
 	LEVEL_PROP * prop;
@@ -268,6 +311,8 @@ SDL_Surface * Level::get_preview(const char * filename) {
 	if(header.version != LEVEL_VERSION) // Invalid version
 		return NULL;
 
+	gzread(file, &meta, sizeof(LEVEL_META));
+
 	gzread(file, &tile, sizeof(tile));
 	
 	props = new std::vector<LEVEL_PROP *>(0);
@@ -290,12 +335,12 @@ SDL_Surface * Level::get_preview(const char * filename) {
 	// PRE-RENDER THE BACKGROUND
 
 	surface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
-	SDL_FillRect(surface, 0, header.background_color);
+	SDL_FillRect(surface, 0, meta.background_color);
 
 	// Draw the background image (tiled) into the background
-	if(header.filename_background[0] != 0) {
+	if(meta.filename_background[0] != 0) {
 		strncpy(bg_file_full, "gfx/\0", 5);
-		strncat(bg_file_full, header.filename_background, 30);
+		strncat(bg_file_full, meta.filename_background, 30);
 
 		loaded = SDL_LoadBMP(bg_file_full);
 		surface_s = SDL_DisplayFormat(loaded);
@@ -315,9 +360,9 @@ SDL_Surface * Level::get_preview(const char * filename) {
 	}
 
 	// Draw the props into the background
-	if(header.filename_props[0] != 0) {
+	if(meta.filename_props[0] != 0) {
 		strncpy(props_file_full, "gfx/\0", 5);
-		strncat(props_file_full, header.filename_props, 30);
+		strncat(props_file_full, meta.filename_props, 30);
 
 		loaded = SDL_LoadBMP(props_file_full);
 		surface_s = SDL_DisplayFormat(loaded);
@@ -342,9 +387,9 @@ SDL_Surface * Level::get_preview(const char * filename) {
 	}
 
 	// Draw the preview tiles into the background
-	if(header.filename_tiles[0] != 0) {
+	if(meta.filename_tiles[0] != 0) {
 		strncpy(tiles_file_full, "gfx/\0", 5);
-		strncat(tiles_file_full, header.filename_tiles, 30);
+		strncat(tiles_file_full, meta.filename_tiles, 30);
 
 		loaded = SDL_LoadBMP(tiles_file_full);
 		surface_s = SDL_DisplayFormat(loaded);

@@ -1,6 +1,8 @@
 #ifndef _LEVEL_H
 #define _LEVEL_H
 
+#include "SDL/SDL_mixer.h"
+
 // Tile sizes, dimensions and count
 #define TILE_W 32
 #define TILE_H 32
@@ -20,7 +22,7 @@ struct LevelInfo {
 };
 
 #define LEVEL_ID 0x5342 // "SB"
-#define LEVEL_VERSION 1
+#define LEVEL_VERSION 2
 
 #define LEVEL_BLOCK_PSTART	0x1
 #define LEVEL_BLOCK_PROP	0x2
@@ -42,6 +44,9 @@ struct LEVEL_RECT {
 struct LEVEL_HEADER {
 	unsigned short id;
 	unsigned short version;
+};
+
+struct LEVEL_META {
 	char name[20];
 	char author[20];
 	bool multiplayer;
@@ -50,6 +55,7 @@ struct LEVEL_HEADER {
 	char filename_tiles[30];
 	char filename_background[30];
 	char filename_props[30];
+	char filename_music[30];
 };
 
 struct LEVEL_TILE {
@@ -93,6 +99,7 @@ public:
 	static const LevelInfo LEVELS[];
 
 	static LEVEL_HEADER * get_header(const char * filename);
+	static LEVEL_META * get_meta(const char * filename);
 	static SDL_Surface * get_thumbnail(const char * filename);
 	static SDL_Surface * get_preview(const char * filename);
 
@@ -106,6 +113,8 @@ public:
 
 	int level_bounce[TILE_COUNT];
 	int level_bounce_start[TILE_COUNT];
+
+	Mix_Music * music;
 private:
 	SDL_Surface * tiles;
 	SDL_Surface * background;

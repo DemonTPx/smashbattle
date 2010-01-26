@@ -3,11 +3,10 @@
 
 #include "SDL/SDL_mixer.h"
 
-#define MUSICFILES 3
+#define MUSICFILES 2
 
 #define MUSIC_TITLE 0
-#define MUSIC_BATTLE 1
-#define MUSIC_END 2
+#define MUSIC_END 0
 
 #define SOUNDFILES 14
 
@@ -47,6 +46,7 @@ public:
 	void close_files();
 
 	void play_music(int music);
+	void play_music(Mix_Music * m);
 	void stop_music();
 	void pause_music();
 	void unpause_music();
