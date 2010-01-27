@@ -531,6 +531,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\boulderdash.lvl"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\chick.bmp"
 				>
 			</File>
@@ -643,6 +647,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\piepit.lvl"
+				>
+			</File>
+			<File
 				RelativePath=".\stage\pitfall.lvl"
 				>
 			</File>
@@ -716,6 +724,14 @@
 			</File>
 			<File
 				RelativePath=".\sfx\shoot.wav"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\slipnslide.lvl"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\snowfight.lvl"
 				>
 			</File>
 			<File

@@ -22,9 +22,9 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-#define MENU_TOP_OFFSET 160
+#define MENU_TOP_OFFSET 128
 #define TILES_COLS		10
-#define TILES_ROWS		7
+#define TILES_ROWS		9
 
 LevelSelect::LevelSelect() {
 }

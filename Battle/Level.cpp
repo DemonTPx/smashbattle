@@ -9,21 +9,24 @@
 #include "Gameplay.h"
 #include "Level.h"
 
-const int Level::LEVEL_COUNT = 12;
+const int Level::LEVEL_COUNT = 16;
 const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.lvl"},
 	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.lvl"},
 	{(char*)"PITTFALL", (char*)"stage/pitfall.lvl"},
 	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.lvl"},
-//	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.lvl"},
-	{(char*)"PIE PIT", (char*)"stage/piepit.lvl"},
+	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.lvl"},
 	{(char*)"POGOSTICK", (char*)"stage/pogostick.lvl"},
 	{(char*)"LA MOUSTACHE", (char*)"stage/lamoustache.lvl"},
 	{(char*)"THE FUNNEL", (char*)"stage/thefunnel.lvl"},
 	{(char*)"BLAST BOWL", (char*)"stage/blastbowl.lvl"},
 	{(char*)"PIT OF DEATH", (char*)"stage/pitofdeath.lvl"},
 	{(char*)"RABBIT HOLE", (char*)"stage/rabbithole.lvl"},
-	{(char*)"STAY HIGH", (char*)"stage/stayhigh.lvl"}
+	{(char*)"STAY HIGH", (char*)"stage/stayhigh.lvl"},
+	{(char*)"PIE PIT", (char*)"stage/piepit.lvl"},
+	{(char*)"SLIP'N'SLIDE", (char*)"stage/slipnslide.lvl"},
+	{(char*)"BOULDERDASH", (char*)"stage/boulderdash.lvl"},
+	{(char*)"SNOW FIGHT", (char*)"stage/snowfight.lvl"}
 };
 
 Level::Level() {
