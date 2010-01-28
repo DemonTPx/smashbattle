@@ -25,6 +25,7 @@ SRCS=Airstrike.cpp\
 	Main.cpp\
 	Menu.cpp\
 	Mission.cpp\
+	MissionSelect.cpp\
 	NPC.cpp\
 	Options.cpp\
 	OptionsScreen.cpp\
