@@ -18,6 +18,8 @@ SRCS=Airstrike.cpp\
 	Graphics.cpp\
 	HealthPowerUp.cpp\
 	InstantKillBulletPowerUp.cpp\
+	LaserBeam.cpp\
+	LaserBeamPowerUp.cpp\
 	Level.cpp\
 	LevelSelect.cpp\
 	LocalMultiplayer.cpp\
