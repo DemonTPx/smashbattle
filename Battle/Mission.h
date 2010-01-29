@@ -27,14 +27,15 @@ public:
 
 	Mission();
 
-	int bullets;
-	int bombs;
-
 	int time;
+
+	bool mission_ended;
 protected:
 	virtual void initialize();
 
 	virtual void on_game_reset();
+
+	virtual void pause(Player * p);
 
 	virtual void on_pre_processing();
 	virtual void on_post_processing();

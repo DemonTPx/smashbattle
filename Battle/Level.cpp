@@ -34,6 +34,14 @@ Level::Level() {
 	tiles = NULL;
 
 	music = NULL;
+	
+	memset(&mission, 0, sizeof(LEVEL_MISSION));
+	mission.type = LM_TYPE_NONE;
+	
+	powerups = new std::vector<LEVEL_POWERUP*>(0);
+	powerup_dispensers = new std::vector<LEVEL_POWERUP_DISPENSER*>(0);
+	npcs = new std::vector<LEVEL_NPC*>(0);
+	npc_dispensers = new std::vector<LEVEL_NPC_DISPENSER*>(0);
 }
 
 Level::~Level() {
@@ -44,14 +52,40 @@ Level::~Level() {
 
 	if(music != NULL)
 		Mix_FreeMusic(music);
+	
+	for(unsigned int i = 0; i < powerups->size(); i++) {
+		delete powerups->at(i);
+	}
+	delete powerups;
+	
+	for(unsigned int i = 0; i < powerup_dispensers->size(); i++) {
+		delete powerup_dispensers->at(i);
+	}
+	delete powerup_dispensers;
+
+	for(unsigned int i = 0; i < npcs->size(); i++) {
+		delete npcs->at(i);
+	}
+	delete npcs;
+
+	for(unsigned int i = 0; i < npc_dispensers->size(); i++) {
+		delete npc_dispensers->at(i);
+	}
+	delete npc_dispensers;
 }
 
 void Level::load(const char * filename) {
 	gzFile file;
+	
 	LEVEL_HEADER header;
 	LEVEL_META meta;
 	LEVEL_PLAYERSTART pstart;
 	LEVEL_PROP * prop;
+	LEVEL_POWERUP * powerup;
+	LEVEL_POWERUP_DISPENSER * powerup_dispenser;
+	LEVEL_NPC * npc;
+	LEVEL_NPC_DISPENSER * npc_dispenser;
+
 	std::vector<LEVEL_PROP *> * props;
 	unsigned short block_id;
 
@@ -78,14 +112,45 @@ void Level::load(const char * filename) {
 	while(!gzeof(file)) {
 		gzread(file, &block_id, sizeof(block_id));
 		switch(block_id) {
+			// Player start
 			case LEVEL_BLOCK_PSTART:
 				gzread(file, &pstart, sizeof(LEVEL_PLAYERSTART));
+				if(pstart.player == 0xffff) break;
 				memcpy(&playerstart[pstart.player], &pstart, sizeof(LEVEL_PLAYERSTART));
 				break;
+			// Prop
 			case LEVEL_BLOCK_PROP:
 				prop = new LEVEL_PROP();
 				gzread(file, prop, sizeof(LEVEL_PROP));
 				props->push_back(prop);
+				break;
+			// Mission
+			case LEVEL_BLOCK_MISSION:
+				gzread(file, &mission, sizeof(LEVEL_MISSION));
+				break;
+			// Powerup
+			case LEVEL_BLOCK_POWERUP:
+				powerup = new LEVEL_POWERUP();
+				gzread(file, powerup, sizeof(LEVEL_POWERUP));
+				powerups->push_back(powerup);
+				break;
+			// Powerup dispenser
+			case LEVEL_BLOCK_POWERUP_DISPENSER:
+				powerup_dispenser = new LEVEL_POWERUP_DISPENSER();
+				gzread(file, powerup_dispenser, sizeof(LEVEL_POWERUP_DISPENSER));
+				powerup_dispensers->push_back(powerup_dispenser);
+				break;
+			// NPC
+			case LEVEL_BLOCK_NPC:
+				npc = new LEVEL_NPC();
+				gzread(file, npc, sizeof(LEVEL_NPC));
+				npcs->push_back(npc);
+				break;
+			// NPC dispenser
+			case LEVEL_BLOCK_NPC_DISPENSER:
+				npc_dispenser = new LEVEL_NPC_DISPENSER();
+				gzread(file, npc_dispenser, sizeof(LEVEL_NPC_DISPENSER));
+				npc_dispensers->push_back(npc_dispenser);
 				break;
 		}
 	}
@@ -232,6 +297,58 @@ LEVEL_META * Level::get_meta(const char * filename) {
 	gzclose(file);
 
 	return meta;
+}
+
+LEVEL_MISSION * Level::get_mission(const char * filename) {
+	gzFile file;
+	LEVEL_HEADER header;
+	LEVEL_META meta;
+	LEVEL_MISSION * mission;
+	unsigned short block_id;
+
+	mission = new LEVEL_MISSION();
+	memset(mission, 0, sizeof(LEVEL_MISSION));
+	mission->type = LM_TYPE_NONE;
+
+	file = gzopen(filename, "rb");
+	gzread(file, &header, sizeof(LEVEL_HEADER));
+	
+	if(header.id != LEVEL_ID) // Invalid file
+		return NULL;
+	if(header.version != LEVEL_VERSION) // Invalid version
+		return NULL;
+
+	gzseek(file, sizeof(LEVEL_META), SEEK_CUR);
+	while(gzeof(file)) {
+		gzread(file, &block_id, sizeof(block_id));
+		switch(block_id) {
+			case LEVEL_BLOCK_PSTART:
+				gzseek(file, sizeof(LEVEL_PLAYERSTART), SEEK_CUR);
+				break;
+			case LEVEL_BLOCK_PROP:
+				gzseek(file, sizeof(LEVEL_PROP), SEEK_CUR);
+				break;
+			case LEVEL_BLOCK_MISSION:
+				gzread(file, mission, sizeof(LEVEL_MISSION));
+				break;
+			case LEVEL_BLOCK_POWERUP:
+				gzseek(file, sizeof(LEVEL_POWERUP), SEEK_CUR);
+				break;
+			case LEVEL_BLOCK_POWERUP_DISPENSER:
+				gzseek(file, sizeof(LEVEL_POWERUP_DISPENSER), SEEK_CUR);
+				break;
+			case LEVEL_BLOCK_NPC:
+				gzseek(file, sizeof(LEVEL_NPC), SEEK_CUR);
+				break;
+			case LEVEL_BLOCK_NPC_DISPENSER:
+				gzseek(file, sizeof(LEVEL_NPC_DISPENSER), SEEK_CUR);
+				break;
+		}
+	}
+
+	gzclose(file);
+
+	return mission;
 }
 
 SDL_Surface * Level::get_thumbnail(const char * filename) {

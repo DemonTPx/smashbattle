@@ -211,9 +211,7 @@ void Gameplay::add_player(Player * p) {
 }
 
 void Gameplay::add_npc(NPC * npc) {
-	if(!game_running) {
-		npcs->push_back(npc);
-	}
+	npcs->push_back(npc);
 }
 
 void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source) {
@@ -451,9 +449,6 @@ void Gameplay::process_npc_collission() {
 
 
 void Gameplay::process_player_npc_collission() {
-	if(!npcs_collide)
-		return;
-
 	Player * player;
 	NPC * npc;
 	SDL_Rect * r_player, * r_npc;

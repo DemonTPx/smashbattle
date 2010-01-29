@@ -238,7 +238,6 @@ void Menu::start_missions() {
 	Mission * m;
 	Level * level;
 	Player * player;
-	NPC * npc;
 
 	bool running;
 
@@ -257,48 +256,11 @@ void Menu::start_missions() {
 		
 		if(Main::running && running && !ms->cancel) {
 			level = new Level();
-			level->load("stage/trainingdojo.lvl");
+			level->load(Mission::MISSIONS[ms->mission].filename);
 
 			m = new Mission();
 			m->add_player(player);
 			m->set_level(level);
-			m->bullets = 0;
-			m->bombs = 0;
-
-			player->position->x = 306;
-			player->position->y = 148;
-
-			npc = new ChickNPC();
-			npc->position->x = 26;
-			npc->position->y = 390;
-			npc->move_direction = -1;
-			m->add_npc(npc);
-			npc = new ChickNPC();
-			npc->position->x = 106;
-			npc->position->y = 390;
-			npc->move_direction = 1;
-			m->add_npc(npc);
-			npc = new ChickNPC();
-			npc->position->x = 186;
-			npc->position->y = 390;
-			npc->move_direction = -1;
-			m->add_npc(npc);
-			npc = new ChickNPC();
-			npc->position->x = 266;
-			npc->position->y = 390;
-			npc->move_direction = 1;
-			m->add_npc(npc);
-			npc = new ChickNPC();
-			npc->position->x = 346;
-			npc->position->y = 390;
-			npc->move_direction = -1;
-			m->add_npc(npc);
-			npc = new ChickNPC();
-			npc->position->x = 426;
-			npc->position->y = 390;
-			npc->move_direction = 1;
-			m->add_npc(npc);
-
 			m->run();
 
 			delete level;

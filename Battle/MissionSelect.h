@@ -7,6 +7,8 @@ public:
 	void run();
 
 	bool cancel;
+
+	int mission;
 private:
 	void draw();
 
@@ -21,8 +23,6 @@ private:
 	bool ready_mission;
 
 	bool cancel_selected;
-
-	int mission;
 
 	int mission_scroll_top;
 	

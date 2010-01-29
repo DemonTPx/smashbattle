@@ -56,6 +56,8 @@ void LocalMultiplayer::on_game_reset() {
 		}
 		if(we_have_a_winner) {
 			game_running = false;
+			strcpy(countdown_pre_text, "");
+			return;
 		}
 	}
 

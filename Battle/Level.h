@@ -2,6 +2,7 @@
 #define _LEVEL_H
 
 #include "SDL/SDL_mixer.h"
+#include <vector>
 
 // Tile sizes, dimensions and count
 #define TILE_W 32
@@ -24,10 +25,13 @@ struct LevelInfo {
 #define LEVEL_ID 0x5342 // "SB"
 #define LEVEL_VERSION 2
 
-#define LEVEL_BLOCK_PSTART	0x1
-#define LEVEL_BLOCK_PROP	0x2
-//#define LEVEL_BLOCK_STORY	0x10
-//#define LEVEL_BLOCK_NPC	0x11
+#define LEVEL_BLOCK_PSTART				0x01
+#define LEVEL_BLOCK_PROP				0x02
+#define LEVEL_BLOCK_MISSION				0x10
+#define LEVEL_BLOCK_POWERUP				0x20
+#define LEVEL_BLOCK_POWERUP_DISPENSER	0x21
+#define LEVEL_BLOCK_NPC					0x30
+#define LEVEL_BLOCK_NPC_DISPENSER		0x31
 
 struct LEVEL_POINT {
 	short x;
@@ -78,6 +82,68 @@ struct LEVEL_PROP {
 	LEVEL_POINT dst;
 };
 
+enum {
+	LM_TYPE_NONE = 0,
+	LM_TYPE_KILL_ALL
+};
+
+struct LEVEL_MISSION {
+	int character;
+	int type;
+	int bullets;
+	int doubledamagebullets;
+	int instantkillbullets;
+	int bombs;
+	int kill_all_time_gold;
+	int kill_all_time_silver;
+};
+
+enum {
+	L_PU_HEALTH,
+	L_PU_AMMO,
+	L_PU_DOUBLEDAMAGE,
+	L_PU_INSTANTKILL,
+	L_PU_BOMB,
+	L_PU_AIRSTRIKE,
+	L_PU_LASERBEAM
+};
+
+struct LEVEL_POWERUP {
+	int type;
+	LEVEL_POINT position;
+};
+
+struct LEVEL_POWERUP_DISPENSER {
+	bool global;
+	LEVEL_POINT position; // (ignored on global)
+	int rate; // chance per frame; 60 is ~1 per second
+	int max; // max powerups on screen (global only)
+	int rate_health;
+	int rate_bullet;
+	int rate_doubledamage;
+	int rate_instantkill;
+	int rate_bomb;
+	int rate_airstrike;
+	int rate_laserbeam;
+};
+
+enum {
+	L_NPC_CHICK
+};
+
+struct LEVEL_NPC {
+	int type;
+	LEVEL_POINT position;
+	int move_direction;
+};
+
+struct LEVEL_NPC_DISPENSER {
+	int type; // NPC type
+	LEVEL_POINT position;
+	int rate; // chance per frame; 60 is ~1 per second
+	int max; // maximum NPCs to dispence
+};
+
 class Level {
 public:
 	Level();
@@ -100,6 +166,8 @@ public:
 
 	static LEVEL_HEADER * get_header(const char * filename);
 	static LEVEL_META * get_meta(const char * filename);
+	static LEVEL_MISSION * get_mission(const char * filename);
+
 	static SDL_Surface * get_thumbnail(const char * filename);
 	static SDL_Surface * get_preview(const char * filename);
 
@@ -108,6 +176,8 @@ public:
 	LEVEL_TILE tile[TILE_COUNT];
 	LEVEL_PLAYERSTART playerstart[4];
 
+	LEVEL_MISSION mission;
+
 	int level[TILE_COUNT];
 	int level_hp[TILE_COUNT];
 
@@ -115,6 +185,12 @@ public:
 	int level_bounce_start[TILE_COUNT];
 
 	Mix_Music * music;
+
+	std::vector<LEVEL_POWERUP *> * powerups;
+	std::vector<LEVEL_POWERUP_DISPENSER *> * powerup_dispensers;
+
+	std::vector<LEVEL_NPC *> * npcs;
+	std::vector<LEVEL_NPC_DISPENSER *> * npc_dispensers;
 private:
 	SDL_Surface * tiles;
 	SDL_Surface * background;

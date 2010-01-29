@@ -543,6 +543,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stage\chick_invasion.lvl"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\chick_invasion_ii.lvl"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\chicken_run.lvl"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\common.bmp"
 				>
 			</File>
@@ -564,6 +576,10 @@
 			</File>
 			<File
 				RelativePath=".\stage\ducknhunt.lvl"
+				>
+			</File>
+			<File
+				RelativePath=".\stage\easy_does_it.lvl"
 				>
 			</File>
 			<File

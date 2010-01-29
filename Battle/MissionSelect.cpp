@@ -24,6 +24,9 @@
 
 MissionSelect::MissionSelect() {
 	cancel = false;
+
+	mission = 0;
+	mission_scroll_top = 0;
 }
 
 void MissionSelect::run() {
@@ -39,9 +42,6 @@ void MissionSelect::run() {
 	ready_mission = false;
 	cancel = false;
 	cancel_selected = false;
-
-	mission = 0;
-	mission_scroll_top = 0;
 	
 	select(DIRECTION_NONE);
 
@@ -151,7 +151,6 @@ void MissionSelect::draw() {
 	SDL_Surface * surface;
 	SDL_Rect r_block, rect, rect_b, rect_s;
 	Uint32 color;
-	int width;
 	char text[4];
 
 	screen = Main::instance->screen;

@@ -4,6 +4,14 @@
 #include "Level.h"
 #include "Gameplay.h"
 
+#include "HealthPowerUp.h"
+#include "AmmoPowerUp.h"
+#include "DoubleDamagePowerUp.h"
+#include "InstantKillBulletPowerUp.h"
+#include "BombPowerUp.h"
+#include "AirstrikePowerUp.h"
+#include "LaserBeamPowerUp.h"
+
 #include "NPC.h"
 #include "ChickNPC.h"
 
@@ -15,38 +23,143 @@
 
 const int Mission::MISSION_COUNT = 9;
 const MISSION_INFO Mission::MISSIONS[Mission::MISSION_COUNT] = {
-	{(char*)"INVASION OF THE CHICKS", (char*)"mission/001.lvl"},
-	{(char*)"CHOP THE OFFICER", (char*)"mission/002.lvl"},
-	{(char*)"KICK SOME ASS", (char*)"mission/003.lvl"},
-	{(char*)"PUSH 'EM IN THE PIT", (char*)"mission/004.lvl"},
-	{(char*)"BURN THEM WITH A JALAPENO", (char*)"mission/005.lvl"},
-	{(char*)"STOMP HIS HEAD", (char*)"mission/006.lvl"},
-	{(char*)"SUCKERPUNCHER", (char*)"mission/007.lvl"},
-	{(char*)"POKE THE EYE OUT", (char*)"mission/008.lvl"},
-	{(char*)"KILL THE FAGGOT", (char*)"mission/009.lvl"},
+	{(char*)"CHICK INVASION", (char*)"stage/chick_invasion.lvl"},
+	{(char*)"CHICK INVASION II", (char*)"stage/chick_invasion_ii.lvl"},
+	{(char*)"EASY DOES IT", (char*)"stage/easy_does_it.lvl"},
+	{(char*)"CHICKEN RUN", (char*)"stage/chicken_run.lvl"},
+	{(char*)"BURN THEM WITH A JALAPENO", (char*)"stage/tryout.lvl"},
+	{(char*)"STOMP HIS HEAD", (char*)"stage/tryout.lvl"},
+	{(char*)"SUCKERPUNCHER", (char*)"stage/tryout.lvl"},
+	{(char*)"POKE THE EYE OUT", (char*)"stage/tryout.lvl"},
+	{(char*)"KILL THE FAGGOT", (char*)"stage/tryout.lvl"},
 };
 
 Mission::Mission() {
-	bullets = -1;
-	bombs = 3;
+	mission_ended = false;
+	npcs_collide = false;
 }
 
 void Mission::initialize() {
-	Gameplay::initialize();
+	pause_menu = new PauseMenu(screen);
+	pause_menu->add_option((char*)"RESUME\0");
+	pause_menu->add_option((char*)"RESTART\0");
+	pause_menu->add_option((char*)"QUIT\0");
+}
+
+void Mission::pause(Player *p) {
+	int ret;
+	ret = pause_menu->pause(p);
+	if(ret == 1) {
+		ended = false;
+		mission_ended = false;
+		reset_game();
+	}
+	if(ret == 2) game_running = false;
 }
 
 void Mission::on_game_reset() {
+	if(mission_ended) {
+		game_running = false;
+		return;
+	}
+
 	Player * p;
+	unsigned int i;
+	LEVEL_POWERUP * lpu;
+	GameplayObject * gpo;
+	LEVEL_NPC * lnpc;
+	NPC * npc;
+	SDL_Rect * rect, * pos;
+
+	time = 0;
+
 	p = players->at(0);
 	p->reset();
-	p->bullets = bullets;
-	p->bombs = bombs;
+
+	p->position->x = level->playerstart[0].x * TILE_W + ((TILE_W - PLAYER_W) / 2);
+	p->position->y = level->playerstart[0].y * TILE_H - PLAYER_H;
+	p->set_sprite(level->playerstart[0].facing_right ? SPR_R : SPR_L);
+
+	p->bullets = level->mission.bullets;
+	p->doubledamagebullets = level->mission.doubledamagebullets;
+	p->instantkillbullets = level->mission.instantkillbullets;
+	p->bombs = level->mission.bombs;
+
+	// Reset Powerups
+	for(i = 0; i < level->powerups->size(); i++) {
+		lpu = level->powerups->at(i);
+		rect = new SDL_Rect();
+		pos = new SDL_Rect();
+		pos->x = lpu->position.x; pos->y = lpu->position.y;
+		pos->w = 16; pos->h = 16;
+		rect->w = 16; rect->h = 16;
+		switch(lpu->type) {
+			case L_PU_HEALTH:
+				rect->x = 0; rect->y = 0;
+				gpo = new HealthPowerUp(Main::graphics->powerups, rect, pos, 25);
+				break;
+			case L_PU_AMMO:
+				rect->x = 32; rect->y = 0;
+				gpo = new AmmoPowerUp(Main::graphics->powerups, rect, pos, 20);
+				break;
+			case L_PU_DOUBLEDAMAGE:
+				rect->x = 48; rect->y = 0;
+				gpo = new DoubleDamagePowerUp(Main::graphics->powerups, rect, pos, 5);
+				break;
+			case L_PU_INSTANTKILL:
+				rect->x = 64; rect->y = 0;
+				gpo = new InstantKillBulletPowerUp(Main::graphics->powerups, rect, pos, 1);
+				break;
+			case L_PU_BOMB:
+				rect->x = 16; rect->y = 0;
+				gpo = new BombPowerUp(Main::graphics->powerups, rect, pos, 1);
+				break;
+			case L_PU_AIRSTRIKE:
+				rect->x = 80; rect->y = 0;
+				gpo = new AirstrikePowerUp(Main::graphics->powerups, rect, pos);
+				break;
+			case L_PU_LASERBEAM:
+				rect->x = 112; rect->y = 0;
+				gpo = new LaserBeamPowerUp(Main::graphics->powerups, rect, pos);
+				break;
+		}
+		if(gpo == NULL) {
+			delete rect;
+			delete pos;
+			continue;
+		}
+
+		add_object(gpo);
+	}
+
+	// Delete old NPCs
+	for(i = 0; i < npcs->size(); i++) {
+		delete npcs->at(i);
+	}
+	npcs->clear();
+
+	// Reset NPCs
+	for(i = 0; i < level->npcs->size(); i++) {
+		lnpc = level->npcs->at(i);
+		switch(lnpc->type) {
+			case L_NPC_CHICK:
+				npc = new ChickNPC();
+				break;
+		}
+		if(npc == NULL) continue;
+
+		npc->move_direction = lnpc->move_direction;		
+		npc->position->x = lnpc->position.x;
+		npc->position->y = lnpc->position.y;
+
+		add_npc(npc);
+	}
 
 	time = 0;
 }
 
 void Mission::on_pre_processing() {
-	if(!countdown) {
+	if(!countdown && !ended) {
 		time++;
 	}
 }
@@ -55,7 +168,7 @@ void Mission::on_post_processing() {
 	Player * p;
 	p = players->at(0);
 
-	if(!countdown || !ended) {
+	if(!countdown && !ended) {
 		if(p->hitpoints < 0)
 			p->hitpoints = 0;
 
@@ -68,6 +181,25 @@ void Mission::on_post_processing() {
 				p->is_hit = true;
 			}
 		}
+	}
+
+	if(!countdown && !ended) {
+		//if(level->mission.type == LM_TYPE_KILL_ALL) {
+			int alive;
+			NPC * npc;
+			alive = 0;
+
+			for(unsigned int i = 0; i < npcs->size(); i++) {
+				npc = npcs->at(i);
+				if(!npc->is_dead)
+					alive++;
+			}
+			if(alive == 0) {
+				mission_ended = true;
+				ended = true;
+				end_start = frame;
+			}
+		//}
 	}
 }
 
