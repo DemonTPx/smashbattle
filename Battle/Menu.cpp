@@ -245,7 +245,6 @@ void Menu::start_missions() {
 
 	player = new Player(0, 1);
 	player->input = input_master;
-	player->set_character(2);
 	player->bullets = 0;
 	player->bombs = 0;
 

@@ -30,6 +30,8 @@ public:
 	int time;
 
 	bool mission_ended;
+	bool player_won;
+	int cup;
 protected:
 	virtual void initialize();
 
@@ -41,6 +43,7 @@ protected:
 	virtual void on_post_processing();
 	
 	virtual void draw_score();
+	virtual void draw_game_ended();
 };
 
 #endif

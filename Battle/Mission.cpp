@@ -35,8 +35,12 @@ const MISSION_INFO Mission::MISSIONS[Mission::MISSION_COUNT] = {
 };
 
 Mission::Mission() {
-	mission_ended = false;
 	npcs_collide = false;
+
+	mission_ended = false;
+
+	player_won = false;
+	cup = 2;
 }
 
 void Mission::initialize() {
@@ -75,6 +79,8 @@ void Mission::on_game_reset() {
 
 	p = players->at(0);
 	p->reset();
+
+	p->set_character(level->mission.character);
 
 	p->position->x = level->playerstart[0].x * TILE_W + ((TILE_W - PLAYER_W) / 2);
 	p->position->y = level->playerstart[0].y * TILE_H - PLAYER_H;
@@ -179,6 +185,11 @@ void Mission::on_post_processing() {
 				p->is_dead = true;
 				p->dead_start = Gameplay::frame;
 				p->is_hit = true;
+
+				ended = true;
+				end_start = frame;
+				mission_ended = true;
+				player_won = false;
 			}
 		}
 	}
@@ -198,6 +209,12 @@ void Mission::on_post_processing() {
 				mission_ended = true;
 				ended = true;
 				end_start = frame;
+				player_won = true;
+				cup = 2;
+				if(time <= level->mission.kill_all_time_silver)
+					cup = 1;
+				if(time <= level->mission.kill_all_time_gold)
+					cup = 0;
 			}
 		//}
 	}
@@ -324,5 +341,37 @@ void Mission::draw_score() {
 		rect.x = 102;
 		rect.y = 462;
 		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
+	}
+}
+
+void Mission::draw_game_ended() {
+	SDL_Surface * surface;
+	SDL_Rect rect, rect_s;
+
+	char text[30];
+	
+	if(player_won)
+		sprintf(text, "YOU'RE WINNER!");
+	else
+		sprintf(text, "YOU LOST");
+
+	surface = Main::text->render_text_medium(text);
+	rect.x = (screen->w - surface->w) / 2;
+	if(player_won)
+		rect.x += CUP_W / 2 + 4;
+	rect.y = (screen->h - surface->h) / 2;
+
+	SDL_BlitSurface(surface, NULL, screen, &rect);
+	SDL_FreeSurface(surface);
+
+	if(player_won) {
+		rect_s.x = CUP_W * cup;
+		rect_s.y = 0;
+		rect_s.w = CUP_W;
+		rect_s.h = CUP_H;
+		rect.x = rect.x - CUP_W - 8;
+		rect.y = (screen->h - CUP_H) / 2; 
+
+		SDL_BlitSurface(Main::graphics->cups, &rect_s, screen, &rect);
 	}
 }
