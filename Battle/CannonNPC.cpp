@@ -67,6 +67,15 @@ void CannonNPC::process() {
 	}
 }
 
+void CannonNPC::reset() {
+	if(move_direction == -1) {
+		set_sprite(CANNON_W);
+	} else {
+		set_sprite(CANNON_E);
+	}
+
+}
+
 void CannonNPC::shoot() {
 	Projectile * pr;
 	SDL_Rect * clip_weapon;
@@ -85,43 +94,40 @@ void CannonNPC::shoot() {
 	pr->speedx = 0;
 	pr->speedy = 0;
 
+	pr->max_distance = 500;
+
 	switch(current_sprite) {
 		case CANNON_W:
 		case CANNON_W_D:
 			pr->speedx = -10;
 			pr->position->x = position->x - 8;
 			pr->position->y = position->y + 22;
-			pr->max_distance = 500;
 			break;
 		case CANNON_NW:
 		case CANNON_NW_D:
-			pr->speedx = -10;
-			pr->speedy = -10;
-			pr->position->x = position->x - 8;
+			pr->speedx = -7;
+			pr->speedy = -7;
+			pr->position->x = position->x - 2;
 			pr->position->y = position->y + 2;
-			pr->max_distance = 500;
 			break;
 		case CANNON_N:
 		case CANNON_N_D:
 			pr->speedy = -10;
-			pr->position->x = position->x + 24;
-			pr->position->y = position->y - 8;
-			pr->max_distance = 500;
+			pr->position->x = position->x + 22;
+			pr->position->y = position->y;
 			break;
 		case CANNON_NE:
 		case CANNON_NE_D:
-			pr->speedx = 10;
-			pr->speedy = -10;
-			pr->position->x = position->x + position->w;
+			pr->speedx = 7;
+			pr->speedy = -7;
+			pr->position->x = position->x + position->w - 8;
 			pr->position->y = position->y + 2;
-			pr->max_distance = 500;
 			break;
 		case CANNON_E:
 		case CANNON_E_D:
 			pr->speedx = 10;
-			pr->position->x = position->x + position->w;
+			pr->position->x = position->x + position->w - 8;
 			pr->position->y = position->y + 22;
-			pr->max_distance = 500;
 			break;
 	}
 	

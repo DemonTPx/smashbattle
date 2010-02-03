@@ -143,6 +143,10 @@ void NPC::process() {
 	}
 }
 
+void NPC::reset() {
+	set_sprite(frame_idle);
+}
+
 void NPC::bounce_up(SDL_Rect * source) {
 	if(is_stationary) return;
 

@@ -29,7 +29,7 @@ const MISSION_INFO Mission::MISSIONS[Mission::MISSION_COUNT] = {
 	{(char*)"CHICK INVASION II", (char*)"stage/chick_invasion_ii.lvl"},
 	{(char*)"EASY DOES IT", (char*)"stage/easy_does_it.lvl"},
 	{(char*)"CHICKEN RUN", (char*)"stage/chicken_run.lvl"},
-	{(char*)"BURN THEM WITH A JALAPENO", (char*)"stage/tryout.lvl"},
+	{(char*)"GUN TEST", (char*)"stage/guntest.lvl"},
 	{(char*)"STOMP HIS HEAD", (char*)"stage/tryout.lvl"},
 	{(char*)"SUCKERPUNCHER", (char*)"stage/tryout.lvl"},
 	{(char*)"POKE THE EYE OUT", (char*)"stage/tryout.lvl"},
@@ -166,6 +166,8 @@ void Mission::on_game_reset() {
 		npc->position->x = lnpc->position.x;
 		npc->position->y = lnpc->position.y;
 
+		npc->reset();
+
 		add_npc(npc);
 	}
 
@@ -203,14 +205,14 @@ void Mission::on_post_processing() {
 	}
 
 	if(!countdown && !ended) {
-		//if(level->mission.type == LM_TYPE_KILL_ALL) {
+		if(level->mission.type == LM_TYPE_KILL_ALL) {
 			int alive;
 			NPC * npc;
 			alive = 0;
 
 			for(unsigned int i = 0; i < npcs->size(); i++) {
 				npc = npcs->at(i);
-				if(!npc->is_dead)
+				if(!npc->is_stationary && !npc->is_dead)
 					alive++;
 			}
 			if(alive == 0) {
@@ -224,7 +226,7 @@ void Mission::on_post_processing() {
 				if(time <= level->mission.kill_all_time_gold)
 					cup = 0;
 			}
-		//}
+		}
 	}
 }
 

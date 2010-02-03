@@ -93,6 +93,10 @@ void Projectile::hit_npc(NPC * npc) {
 	if(npc->is_hit)
 		return;
 
+	// NPCs can't hit NPC's
+	if(owner == NULL)
+		return;
+
 	npc->hitpoints -= damage;
 	npc->hit_start = Gameplay::frame;
 	npc->is_hit = true;

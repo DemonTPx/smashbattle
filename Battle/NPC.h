@@ -20,6 +20,8 @@ public:
 
 	virtual void move(Level * level);
 	virtual void process();
+	
+	virtual void reset();
 
 	virtual void hit_player_side(Player * p);
 	virtual void hit_player_top_bottom(Player * p);

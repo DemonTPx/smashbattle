@@ -60,6 +60,18 @@ void GatlingNPC::process() {
 	}
 }
 
+void GatlingNPC::reset() {
+	if(move_direction == -1) {
+		frame_first = GATLING_L1;
+		frame_last = GATLING_L2;
+		set_sprite(GATLING_L1);
+	} else {
+		frame_first = GATLING_R1;
+		frame_last = GATLING_R2;
+		set_sprite(GATLING_R1);
+	}
+}
+
 void GatlingNPC::shoot() {
 	if(Gameplay::frame - shoot_start < 6) return;
 

@@ -4,21 +4,6 @@
 
 #include "ChickNPC.h"
 
-#define CHICK_R			0
-#define CHICK_R_WALK1	1
-#define CHICK_R_WALK2	2
-#define CHICK_R_WALK3	3
-#define CHICK_R_FALL1	4
-#define CHICK_R_FALL2	5
-#define CHICK_R_FLAT	6
-#define CHICK_L			7
-#define CHICK_L_WALK1	8
-#define CHICK_L_WALK2	9
-#define CHICK_L_WALK3	10
-#define CHICK_L_FALL1	11
-#define CHICK_L_FALL2	12
-#define CHICK_L_FLAT	13
-
 ChickNPC::ChickNPC() : NPC() {
 	is_stationary = false;
 
@@ -82,6 +67,14 @@ void ChickNPC::process() {
 		if(!Gameplay::instance->level->is_on_bottom(&rect)) {
 			move_direction = -move_direction;
 		}
+	}
+}
+
+void ChickNPC::reset() {
+	if(move_direction == -1) {
+		set_sprite(frame_idle + frames);
+	} else {
+		set_sprite(frame_idle);
 	}
 }
 
