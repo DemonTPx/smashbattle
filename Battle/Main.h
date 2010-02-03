@@ -54,7 +54,7 @@ public:
 	static Graphics * graphics;
 	static Text * text;
 
-	static int last_activity;
+	static unsigned int last_activity;
 	static bool autoreset;
 	static bool is_reset;
 

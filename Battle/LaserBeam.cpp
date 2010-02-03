@@ -149,4 +149,3 @@ void LaserBeam::draw(SDL_Surface * screen) {
 		}
 	}
 }
- 

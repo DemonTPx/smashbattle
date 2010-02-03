@@ -201,13 +201,13 @@ void Bomb::explode() {
 			npc->hitpoints -= damage;
 			npc->is_hit = true;
 			npc->hit_start = Gameplay::frame;
-			player_hit = true;
+			npcs_hit = true;
 		}
 
 		delete rect_npc;
 	}
 
-	if(player_hit)
+	if(player_hit || npcs_hit)
 		owner->bombs_hit++;
 
 	// Tiles below are also to be damaged

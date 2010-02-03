@@ -95,6 +95,7 @@ void Mission::on_game_reset() {
 
 	// Reset Powerups
 	for(i = 0; i < level->powerups->size(); i++) {
+		gpo = NULL;
 		lpu = level->powerups->at(i);
 		rect = new SDL_Rect();
 		pos = new SDL_Rect();
@@ -148,6 +149,7 @@ void Mission::on_game_reset() {
 
 	// Reset NPCs
 	for(i = 0; i < level->npcs->size(); i++) {
+		npc = NULL;
 		lnpc = level->npcs->at(i);
 		switch(lnpc->type) {
 			case L_NPC_CHICK:

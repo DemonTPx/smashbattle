@@ -45,7 +45,7 @@ AudioController * Main::audio = NULL;
 Graphics * Main::graphics = NULL;
 Text * Main::text = NULL;
 
-int Main::last_activity = 0;
+unsigned int Main::last_activity = 0;
 bool Main::autoreset = true;
 bool Main::is_reset = false;
 
@@ -147,7 +147,7 @@ void Main::flip() {
 	fps->start();
 
 	if(autoreset) {
-		if(frame - last_activity == FRAMES_UNTIL_RESET) {
+		if(frame - last_activity == (unsigned int)FRAMES_UNTIL_RESET) {
 			running = false;
 			is_reset = true;
 		}
