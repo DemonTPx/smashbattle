@@ -72,6 +72,8 @@ public:
 	SDL_Surface * tiles;
 
 	SDL_Surface * npc_chick;
+	SDL_Surface * npc_cannon;
+	SDL_Surface * npc_gatling;
 
 	SDL_Surface * statsblock[3];
 

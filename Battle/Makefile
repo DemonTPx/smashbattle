@@ -8,6 +8,7 @@ SRCS=Airstrike.cpp\
 	AudioOptions.cpp\
 	Bomb.cpp\
 	BombPowerUp.cpp\
+	CannonNPC.cpp\
 	CharacterSelect.cpp\
 	ChickNPC.cpp\
 	ControlsOptions.cpp\
@@ -15,6 +16,7 @@ SRCS=Airstrike.cpp\
 	GameInput.cpp\
 	Gameplay.cpp\
 	GameplayObject.cpp\
+	GatlingNPC.cpp\
 	Graphics.cpp\
 	HealthPowerUp.cpp\
 	InstantKillBulletPowerUp.cpp\

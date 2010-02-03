@@ -14,6 +14,8 @@
 
 #include "NPC.h"
 #include "ChickNPC.h"
+#include "CannonNPC.h"
+#include "GatlingNPC.h"
 
 #include "Mission.h"
 
@@ -151,6 +153,12 @@ void Mission::on_game_reset() {
 			case L_NPC_CHICK:
 				npc = new ChickNPC();
 				break;
+			case L_NPC_CANNON:
+				npc = new CannonNPC();
+				break;
+			case L_NPC_GATLING:
+				npc = new GatlingNPC();
+				break;
 		}
 		if(npc == NULL) continue;
 
@@ -256,6 +264,34 @@ void Mission::draw_score() {
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
+	// Draw the right cup
+	if(level->mission.type == LM_TYPE_KILL_ALL) {
+		int cup, target;
+
+		target = -1;
+		cup = 2;
+		if(time <= level->mission.kill_all_time_silver) {
+			target = level->mission.kill_all_time_silver;
+			cup = 1;
+		}
+		if(time <= level->mission.kill_all_time_gold) {
+			target = level->mission.kill_all_time_gold;
+			cup = 0;
+		}
+
+		// The cup will flicker if cup is about to change within 128 frames
+		if(target == -1 || ((target - time > 128) || ((target - time) & 0x10) != 0x10)) {
+			rect_s.x = CUP_W * cup;
+			rect_s.y = 0;
+			rect_s.w = CUP_W;
+			rect_s.h = CUP_H;
+			rect.x = 440;
+			rect.y = 450;
+
+			SDL_BlitSurface(Main::graphics->cups, &rect_s, screen, &rect);
+		}
+	}
+
 	p = players->at(0);
 
 	// Show player avatars
@@ -351,7 +387,7 @@ void Mission::draw_game_ended() {
 	char text[30];
 	
 	if(player_won)
-		sprintf(text, "YOU'RE WINNER!");
+		sprintf(text, "LEVEL CLEARED!");
 	else
 		sprintf(text, "YOU LOST");
 
@@ -364,7 +400,7 @@ void Mission::draw_game_ended() {
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	if(player_won) {
+	if(player_won && ((frame - end_start) & 0x10) == 0x10) {
 		rect_s.x = CUP_W * cup;
 		rect_s.y = 0;
 		rect_s.w = CUP_W;

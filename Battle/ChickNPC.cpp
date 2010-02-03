@@ -20,6 +20,8 @@
 #define CHICK_L_FLAT	13
 
 ChickNPC::ChickNPC() : NPC() {
+	is_stationary = false;
+
 	frame_w = 24;
 	frame_h = 26;
 

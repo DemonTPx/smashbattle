@@ -41,6 +41,8 @@ public:
 
 	bool done;
 
+	bool is_stationary;
+
 	bool is_jumping;
 	bool is_falling;
 

@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CannonNPC.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CharacterSelect.cpp"
 				>
 			</File>
@@ -232,6 +236,10 @@
 			</File>
 			<File
 				RelativePath=".\GameplayObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GatlingNPC.cpp"
 				>
 			</File>
 			<File
@@ -357,6 +365,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CannonNPC.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CharacterSelect.h"
 				>
 			</File>
@@ -382,6 +394,10 @@
 			</File>
 			<File
 				RelativePath=".\GameplayObject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GatlingNPC.h"
 				>
 			</File>
 			<File
@@ -539,6 +555,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gfx\cannon.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\gfx\chick.bmp"
 				>
 			</File>
@@ -600,6 +620,10 @@
 			</File>
 			<File
 				RelativePath=".\gfx\font_s.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\gfx\gatling.bmp"
 				>
 			</File>
 			<File

@@ -14,6 +14,8 @@
 NPC::NPC() {
 	done = false;
 
+	is_stationary = false;
+
 	frame_w = 0;
 	frame_h = 0;
 	current_sprite = 0;
@@ -142,6 +144,8 @@ void NPC::process() {
 }
 
 void NPC::bounce_up(SDL_Rect * source) {
+	if(is_stationary) return;
+
 	is_falling = true;
 	is_frozen = true;
 	freeze_start = Gameplay::frame;
@@ -273,6 +277,8 @@ void NPC::bounce(Player * other) {
 }
 
 void NPC::bounce(NPC * other) {
+	if(is_stationary) return;
+
 	SDL_Rect * rect, * source;
 
 	rect = last_position;
@@ -380,6 +386,8 @@ void NPC::move(Level * level) {
 			is_frozen = false;
 		}
 	}
+
+	if(is_stationary) return;
 
 	speedx = 1;
 

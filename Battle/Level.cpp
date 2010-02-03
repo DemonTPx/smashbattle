@@ -302,7 +302,6 @@ LEVEL_META * Level::get_meta(const char * filename) {
 LEVEL_MISSION * Level::get_mission(const char * filename) {
 	gzFile file;
 	LEVEL_HEADER header;
-	LEVEL_META meta;
 	LEVEL_MISSION * mission;
 	unsigned short block_id;
 

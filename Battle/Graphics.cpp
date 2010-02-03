@@ -29,6 +29,8 @@ void Graphics::load_all() {
 	tiles = load_bmp("gfx/tiles.bmp");
 	
 	npc_chick = load_bmp("gfx/chick.bmp");
+	npc_cannon = load_bmp("gfx/cannon.bmp");
+	npc_gatling = load_bmp("gfx/gatling.bmp");
 
 	statsblock[0] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
 	SDL_FillRect(statsblock[0], NULL, 0x880000);
@@ -142,6 +144,8 @@ void Graphics::clear_all() {
 	SDL_FreeSurface(tiles);
 
 	SDL_FreeSurface(npc_chick);
+	SDL_FreeSurface(npc_cannon);
+	SDL_FreeSurface(npc_gatling);
 
 	SDL_FreeSurface(statsblock[0]);
 	SDL_FreeSurface(statsblock[1]);

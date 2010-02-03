@@ -128,7 +128,9 @@ struct LEVEL_POWERUP_DISPENSER {
 };
 
 enum {
-	L_NPC_CHICK
+	L_NPC_CHICK,
+	L_NPC_CANNON,
+	L_NPC_GATLING
 };
 
 struct LEVEL_NPC {
