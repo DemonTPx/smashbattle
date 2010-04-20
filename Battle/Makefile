@@ -37,6 +37,7 @@ SRCS=Airstrike.cpp\
 	Player.cpp\
 	PlayerAnimation.cpp\
 	Projectile.cpp\
+	ShieldPowerUp.cpp\
 	Text.cpp\
 	Timer.cpp
 OBJS=$(SRCS:.cpp=.o)
