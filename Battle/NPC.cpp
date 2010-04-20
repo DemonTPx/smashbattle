@@ -218,23 +218,15 @@ void NPC::bounce(Player * other) {
 		other->bounce_direction_y = 1;
 		other->is_duck_forced = true;
 		other->duck_force_start = Gameplay::frame;
-		if(!other->is_hit) {
-			other->is_hit = true;
-			other->hit_start = Gameplay::frame;
-			other->momentumy = -10;
-			other->hitpoints -= 5;
-		}
+		other->momentumy = -10;
+		other->damage(5);
 
 		hit_player_top_bottom(other);
 	}
 	if(is_below) {
 		bounce_direction_y = 1;
 		momentumy = -10;
-		if(!is_hit) {
-			is_hit = true;
-			hit_start = Gameplay::frame;
-			hitpoints -= Player::WEIGHTCLASSES[other->weightclass].headjump_damage;
-		}
+		damage(Player::WEIGHTCLASSES[other->weightclass].headjump_damage);
 
 		other->bounce_direction_y = -1;
 		if(other->input->is_pressed(A_JUMP)) {
@@ -273,7 +265,7 @@ void NPC::bounce(Player * other) {
 			other->bounce_direction_x = -1;
 			other->newmomentumx = other->newmomentumx - 10 -bounce_weight;
 		}
-		
+
 		hit_player_side(other);
 	} else {
 		bounce_direction_x = 0;
@@ -363,6 +355,19 @@ void NPC::bounce(NPC * other) {
 	}
 }
 
+bool NPC::damage(int damage) {
+	if(is_dead || is_hit)
+		return false;
+
+	is_hit = true;
+	hit_start = Gameplay::frame;
+
+	hitpoints -= damage;
+
+	if(hitpoints < 0)
+		hitpoints = 0;
+}
+
 void NPC::move(Level * level) {
 	int speedx, speedy;
 	SDL_Rect rect;
@@ -391,7 +396,11 @@ void NPC::move(Level * level) {
 		}
 	}
 
-	if(is_stationary) return;
+	if(is_stationary) {
+		momentumx = 0;
+		newmomentumx = 0;
+		return;
+	}
 
 	speedx = 1;
 

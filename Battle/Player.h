@@ -111,6 +111,11 @@ public:
 	bool is_dead;
 	int dead_start;
 
+	bool is_shielded;
+	int shield_start;
+	int shield_time;
+	int shield_frame;
+
 	int shoot_start;
 	int shoot_delay;
 
@@ -144,6 +149,8 @@ public:
 
 	void bounce(Player * other);
 	void bounce_up(SDL_Rect * source);
+
+	bool damage(int damage);
 
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);

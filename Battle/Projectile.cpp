@@ -71,38 +71,30 @@ void Projectile::process() {
 void Projectile::hit_player(Player * player) {
 	if(hit)
 		return;
-
-	if(player->is_hit)
-		return;
-
+	
 	if(player == owner)
 		return;
 
-	player->hitpoints -= damage;
-	player->hit_start = Gameplay::frame;
-	player->is_hit = true;
-	hit = true;
-	if(owner != NULL)
-		owner->bullets_hit++;
+	if(player->damage(damage)) {
+		hit = true;
+		if(owner != NULL)
+			owner->bullets_hit++;
+	}
 }
 
 void Projectile::hit_npc(NPC * npc) {
 	if(hit)
 		return;
 
-	if(npc->is_hit)
-		return;
-
 	// NPCs can't hit NPC's
 	if(owner == NULL)
 		return;
 
-	npc->hitpoints -= damage;
-	npc->hit_start = Gameplay::frame;
-	npc->is_hit = true;
-	hit = true;
-	if(owner != NULL)
-		owner->bullets_hit++;
+	if(npc->damage(damage)) {
+		hit = true;
+		if(owner != NULL)
+			owner->bullets_hit++;
+	}
 }
 
 void Projectile::draw(SDL_Surface * screen) {

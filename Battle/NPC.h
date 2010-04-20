@@ -29,6 +29,8 @@ public:
 	void bounce(Player * other);
 	void bounce(NPC * other);
 	void bounce_up(SDL_Rect * source);
+
+	bool damage(int damage);
 	
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);

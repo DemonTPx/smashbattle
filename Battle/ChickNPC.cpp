@@ -79,11 +79,8 @@ void ChickNPC::reset() {
 }
 
 void ChickNPC::hit_player_side(Player * p) {
-	if(!p->is_dead && !p->is_hit) {
+	if(p->damage(10)) {
 		Main::audio->play(SND_HIT, position->x);
-		p->is_hit = true;
-		p->hit_start = Gameplay::instance->frame;
-		p->hitpoints -= 10;
 	}
 }
 

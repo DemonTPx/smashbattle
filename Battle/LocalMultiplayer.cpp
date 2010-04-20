@@ -11,6 +11,7 @@
 #include "BombPowerUp.h"
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
+#include "ShieldPowerUp.h"
 
 #include "LocalMultiplayer.h"
 
@@ -31,6 +32,7 @@ void LocalMultiplayer::initialize() {
 	powerup_bomb_rate = 6;
 	powerup_airstrike_rate = 2;
 	powerup_laserbeam_rate = 3;
+	powerup_shield_rate = 4;
 
 	round = 0;
 }
@@ -83,6 +85,9 @@ void LocalMultiplayer::on_game_reset() {
 		p->dead_start = 0;
 		p->is_frozen = false;
 		p->freeze_start = 0;
+		p->is_shielded = false;
+		p->shield_start = 0;
+		p->shield_time = 0;
 		p->bullets = -1;
 		p->bombs = 3;
 		p->doubledamagebullets = 0;
@@ -207,7 +212,7 @@ void LocalMultiplayer::generate_powerup(bool force) {
 
 	max = powerup_health_rate + powerup_bullet_rate + powerup_doubledamage_rate +
 		powerup_instantkill_rate + powerup_bomb_rate + powerup_airstrike_rate +
-		powerup_laserbeam_rate;
+		powerup_laserbeam_rate + powerup_shield_rate;
 	
 	r = rand() % max;
 	
@@ -264,6 +269,13 @@ void LocalMultiplayer::generate_powerup(bool force) {
 	if(r >= first && r < last) {
 		rect->x = 112; rect->y = 0;
 		gpo = new LaserBeamPowerUp(Main::graphics->powerups, rect, pos);
+	}
+
+	first = last;
+	last = first + powerup_shield_rate;
+	if(r >= first && r < last) {
+		rect->x = 96; rect->y = 0;
+		gpo = new ShieldPowerUp(Main::graphics->powerups, rect, pos, 120);
 	}
 
 	if(gpo != NULL)

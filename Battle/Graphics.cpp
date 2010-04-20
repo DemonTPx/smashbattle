@@ -14,6 +14,8 @@ void Graphics::load_all() {
 	bombs = load_bmp("gfx/bomb.bmp");
 	powerups = load_bmp("gfx/powerups.bmp");
 
+	shield = load_bmp("gfx/shield.bmp");
+
 	player1hp = load_bmp("gfx/player1hp.bmp");
 	player2hp = load_bmp("gfx/player2hp.bmp");
 
@@ -128,6 +130,8 @@ void Graphics::clear_all() {
 	SDL_FreeSurface(weapons);
 	SDL_FreeSurface(bombs);
 	SDL_FreeSurface(powerups);
+
+	SDL_FreeSurface(shield);
 
 	SDL_FreeSurface(player1hp);
 	SDL_FreeSurface(player2hp);

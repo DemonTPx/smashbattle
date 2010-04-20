@@ -36,6 +36,7 @@ protected:
 	int powerup_bomb_rate;
 	int powerup_airstrike_rate;
 	int powerup_laserbeam_rate;
+	int powerup_shield_rate;
 };
 
 #endif

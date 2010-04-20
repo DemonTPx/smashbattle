@@ -57,6 +57,8 @@ public:
 	SDL_Surface * weapons;
 	SDL_Surface * bombs;
 	SDL_Surface * powerups;
+
+	SDL_Surface * shield;
 	
 	SDL_Surface * player1hp;
 	SDL_Surface * player2hp;

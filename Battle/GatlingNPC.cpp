@@ -116,19 +116,13 @@ void GatlingNPC::shoot() {
 }
 
 void GatlingNPC::hit_player_side(Player * p) {
-	if(!p->is_dead && !p->is_hit) {
+	if(p->damage(10)) {
 		Main::audio->play(SND_HIT, position->x);
-		p->is_hit = true;
-		p->hit_start = Gameplay::instance->frame;
-		p->hitpoints -= 10;
 	}
 }
 
 void GatlingNPC::hit_player_top_bottom(Player * p) {
-	if(!p->is_dead && !p->is_hit) {
+	if(p->damage(10)) {
 		Main::audio->play(SND_HIT, position->x);
-		p->is_hit = true;
-		p->hit_start = Gameplay::instance->frame;
-		p->hitpoints -= 10;
 	}
 }

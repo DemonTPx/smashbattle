@@ -39,8 +39,16 @@ void LaserBeam::process() {
 	frame = Gameplay::instance->frame - start;
 
 	if(frame == 1) {
+		if(target->is_dead) {
+			done = true;
+			return;
+		}
+
 		Main::audio->play(SND_LASER);
 		position->x = target->position->x + (PLAYER_W / 2);
+
+		if(position->x > WINDOW_WIDTH)
+			position->x -= WINDOW_WIDTH;
 	}
 
 	if(frame >= 28) {
@@ -53,14 +61,12 @@ void LaserBeam::hit_player(Player * player) {
 		return;
 	if(Gameplay::frame - start < 10)
 		return;
-	if(!player->is_hit) {
-		player->hitpoints -= 25;
-		player->is_hit = true;
-		player->hit_start = Gameplay::frame;
-	}
+	player->damage(25);
 }
 
-void LaserBeam::hit_npc(NPC * npc) {}
+void LaserBeam::hit_npc(NPC * npc) {
+	npc->damage(25);
+}
 
 void LaserBeam::draw(SDL_Surface * screen) {
 	SDL_Rect rect, rect_b;

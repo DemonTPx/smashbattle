@@ -163,6 +163,11 @@ void Player::reset() {
 	is_frozen = false;
 	freeze_start = 0;
 
+	is_shielded = false;
+	shield_start = 0;
+	shield_time = 0;
+	shield_frame = 0;
+
 	bounce_direction_x = 0;
 	bounce_direction_y = 0;
 
@@ -191,6 +196,7 @@ void Player::reset() {
 
 void Player::draw(SDL_Surface * screen, bool marker) {
 	SDL_Rect rect;
+	SDL_Rect shield_s, shield_d;
 
 	rect.x = position->x;
 	rect.y = position->y;
@@ -198,6 +204,17 @@ void Player::draw(SDL_Surface * screen, bool marker) {
 	// Dead players are not visible
 	if(is_dead && Gameplay::frame - dead_start > 120) {
 		return;
+	}
+
+	if(is_shielded) {
+		shield_s.x = 0; shield_s.y = 0;
+		shield_s.w = 40; shield_s.h = 58;
+
+		shield_d.x = rect.x - 9;
+		shield_d.y = rect.y - 7;
+
+		shield_frame = (shield_frame + 1) % 20;
+		if(shield_frame > 10) shield_s.x += shield_s.w;
 	}
 
 	// Check if player is hit and cycle between a show and a hide of the player to create
@@ -208,6 +225,9 @@ void Player::draw(SDL_Surface * screen, bool marker) {
 			return;
 	}
 
+	if(is_shielded)
+		SDL_BlitSurface(Main::graphics->shield, &shield_s, screen, &shield_d);
+
 	SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 
 	// If the player is going out the side of the screen, we want it to
@@ -215,11 +235,25 @@ void Player::draw(SDL_Surface * screen, bool marker) {
 	if(position->x >= WINDOW_WIDTH - PLAYER_W) {
 		rect.x = position->x - WINDOW_WIDTH;
 		rect.y = position->y;
+
+		if(is_shielded) {
+			shield_d.x = rect.x - 9;
+			shield_d.y = rect.y - 7;
+			SDL_BlitSurface(Main::graphics->shield, &shield_s, screen, &rect);
+		}
+
 		SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 	}
 	if(position->x <= 0) {
 		rect.x = position->x + WINDOW_WIDTH;
 		rect.y = position->y;
+
+		if(is_shielded) {
+			shield_d.x = rect.x - 9;
+			shield_d.y = rect.y - 7;
+			SDL_BlitSurface(Main::graphics->shield, &shield_s, screen, &rect);
+		}
+
 		SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 	}
 
@@ -283,6 +317,12 @@ void Player::move(Level * level) {
 	if(is_frozen) {
 		if(Gameplay::frame > freeze_start + PLAYER_FREEZE_FRAMES) {
 			is_frozen = false;
+		}
+	}
+
+	if(is_shielded) {
+		if(Gameplay::frame > shield_start + shield_time) {
+			is_shielded = false;
 		}
 	}
 
@@ -611,10 +651,7 @@ void Player::bounce(Player * other) {
 		is_duck_forced = true;
 		duck_force_start = Gameplay::frame;
 		momentumy = -10;
-		if(!is_hit) {
-			is_hit = true;
-			hit_start = Gameplay::frame;
-			hitpoints -= WEIGHTCLASSES[other->weightclass].headjump_damage;
+		if(damage(WEIGHTCLASSES[other->weightclass].headjump_damage)) {
 			other->headstomps++;
 		}
 	}
@@ -655,6 +692,24 @@ void Player::bounce_up(SDL_Rect * source) {
 		momentumx = MAX_MOMENTUM_HORIZ;
 	if(momentumx < -MAX_MOMENTUM_HORIZ)
 		momentumx = -MAX_MOMENTUM_HORIZ;
+}
+
+bool Player::damage(int damage) {
+	if(is_shielded)
+		return true;
+
+	if(is_dead || is_hit)
+		return false;
+
+	is_hit = true;
+	hit_start = Gameplay::frame;
+
+	hitpoints -= damage;
+
+	if(hitpoints < 0)
+		hitpoints = 0;
+
+	return true;
 }
 
 void Player::process() {

@@ -183,10 +183,8 @@ void Bomb::explode() {
 		rect_player = p->get_rect();
 
 		if(Gameplay::is_intersecting(rect_bomb, rect_player)) {
-			p->hitpoints -= damage;
-			p->is_hit = true;
-			p->hit_start = Gameplay::frame;
-			player_hit = true;
+			if(p->damage(damage))
+				player_hit = true;
 		}
 
 		delete rect_player;
@@ -198,10 +196,8 @@ void Bomb::explode() {
 		rect_npc = npc->get_rect();
 
 		if(Gameplay::is_intersecting(rect_bomb, rect_npc)) {
-			npc->hitpoints -= damage;
-			npc->is_hit = true;
-			npc->hit_start = Gameplay::frame;
-			npcs_hit = true;
+			if(npc->damage(damage))
+				npcs_hit = true;
 		}
 
 		delete rect_npc;
