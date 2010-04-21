@@ -100,12 +100,20 @@ void Bomb::hit_player(Player * p) {
 	if(exploded)
 		return;
 
-	if(p != owner)
-		explode();
+	if(p == owner)
+		return;
+
+	if(p->is_hit)
+		return;
+
+	explode();
 }
 
 void Bomb::hit_npc(NPC * npc) {
 	if(exploded)
+		return;
+
+	if(npc->is_hit)
 		return;
 
 	explode();
