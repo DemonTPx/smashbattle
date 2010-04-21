@@ -90,6 +90,9 @@ const int Player::jump_height = 144;
 // Freeze time
 #define PLAYER_FREEZE_FRAMES 30
 
+// Shield time
+#define PLAYER_SHIELD_FRAMES 180
+
 Player::Player(int character, int number) {
 	name = CHARACTERS[character].name;
 	this->character = character;
@@ -165,7 +168,6 @@ void Player::reset() {
 
 	is_shielded = false;
 	shield_start = 0;
-	shield_time = 0;
 	shield_frame = 0;
 
 	bounce_direction_x = 0;
@@ -196,25 +198,16 @@ void Player::reset() {
 
 void Player::draw(SDL_Surface * screen, bool marker) {
 	SDL_Rect rect;
-	SDL_Rect shield_s, shield_d;
+	SDL_Surface * sprites;
 
 	rect.x = position->x;
 	rect.y = position->y;
 
+	sprites = this->sprites;
+
 	// Dead players are not visible
 	if(is_dead && Gameplay::frame - dead_start > 120) {
 		return;
-	}
-
-	if(is_shielded) {
-		shield_s.x = 0; shield_s.y = 0;
-		shield_s.w = 40; shield_s.h = 58;
-
-		shield_d.x = rect.x - 9;
-		shield_d.y = rect.y - 7;
-
-		shield_frame = (shield_frame + 1) % 20;
-		if(shield_frame > 10) shield_s.x += shield_s.w;
 	}
 
 	// Check if player is hit and cycle between a show and a hide of the player to create
@@ -225,8 +218,15 @@ void Player::draw(SDL_Surface * screen, bool marker) {
 			return;
 	}
 
-	if(is_shielded)
-		SDL_BlitSurface(Main::graphics->shield, &shield_s, screen, &shield_d);
+	if(is_shielded) {
+		if((shield_start + PLAYER_SHIELD_FRAMES) - Gameplay::frame > 60) {
+			sprites = Main::graphics->shield;
+		} else {
+			shield_frame = (shield_frame + 1) % 10;
+			if(shield_frame >= 5)
+				sprites = Main::graphics->shield;
+		}
+	}
 
 	SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 
@@ -236,23 +236,11 @@ void Player::draw(SDL_Surface * screen, bool marker) {
 		rect.x = position->x - WINDOW_WIDTH;
 		rect.y = position->y;
 
-		if(is_shielded) {
-			shield_d.x = rect.x - 9;
-			shield_d.y = rect.y - 7;
-			SDL_BlitSurface(Main::graphics->shield, &shield_s, screen, &rect);
-		}
-
 		SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 	}
 	if(position->x <= 0) {
 		rect.x = position->x + WINDOW_WIDTH;
 		rect.y = position->y;
-
-		if(is_shielded) {
-			shield_d.x = rect.x - 9;
-			shield_d.y = rect.y - 7;
-			SDL_BlitSurface(Main::graphics->shield, &shield_s, screen, &rect);
-		}
 
 		SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
 	}
@@ -321,8 +309,11 @@ void Player::move(Level * level) {
 	}
 
 	if(is_shielded) {
-		if(Gameplay::frame > shield_start + shield_time) {
+		if(Gameplay::frame > shield_start + PLAYER_SHIELD_FRAMES) {
 			is_shielded = false;
+		}
+		if(Gameplay::frame == (shield_start + PLAYER_SHIELD_FRAMES - 60)) {
+			Main::audio->play(SND_SHIELD, position->x + (position->w / 2));
 		}
 	}
 

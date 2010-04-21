@@ -113,7 +113,6 @@ public:
 
 	bool is_shielded;
 	int shield_start;
-	int shield_time;
 	int shield_frame;
 
 	int shoot_start;

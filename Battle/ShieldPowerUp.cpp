@@ -4,11 +4,10 @@
 #include "GameplayObject.h"
 #include "ShieldPowerUp.h"
 
-ShieldPowerUp::ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int time) {
+ShieldPowerUp::ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position) {
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
-	this->time = time;
 	is_powerup = true;
 }
 
@@ -22,7 +21,6 @@ void ShieldPowerUp::hit_player(Player * p) {
 
 	p->is_shielded = true;
 	p->shield_start = Gameplay::frame;
-	p->shield_time = time;
 
 	done = true;
 }

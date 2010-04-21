@@ -783,6 +783,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sfx\shield.wav"
+				>
+			</File>
+			<File
 				RelativePath=".\sfx\shoot.wav"
 				>
 			</File>

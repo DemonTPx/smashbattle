@@ -87,7 +87,6 @@ void LocalMultiplayer::on_game_reset() {
 		p->freeze_start = 0;
 		p->is_shielded = false;
 		p->shield_start = 0;
-		p->shield_time = 0;
 		p->bullets = -1;
 		p->bombs = 3;
 		p->doubledamagebullets = 0;
@@ -275,7 +274,7 @@ void LocalMultiplayer::generate_powerup(bool force) {
 	last = first + powerup_shield_rate;
 	if(r >= first && r < last) {
 		rect->x = 96; rect->y = 0;
-		gpo = new ShieldPowerUp(Main::graphics->powerups, rect, pos, 120);
+		gpo = new ShieldPowerUp(Main::graphics->powerups, rect, pos);
 	}
 
 	if(gpo != NULL)

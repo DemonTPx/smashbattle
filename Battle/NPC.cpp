@@ -366,6 +366,8 @@ bool NPC::damage(int damage) {
 
 	if(hitpoints < 0)
 		hitpoints = 0;
+
+	return true;
 }
 
 void NPC::move(Level * level) {
