@@ -84,8 +84,10 @@ void Menu::run() {
 			Main::running = true;
 			Main::is_reset = false;
 
-			input_master->reset();
-			input_master->set_delay();
+			if(input_master != NULL) {
+				input_master->reset();
+				input_master->set_delay();
+			}
 
 			started = false;
 		}
