@@ -304,10 +304,10 @@ void Gameplay::draw_countdown() {
 	SDL_Surface * surf;
 
 	if(countdown_sec_left > 3) {
-		surf = Main::text->render_text_medium(countdown_pre_text);
+		surf = Main::text->render_text_medium_shadow(countdown_pre_text);
 	} else {
 		sprintf_s(text, 5, "%d", countdown_sec_left);
-		surf = Main::text->render_text_large(text);
+		surf = Main::text->render_text_large_shadow(text);
 	}
 
 	SDL_Rect rect;

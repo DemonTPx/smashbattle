@@ -608,7 +608,7 @@ void LocalMultiplayer::draw_game_ended() {
 	else
 		sprintf(text, "%s WINS", winner->name);
 
-	surface = Main::text->render_text_medium(text);
+	surface = Main::text->render_text_medium_shadow(text);
 	rect.x = (screen->w - surface->w) / 2;
 	if(!draw) rect.x += 28;
 	rect.y = (screen->h - surface->h) / 2;
