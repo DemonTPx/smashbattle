@@ -18,16 +18,20 @@ AirstrikePowerUp::~AirstrikePowerUp() {
 }
 
 void AirstrikePowerUp::hit_player(Player * p) {
-	Airstrike * as;
-
 	Main::audio->play(SND_ITEM, p->position->x);
+
+	shoot_airstrike(p);
+
+	done = true;
+}
+
+void AirstrikePowerUp::shoot_airstrike(Player * p) {
+	Airstrike * as;
 
 	as = new Airstrike();
 	as->owner = p;
 
 	Gameplay::instance->add_object(as);
-
-	done = true;
 }
 
 void AirstrikePowerUp::hit_npc(NPC * npc) {}

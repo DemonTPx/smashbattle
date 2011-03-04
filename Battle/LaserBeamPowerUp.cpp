@@ -18,9 +18,15 @@ LaserBeamPowerUp::~LaserBeamPowerUp() {
 }
 
 void LaserBeamPowerUp::hit_player(Player * p) {
-	LaserBeam * lb;
-
 	Main::audio->play(SND_ITEM, p->position->x);
+
+	shoot_laserbeam(p);
+
+	done = true;
+}
+
+void LaserBeamPowerUp::shoot_laserbeam(Player * p) {
+	LaserBeam * lb;
 
 	int targets[3];
 	int target_hp[3];
@@ -67,8 +73,6 @@ void LaserBeamPowerUp::hit_player(Player * p) {
 
 		Gameplay::instance->add_object(lb);
 	}
-
-	done = true;
 }
 
 void LaserBeamPowerUp::hit_npc(NPC * npc) {}

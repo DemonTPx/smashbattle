@@ -15,6 +15,8 @@ public:
 	virtual void hit_npc(NPC * npc);
 
 	virtual void draw(SDL_Surface * screen);
+
+	static void shoot_airstrike(Player * p);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;

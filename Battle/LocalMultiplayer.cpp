@@ -12,6 +12,7 @@
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
+#include "RandomPowerUp.h"
 
 #include "LocalMultiplayer.h"
 
@@ -33,6 +34,7 @@ void LocalMultiplayer::initialize() {
 	powerup_airstrike_rate = 2;
 	powerup_laserbeam_rate = 3;
 	powerup_shield_rate = 4;
+	powerup_random_rate = 6;
 
 	round = 0;
 }
@@ -211,7 +213,7 @@ void LocalMultiplayer::generate_powerup(bool force) {
 
 	max = powerup_health_rate + powerup_bullet_rate + powerup_doubledamage_rate +
 		powerup_instantkill_rate + powerup_bomb_rate + powerup_airstrike_rate +
-		powerup_laserbeam_rate + powerup_shield_rate;
+		powerup_laserbeam_rate + powerup_shield_rate + powerup_random_rate;
 	
 	r = rand() % max;
 	
@@ -277,10 +279,19 @@ void LocalMultiplayer::generate_powerup(bool force) {
 		gpo = new ShieldPowerUp(Main::graphics->powerups, rect, pos);
 	}
 
-	if(gpo != NULL)
+	first = last;
+	last = first + powerup_random_rate;
+	if(r >= first && r < last) {
+		gpo = new RandomPowerUp(Main::graphics->powerups, pos);
+		delete rect;
+	}
+
+	if(gpo != NULL) {
 		objects->push_back(gpo);
-	else
+	} else {
+		delete rect;
 		delete pos;
+	}
 }
 
 void LocalMultiplayer::draw_score() {

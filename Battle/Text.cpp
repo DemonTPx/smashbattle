@@ -182,12 +182,13 @@ SDL_Surface * Text::render_text_shadow(SDL_Surface * font, int w, int h, int spa
 		if(t[i] >= TEXT_ASCII_OFFSET && t[i] <= TEXT_ASCII_MAX) {
 			rect_d_s.x = rect_d.x + offx;
 			rect_d_s.y = rect_d.y + offy;
+
 			rect = glyph_clip(w, h, t[i], true);
 			SDL_BlitSurface(font, rect, surface, &rect_d_s);
+			delete rect;
 			
 			rect = glyph_clip(w, h, t[i], false);
 			SDL_BlitSurface(font, rect, surface, &rect_d);
-
 			delete rect;
 		}
 

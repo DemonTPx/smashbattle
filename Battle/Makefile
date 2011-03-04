@@ -37,6 +37,7 @@ SRCS=Airstrike.cpp\
 	Player.cpp\
 	PlayerAnimation.cpp\
 	Projectile.cpp\
+	RandomPowerUp.cpp\
 	ShieldPowerUp.cpp\
 	Text.cpp\
 	Timer.cpp
