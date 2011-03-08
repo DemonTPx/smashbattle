@@ -2,6 +2,10 @@
 
 #include "ControlsOptions.h"
 
+#ifndef WIN32
+#define sprintf_s snprintf
+#endif
+
 ControlsOptions::ControlsOptions(GameInput * input) {
 	OptionItem * item;
 
@@ -213,7 +217,8 @@ JoystickSelect::JoystickSelect(int index) {
 
 	for(int i = 0; i < SDL_NumJoysticks(); i++) {
 		item = new OptionItem();
-		item->name = (char*)SDL_JoystickName(i);
+		sprintf_s(joystick_name[i], 80, "%s", SDL_JoystickName(i));
+		item->name = joystick_name[i];
 		item->options = NULL;
 		add_item(item);
 	}

@@ -30,6 +30,7 @@ public:
 	int index;
 private:
 	int cancel_idx;
+	char joystick_name[10][80];
 };
 
 #endif
