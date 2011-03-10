@@ -7,13 +7,14 @@
 #include "DoubleDamagePowerUp.h"
 #include "InstantKillBulletPowerUp.h"
 #include "BombPowerUp.h"
+#include "MinePowerUp.h"
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
 
-const int RandomPowerUp::CYCLE_COUNT = 6;
-const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 80, 64, 112, 16, 96};
+const int RandomPowerUp::CYCLE_COUNT = 7;
+const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 80, 64, 112, 16, 128, 96};
 const int RandomPowerUp::CYCLE_DELAY = 20;
 
 #define RPU_DOUBLEDAMAGE 0
@@ -21,7 +22,8 @@ const int RandomPowerUp::CYCLE_DELAY = 20;
 #define RPU_INSTANTKILL 2
 #define RPU_LASER 3
 #define RPU_BOMB 4
-#define RPU_SHIELD 5
+#define RPU_MINE 5
+#define RPU_SHIELD 6
 
 RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position) {
 	this->surface = surface;
@@ -63,6 +65,11 @@ void RandomPowerUp::hit_player(Player * p) {
 			p->bombs += 1;
 			if(p->bombs > 9)
 				p->bombs = 9;
+			break;
+		case RPU_MINE:
+			p->mines += 1;
+			if(p->mines > 9)
+				p->mines = 9;
 			break;
 		case RPU_AIRSTRIKE:
 			AirstrikePowerUp::shoot_airstrike(p);

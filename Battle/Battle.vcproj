@@ -291,6 +291,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MinePowerUp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Mission.cpp"
 				>
 			</File>
@@ -458,6 +462,10 @@
 			</File>
 			<File
 				RelativePath=".\Mine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MinePowerUp.h"
 				>
 			</File>
 			<File

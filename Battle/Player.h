@@ -123,6 +123,7 @@ public:
 
 	int bullets;
 	int bombs;
+	int mines;
 	int doubledamagebullets;
 	int instantkillbullets;
 

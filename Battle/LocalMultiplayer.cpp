@@ -9,6 +9,7 @@
 #include "DoubleDamagePowerUp.h"
 #include "InstantKillBulletPowerUp.h"
 #include "BombPowerUp.h"
+#include "MinePowerUp.h"
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
@@ -31,6 +32,7 @@ void LocalMultiplayer::initialize() {
 	powerup_doubledamage_rate = 6;
 	powerup_instantkill_rate = 1;
 	powerup_bomb_rate = 6;
+	powerup_mine_rate = 6;
 	powerup_airstrike_rate = 2;
 	powerup_laserbeam_rate = 3;
 	powerup_shield_rate = 4;
@@ -212,8 +214,9 @@ void LocalMultiplayer::generate_powerup(bool force) {
 	pos->y = (row * TILE_H) + 16;
 
 	max = powerup_health_rate + powerup_bullet_rate + powerup_doubledamage_rate +
-		powerup_instantkill_rate + powerup_bomb_rate + powerup_airstrike_rate +
-		powerup_laserbeam_rate + powerup_shield_rate + powerup_random_rate;
+		powerup_instantkill_rate + powerup_bomb_rate + powerup_mine_rate +
+		powerup_airstrike_rate + powerup_laserbeam_rate + powerup_shield_rate +
+		powerup_random_rate;
 	
 	r = rand() % max;
 	
@@ -256,6 +259,13 @@ void LocalMultiplayer::generate_powerup(bool force) {
 	if(r >= first && r < last) {
 		rect->x = 16; rect->y = 0;
 		gpo = new BombPowerUp(Main::graphics->powerups, rect, pos, 1);
+	}
+
+	first = last;
+	last = first + powerup_mine_rate;
+	if(r >= first && r < last) {
+		rect->x = 128; rect->y = 0;
+		gpo = new MinePowerUp(Main::graphics->powerups, rect, pos, 1);
 	}
 
 	first = last;
@@ -380,15 +390,38 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_FreeSurface(surface);
 
 	// Show bomb ammount
-	rect_s.x = 12;
-	rect_s.y = 0;
-	rect_s.w = 12;
-	rect_s.h = 16;
-	rect.x = 2;
-	rect.y = 462;
+	if(player1->mines > 0 || player1->mines == -1) {
+		rect_s.x = 54;
+		rect_s.y = 0;
+		rect_s.w = 6;
+		rect_s.h = 4;
+		rect.x = 6;
+		rect.y = 472;
+	} else {
+		rect_s.x = 12;
+		rect_s.y = 0;
+		rect_s.w = 12;
+		rect_s.h = 16;
+		rect.x = 2;
+		rect.y = 462;
+	}
 	SDL_BlitSurface(Main::graphics->bombs, &rect_s, screen, &rect);
-	rect.x = 626;
-	rect.y = 462;
+
+	if(player2->mines > 0 || player2->mines == -1) {
+		rect_s.x = 54;
+		rect_s.y = 0;
+		rect_s.w = 6;
+		rect_s.h = 4;
+		rect.x = 628;
+		rect.y = 472;
+	} else {
+		rect_s.x = 12;
+		rect_s.y = 0;
+		rect_s.w = 12;
+		rect_s.h = 16;
+		rect.x = 626;
+		rect.y = 462;
+	}
 	SDL_BlitSurface(Main::graphics->bombs, &rect_s, screen, &rect);
 
 	rect_s.x = 0;
@@ -396,8 +429,11 @@ void LocalMultiplayer::draw_score_duel() {
 	rect_s.w = 16;
 	rect_s.h = 16;
 
-	if(player1->bombs != -1) {
-		sprintf_s(str, 3, "%02d", player1->bombs);
+	if(player1->bombs != -1 && player1->mines != -1) {
+		if(player1->mines > 0)
+			sprintf_s(str, 3, "%02d", player1->mines);
+		else
+			sprintf_s(str, 3, "%02d", player1->bombs);
 		surface = Main::text->render_text_medium(str);
 		rect.x = 18;
 		rect.y = 464;
@@ -409,8 +445,11 @@ void LocalMultiplayer::draw_score_duel() {
 		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
 	}
 
-	if(player2->bombs != -1) {
-		sprintf_s(str, 3, "%02d", player2->bombs);
+	if(player2->bombs != -1 && player2->mines != -1) {
+		if(player2->mines > 0)
+			sprintf_s(str, 3, "%02d", player2->mines);
+		else
+			sprintf_s(str, 3, "%02d", player2->bombs);
 		surface = Main::text->render_text_medium(str);
 		rect.x = 622 - surface->w;
 		rect.y = 464;
@@ -580,16 +619,28 @@ void LocalMultiplayer::draw_score_multi() {
 		}
 
 		// Bombs
-		rect_s.x = 12;
-		rect_s.y = 0;
-		rect_s.w = 12;
-		rect_s.h = 16;
-		rect.x = x + 66;
-		rect.y = y + 14;
+		if(player->mines > 0 || player->mines == -1) {
+			rect_s.x = 54;
+			rect_s.y = 0;
+			rect_s.w = 6;
+			rect_s.h = 4;
+			rect.x = x + 70;
+			rect.y = y + 24;
+		} else {
+			rect_s.x = 12;
+			rect_s.y = 0;
+			rect_s.w = 12;
+			rect_s.h = 16;
+			rect.x = x + 66;
+			rect.y = y + 14;
+		}
 		SDL_BlitSurface(Main::instance->graphics->bombs, &rect_s, screen, &rect);
 
-		if(player->bombs != -1) {
-			sprintf_s(str, 3, "%02d", player->bombs);
+		if(player->bombs != -1 || player->mines != -1) {
+			if(player->mines > 0)
+				sprintf_s(str, 3, "%02d", player->mines);
+			else
+				sprintf_s(str, 3, "%02d", player->bombs);
 			surface = Main::text->render_text_medium_gray(str);
 			rect.x = x + 84;
 			rect.y = y + 14;

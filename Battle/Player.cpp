@@ -182,6 +182,7 @@ void Player::reset() {
 
 	bullets = 10;
 	bombs = 3;
+	mines = 0;
 	doubledamagebullets = 0;
 	instantkillbullets = 0;
 
@@ -770,11 +771,17 @@ void Player::process() {
 		}
 	}
 	if(input->is_pressed(A_BOMB)) {
-		if(Gameplay::frame > bomb_start + bomb_delay && (bombs > 0 || bombs == -1)) {
+		if(Gameplay::frame > bomb_start + bomb_delay &&
+			(bombs > 0 || bombs == -1 || mines > 0 || mines == -1)) {
 			bomb_start = Gameplay::frame;
+
 			Bomb * b;
 
-			b = new Bomb(Main::graphics->bombs);
+			if(mines > 0 || mines == -1)
+				b = new Mine(Main::graphics->bombs);
+			else
+				b = new Bomb(Main::graphics->bombs);
+
 			b->damage = BOMBPOWERCLASSES[bombpowerclass].damage;
 			b->time = 60;
 			b->frame_start = Gameplay::frame;
@@ -785,8 +792,12 @@ void Player::process() {
 			b->position->y = position->y + (position->h - b->position->h);
 			Gameplay::instance->add_object(b);
 			
-			if(bombs != -1)
-				bombs -= 1;
+			if(mines > 0) {
+				mines -= 1;
+			} else if(mines != -1) {
+				if(bombs != -1)
+					bombs -= 1;
+			}
 
 			bombs_fired++;
 

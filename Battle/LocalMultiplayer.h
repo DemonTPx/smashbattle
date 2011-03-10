@@ -34,6 +34,7 @@ protected:
 	int powerup_doubledamage_rate;
 	int powerup_instantkill_rate;
 	int powerup_bomb_rate;
+	int powerup_mine_rate;
 	int powerup_airstrike_rate;
 	int powerup_laserbeam_rate;
 	int powerup_shield_rate;
