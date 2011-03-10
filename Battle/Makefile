@@ -28,6 +28,8 @@ SRCS=Airstrike.cpp\
 	LocalMultiplayerRoundEnd.cpp\
 	Main.cpp\
 	Menu.cpp\
+	Mine.cpp\
+	MinePowerUp.cpp\
 	Mission.cpp\
 	MissionSelect.cpp\
 	NPC.cpp\
