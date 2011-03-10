@@ -28,7 +28,8 @@ const char * AudioController::sound_files[SOUNDFILES] = {
 	"sfx/go.wav",
 	"sfx/airstrike.wav",
 	"sfx/laser.wav",
-	"sfx/shield.wav"
+	"sfx/shield.wav",
+	"sfx/blip.wav"
 };
 
 const int AudioController::soundvolume[SOUNDFILES] = {
@@ -46,7 +47,8 @@ const int AudioController::soundvolume[SOUNDFILES] = {
 	100, //go
 	100, //airstrike
 	100, //laser
-	100 //shield
+	100, //shield
+	75 //blip
 };
 
 AudioController::AudioController() {

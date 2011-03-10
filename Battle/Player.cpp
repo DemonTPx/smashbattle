@@ -6,6 +6,7 @@
 
 #include "Projectile.h"
 #include "Bomb.h"
+#include "Mine.h"
 #include "Gameplay.h"
 #include "Level.h"
 #include "Player.h"

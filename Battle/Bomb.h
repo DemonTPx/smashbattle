@@ -53,7 +53,7 @@ public:
 	virtual void draw(SDL_Surface * screen);
 
 	SDL_Rect * get_damage_rect();
-private:
+protected:
 	void set_clips();
 };
 
