@@ -268,12 +268,18 @@ int main(int argc, char* args[]) {
 }
 
 void Main::load_options() {
+	char filename[256];
 	std::ifstream file;
 	SaveHeader hdr;
 
-	file.open("battle.sav", std::ifstream::in | std::ifstream::binary);
+#ifdef WIN32
+	sprintf(filename, "%s\\%s", getenv("APPDATA"), "smashbattle.sav");
+#else
+	sprintf(filename, "%s/%s", getenv("HOME"), ".smashbattle");
+#endif
+	file.open(filename, std::ifstream::in | std::ifstream::binary);
 
-	if(file.eof() || file.fail()) {
+	if(file.eof() || !file.is_open()) {
 		audio->options.sound_volume = 100;
 		audio->options.music_volume = 100;
 		set_default_controlschemes();
@@ -301,13 +307,21 @@ void Main::load_options() {
 }
 
 void Main::save_options() {
+	char filename[256];
 	std::ofstream file;
 	SaveHeader hdr;
 
-	file.open("battle.sav", std::ofstream::out | std::ofstream::binary | std::ofstream::trunc);
+#ifdef WIN32
+	sprintf(filename, "%s\\%s", getenv("APPDATA"), "smashbattle.sav");
+#else
+	sprintf(filename, "%s/%s", getenv("HOME"), ".smashbattle");
+#endif
+	file.open(filename, std::ofstream::out | std::ofstream::binary | std::ofstream::trunc);
 
 	if(file.fail()) {
 		file.close();
+		printf("Error: Could not save settings\n");
+		return;
 	}
 
 	hdr.signature = SAVE_SIGNATURE;
