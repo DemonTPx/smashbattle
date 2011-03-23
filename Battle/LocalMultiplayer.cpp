@@ -93,6 +93,7 @@ void LocalMultiplayer::on_game_reset() {
 		p->shield_start = 0;
 		p->bullets = -1;
 		p->bombs = 3;
+		p->mines = 0;
 		p->doubledamagebullets = 0;
 		p->instantkillbullets = 0;
 		p->is_falling = false;
