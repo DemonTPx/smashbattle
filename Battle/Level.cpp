@@ -549,7 +549,7 @@ int Level::tile_pos(int x, int y) {
 	return ((int)(y / TILE_H) * TILE_COLS) + (int)(x / TILE_W);
 }
 
-void Level::draw(SDL_Surface * screen) {
+void Level::draw(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect;
 	SDL_Rect rect_s;
 

@@ -16,7 +16,7 @@ public:
 	virtual void hit_player(Player * player) = 0;
 	virtual void hit_npc(NPC * npc) = 0;
 
-	virtual void draw(SDL_Surface * screen) = 0;
+	virtual void draw(SDL_Surface * screen, int frames_processed) = 0;
 
 	bool done;
 	bool is_powerup;

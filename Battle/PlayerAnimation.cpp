@@ -272,7 +272,7 @@ void PlayerAnimation::move() {
 	}*/
 }
 
-void PlayerAnimation::draw(SDL_Surface * screen) {
+void PlayerAnimation::draw(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect;
 	rect.x = position->x;
 	rect.y = position->y;

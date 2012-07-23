@@ -151,7 +151,7 @@ public:
 	Level();
 	~Level();
 
-	void draw(SDL_Surface * screen);
+	void draw(SDL_Surface * screen, int frames_processed = 0);
 
 	void load(const char * filename);
 

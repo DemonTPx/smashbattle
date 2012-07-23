@@ -142,7 +142,7 @@ public:
 
 	static const int jump_height;
 
-	void draw(SDL_Surface * screen, bool marker = false);
+	void draw(SDL_Surface * screen, bool marker = false, int frames_processed = 0);
 
 	void move(Level * level);
 	void process();

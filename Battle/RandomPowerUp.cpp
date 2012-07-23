@@ -88,7 +88,7 @@ void RandomPowerUp::hit_player(Player * p) {
 
 void RandomPowerUp::hit_npc(NPC * npc) {}
 
-void RandomPowerUp::draw(SDL_Surface * screen) {
+void RandomPowerUp::draw(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 

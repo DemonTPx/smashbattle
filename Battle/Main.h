@@ -35,6 +35,7 @@ public:
 	static bool screenshot_next_flip;
 
 	static const int FRAMES_PER_SECOND;
+	static const int MILLISECS_PER_FRAME;
 
 	static const int FRAMES_UNTIL_RESET;
 
@@ -66,7 +67,7 @@ public:
 	Main();
 	~Main();
 	int run();
-	void flip();
+	void flip(bool no_cap = false);
 	void handle_event(SDL_Event * event);
 private:
 	bool init();

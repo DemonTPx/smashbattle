@@ -27,7 +27,7 @@ void ShieldPowerUp::hit_player(Player * p) {
 
 void ShieldPowerUp::hit_npc(NPC * npc) {}
 
-void ShieldPowerUp::draw(SDL_Surface * screen) {
+void ShieldPowerUp::draw(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 

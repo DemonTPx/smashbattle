@@ -287,14 +287,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Mine.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MinePowerUp.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Mission.cpp"
 				>
 			</File>
@@ -328,10 +320,6 @@
 			</File>
 			<File
 				RelativePath=".\Projectile.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RandomPowerUp.cpp"
 				>
 			</File>
 			<File
@@ -461,14 +449,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Mine.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MinePowerUp.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Mission.h"
 				>
 			</File>
@@ -502,10 +482,6 @@
 			</File>
 			<File
 				RelativePath=".\Projectile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RandomPowerUp.h"
 				>
 			</File>
 			<File
@@ -576,10 +552,6 @@
 			</File>
 			<File
 				RelativePath=".\stage\blastbowl.lvl"
-				>
-			</File>
-			<File
-				RelativePath=".\sfx\blip.wav"
 				>
 			</File>
 			<File

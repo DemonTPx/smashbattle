@@ -198,7 +198,7 @@ void Player::reset() {
 	cycle_direction = CYCLE_UP;
 }
 
-void Player::draw(SDL_Surface * screen, bool marker) {
+void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 	SDL_Rect rect;
 	SDL_Surface * sprites;
 
@@ -215,7 +215,7 @@ void Player::draw(SDL_Surface * screen, bool marker) {
 	// Check if player is hit and cycle between a show and a hide of the player to create
 	// a flicker effect
 	if(is_hit) {
-		hit_flicker_frame = (hit_flicker_frame + 1) % 10;
+		hit_flicker_frame = (hit_flicker_frame + frames_processed) % 10;
 		if(hit_flicker_frame < 5)
 			return;
 	}
@@ -224,7 +224,7 @@ void Player::draw(SDL_Surface * screen, bool marker) {
 		if((shield_start + PLAYER_SHIELD_FRAMES) - Gameplay::frame > 60) {
 			sprites = Main::graphics->shield;
 		} else {
-			shield_frame = (shield_frame + 1) % 10;
+			shield_frame = (shield_frame + frames_processed) % 10;
 			if(shield_frame >= 5)
 				sprites = Main::graphics->shield;
 		}

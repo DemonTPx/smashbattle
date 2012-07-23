@@ -89,7 +89,7 @@ SDL_Rect * NPC::get_rect() {
 	return rect;
 }
 
-void NPC::draw(SDL_Surface * screen) {
+void NPC::draw(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect, rect_s;
 
 	if(sprites == NULL)
@@ -103,7 +103,7 @@ void NPC::draw(SDL_Surface * screen) {
 	// Check if player is hit and cycle between a show and a hide of the player to create
 	// a flicker effect
 	if(is_hit) {
-		hit_flicker_frame = (hit_flicker_frame + 1) % 10;
+		hit_flicker_frame = (hit_flicker_frame + frames_processed) % 10;
 		if(hit_flicker_frame < 5)
 			return;
 	}

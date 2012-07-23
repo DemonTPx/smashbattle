@@ -13,6 +13,15 @@
 
 #include "Main.h"
 
+
+/**
+ * Used in 'main' gameloop where frame_delay is no longer used.
+ * A value of 17 would force the game to run in (1s = 1000ms / 17 =) ~58.82 fps
+ */
+const int Main::MILLISECS_PER_FRAME = 17;
+/**
+ * Used in all other places, like in menu, character set, these 'cap' to 60 fps.
+ */
 const int Main::FRAMES_PER_SECOND = 60;
 
 const int Main::FRAMES_UNTIL_RESET = 7200;
@@ -130,7 +139,7 @@ void Main::clean_up() {
 	SDL_Quit();
 }
 
-void Main::flip() {
+void Main::flip(bool no_cap) {
 	fps_count();
 
 	if(screenshot_next_flip) {
@@ -140,7 +149,7 @@ void Main::flip() {
 
 	SDL_Flip(screen);
 	frame++;
-	if((fps_cap == true) && (fps->get_ticks() < frame_delay)) {
+	if(!no_cap && (fps_cap == true) && (fps->get_ticks() < frame_delay)) {
 		SDL_Delay((frame_delay) - fps->get_ticks());
 	}
 

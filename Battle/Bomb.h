@@ -50,7 +50,7 @@ public:
 
 	void explode();
 
-	virtual void draw(SDL_Surface * screen);
+	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
 
 	SDL_Rect * get_damage_rect();
 protected:

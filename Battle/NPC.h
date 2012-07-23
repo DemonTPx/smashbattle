@@ -16,7 +16,7 @@ public:
 	SDL_Rect * last_position;
 	SDL_Surface * sprites;
 	
-	void draw(SDL_Surface * screen);
+	void draw(SDL_Surface * screen, int frames_processed = 0);
 
 	virtual void move(Level * level);
 	virtual void process();

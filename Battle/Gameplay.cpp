@@ -56,6 +56,9 @@ void Gameplay::run() {
 		p->input->unset_delay();
 	}
 
+	// Get ticks (milliseconds since SDL started)
+	Uint32 ticks_start = SDL_GetTicks();
+
 	while(Main::running && game_running) {
 		// Event handling
 		while(SDL_PollEvent(&event)) {
@@ -71,93 +74,109 @@ void Gameplay::run() {
 
 		}
 
-		// Gameplay processing
-		on_pre_processing();
-		if(!countdown && !ended) {
-			// Move and process players
-			for(unsigned int idx = 0; idx < players->size(); idx++) {
-				Player * p = players->at(idx);
-				p->move(level);
-				p->process();
-			}
 
-			process_player_collission();
+		int frames_processed = 0;
 
-			// Move and process NPCs
-			for(unsigned int idx = 0; idx < npcs->size(); idx++) {
-				NPC * npc = npcs->at(idx);
-				npc->move(level);
-				npc->process();
+		// Calculate difference in milliseconds since our previous measure
+		Uint32 ticks_diff = SDL_GetTicks() - ticks_start;
 
-				if(npc->done) {
-					npcs->erase(npcs->begin() + idx);
-					delete npc;
+		// If enough time has passed skip frame(s)
+		while (ticks_diff >= Main::MILLISECS_PER_FRAME)
+		{
+			// Update our 'previous'/start measure and diff
+			ticks_start += Main::MILLISECS_PER_FRAME;
+			ticks_diff -= Main::MILLISECS_PER_FRAME;
+
+			// Gameplay processing
+			on_pre_processing();
+			if(!countdown && !ended) {
+				// Move and process players
+				for(unsigned int idx = 0; idx < players->size(); idx++) {
+					Player * p = players->at(idx);
+					p->move(level);
+					p->process();
 				}
-			}
 
-			process_npc_collission();
+				process_player_collission();
 
-			process_player_npc_collission();
+				// Move and process NPCs
+				for(unsigned int idx = 0; idx < npcs->size(); idx++) {
+					NPC * npc = npcs->at(idx);
+					npc->move(level);
+					npc->process();
 
-			// Move and process objects
-			for(unsigned int idx = 0; idx < objects->size(); idx++) {
-				GameplayObject * obj = objects->at(idx);
-				obj->move(level);
-				obj->process();
-				for(unsigned int i = 0; i < players->size(); i++) {
-					Player * p = players->at(i);
-					if(p->is_dead)
-						continue;
-					SDL_Rect * rect;
-					rect = p->get_rect();
-					if(is_intersecting(rect, obj->position)) {
-						obj->hit_player(p);
+					if(npc->done) {
+						npcs->erase(npcs->begin() + idx);
+						delete npc;
 					}
-					delete rect;
 				}
-				for(unsigned int i = 0; i < npcs->size(); i++) {
-					NPC * npc = npcs->at(i);
-					if(npc->is_dead)
-						continue;
-					SDL_Rect * rect;
-					rect = npc->get_rect();
-					if(is_intersecting(rect, obj->position)) {
-						obj->hit_npc(npc);
+
+				process_npc_collission();
+
+				process_player_npc_collission();
+
+				// Move and process objects
+				for(unsigned int idx = 0; idx < objects->size(); idx++) {
+					GameplayObject * obj = objects->at(idx);
+					obj->move(level);
+					obj->process();
+					for(unsigned int i = 0; i < players->size(); i++) {
+						Player * p = players->at(i);
+						if(p->is_dead)
+							continue;
+						SDL_Rect * rect;
+						rect = p->get_rect();
+						if(is_intersecting(rect, obj->position)) {
+							obj->hit_player(p);
+						}
+						delete rect;
 					}
-					delete rect;
-				}
-				if(obj->done) {
-					objects->erase(objects->begin() + idx);
-					delete obj;
+					for(unsigned int i = 0; i < npcs->size(); i++) {
+						NPC * npc = npcs->at(i);
+						if(npc->is_dead)
+							continue;
+						SDL_Rect * rect;
+						rect = npc->get_rect();
+						if(is_intersecting(rect, obj->position)) {
+							obj->hit_npc(npc);
+						}
+						delete rect;
+					}
+					if(obj->done) {
+						objects->erase(objects->begin() + idx);
+						delete obj;
+					}
 				}
 			}
-		}
-		if(countdown) {
-			process_countdown();
-		}
+			if(countdown) {
+				process_countdown();
+			}
 
-		on_post_processing();
+			on_post_processing();
+
+			// Next frame
+			frame++;
+			frames_processed++;
+		}
 
 		// Drawing
-		frame++;
-
-		level->draw(screen);
+		level->draw(screen, frames_processed);
 
 		for(unsigned int idx = 0; idx < players->size(); idx++) {
 			Player * p = players->at(idx);
 			if(countdown)
-				p->draw(screen, true);
+				p->draw(screen, true, frames_processed);
 			else
-				p->draw(screen);
+				p->draw(screen, false, frames_processed);
 		}
 		for(unsigned int idx = 0; idx < npcs->size(); idx++) {
 			NPC * npc = npcs->at(idx);
-			npc->draw(screen);
+			npc->draw(screen, frames_processed);
 		}
 
 		for(unsigned int idx = 0; idx < objects->size(); idx++) {
 			GameplayObject * obj = objects->at(idx);
-			obj->draw(screen);
+			obj->draw(screen, frames_processed);
 		}
 
 		draw_score();
@@ -173,7 +192,7 @@ void Gameplay::run() {
 			draw_countdown();
 		}
 
-		Main::instance->flip();
+		Main::instance->flip(true);
 	}
 
 	deinitialize();

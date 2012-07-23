@@ -11,7 +11,7 @@ public:
 	void set_character(int character);
 
 	void move();
-	void draw(SDL_Surface * screen);
+	void draw(SDL_Surface * screen, int frames_processed = 0);
 
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);

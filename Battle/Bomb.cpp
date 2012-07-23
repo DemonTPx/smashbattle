@@ -52,7 +52,7 @@ Bomb::~Bomb() {
 	}
 }
 
-void Bomb::draw(SDL_Surface * screen) {
+void Bomb::draw(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect;
 
 	rect.x = position->x;
@@ -65,7 +65,7 @@ void Bomb::draw(SDL_Surface * screen) {
 			frame_change_start = 0;
 			flicker_frame = 0;
 		}
-		flicker_frame++;
+		flicker_frame += frames_processed;
 		if(flicker_frame >= 30)
 			done = true;
 		if(flicker_frame % 12 >= 6) return;

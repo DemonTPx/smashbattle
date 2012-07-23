@@ -29,7 +29,7 @@ void HealthPowerUp::hit_player(Player * p) {
 
 void HealthPowerUp::hit_npc(NPC * npc) {}
 
-void HealthPowerUp::draw(SDL_Surface * screen) {
+void HealthPowerUp::draw(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 
