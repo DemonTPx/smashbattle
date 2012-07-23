@@ -211,7 +211,14 @@ void Main::handle_event(SDL_Event * event) {
 			}
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
-			SDL_WM_ToggleFullScreen(screen);
+			// Toggle fullscreen X11
+			if (!SDL_WM_ToggleFullScreen(screen)) {
+				// More portable version of toggle
+				screen = SDL_SetVideoMode(0, 0, 0, screen->flags ^ SDL_FULLSCREEN);
+				// If toggle failed, switch back
+				if (screen == NULL) 
+					screen = SDL_SetVideoMode(0, 0, 0, flags);
+			}
 		}
 		if(event->key.keysym.sym == SDLK_F11) {
 			fps_counter_visible = !fps_counter_visible;
