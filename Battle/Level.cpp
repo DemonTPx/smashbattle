@@ -585,7 +585,7 @@ void Level::draw(SDL_Surface * screen, int frames_processed) {
 
 		// Show bouncing tiles
 		if(level_bounce[i] != 0) {
-			level_bounce[i]++;
+			level_bounce[i] += frames_processed;
 			level_bounce_start[i] = Gameplay::frame;
 			if(level_bounce[i] >= BOUNCE_LAST_FRAME) {
 				level_bounce[i] = 0;
