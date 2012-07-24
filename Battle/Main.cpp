@@ -12,6 +12,7 @@
 #include "Graphics.h"
 
 #include "Main.h"
+#include "Server.h"
 
 
 /**
@@ -140,6 +141,9 @@ void Main::clean_up() {
 }
 
 void Main::flip(bool no_cap) {
+	
+	Server::getInstance().poll();
+
 	fps_count();
 
 	if(screenshot_next_flip) {
@@ -218,6 +222,9 @@ void Main::handle_event(SDL_Event * event) {
 			if(event->key.keysym.sym == SDLK_F4) {
 				running = false;
 			}
+		}
+		if(event->key.keysym.sym == SDLK_F1) {
+			Server::getInstance().listen();
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
