@@ -84,9 +84,10 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4996;4312;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>.\zlib-1.2.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>sdl.lib;sdlmain.lib;sdl_mixer.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL.lib;SDL_net.lib;sdlmain.lib;sdl_mixer.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -136,9 +137,11 @@
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RandomPowerUp.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="ServerClient.cpp" />
     <ClCompile Include="ShieldPowerUp.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Airstrike.h" />
@@ -183,9 +186,11 @@
     <ClInclude Include="RandomPowerUp.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Server.h" />
+    <ClInclude Include="ServerClient.h" />
     <ClInclude Include="ShieldPowerUp.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="music\a_hero_rises.ogg" />

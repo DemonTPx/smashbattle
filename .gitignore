@@ -1,0 +1,12 @@
+Debug/
+Release/
+Lib/
+Battle/SDL/
+Battle/zlib-1.2.7/
+Battle/screenshot_*.bmp
+Battle.sdf
+Battle.v11.suo
+BattleVS2011.sdf
+BattleVS2011.v11.suo
+Battle/Battle.vcxproj.filters
+Battle/Battle.vcxproj.user
