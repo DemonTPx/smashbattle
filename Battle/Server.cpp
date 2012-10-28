@@ -120,7 +120,7 @@ void Server::poll()
 		Client &client(i->second);
 		if(SDLNet_SocketReady(client.socket()))
 		{
-			char buffer[512] = {0x00};
+			char buffer[2] = {0x00};
 			int bytesReceived = SDLNet_TCP_Recv(client.socket(), buffer, sizeof(buffer));
 
 			if (bytesReceived > 0)

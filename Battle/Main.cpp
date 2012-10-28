@@ -11,9 +11,18 @@
 #include "AudioController.h"
 #include "Graphics.h"
 
+#include "Util.h"
+
 #include "Main.h"
 #include "Server.h"
+#include "ServerClient.h"
 
+
+#ifdef WIN32
+#include <direct.h> // for _chdir
+#else
+#include <unistd.h> // for chdir
+#endif
 
 /**
  * Used in 'main' gameloop where frame_delay is no longer used.
@@ -226,6 +235,9 @@ void Main::handle_event(SDL_Event * event) {
 		if(event->key.keysym.sym == SDLK_F1) {
 			Server::getInstance().listen();
 		}
+		if(event->key.keysym.sym == SDLK_F2) {
+			ServerClient::getInstance().connect();
+		}		
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
 			if (!SDL_WM_ToggleFullScreen(screen)) {
@@ -280,10 +292,44 @@ int Main::run() {
 }
 
 
-int main(int argc, char* args[]) {
+using std::string;
+using std::vector;
+
+int main(int argc, char* args[]) 
+{
+	printf("%d\n");
+	for (int i=0; i<argc; i++)
+		printf("%d = %s\n",i, args[i]);
+
 	if(argc > 1) {
 		if(strcmp(args[1], "-f") == 0) {
 			Main::flags |= SDL_FULLSCREEN;
+		}
+		
+		// Usage smashbattle -s "TRAINING DOJO" 1100 --> start server on port 1100 with level "TRAINING DOJO"
+		else if(strcmp(args[1], "-s") == 0 && argc > 3) {
+			string level(string(args[2]).substr(0, 80));
+			string port(string(args[3]).substr(0, 5));
+			printf("initialized as server, with level %s on port %s\n", level.c_str(), port.c_str());
+		}
+
+		// Usage smashbattle smashbattle://localhost:1100/ --> connect to server at host localhost port 1100
+		//  note that if you register the smashbattle:// protocol you can open the game by clicking/opening the link
+		else {
+			char host[80+1] = {0x00};
+			char port[5+1] = {0x00};
+			if (2 == sscanf(args[1], "smashbattle://%80[^:]:%5[0-9]/", host, port)) {
+				printf("initialized as client, connect to: %s && %s\n", host, port);
+				// In windows when clicking on a smashbattle:// link, the current working dir is not set.
+				// Therefore extract it from args[0] and change work dir.
+				string cwd(util::basedir(string(args[0])));
+				printf("changing current directory to: %s\n", cwd.c_str());
+#ifdef WIN32
+				_chdir(cwd.c_str());
+#else
+				chdir(cwd.c_str());
+#endif
+			}
 		}
 	}
 	Main main;

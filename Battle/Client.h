@@ -18,6 +18,7 @@ public:
 	TCPsocket socket() { return socket_; }
 	int id() { return client_id_; }
 	
+	short test;
 
 private:
 	

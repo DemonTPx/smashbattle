@@ -128,6 +128,11 @@ protected:
 	void joystick_wait_released();
 
 	static const int JOYSTICK_AXIS_THRESHOLD;
+
+
+	// temporary for accessing pressed array :p
+	friend class Gameplay;
+	friend class Client;
 };
 
 #endif

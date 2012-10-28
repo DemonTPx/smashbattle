@@ -10,18 +10,18 @@
 class Server
 {
 public:
+
     static Server& getInstance()
     {
         static Server instance;
         return instance;
     }
 
+	// Server listens
 	void listen();
+
+	// Server polls clients
 	void poll();
-	
-	
-	bool do_test;
-	bool test() { bool val = do_test; do_test = false; return val; }
 
 
 private:
@@ -46,5 +46,8 @@ private:
 	SDLNet_SocketSet set;
 	Uint32 ipaddr;
 	Uint16 port;
+
+	// temp
+	friend class Gameplay;
 };
 #endif // __SERVER_H__
