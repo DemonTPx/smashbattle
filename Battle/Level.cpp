@@ -705,13 +705,14 @@ bool Level::is_on_bottom(SDL_Rect * rect) {
 	// Above the screen is no bottom
 	if(b < 0) return false;
 
-	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
-	if(r >= WINDOW_WIDTH) r -= WINDOW_WIDTH;
+	while (l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
+	while (r >= WINDOW_WIDTH) r -= WINDOW_WIDTH;
 
 	if(level[tile_pos(l, b + 1)] != -1)
 		return true;
 	if(level[tile_pos(r, b + 1)] != -1)
 		return true;
+
 	return false;
 }
 

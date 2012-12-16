@@ -3,6 +3,7 @@
 
 #include "SDL/SDL_mixer.h"
 #include <vector>
+#include <string>
 
 // Tile sizes, dimensions and count
 #define TILE_W 32
@@ -145,6 +146,16 @@ struct LEVEL_NPC_DISPENSER {
 	int rate; // chance per frame; 60 is ~1 per second
 	int max; // maximum NPCs to dispence
 };
+
+class Player;
+class Level;
+namespace level_util
+{
+
+
+	std::string get_filename_by_name(std::string lvlname);
+	void set_player_start(Player &player, const Level & level);
+}
 
 class Level {
 public:
