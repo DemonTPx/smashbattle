@@ -72,7 +72,7 @@
       <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_mixer.lib;SDL_net.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
@@ -89,7 +89,7 @@
     <Link>
       <AdditionalDependencies>SDL.lib;SDL_net.lib;sdlmain.lib;sdl_mixer.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
@@ -107,6 +107,9 @@
     <ClCompile Include="CharacterSelect.cpp" />
     <ClCompile Include="ChickNPC.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientNetworkMultiplayer.cpp" />
+    <ClCompile Include="CommandProcessor.cpp" />
+    <ClCompile Include="Commands.cpp" />
     <ClCompile Include="ControlsOptions.cpp" />
     <ClCompile Include="DoubleDamagePowerUp.cpp" />
     <ClCompile Include="GameInput.cpp" />
@@ -122,12 +125,14 @@
     <ClCompile Include="LevelSelect.cpp" />
     <ClCompile Include="LocalMultiplayer.cpp" />
     <ClCompile Include="LocalMultiplayerRoundEnd.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Mine.cpp" />
     <ClCompile Include="MinePowerUp.cpp" />
     <ClCompile Include="Mission.cpp" />
     <ClCompile Include="MissionSelect.cpp" />
+    <ClCompile Include="NetworkMultiplayer.cpp" />
     <ClCompile Include="NPC.cpp" />
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OptionsScreen.cpp" />
@@ -139,9 +144,14 @@
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="ServerClient.cpp" />
     <ClCompile Include="ShieldPowerUp.cpp" />
+    <ClCompile Include="states\ServerState.cpp" />
+    <ClCompile Include="states\ServerStateInactive.cpp" />
+    <ClCompile Include="states\ServerStateInitialize.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="util\LevelUtil.cpp" />
+    <ClCompile Include="util\PlayerUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Airstrike.h" />
@@ -155,6 +165,18 @@
     <ClInclude Include="CharacterSelect.h" />
     <ClInclude Include="ChickNPC.h" />
     <ClInclude Include="Client.h" />
+    <ClInclude Include="ClientNetworkMultiplayer.h" />
+    <ClInclude Include="Command.hpp" />
+    <ClInclude Include="CommandProcessor.h" />
+    <ClInclude Include="Commands.hpp" />
+    <ClInclude Include="commands\CommandAddPlayer.hpp" />
+    <ClInclude Include="commands\CommandPing.hpp" />
+    <ClInclude Include="commands\CommandPong.hpp" />
+    <ClInclude Include="commands\CommandRequestCharacter.hpp" />
+    <ClInclude Include="commands\CommandSetCharacter.hpp" />
+    <ClInclude Include="commands\CommandSetLevel.hpp" />
+    <ClInclude Include="commands\CommandSetPlayerData.hpp" />
+    <ClInclude Include="commands\CommandSetPosition.hpp" />
     <ClInclude Include="ControlsOptions.h" />
     <ClInclude Include="DoubleDamagePowerUp.h" />
     <ClInclude Include="GameInput.h" />
@@ -170,12 +192,14 @@
     <ClInclude Include="LevelSelect.h" />
     <ClInclude Include="LocalMultiplayer.h" />
     <ClInclude Include="LocalMultiplayerRoundEnd.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Mine.h" />
     <ClInclude Include="MinePowerUp.h" />
     <ClInclude Include="Mission.h" />
     <ClInclude Include="MissionSelect.h" />
+    <ClInclude Include="NetworkMultiplayer.h" />
     <ClInclude Include="NPC.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="OptionsScreen.h" />
@@ -188,9 +212,14 @@
     <ClInclude Include="Server.h" />
     <ClInclude Include="ServerClient.h" />
     <ClInclude Include="ShieldPowerUp.h" />
+    <ClInclude Include="states\ServerState.h" />
+    <ClInclude Include="states\ServerStateInactive.h" />
+    <ClInclude Include="states\ServerStateInitialize.h" />
+    <ClInclude Include="states\ServerStates.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="util\LagMeasure.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="music\a_hero_rises.ogg" />
