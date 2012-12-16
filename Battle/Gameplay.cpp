@@ -80,72 +80,8 @@ void Gameplay::run() {
 			handle_pause_input(&event);
 
 		}
-		// test
-		Player &player(*players->at(0));
-		static short test = 0;
-		short previous_test = test;
-		
-		test = 0;
-		if (player.input->is_pressed(A_LEFT))		test |= ServerClient::FLAG_LEFT;
-		if (player.input->is_pressed(A_RIGHT))		test |= ServerClient::FLAG_RIGHT;
-		if (player.input->is_pressed(A_UP))			test |= ServerClient::FLAG_UP;
-		if (player.input->is_pressed(A_DOWN))		test |= ServerClient::FLAG_DOWN;
-		if (player.input->is_pressed(A_JUMP))		test |= ServerClient::FLAG_JUMP;
-		if (player.input->is_pressed(A_RUN))		test |= ServerClient::FLAG_RUN;
-		if (player.input->is_pressed(A_SHOOT))		test |= ServerClient::FLAG_SHOOT;
-		if (player.input->is_pressed(A_BOMB))		test |= ServerClient::FLAG_BOMB;
-		if (player.input->is_pressed(A_START))		test |= ServerClient::FLAG_START;
 
-		if (test != previous_test)
-		{
-			printf("short is now: %X  or  %d\n", test, test);
-			ServerClient::getInstance().poll(test);
-
-			/*
-		Player &otherplayer(*players->at(1));
-		memset(otherplayer.input->pressed, 0x00, sizeof(otherplayer.input->pressed));
-		if (test & ServerClient::FLAG_LEFT)		otherplayer.input->pressed[A_LEFT] = true;
-		if (test & ServerClient::FLAG_RIGHT) 	otherplayer.input->pressed[A_RIGHT] = true;
-		if (test & ServerClient::FLAG_UP)		otherplayer.input->pressed[A_UP] = true;
-		if (test & ServerClient::FLAG_DOWN)		otherplayer.input->pressed[A_DOWN] = true;
-		if (test & ServerClient::FLAG_JUMP)		otherplayer.input->pressed[A_JUMP] = true;
-		if (test & ServerClient::FLAG_RUN)		otherplayer.input->pressed[A_RUN] = true;
-		if (test & ServerClient::FLAG_SHOOT)	otherplayer.input->pressed[A_SHOOT] = true;
-		if (test & ServerClient::FLAG_BOMB)		otherplayer.input->pressed[A_BOMB] = true;
-		if (test & ServerClient::FLAG_START)	otherplayer.input->pressed[A_START] = true;
-		*/
-		}
-		
-		/*
-		#include "Gameplay.h" // ranzige hack
-#include "Player.h" // idem
-#include "ServerClient.h" //idem
-
-
-	*/
-		for (map<int, Client>::iterator i =Server::getInstance().clients_.begin();
-			i!=Server::getInstance().clients_.end();
-			i++)
-		{
-			Client &client(i->second);
-			short test = client.test;
-			
-			Player &otherplayer(*(Gameplay::instance->players)->at(0));
-
-			memset(otherplayer.input->pressed, 0x00, sizeof(otherplayer.input->pressed));
-			if (test & ServerClient::FLAG_LEFT)		otherplayer.input->pressed[A_LEFT] = true;
-			if (test & ServerClient::FLAG_RIGHT) 	otherplayer.input->pressed[A_RIGHT] = true;
-			if (test & ServerClient::FLAG_UP)		otherplayer.input->pressed[A_UP] = true;
-			if (test & ServerClient::FLAG_DOWN)		otherplayer.input->pressed[A_DOWN] = true;
-			if (test & ServerClient::FLAG_JUMP)		otherplayer.input->pressed[A_JUMP] = true;
-			if (test & ServerClient::FLAG_RUN)		otherplayer.input->pressed[A_RUN] = true;
-			if (test & ServerClient::FLAG_SHOOT)	otherplayer.input->pressed[A_SHOOT] = true;
-			if (test & ServerClient::FLAG_BOMB)		otherplayer.input->pressed[A_BOMB] = true;
-			if (test & ServerClient::FLAG_START)	otherplayer.input->pressed[A_START] = true;
-		}
-
-		// end
-
+		on_input_handled();
 
 		int frames_processed = 0;
 
@@ -296,9 +232,7 @@ void Gameplay::set_level(Level * l) {
 }
 
 void Gameplay::add_player(Player * p) {
-	if(!game_running) {
-		players->push_back(p);
-	}
+	players->push_back(p);
 }
 
 void Gameplay::add_npc(NPC * npc) {
