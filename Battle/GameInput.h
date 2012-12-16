@@ -85,7 +85,7 @@ public:
 
 	int get_joyaxis(int axis);
 
-	void handle_event(SDL_Event * event);
+	virtual void handle_event(SDL_Event * event);
 
 	bool is_pressed(int action);
 
@@ -110,6 +110,7 @@ public:
 
 	bool keyboard_enabled;
 	bool joystick_enabled;
+
 protected:
 	SDL_Joystick * joystick;
 	int joystick_idx;
@@ -122,7 +123,9 @@ protected:
 	int delay;
 	int interval;
 
+public:
 	bool pressed[ACTION_COUNT];
+protected:
 	unsigned int press_start[ACTION_COUNT];
 
 	void joystick_wait_released();
@@ -133,6 +136,17 @@ protected:
 	// temporary for accessing pressed array :p
 	friend class Gameplay;
 	friend class Client;
+	friend class ClientNetworkMultiplayer;
 };
 
+
+class GameInputStub : public GameInput
+{
+public:
+	GameInputStub() : GameInput() {
+		debug = 2;
+	}
+
+	virtual void handle_event(SDL_Event * event) { /* handle nothing */ }
+};
 #endif
