@@ -46,6 +46,14 @@ struct BombPowerClass {
 	int damage;
 };
 
+class CommandSetPlayerData;
+class Player;
+namespace player_util
+{
+	void set_position_data(CommandSetPlayerData &data, char client_id, Uint32 time, Player &player);
+	void set_player_data(Player &player, CommandSetPlayerData &data);
+}
+
 class Player {
 public:
 	Player(int character, int number);
