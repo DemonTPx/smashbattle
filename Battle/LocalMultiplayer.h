@@ -1,6 +1,8 @@
 #ifndef _LOCALMULTIPLAYER_H
 #define _LOCALMULTIPLAYER_H
 
+#include "Gameplay.h"
+
 class LocalMultiplayer : public Gameplay {
 public:
 protected:

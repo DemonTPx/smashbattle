@@ -540,6 +540,9 @@ void LocalMultiplayer::draw_score_multi() {
 	int item_w, spacing;
 
 	player_count = (int)players->size();
+	
+	if (player_count == 0)
+		return; // nothing to do then
 
 	item_w = 160;
 
@@ -548,7 +551,10 @@ void LocalMultiplayer::draw_score_multi() {
 	w = WINDOW_WIDTH / player_count;
 	h = 32;
 
-	spacing = (WINDOW_WIDTH - (item_w * player_count)) / (player_count - 1);
+	int divisor = player_count - 1;
+	if (player_count == 1)
+		divisor = 1;
+	spacing = (WINDOW_WIDTH - (item_w * player_count)) / divisor;
 
 	Player * player;
 
