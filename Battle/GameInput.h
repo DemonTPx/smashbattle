@@ -143,9 +143,7 @@ protected:
 class GameInputStub : public GameInput
 {
 public:
-	GameInputStub() : GameInput() {
-		debug = 2;
-	}
+	GameInputStub() : GameInput() { }
 
 	virtual void handle_event(SDL_Event * event) { /* handle nothing */ }
 };
