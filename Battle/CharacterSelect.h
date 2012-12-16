@@ -6,6 +6,9 @@
 class CharacterSelect {
 public:
 	CharacterSelect();
+
+	CharacterSelect::CharacterSelect(int max_possible_players, int required_num_players);
+	
 	void run();
 
 	char * name[4];
@@ -47,6 +50,8 @@ private:
 	int flicker_frame[4];
 
 	int frame;
+	int possible_players_;
+	int required_num_players_;
 };
 
 #endif

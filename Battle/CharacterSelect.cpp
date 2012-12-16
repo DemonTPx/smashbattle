@@ -21,7 +21,17 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-CharacterSelect::CharacterSelect() {}
+CharacterSelect::CharacterSelect()
+	: possible_players_(4),
+	  required_num_players_(2)
+{
+}
+
+CharacterSelect::CharacterSelect(int max_possible_players, int required_num_players)
+	: possible_players_(max_possible_players),
+	  required_num_players_(required_num_players)
+{
+}
 
 void CharacterSelect::run() {
 	SDL_Event event;
@@ -42,14 +52,14 @@ void CharacterSelect::run() {
 				break;
 			}
 			
-			for(int i = 0; i < 4; i++) {
+			for(int i = 0; i < possible_players_; i++) {
 				input[i]->handle_event(&event);
 			}
 		}
 
 		process_cursors();
 
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < possible_players_; i++) {
 			if(player_joined[i]) {
 				name[i] = Player::CHARACTERS[player_select[i]].name;
 				file[i] = Player::CHARACTERS[player_select[i]].filename;
@@ -66,7 +76,7 @@ void CharacterSelect::run() {
 
 		int num_players = 0;
 		ready = true;
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < possible_players_; i++) {
 			if(player_joined[i] && player_ready[i] && !flicker[i]) {
 				++num_players;
 			}
@@ -74,7 +84,7 @@ void CharacterSelect::run() {
 				ready = false;
 			}
 		}
-		if(num_players < 2) ready = false;
+		if(num_players < required_num_players_) ready = false;
 
 		Main::instance->flip();
 	}
@@ -87,7 +97,7 @@ void CharacterSelect::run() {
 
 void CharacterSelect::init() {
 	// Cursor
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		input[i] = Main::instance->input[i];
 		input[i]->set_delay();
 		input[i]->reset();
@@ -117,7 +127,7 @@ void CharacterSelect::init() {
 	}
 
 	// Create player animations
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		playeranimation[i] = new PlayerAnimation(player_select[i]);
 		playeranimation[i]->animate_in_place = true;
 		switch(i) {
@@ -152,7 +162,7 @@ void CharacterSelect::init() {
 }
 
 void CharacterSelect::clean_up() {
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		delete playeranimation[i];
 	}
 
@@ -182,7 +192,7 @@ void CharacterSelect::prerender_background() {
 	stats_w = 100;
 	stats_h = 20;
 
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		r_block.w = 190;
 		r_block.h = 200;
 		r_pnumber.w = 60;
@@ -277,12 +287,12 @@ void CharacterSelect::process_cursors() {
 	int direction;
 
 	players_ready = true;
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		if(player_joined[i] && !player_ready[i])
 			players_ready = false;
 	}
 
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
 			input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB) ||
 			input[i]->is_pressed(A_START)) {
@@ -292,7 +302,7 @@ void CharacterSelect::process_cursors() {
 						player_joined[i] = true;
 					} else if(!player_ready[i]) {
 						can_select = true;
-						for(int idx = 0; idx < 4; idx++) {
+						for(int idx = 0; idx < possible_players_; idx++) {
 							if(i == idx) continue;
 							if(player_ready[idx] && (player_select[idx] == player_select[i])) {
 								can_select = false;
@@ -333,7 +343,7 @@ void CharacterSelect::process_random_players() {
 	bool is_last;
 	bool can_select;
 
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		if(player_random[i] && (frame - player_random_start[i] == 6)) {
 			last = player_select[i];
 
@@ -345,7 +355,7 @@ void CharacterSelect::process_random_players() {
 				
 				can_select = true;
 				if(!is_last) {
-					for(int idx = 0; idx < 4; idx++) {
+					for(int idx = 0; idx < possible_players_; idx++) {
 						if(i == idx) continue;
 						if(player_ready[idx] && (player_select[idx] == player_select[i])) {
 							can_select = false;
@@ -438,7 +448,7 @@ void CharacterSelect::draw() {
 
 	color = 0;
 
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		if(player_random[i]) {
 			if(color != 0)
 				color = Graphics::combine_colors(color, Player::COLORS[i]);
@@ -461,7 +471,7 @@ void CharacterSelect::draw() {
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 
 	// Player corner
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		if(player_joined[i]) {
 			rect_c.x = rect_b.x;
 			rect_c.y = rect_b.y;
@@ -499,7 +509,7 @@ void CharacterSelect::draw() {
 		color = 0;
 		color_back = 0;
 
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < possible_players_; i++) {
 			if(player_joined[i]) {
 				if(player_select[i] == idx) {
 					if(color != 0)
@@ -533,7 +543,7 @@ void CharacterSelect::draw() {
 
 		SDL_BlitSurface(Main::graphics->player->at(idx), clip, screen, &rect);
 
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < possible_players_; i++) {
 			if(player_joined[i]) {
 				rect_c.x = rect_b.x;
 				rect_c.y = rect_b.y;
@@ -566,7 +576,7 @@ void CharacterSelect::draw() {
 	stats_w = 100;
 	stats_h = 20;
 
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < possible_players_; i++) {
 		r_block.w = 190;
 		r_block.h = 200;
 		r_pnumber.w = 60;
