@@ -3,26 +3,61 @@
  *  Jon C. Atkins, found here: http://jcatki.no-ip.org:8080/SDL_net/
  */
 #include "Server.h"
+#include "states/ServerState.h"
 
 #include "SDL/SDL.h"
 #include "SDL/SDL_net.h"
 
 #include <vector>
+#include <iostream>
 
 #include <stdio.h>
 #include <stdlib.h>
 
+using std::cout;
+using std::endl;
 using std::map;
 using std::vector;
 
+#include "NetworkMultiplayer.h"
+
 Server::Server()
-	: is_listening_(false)
+	: is_listening_(false),
+	  currentState_(NULL),
+	  port_((Uint16)1099),
+	  serverTime_(SDL_GetTicks()),
+	  game_(NULL)
 {
 }
 
 Server::~Server()
 {
 	SDLNet_Quit();
+	
+	if (currentState_ != NULL)
+		delete(currentState_);
+}
+
+void Server::setLevel(std::string level)
+{
+	// Cannot load level here yet, as it requires SDL to be initialized, etc.
+	levelName_ = level;
+	
+}
+void Server::initializeLevel()
+{
+	level_.load(level_util::get_filename_by_name(levelName_).c_str());
+}
+
+void Server::initializeGame(NetworkMultiplayer &game)
+{
+	game_ = &game;
+}
+
+
+NetworkMultiplayer & Server::getGame()
+{
+	return *game_;
 }
 
 void Server::listen()
@@ -40,10 +75,8 @@ void Server::listen()
 		return;
 	}
 
-	port=(Uint16)1099;
-
-	/* Resolve the argument into an IPaddress type */
-	if(SDLNet_ResolveHost(&ip,NULL,port)==-1)
+		/* Resolve the argument into an IPaddress type */
+	if(SDLNet_ResolveHost(&ip,NULL,port_)==-1)
 	{
 		printf("SDLNet_ResolveHost: %s\n",SDLNet_GetError());
 		return;
@@ -69,7 +102,7 @@ void Server::listen()
 		printf("Hostname   : N/A\n");
 
 	/* output the port number */
-	printf("Port       : %d\n",port);
+	printf("Port       : %d\n",port_);
 
 	/* open the server socket */
 	server=SDLNet_TCP_Open(&ip);
@@ -86,6 +119,17 @@ void Server::poll()
 {
 	if (!is_listening_)
 		return;
+
+
+	// Update servertime
+	serverTime_ = SDL_GetTicks();
+
+	for (map<int, Client>::iterator i=clients_.begin(); i!=clients_.end(); i++)
+	{
+		Client &client(i->second);
+		currentState_->execute(*this, client);
+	}
+
 
 	set=create_sockset();
 	int numready=SDLNet_CheckSockets(set, 0);
@@ -107,7 +151,7 @@ void Server::poll()
 			int nextId = 0;
 			for (; clients_.find(nextId) != clients_.end(); nextId++)
 				;
-			clients_[nextId] = Client(nextId, sock);
+			clients_[nextId] = Client(nextId, sock, this);
 
 			printf("New client connected with id: %d\n", nextId);
 		}
@@ -120,12 +164,14 @@ void Server::poll()
 		Client &client(i->second);
 		if(SDLNet_SocketReady(client.socket()))
 		{
-			char buffer[2] = {0x00};
+			char buffer[512] = {0x00};
 			int bytesReceived = SDLNet_TCP_Recv(client.socket(), buffer, sizeof(buffer));
 
 			if (bytesReceived > 0)
 			{
 				client.receive(bytesReceived, buffer);
+				while (client.parse())
+					;
 			}
 			else
 			{
@@ -143,6 +189,7 @@ void Server::poll()
 	// Remove deleted clients by key
 	for (vector<int>::iterator i=dead_clients.begin(); i != dead_clients.end(); i++)
 		clients_.erase(*i);
+
 }
 
 /* create a socket set that has the server socket and all the client sockets */
@@ -165,4 +212,32 @@ SDLNet_SocketSet Server::create_sockset()
 		SDLNet_TCP_AddSocket(set, i->second.socket());
 	
 	return(set);
+}
+
+bool Server::active()
+{
+	if (!Server::getInstance().currentState_)
+		return false;
+
+	return Server::getInstance().currentState_->type() != "class ServerStateInactive const *"; 
+}
+
+void Server::setState(const ServerState * const state)
+{
+	if (currentState_ != NULL)
+		delete(currentState_);
+
+	currentState_ = state;
+
+	state->initialize(*this);
+
+	active();
+}
+
+Client& Server::getClientById(int client_id)
+{
+	if (clients_.find(client_id) != clients_.end())
+		return clients_[client_id];
+
+	throw std::runtime_error("client not found by id");
 }

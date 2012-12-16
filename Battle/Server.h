@@ -6,6 +6,11 @@
 #include "SDL/SDL_net.h"
 
 #include "Client.h"
+#include "Level.h"
+
+class ServerState;
+class NetworkMultiplayer;
+
 
 class Server
 {
@@ -23,6 +28,22 @@ public:
 	// Server polls clients
 	void poll();
 
+	static bool active();
+
+	void setState(const ServerState * const state);
+
+	Level &getLevel() { return level_; }
+	std::string getLevelName() { return levelName_; }
+	void setLevel(std::string level);
+	void setPort(int port) { port_ = (Uint16)port; };
+
+	void initializeLevel();
+	void initializeGame(NetworkMultiplayer &);
+
+	Uint32 getServerTime() { return serverTime_; }
+
+	NetworkMultiplayer &getGame();
+	Client& getClientById(int client_id);
 
 private:
     Server();
@@ -45,9 +66,19 @@ private:
 	TCPsocket sock;
 	SDLNet_SocketSet set;
 	Uint32 ipaddr;
-	Uint16 port;
+	Uint16 port_;
+
+	Level level_;
+	std::string levelName_;
+
+	NetworkMultiplayer *game_;
+
+	const ServerState * currentState_;
+	
+	Uint32 serverTime_;
 
 	// temp
-	friend class Gameplay;
+	//friend class Gameplay;
+	friend class ClientNetworkMultiplayer;
 };
 #endif // __SERVER_H__
