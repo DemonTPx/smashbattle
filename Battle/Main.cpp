@@ -1,10 +1,12 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_mixer.h"
+#include "SDL/SDL_ttf.h"
 
 #include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <ctime>
+#include <algorithm>
 
 #include "Timer.h"
 #include "Menu.h"
@@ -17,6 +19,13 @@
 #include "Server.h"
 #include "ServerClient.h"
 
+#include "states/ServerStates.h"
+#include "log.h"
+
+
+using std::string;
+using std::vector;
+using std::for_each;
 
 #ifdef WIN32
 #include <direct.h> // for _chdir
@@ -68,7 +77,8 @@ unsigned int Main::last_activity = 0;
 bool Main::autoreset = true;
 bool Main::is_reset = false;
 
-Main::Main() {
+Main::Main() : lag_(NULL)
+{
 	Main::instance = this;
 }
 
@@ -149,9 +159,26 @@ void Main::clean_up() {
 	SDL_Quit();
 }
 
+// Todo refactor
+#include "Commands.hpp"
 void Main::flip(bool no_cap) {
 	
 	Server::getInstance().poll();
+
+	ServerClient::getInstance().poll(0);
+
+	if (ServerClient::getInstance().isConnected())
+	{
+		static Uint32 calculatedLag = SDL_GetTicks();
+		Uint32 current = SDL_GetTicks();
+		if (calculatedLag - current > 1000)
+		{
+			calculatedLag += 1000;
+			CommandPing command;
+			command.data.time = current;
+			ServerClient::getInstance().send(command);
+		}
+	}
 
 	fps_count();
 
@@ -187,7 +214,7 @@ void Main::fps_count() {
 
 	// Show FPS
 	if(fps_counter_visible) {
-		char cap[20];
+		char cap[80];
 
 		SDL_Surface * surf;
 		SDL_Rect rect;
@@ -197,7 +224,11 @@ void Main::fps_count() {
 		color.g = 0xff;
 		color.b = 0xff;
 
-		sprintf(cap, "%d FPS", fps_counter_this_frame);
+		if (lag_)
+			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, lag_->avg());
+		else
+			sprintf(cap, "%d FPS", fps_counter_this_frame);
+
 		surf = Main::text->render_text_small(cap);
 
 		rect.x = screen->w - surf->w - 2;
@@ -232,12 +263,6 @@ void Main::handle_event(SDL_Event * event) {
 				running = false;
 			}
 		}
-		if(event->key.keysym.sym == SDLK_F1) {
-			Server::getInstance().listen();
-		}
-		if(event->key.keysym.sym == SDLK_F2) {
-			ServerClient::getInstance().connect();
-		}		
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
 			if (!SDL_WM_ToggleFullScreen(screen)) {
@@ -260,8 +285,10 @@ void Main::handle_event(SDL_Event * event) {
 		last_activity = frame;
 	}
 }
-
-int Main::run() {
+#include "ClientNetworkMultiplayer.h"
+#include "NetworkMultiplayer.h"
+#include "CharacterSelect.h"
+int Main::run(const Main::RunModes &runmode) {
 	if(!init()) return 1;
 
 	frame_delay = 1000 / FRAMES_PER_SECOND;
@@ -271,14 +298,140 @@ int Main::run() {
 
 	fps_counter_timer->start();
 
-	Menu * menu;
-	menu = new Menu();
+	switch (runmode)
+	{
+		case Main::RunModes::ARCADE:
+			{
+				Menu menu;
 
-	running = true;
-	menu->run();
+				running = true;
+				menu.run();
+			}
+			break;
 
-	delete menu;
+		case Main::RunModes::SERVER:
+			while (Server::active())
+			{
+				running = true;
 
+				NetworkMultiplayer multiplayer;
+				Level &level(Server::getInstance().getLevel());
+				multiplayer.set_level(&level);
+
+				// This is a little bit of a design flaw, need to refactor server a bit later.
+				Server::getInstance().initializeGame(multiplayer);
+
+				Server::getInstance().initializeLevel();
+
+				Server::getInstance().listen();
+
+				multiplayer.run();
+			}
+			break;
+		case Main::RunModes::CLIENT:
+
+			// While developing I found it easier to hardcode this all here, but this will need to be refactored now
+
+			ClientNetworkMultiplayer clientgame;
+
+			Level level;
+
+			running = true;
+
+			CharacterSelect cs(1, 1);
+			cs.run();
+			if (!cs.cancel) 
+			{
+				Player player(0, 0);				
+
+				player.input = Main::instance->input[0];
+				player.input->set_delay();
+				player.set_character(cs.player_select[0]);
+
+				clientgame.add_player(&player);
+
+				screen = Main::instance->screen;
+
+				SDL_Color foregroundColor = { 255, 255, 255 };
+				SDL_Color backgroundColor = { 0, 0, 255 };
+				SDL_Surface* textSurface = Main::text->render_text_medium("Hello World!");
+				
+				Uint32 begin = SDL_GetTicks();
+				Uint32 calculatedLag = begin;
+				int initialLagTests = INITIAL_LAG_TESTS;
+				
+				SDL_Event event;
+
+				while (true) {
+					while(SDL_PollEvent(&event))
+						;
+				
+					if (!ServerClient::getInstance().isConnected()) {
+						begin = SDL_GetTicks();
+						static bool once = true;
+						if (once) {
+							once = false;
+
+							ServerClient::getInstance().connect(clientgame, level, player);
+						}
+
+					}
+					else {
+						Uint32 current = SDL_GetTicks();
+
+						if (initialLagTests > 0) {
+							if (calculatedLag - current > 200) {
+								calculatedLag += 200;
+								ServerClient::getInstance().test();
+								initialLagTests--;
+							}
+						}
+						else {
+							// Todo: refactor, merge with code in Poll()
+							if (calculatedLag - current > 1000)
+							{
+								calculatedLag += 1000;
+								ServerClient::getInstance().test();
+							}
+						}
+					}
+
+					// Output console
+					size_t beginSize = Logger::console.size();
+					if (beginSize > 20)
+						beginSize = beginSize - 20;
+					else
+						beginSize = 0;
+
+					SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 255));
+
+					int textpos = 5;
+					for_each(std::begin(Logger::console) + beginSize, std::end(Logger::console), [&](const string &str) {
+						SDL_Rect textLocation = { 10, textpos, 0, 0 };
+						textpos += 24;
+						SDL_Surface* textSurface = Main::text->render_text_medium(str.c_str());
+						SDL_BlitSurface(textSurface, NULL, screen, &textLocation);
+						SDL_FreeSurface(textSurface);
+					});
+
+					ServerClient::getInstance().poll(1);
+
+					Main::instance->flip(true);
+
+					if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED)
+					{
+						lag_ = &(ServerClient::getInstance().getLag());
+						clientgame.run();
+					}
+
+				}
+				SDL_FreeSurface(textSurface);
+
+				clientgame.run();
+			}
+			break;
+	}
+	
 	save_options();
 
 	clean_up();
@@ -292,11 +445,21 @@ int Main::run() {
 }
 
 
-using std::string;
-using std::vector;
-
 int main(int argc, char* args[]) 
 {
+	Main main;
+	
+	// In windows when clicking on a smashbattle:// link, the current working dir is not set.
+	// Therefore extract it from args[0] and change work dir.
+	string cwd(util::basedir(string(args[0])));
+	log(format("changing current directory to: %s", cwd.c_str()), Logger::Priority::INFO);
+
+#ifdef WIN32
+	_chdir(cwd.c_str());
+#else
+	chdir(cwd.c_str());
+#endif
+
 	printf("%d\n");
 	for (int i=0; i<argc; i++)
 		printf("%d = %s\n",i, args[i]);
@@ -309,8 +472,12 @@ int main(int argc, char* args[])
 		// Usage smashbattle -s "TRAINING DOJO" 1100 --> start server on port 1100 with level "TRAINING DOJO"
 		else if(strcmp(args[1], "-s") == 0 && argc > 3) {
 			string level(string(args[2]).substr(0, 80));
-			string port(string(args[3]).substr(0, 5));
-			printf("initialized as server, with level %s on port %s\n", level.c_str(), port.c_str());
+			string strport(string(args[3]).substr(0, 5));
+			log(format("program started with -s flag, parsed level %s and port %d", level.c_str(), stoi(strport)), Logger::Priority::INFO);
+			
+			Server::getInstance().setState(new ServerStateInitialize(level, stoi(strport)));
+
+			return main.run(Main::RunModes::SERVER);
 		}
 
 		// Usage smashbattle smashbattle://localhost:1100/ --> connect to server at host localhost port 1100
@@ -318,22 +485,18 @@ int main(int argc, char* args[])
 		else {
 			char host[80+1] = {0x00};
 			char port[5+1] = {0x00};
+
 			if (2 == sscanf(args[1], "smashbattle://%80[^:]:%5[0-9]/", host, port)) {
-				printf("initialized as client, connect to: %s && %s\n", host, port);
-				// In windows when clicking on a smashbattle:// link, the current working dir is not set.
-				// Therefore extract it from args[0] and change work dir.
-				string cwd(util::basedir(string(args[0])));
-				printf("changing current directory to: %s\n", cwd.c_str());
-#ifdef WIN32
-				_chdir(cwd.c_str());
-#else
-				chdir(cwd.c_str());
-#endif
+				log(format("initialized as client, connect to: %s && %s", host, port), Logger::Priority::INFO);
+
+				ServerClient::getInstance().setHost(host);
+				ServerClient::getInstance().setPort(atoi(port));
+
+				return main.run(Main::RunModes::CLIENT);
 			}
 		}
 	}
-	Main main;
-	return main.run();
+	return main.run(Main::RunModes::ARCADE);
 }
 
 void Main::load_options() {
