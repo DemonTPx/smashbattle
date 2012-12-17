@@ -208,6 +208,46 @@ void Gameplay::run() {
 	Main::autoreset = true;
 }
 
+void Gameplay::move_player(Player &player)
+{
+	// Move (do not process)
+	player.move(level);
+
+	process_player_collission();
+
+	process_npc_collission();
+
+	process_player_npc_collission();
+
+	// Process collisions with gameplay objects
+	for(unsigned int idx = 0; idx < objects->size(); idx++) {
+		GameplayObject * obj = objects->at(idx);
+		for(unsigned int i = 0; i < players->size(); i++) {
+			Player * p = players->at(i);
+			if(p->is_dead)
+				continue;
+			std::unique_ptr<SDL_Rect> rect(p->get_rect());
+			if(is_intersecting(rect.get(), obj->position)) {
+				obj->hit_player(p);
+			}
+		}
+		for(unsigned int i = 0; i < npcs->size(); i++) {
+			NPC * npc = npcs->at(i);
+			if(npc->is_dead)
+				continue;
+			std::unique_ptr<SDL_Rect> rect(npc->get_rect());
+			if(is_intersecting(rect.get(), obj->position)) {
+				obj->hit_npc(npc);
+			}
+		}
+		if(obj->done) {
+			objects->erase(objects->begin() + idx);
+			delete obj;
+		}
+	}
+
+}
+
 void Gameplay::handle_pause_input(SDL_Event * event) {
 	Player * player;
 	for(unsigned int i = 0; i < players->size(); i++) {

@@ -11,6 +11,10 @@
 class ServerState;
 class NetworkMultiplayer;
 
+namespace server_util
+{
+	float get_lag_for(Player &player);
+}
 
 class Server
 {

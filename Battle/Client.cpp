@@ -117,6 +117,13 @@ bool Client::process(CommandSetPlayerData *command)
 		{
 			player_util::set_player_data(player, *command);
 
+
+			// Account for lag
+			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			for (int i=0; i<processFrames; i++)
+				server_->getGame().move_player(player);
+
+
 			updatedPlayer = &player;
 		}
 	}

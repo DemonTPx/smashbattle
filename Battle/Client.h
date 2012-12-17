@@ -46,6 +46,7 @@ public:
 	Client::State getState() { return currentState_; }
 	void setState(Client::State state) { currentState_ = state; }
 	char getCharacter() { return character_; }
+	LagMeasure &lag() { return lag_; }
 
 	// communication
 	void send(Command &command);

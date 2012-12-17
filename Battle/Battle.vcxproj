@@ -21,7 +21,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
@@ -152,6 +152,7 @@
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="util\LevelUtil.cpp" />
     <ClCompile Include="util\PlayerUtil.cpp" />
+    <ClCompile Include="util\ServerUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Airstrike.h" />

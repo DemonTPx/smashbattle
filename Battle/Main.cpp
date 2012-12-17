@@ -329,6 +329,7 @@ int Main::run(const Main::RunModes &runmode) {
 			}
 			break;
 		case Main::RunModes::CLIENT:
+			fps_counter_visible = true;
 
 			// While developing I found it easier to hardcode this all here, but this will need to be refactored now
 
@@ -352,9 +353,6 @@ int Main::run(const Main::RunModes &runmode) {
 
 				screen = Main::instance->screen;
 
-				SDL_Color foregroundColor = { 255, 255, 255 };
-				SDL_Color backgroundColor = { 0, 0, 255 };
-				SDL_Surface* textSurface = Main::text->render_text_medium("Hello World!");
 				
 				Uint32 begin = SDL_GetTicks();
 				Uint32 calculatedLag = begin;
@@ -425,9 +423,7 @@ int Main::run(const Main::RunModes &runmode) {
 					}
 
 				}
-				SDL_FreeSurface(textSurface);
 
-				clientgame.run();
 			}
 			break;
 	}

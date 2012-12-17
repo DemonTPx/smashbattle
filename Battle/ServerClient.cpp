@@ -204,7 +204,7 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 bool ServerClient::process(CommandPing *command)
 {
 	CommandPong reply;
-	reply.data.time = SDL_GetTicks();
+	reply.data.time = command->data.time;
 
 	this->send(reply);
 
@@ -263,12 +263,14 @@ bool ServerClient::process(CommandSetPlayerData *command)
 
 	if (my_id_ == command->data.client_id)
 	{
+		// You only receive a SetPlayerData for yourself initially on connect.
 		player_->position->x = command->data.x;
 		player_->position->y = command->data.y;
 		//player_util::set_player_data(player_, *command);
 	}
 	else
 	{
+		// You do receive the SetPlayerData command for each other player change
 		auto &players = *(game_->players);
 		for (auto i=players.begin(); i!=players.end(); i++)
 		{
@@ -277,7 +279,12 @@ bool ServerClient::process(CommandSetPlayerData *command)
 			if (otherplayer.number == command->data.client_id)
 			{
 				player_util::set_player_data(otherplayer, *command);
-			}
+
+				// Account for lag
+				int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+				for (int i=0; i<processFrames; i++)
+					game_->move_player(otherplayer);
+				}
 		}
 	}
 

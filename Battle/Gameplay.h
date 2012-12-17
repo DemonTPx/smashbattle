@@ -26,6 +26,7 @@ public:
 	std::vector<GameplayObject*> * objects;
 
 	void run();
+	void move_player(Player &player);
 
 	void set_level(Level * level);
 	void add_player(Player * player);

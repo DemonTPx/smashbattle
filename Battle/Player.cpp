@@ -10,6 +10,8 @@
 #include "Gameplay.h"
 #include "Level.h"
 #include "Player.h"
+#include "Server.h"
+#include "log.h"
 
 #define BULLETS_UNLIMITED -1
 
@@ -259,6 +261,15 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 		rect.x = position->x + ((PLAYER_W - marker_clip_above->w) / 2);
 		rect.y = position->y - marker_clip_above->h - 4;
 		SDL_BlitSurface(Main::graphics->pmarker, marker_clip_above, screen, &rect);
+	}
+
+	// Show lag above player if server is active
+	if (Server::getInstance().active()) {
+		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %f", server_util::get_lag_for(*this)).c_str());
+		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
+		rect.y = position->y - surf->h - 4;
+		SDL_BlitSurface(surf, NULL, screen, &rect);
+		SDL_FreeSurface(surf);
 	}
 }
 
