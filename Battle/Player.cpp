@@ -40,6 +40,7 @@ const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	{(char*)"RUTGER",	(char*)"gfx/rutger.bmp",	2, 0, 2, 0},
 	{(char*)"KIM",		(char*)"gfx/kim.bmp",		1, 1, 1, 1},
 };
+const int Player::COLORS_COUNT = 4;
 const int Player::COLORS[4] = {
 	0xaa0000,
 	0x0000aa,

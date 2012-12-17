@@ -253,13 +253,21 @@ void Main::take_screenshot() {
 }
 
 void Main::handle_event(SDL_Event * event) {	
+
+	/* A server can only be closed with ESCAPE */
+	if(event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
+		if (Server::getInstance().active())
+			running = false;
+	}
+
 	/* Catch quit event and ALT-F4 */
 	if(event->type == SDL_QUIT) {
-		running = false;
+		if (!Server::getInstance().active())
+			running = false;
 	}
 	if(event->type == SDL_KEYDOWN) {
 		if(event->key.keysym.mod & KMOD_ALT) {
-			if(event->key.keysym.sym == SDLK_F4) {
+			if(event->key.keysym.sym == SDLK_F4 && !Server::getInstance().active()) {
 				running = false;
 			}
 		}
@@ -310,9 +318,9 @@ int Main::run(const Main::RunModes &runmode) {
 			break;
 
 		case Main::RunModes::SERVER:
-			while (Server::active())
+			running = true;
+			while (Server::active() && running)
 			{
-				running = true;
 
 				NetworkMultiplayer multiplayer;
 				Level &level(Server::getInstance().getLevel());
@@ -360,7 +368,8 @@ int Main::run(const Main::RunModes &runmode) {
 				
 				SDL_Event event;
 
-				while (true) {
+				bool stop = false;
+				while (!stop) {
 					while(SDL_PollEvent(&event))
 						;
 				
@@ -420,6 +429,7 @@ int Main::run(const Main::RunModes &runmode) {
 					{
 						lag_ = &(ServerClient::getInstance().getLag());
 						clientgame.run();
+						stop = true;
 					}
 
 				}

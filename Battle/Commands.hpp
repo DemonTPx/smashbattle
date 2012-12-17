@@ -9,5 +9,6 @@
 #include "commands/CommandSetCharacter.hpp"
 #include "commands/CommandSetPlayerData.hpp"
 #include "commands/CommandAddPlayer.hpp"
+#include "commands/CommandDelPlayer.hpp"
 
 #endif //__COMMANDS_H___

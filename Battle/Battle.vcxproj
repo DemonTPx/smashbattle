@@ -171,6 +171,7 @@
     <ClInclude Include="CommandProcessor.h" />
     <ClInclude Include="Commands.hpp" />
     <ClInclude Include="commands\CommandAddPlayer.hpp" />
+    <ClInclude Include="commands\CommandDelPlayer.hpp" />
     <ClInclude Include="commands\CommandPing.hpp" />
     <ClInclude Include="commands\CommandPong.hpp" />
     <ClInclude Include="commands\CommandRequestCharacter.hpp" />

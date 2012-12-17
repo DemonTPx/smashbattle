@@ -61,6 +61,7 @@ public:
 
 	static const int CHARACTER_COUNT;
 	static const Character CHARACTERS[];
+	static const int COLORS_COUNT;
 	static const int COLORS[];
 	
 	static const int SPEEDCLASS_COUNT;

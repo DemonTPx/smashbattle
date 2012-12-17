@@ -23,6 +23,8 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandSetPlayerData());
 		case Command::Types::AddPlayer:
 			return std::unique_ptr<Command>(new CommandAddPlayer());
+		case Command::Types::DelPlayer:
+			return std::unique_ptr<Command>(new CommandDelPlayer());
 	}
 	throw std::runtime_error("failure");
 }

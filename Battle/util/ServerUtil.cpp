@@ -7,8 +7,15 @@ namespace server_util
 {
 	float get_lag_for(Player &player)
 	{
-		if (Server::getInstance().active())
-			return Server::getInstance().getClientById(player.number).lag().avg();
+		try {
+			if (Server::getInstance().active())
+				return Server::getInstance().getClientById(player.number).lag().avg();
+		}
+		catch (std::runtime_error &err)
+		{
+			// Client probably just disconnected and the player object is not yet cleaned up.
+			return -1.0;
+		}
 
 		return 0.0;
 	}

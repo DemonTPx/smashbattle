@@ -275,6 +275,22 @@ void Gameplay::add_player(Player * p) {
 	players->push_back(p);
 }
 
+void Gameplay::del_player_by_id(char number)
+{
+	std::unique_ptr<Player> deletePlayer;
+	for (std::vector<Player *>::iterator i = players->begin(); i!= players->end(); i++)
+	{
+		Player *player(*i);
+
+		if (number == player->number)
+		{
+			deletePlayer = std::move(std::unique_ptr<Player>(player));
+			players->erase(i);
+			return;
+		}
+	}
+}
+
 void Gameplay::add_npc(NPC * npc) {
 	npcs->push_back(npc);
 }

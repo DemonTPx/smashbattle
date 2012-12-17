@@ -50,6 +50,8 @@ public:
 
 	// communication
 	void send(Command &command);
+
+	void cleanup(); 
 	
 	// lag
 	Uint32 getLastLagTime() { return lastLagTime_; }

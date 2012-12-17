@@ -12,7 +12,7 @@
 class Gameplay {
 public:
 	Gameplay();
-	~Gameplay();
+	virtual ~Gameplay();
 
 	static int frame;
 
@@ -30,6 +30,7 @@ public:
 
 	void set_level(Level * level);
 	void add_player(Player * player);
+	void del_player_by_id(char number);
 	void add_npc(NPC * npc);
 
 	void add_object(GameplayObject * obj);

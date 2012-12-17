@@ -34,6 +34,7 @@ class CommandRequestCharacter;
 class CommandSetCharacter;
 class CommandSetPlayerData;
 class CommandAddPlayer;
+class CommandDelPlayer;
 
 class ServerClient : public CommandProcessor
 {
@@ -90,6 +91,7 @@ protected:
 	bool process(CommandRequestCharacter *command);
 	bool process(CommandSetPlayerData *command);
 	bool process(CommandAddPlayer *command);
+	bool process(CommandDelPlayer *command);
 	// not for server client bool process(CommandSetCharacter *command);
 
 private:

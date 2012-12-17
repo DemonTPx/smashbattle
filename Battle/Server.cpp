@@ -182,6 +182,8 @@ void Server::poll()
 				dead_clients.push_back(client.id());
 
 				printf("Cleaned up client: %d\n", client.id());
+
+				client.cleanup();
 			}
 		}
 	}

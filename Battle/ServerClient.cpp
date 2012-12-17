@@ -194,6 +194,9 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 		case Command::Types::AddPlayer:
 			process(dynamic_cast<CommandAddPlayer *>(command.get()));
 			break;
+		case Command::Types::DelPlayer:
+			process(dynamic_cast<CommandDelPlayer *>(command.get()));
+			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
 	}
@@ -303,5 +306,12 @@ bool ServerClient::process(CommandAddPlayer *command)
 	otherplayer->reset();
 			
 	game_->add_player(otherplayer);
+	return true;
+}
+
+bool ServerClient::process(CommandDelPlayer *command)
+{
+	game_->del_player_by_id(command->data.client_id);
+			
 	return true;
 }

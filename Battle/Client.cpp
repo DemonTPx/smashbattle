@@ -170,3 +170,20 @@ void Client::send(Command &command)
 		return;
 	}
 }
+
+void Client::cleanup()
+{
+	server_->getGame().del_player_by_id(client_id_);
+
+	auto playersvec = *(server_->getGame().players);
+	for (auto i = playersvec.begin(); i != playersvec.end(); i++)
+	{
+		auto &player = **i;
+		
+		CommandDelPlayer cmd;
+		cmd.data.time = server_->getServerTime();
+		cmd.data.client_id = client_id_;
+
+		server_->getClientById(player.number).send(cmd);
+	}
+}

@@ -17,7 +17,8 @@ public:
 		RequestCharacter = 0x05,
 		SetCharacter = 0x06,
 		SetPlayerData = 0x07,
-		AddPlayer = 0x08
+		AddPlayer = 0x08,
+		DelPlayer = 0x09
 	};
 
 	Command::Types getType() const { return type_; }
