@@ -1,9 +1,9 @@
+//#include "ServerClient.h" // flags should not be inside here
 #include "Client.h"
 #include "Server.h"
 #include "Commands.hpp"
 #include "log.h"
-
-
+#include "NetworkMultiplayer.h"
 
 /**
  * This constructor is required for usage in a std::map by the server
@@ -102,10 +102,6 @@ bool Client::process(CommandSetCharacter *command)
 	return true;
 }
 
-
-// Todo: refactor this
-#include "ServerClient.h" // flags should not be inside here
-#include "NetworkMultiplayer.h"
 bool Client::process(CommandSetPlayerData *command)
 {
 	Player *updatedPlayer = NULL;

@@ -5,6 +5,7 @@
 
 #include "ServerClient.h"
 
+#include "Commands.hpp"
 #include "ClientNetworkMultiplayer.h"
 #include "Level.h"
 
@@ -12,6 +13,7 @@
 
 ServerClient::ServerClient()
 	: is_connected_(false),
+	  show_console_(false),
 	  currentState_(ServerClient::State::INITIALIZING),
 	  host_("localhost"),
 	  port_((Uint16)1099),
@@ -42,44 +44,38 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 	/* initialize SDL */
 	if(SDL_Init(0)==-1)
 	{
-		log(format("SDL_Init: %s\n",SDL_GetError()), Logger::Priority::ERROR);
-		return;
+		throw std::runtime_error(format("SDL_Init: %s\n",SDL_GetError()));
 	}
 
 	/* initialize SDL_net */
 	if(SDLNet_Init()==-1)
 	{
-		log(format("SDLNet_Init: %s\n",SDLNet_GetError()), Logger::Priority::ERROR);
-		return;
+		throw std::runtime_error(format("SDLNet_Init: %s\n",SDLNet_GetError()));
 	}
 
 	set=SDLNet_AllocSocketSet(1);
 	if(!set)
 	{
-		log(format("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError()), Logger::Priority::ERROR);
-		return;
+		throw std::runtime_error(format("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError()));
 	}
 
 
 	/* Resolve the argument into an IPaddress type */
 	if(SDLNet_ResolveHost(&ip,host_.c_str(),port_)==-1)
 	{
-		log(format("SDLNet_ResolveHost: %s\n",SDLNet_GetError()), Logger::Priority::ERROR);
-		return;
+		throw std::runtime_error(format("SDLNet_ResolveHost: %s\n",SDLNet_GetError()));
 	}
 
 	/* open the server socket */
 	sock=SDLNet_TCP_Open(&ip);
 	if(!sock)
 	{
-		log(format("SDLNet_TCP_Open: %s\n",SDLNet_GetError()), Logger::Priority::ERROR);
-		return;
+		throw std::runtime_error(format("SDLNet_TCP_Open: %s\n",SDLNet_GetError()));
 	}
 	
 	if(SDLNet_TCP_AddSocket(set,sock)==-1)
 	{
-		log(format("SDLNet_TCP_AddSocket: %s\n",SDLNet_GetError()), Logger::Priority::ERROR);
-		return;
+		throw std::runtime_error(format("SDLNet_TCP_AddSocket: %s\n",SDLNet_GetError()));
 	}
 	
 	
@@ -91,10 +87,22 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 	is_connected_ = true;
 }
 
-void ServerClient::poll(short test)
+void ServerClient::poll()
 {
 	if (!is_connected_)
 		return;
+
+	// Ping every second
+	static Uint32 calculatedLag = SDL_GetTicks();
+	Uint32 current = SDL_GetTicks();
+	if (calculatedLag - current > 1000)
+	{
+		calculatedLag += 1000;
+		CommandPing command;
+		command.data.time = current;
+		ServerClient::getInstance().send(command);
+	}
+
 
 	/* we poll keyboard every 1/10th of a second...simpler than threads */
 	/* this is fine for a text application */
@@ -128,11 +136,9 @@ void ServerClient::poll(short test)
 			is_connected_ = false;
 			return;
 		}
-
 	}
-	
-
 }
+
 
 #include "Commands.hpp"
 #include "log.h"
@@ -146,7 +152,7 @@ void ServerClient::send(Command &command)
 
 	if(result < sizeof(char)) {
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+			("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
 		return;
 	}
 

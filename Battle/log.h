@@ -73,4 +73,26 @@ private:
 
 extern std::string format(const char *format, ...);
 
+// for converting lower/uppercase 
+// from "C++ Cookbook"
+#include <locale>
+#include <cctype>
+#include <cwctype>
+
+template<typename C>
+void to_upper(std::basic_string<C>& s, const std::locale& loc = std::locale( )) {
+	typename std::basic_string<C>::iterator p;
+	for (p = s.begin( ); p != s.end( ); ++p) {
+		*p = std::use_facet<std::ctype<C> >(loc).toupper(*p);
+	}
+}
+
+template<typename C>
+void to_lower(std::basic_string<C>& s, const std::locale& loc = std::locale( )) {
+	typename std::basic_string<C>::iterator p;
+	for (p = s.begin( ); p != s.end( ); ++p) {
+		*p = std::use_facet<std::ctype<C> >(loc).tolower(*p);
+	}
+}
+
 #endif //__LOG_HPP__

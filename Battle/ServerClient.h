@@ -13,6 +13,7 @@
 #include <time.h>
 #endif
 #include <stdlib.h>
+
 #include "SDL/SDL.h"
 #include "SDL/SDL_thread.h"
 #include "SDL/SDL_net.h"
@@ -68,12 +69,14 @@ public:
 	void setPort(int port) { port_ = (Uint16)port; }
 
 	void connect(ClientNetworkMultiplayer &game, Level &level, Player &player);
-	void poll(short test);
+	void poll();
 
 	void test();
 	void send(Command &command);
 
 	bool isConnected() { return is_connected_; }
+	void toggleConsole() { show_console_ = !show_console_ ; }
+	bool showConsole() { return show_console_; }
 
 	void setState(ServerClient::State state) { currentState_ = state; }
 	ServerClient::State getState() { return currentState_; }
@@ -102,6 +105,7 @@ private:
 	void operator=(ServerClient const&); // Don't implement
 
 	bool is_connected_;
+	bool show_console_;
 
 	
 	ServerClient::State currentState_;

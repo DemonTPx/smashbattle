@@ -222,6 +222,7 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="util\LagMeasure.hpp" />
+    <ClInclude Include="util\ServerUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="music\a_hero_rises.ogg" />

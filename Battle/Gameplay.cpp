@@ -200,6 +200,14 @@ void Gameplay::run() {
 			draw_countdown();
 		}
 
+		if (Main::runmode == Main::RunModes::CLIENT)
+		{
+			if (!ServerClient::getInstance().isConnected())
+				draw_disconnected();
+			else if (ServerClient::getInstance().showConsole())
+				draw_console();
+		}
+
 		Main::instance->flip(true);
 	}
 
@@ -398,6 +406,22 @@ void Gameplay::draw_countdown() {
 	SDL_BlitSurface(surf, NULL, screen, &rect);
 	SDL_FreeSurface(surf);
 }
+
+void Gameplay::draw_disconnected() 
+{
+	SDL_Surface * surf;
+
+	surf = Main::text->render_text_medium("DISCONNECTED FROM SERVER");
+
+	SDL_Rect rect;
+	rect.x = (screen->w - surf->w) / 2;
+	rect.y = (screen->h - surf->h) / 2;
+	
+	SDL_BlitSurface(surf, NULL, screen, &rect);
+	SDL_FreeSurface(surf);
+}
+
+
 
 void Gameplay::draw_pause_screen() {
 

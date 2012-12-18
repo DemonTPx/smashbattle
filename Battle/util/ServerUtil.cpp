@@ -11,7 +11,7 @@ namespace server_util
 			if (Server::getInstance().active())
 				return Server::getInstance().getClientById(player.number).lag().avg();
 		}
-		catch (std::runtime_error &err)
+		catch (std::runtime_error &)
 		{
 			// Client probably just disconnected and the player object is not yet cleaned up.
 			return -1.0;

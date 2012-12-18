@@ -6,7 +6,6 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
-#include <algorithm>
 
 #include "Timer.h"
 #include "Menu.h"
@@ -16,16 +15,15 @@
 #include "Util.h"
 
 #include "Main.h"
-#include "Server.h"
 #include "ServerClient.h"
+#include "Server.h"
+#include "NetworkMultiplayer.h"
+#include "ClientNetworkMultiplayer.h"
 
 #include "states/ServerStates.h"
 #include "log.h"
 
-
 using std::string;
-using std::vector;
-using std::for_each;
 
 #ifdef WIN32
 #include <direct.h> // for _chdir
@@ -77,7 +75,9 @@ unsigned int Main::last_activity = 0;
 bool Main::autoreset = true;
 bool Main::is_reset = false;
 
-Main::Main() : lag_(NULL)
+Main::RunModes Main::runmode = Main::RunModes::ARCADE;
+
+Main::Main()
 {
 	Main::instance = this;
 }
@@ -159,26 +159,11 @@ void Main::clean_up() {
 	SDL_Quit();
 }
 
-// Todo refactor
-#include "Commands.hpp"
-void Main::flip(bool no_cap) {
-	
+void Main::flip(bool no_cap) 
+{
 	Server::getInstance().poll();
 
-	ServerClient::getInstance().poll(0);
-
-	if (ServerClient::getInstance().isConnected())
-	{
-		static Uint32 calculatedLag = SDL_GetTicks();
-		Uint32 current = SDL_GetTicks();
-		if (calculatedLag - current > 1000)
-		{
-			calculatedLag += 1000;
-			CommandPing command;
-			command.data.time = current;
-			ServerClient::getInstance().send(command);
-		}
-	}
+	ServerClient::getInstance().poll();
 
 	fps_count();
 
@@ -224,8 +209,8 @@ void Main::fps_count() {
 		color.g = 0xff;
 		color.b = 0xff;
 
-		if (lag_)
-			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, lag_->avg());
+		if (ServerClient::getInstance().isConnected())
+			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, ServerClient::getInstance().getLag().avg());
 		else
 			sprintf(cap, "%d FPS", fps_counter_this_frame);
 
@@ -256,20 +241,25 @@ void Main::handle_event(SDL_Event * event) {
 
 	/* A server can only be closed with ESCAPE */
 	if(event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
-		if (Server::getInstance().active())
+		if (Main::runmode == Main::RunModes::SERVER)
 			running = false;
 	}
 
 	/* Catch quit event and ALT-F4 */
 	if(event->type == SDL_QUIT) {
-		if (!Server::getInstance().active())
+		if (Main::runmode != Main::RunModes::SERVER)
 			running = false;
 	}
 	if(event->type == SDL_KEYDOWN) {
 		if(event->key.keysym.mod & KMOD_ALT) {
-			if(event->key.keysym.sym == SDLK_F4 && !Server::getInstance().active()) {
+			if(event->key.keysym.sym == SDLK_F4 && Main::runmode != Main::RunModes::SERVER) {
 				running = false;
 			}
+		}
+		if(event->key.keysym.sym == SDLK_F1) {
+			// Toggle console in case we're in client mode
+			if (Main::runmode == Main::RunModes::CLIENT && ServerClient::getInstance().isConnected())
+				ServerClient::getInstance().toggleConsole();
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
@@ -293,11 +283,10 @@ void Main::handle_event(SDL_Event * event) {
 		last_activity = frame;
 	}
 }
-#include "ClientNetworkMultiplayer.h"
-#include "NetworkMultiplayer.h"
-#include "CharacterSelect.h"
 int Main::run(const Main::RunModes &runmode) {
 	if(!init()) return 1;
+
+	Main::runmode = runmode;
 
 	frame_delay = 1000 / FRAMES_PER_SECOND;
 	frame = 0;
@@ -339,102 +328,10 @@ int Main::run(const Main::RunModes &runmode) {
 		case Main::RunModes::CLIENT:
 			fps_counter_visible = true;
 
-			// While developing I found it easier to hardcode this all here, but this will need to be refactored now
-
 			ClientNetworkMultiplayer clientgame;
 
-			Level level;
+			clientgame.start();
 
-			running = true;
-
-			CharacterSelect cs(1, 1);
-			cs.run();
-			if (!cs.cancel) 
-			{
-				Player player(0, 0);				
-
-				player.input = Main::instance->input[0];
-				player.input->set_delay();
-				player.set_character(cs.player_select[0]);
-
-				clientgame.add_player(&player);
-
-				screen = Main::instance->screen;
-
-				
-				Uint32 begin = SDL_GetTicks();
-				Uint32 calculatedLag = begin;
-				int initialLagTests = INITIAL_LAG_TESTS;
-				
-				SDL_Event event;
-
-				bool stop = false;
-				while (!stop) {
-					while(SDL_PollEvent(&event))
-						;
-				
-					if (!ServerClient::getInstance().isConnected()) {
-						begin = SDL_GetTicks();
-						static bool once = true;
-						if (once) {
-							once = false;
-
-							ServerClient::getInstance().connect(clientgame, level, player);
-						}
-
-					}
-					else {
-						Uint32 current = SDL_GetTicks();
-
-						if (initialLagTests > 0) {
-							if (calculatedLag - current > 200) {
-								calculatedLag += 200;
-								ServerClient::getInstance().test();
-								initialLagTests--;
-							}
-						}
-						else {
-							// Todo: refactor, merge with code in Poll()
-							if (calculatedLag - current > 1000)
-							{
-								calculatedLag += 1000;
-								ServerClient::getInstance().test();
-							}
-						}
-					}
-
-					// Output console
-					size_t beginSize = Logger::console.size();
-					if (beginSize > 20)
-						beginSize = beginSize - 20;
-					else
-						beginSize = 0;
-
-					SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 255));
-
-					int textpos = 5;
-					for_each(std::begin(Logger::console) + beginSize, std::end(Logger::console), [&](const string &str) {
-						SDL_Rect textLocation = { 10, textpos, 0, 0 };
-						textpos += 24;
-						SDL_Surface* textSurface = Main::text->render_text_medium(str.c_str());
-						SDL_BlitSurface(textSurface, NULL, screen, &textLocation);
-						SDL_FreeSurface(textSurface);
-					});
-
-					ServerClient::getInstance().poll(1);
-
-					Main::instance->flip(true);
-
-					if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED)
-					{
-						lag_ = &(ServerClient::getInstance().getLag());
-						clientgame.run();
-						stop = true;
-					}
-
-				}
-
-			}
 			break;
 	}
 	

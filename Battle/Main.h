@@ -15,8 +15,6 @@
 #define SAVE_SIGNATURE 0x5353 // 'SS'
 #define SAVE_VERSION 1
 
-class LagMeasure; 
-
 struct SaveHeader {
 	short signature;
 	short version;
@@ -47,7 +45,7 @@ public:
 	static const int JOYSTICK_AXIS_THRESHOLD;
 
 	static enum RunModes { ARCADE, SERVER, CLIENT };
-	//static RunModesEnum RunModes;
+	static Main::RunModes runmode;
 
 	static Timer * fps;
 
@@ -86,8 +84,6 @@ private:
 	void save_options();
 
 	void set_default_controlschemes();
-
-	LagMeasure *lag_;
 };
 
 #endif

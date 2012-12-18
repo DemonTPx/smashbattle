@@ -1,7 +1,7 @@
 #ifndef __CLIENT_H__
 #define __CLIENT_H__
 
-#include "SDL/SDL_net.h"
+#include "SDL/SDL.h"
 #include <string>
 #include <map>
 #include <memory>

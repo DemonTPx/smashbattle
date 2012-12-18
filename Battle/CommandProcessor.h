@@ -2,6 +2,8 @@
 #define __COMMAND_PROCESSOR_H___
 
 #include <memory>
+#include "SDL/SDL.h"
+#include "SDL/SDL_net.h"
 
 class Command;
 

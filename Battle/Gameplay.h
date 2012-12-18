@@ -51,6 +51,8 @@ protected:
 	virtual void draw_score();
 	virtual void draw_game_ended();
 	virtual void draw_countdown();
+	virtual void draw_disconnected();
+	virtual void draw_console() {};
 
 	virtual void on_game_reset() = 0;
 
