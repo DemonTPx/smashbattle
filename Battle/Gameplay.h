@@ -27,6 +27,7 @@ public:
 
 	void run();
 	void move_player(Player &player);
+	bool process_gameplayobj(GameplayObject *projectile = NULL);
 
 	void set_level(Level * level);
 	void add_player(Player * player);

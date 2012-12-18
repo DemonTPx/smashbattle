@@ -2,6 +2,7 @@
 #define __COMMANDSETLEVEL_HPP__
 
 #include "Command.hpp"
+#include "Level.h"
 
 class CommandSetLevel : public Command
 {
@@ -19,7 +20,10 @@ public:
 	struct
 	{
 		char your_id;
-		char level[80 + 1];
+		char levelname[80 + 1];
+
+		int level[TILE_COUNT];
+		int level_hp[TILE_COUNT];
 	} data;
 
 private:

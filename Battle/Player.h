@@ -54,6 +54,9 @@ namespace player_util
 	void set_player_data(Player &player, CommandSetPlayerData &data);
 }
 
+class Projectile;
+class Bomb;
+
 class Player {
 public:
 	Player(int character, int number);
@@ -155,6 +158,9 @@ public:
 
 	void move(Level * level);
 	void process();
+	Projectile * create_projectile(Sint16 x, Sint16 y);
+	Bomb * create_bomb_for_player(Sint16 x, Sint16 y);
+	Bomb * create_bomb(Sint16 x, Sint16 y);
 
 	void bounce(Player * other);
 	void bounce_up(SDL_Rect * source);

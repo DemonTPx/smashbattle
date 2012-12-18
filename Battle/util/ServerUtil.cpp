@@ -2,6 +2,7 @@
 #include "Player.h"
 
 #include "Server.h"
+#include "Commands.hpp"
 
 namespace server_util
 {
@@ -18,5 +19,19 @@ namespace server_util
 		}
 
 		return 0.0;
+	}
+
+	void update_tile(int tile_pos, int tile_hp)
+	{
+
+		if (Server::getInstance().active())
+		{
+			CommandUpdateTile command;
+			command.data.time = Server::getInstance().getServerTime();
+			command.data.tile = tile_pos;
+			command.data.tile_hp = tile_hp;
+
+			Server::getInstance().sendAll(command);
+		}
 	}
 }

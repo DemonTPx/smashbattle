@@ -102,7 +102,21 @@ void Gameplay::run() {
 				for(unsigned int idx = 0; idx < players->size(); idx++) {
 					Player * p = players->at(idx);
 					p->move(level);
-					p->process();
+					switch (Main::runmode)
+					{
+						case Main::RunModes::SERVER:
+							// Server gets projectiles from client through commands
+							break;
+						case Main::RunModes::CLIENT:
+							// Client will only process and send it's own projectiles to server, 
+							//  for other player bullets we depend on the server for sending them.
+							if (p->number == ServerClient::getInstance().getClientId())
+								p->process();
+							break;
+						default:
+							p->process();
+							break;
+					}
 				}
 
 				process_player_collission();
@@ -124,37 +138,8 @@ void Gameplay::run() {
 				process_player_npc_collission();
 
 				// Move and process objects
-				for(unsigned int idx = 0; idx < objects->size(); idx++) {
-					GameplayObject * obj = objects->at(idx);
-					obj->move(level);
-					obj->process();
-					for(unsigned int i = 0; i < players->size(); i++) {
-						Player * p = players->at(i);
-						if(p->is_dead)
-							continue;
-						SDL_Rect * rect;
-						rect = p->get_rect();
-						if(is_intersecting(rect, obj->position)) {
-							obj->hit_player(p);
-						}
-						delete rect;
-					}
-					for(unsigned int i = 0; i < npcs->size(); i++) {
-						NPC * npc = npcs->at(i);
-						if(npc->is_dead)
-							continue;
-						SDL_Rect * rect;
-						rect = npc->get_rect();
-						if(is_intersecting(rect, obj->position)) {
-							obj->hit_npc(npc);
-						}
-						delete rect;
-					}
-					if(obj->done) {
-						objects->erase(objects->begin() + idx);
-						delete obj;
-					}
-				}
+				process_gameplayobj();
+
 			}
 			if(countdown) {
 				process_countdown();
@@ -256,6 +241,52 @@ void Gameplay::move_player(Player &player)
 
 }
 
+/**
+ * If projectile is NULL, process all otherwise only given gameplayobject
+ returns false if the object is deleted
+ */
+bool Gameplay::process_gameplayobj(GameplayObject *gameplayobj)
+{
+	// Move and process objects
+	for(unsigned int idx = 0; idx < objects->size(); idx++) {
+		GameplayObject * obj = objects->at(idx);
+
+		if (gameplayobj != NULL && gameplayobj != obj)
+			continue;
+		
+		obj->move(level);
+		obj->process();
+		for(unsigned int i = 0; i < players->size(); i++) {
+			Player * p = players->at(i);
+			if(p->is_dead)
+				continue;
+			SDL_Rect * rect;
+			rect = p->get_rect();
+			if(is_intersecting(rect, obj->position)) {
+				obj->hit_player(p);
+			}
+			delete rect;
+		}
+		for(unsigned int i = 0; i < npcs->size(); i++) {
+			NPC * npc = npcs->at(i);
+			if(npc->is_dead)
+				continue;
+			SDL_Rect * rect;
+			rect = npc->get_rect();
+			if(is_intersecting(rect, obj->position)) {
+				obj->hit_npc(npc);
+			}
+			delete rect;
+		}
+		if(obj->done) {
+			objects->erase(objects->begin() + idx);
+			delete obj;
+			return false;
+		}
+	}
+	return true;
+}
+
 void Gameplay::handle_pause_input(SDL_Event * event) {
 	Player * player;
 	for(unsigned int i = 0; i < players->size(); i++) {
@@ -334,7 +365,11 @@ void Gameplay::reset_game() {
 	countdown_start = frame;
 	strcpy(countdown_pre_text, "GET READY");
 
-	level->reset();
+	// In ServerClient upon receiving the level from server, we reset already, and then initialize the tiles
+	if (Main::runmode != Main::RunModes::CLIENT)
+	{
+		level->reset();
+	}
 	
 	// Clear gameplay objects
 	GameplayObject * obj;

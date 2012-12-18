@@ -66,8 +66,10 @@ bool Client::process(std::unique_ptr<Command> command)
 			return process(dynamic_cast<CommandSetCharacter *>(cmd));
 		case Command::Types::SetPlayerData:
 			return process(dynamic_cast<CommandSetPlayerData *>(cmd));
-		//case Command::Types::AddPlayer:
-		//	return process(dynamic_cast<CommandAddPlayer *>(cmd));
+		case Command::Types::ShotFired:
+			return process(dynamic_cast<CommandShotFired *>(cmd));
+		case Command::Types::BombDropped:
+			return process(dynamic_cast<CommandBombDropped *>(cmd));
 	}
 
 	return true;
@@ -143,11 +145,118 @@ bool Client::process(CommandSetPlayerData *command)
 	return true;
 }
 
+#include "Projectile.h"
+bool Client::process(CommandShotFired *command)
+{
+	// I'm currently too lazy to create function for it, I will refactor! (Todo!!)
+	auto playersvec = *(server_->getGame().players);
+	for (auto i = playersvec.begin(); i != playersvec.end(); i++)
+	{
+		auto &player = **i;
+		if (player.number == client_id_)
+		{
+			// Make sure the correct sprite is set, so the bullet will go the correct direction
+			player.current_sprite = command->data.current_sprite;
+
+			Projectile *proj = player.create_projectile(command->data.x, command->data.y);
+
+			proj->distance_traveled = command->data.distance_travelled;
+
+			// Account for lag
+			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			for (int i=0; i<processFrames; i++)
+			{
+				if (!server_->getGame().process_gameplayobj(proj))
+				{
+					// Object is already gone, don't bother sending it to clients
+					return true;
+				}
+			}
+
+			// Send all others the update
+			for (auto i = playersvec.begin(); i != playersvec.end(); i++)
+			{
+				auto &player = **i;
+				if (player.number != client_id_)
+				{
+					// reuse command
+					// TODO ADD TTL HERE AND EVERYWHERE :P
+					command->data.time = server_->getServerTime();
+					command->data.client_id = client_id_;
+					command->data.x = proj->position->x;
+					command->data.y = proj->position->y;
+					server_->getClientById(player.number).send(*command);
+				}
+			}
+
+			return true;
+		}
+	}
+
+	return true;
+}
+
+#include "Bomb.h"
+// TTL moet nog in bomb e.d.
+bool Client::process(CommandBombDropped *command)
+{
+	// I'm currently too lazy to create function for it, I will refactor! (Todo!!)
+	auto playersvec = *(server_->getGame().players);
+	for (auto i = playersvec.begin(); i != playersvec.end(); i++)
+	{
+		auto &player = **i;
+		if (player.number == client_id_)
+		{
+			// Make sure the correct sprite is set, so the bullet will go the correct direction
+			player.current_sprite = command->data.current_sprite;
+
+			GameplayObject *obj = player.create_bomb(command->data.x, command->data.y);
+
+			// Account for lag
+			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			for (int i=0; i<processFrames; i++)
+			{
+				if (!server_->getGame().process_gameplayobj(obj))
+				{
+					// Object is already gone, don't bother sending it to clients
+					return true;
+				}
+			}
+
+			// Send all others the update
+			for (auto i = playersvec.begin(); i != playersvec.end(); i++)
+			{
+				auto &player = **i;
+				if (player.number != client_id_)
+				{
+					// reuse command
+					// TODO ADD TTL HERE AND EVERYWHERE :P
+					// SECOND fix facing Right or left, want dat bepaald richting van kogels.
+					// neem ook mee in object van dit.
+					command->data.time = server_->getServerTime();
+					command->data.client_id = client_id_;
+					command->data.x = obj->position->x;
+					command->data.y = obj->position->y;
+
+					server_->getClientById(player.number).send(*command);
+				}
+			}
+
+			return true;
+		}
+	}
+
+	return true;
+}
+
 
 void Client::send(Command &command)
 {
 	//	if (!is_connected_)
 	//    return;
+
+	log(format("Sending to client %d packet of type %d", client_id_, expectRequestFor_), Logger::Priority::DEBUG);
+
 
 	char type = command.getType();
 	int result = SDLNet_TCP_Send(socket_, &type, sizeof(char));

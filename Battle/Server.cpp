@@ -243,3 +243,9 @@ Client& Server::getClientById(int client_id)
 
 	throw std::runtime_error("client not found by id");
 }
+
+void Server::sendAll(Command &command)
+{
+	for (map<int, Client>::iterator i=clients_.begin(); i!=clients_.end(); i++)
+		i->second.send(command);
+}

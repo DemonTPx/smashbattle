@@ -171,6 +171,7 @@
     <ClInclude Include="CommandProcessor.h" />
     <ClInclude Include="Commands.hpp" />
     <ClInclude Include="commands\CommandAddPlayer.hpp" />
+    <ClInclude Include="commands\CommandBombDropped.hpp" />
     <ClInclude Include="commands\CommandDelPlayer.hpp" />
     <ClInclude Include="commands\CommandPing.hpp" />
     <ClInclude Include="commands\CommandPong.hpp" />
@@ -179,6 +180,8 @@
     <ClInclude Include="commands\CommandSetLevel.hpp" />
     <ClInclude Include="commands\CommandSetPlayerData.hpp" />
     <ClInclude Include="commands\CommandSetPosition.hpp" />
+    <ClInclude Include="commands\CommandShotFired.hpp" />
+    <ClInclude Include="commands\CommandUpdateTile.hpp" />
     <ClInclude Include="ControlsOptions.h" />
     <ClInclude Include="DoubleDamagePowerUp.h" />
     <ClInclude Include="GameInput.h" />

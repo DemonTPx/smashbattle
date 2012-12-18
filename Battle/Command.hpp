@@ -18,7 +18,10 @@ public:
 		SetCharacter = 0x06,
 		SetPlayerData = 0x07,
 		AddPlayer = 0x08,
-		DelPlayer = 0x09
+		DelPlayer = 0x09,
+		UpdateTile = 0x0A,
+		ShotFired = 0x0B,
+		BombDropped = 0x0C,
 	};
 
 	Command::Types getType() const { return type_; }

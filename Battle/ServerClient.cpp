@@ -148,6 +148,7 @@ void ServerClient::send(Command &command)
 		return;
 
 	char type = command.getType();
+	log(format("Send packet of type %d",type), Logger::Priority::CONSOLE);
 	result = SDLNet_TCP_Send(sock, &type, sizeof(char));
 
 	if(result < sizeof(char)) {
@@ -175,7 +176,7 @@ void ServerClient::test()
 
 bool ServerClient::process(std::unique_ptr<Command> command)
 {
-	
+	log(format("received packet of type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
 
 	switch (command.get()->getType())
 	{
@@ -191,9 +192,6 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 		case Command::Types::RequestCharacter:
 			process(dynamic_cast<CommandRequestCharacter *>(command.get()));
 			break;
-		//case Command::Types::SetCharacter:
-			//process(dynamic_cast<CommandSetCharacter *>(command.get()));
-			//break;
 		case Command::Types::SetPlayerData:
 			process(dynamic_cast<CommandSetPlayerData *>(command.get()));
 			break;
@@ -202,6 +200,15 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 			break;
 		case Command::Types::DelPlayer:
 			process(dynamic_cast<CommandDelPlayer *>(command.get()));
+			break;
+		case Command::Types::UpdateTile:
+			process(dynamic_cast<CommandUpdateTile *>(command.get()));
+			break;
+		case Command::Types::ShotFired:
+			process(dynamic_cast<CommandShotFired *>(command.get()));
+			break;
+		case Command::Types::BombDropped:
+			process(dynamic_cast<CommandBombDropped *>(command.get()));
 			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
@@ -240,7 +247,10 @@ bool ServerClient::process(CommandSetLevel *command)
 	// Default a client gets player with number zero
 	player_->number = my_id_;
 
-	level_->load(level_util::get_filename_by_name(command->data.level).c_str());
+	level_->load(level_util::get_filename_by_name(command->data.levelname).c_str());
+	level_->reset();
+	memcpy(&level_->level, &command->data.level, sizeof(level_->level));
+	memcpy(&level_->level_hp, &command->data.level_hp, sizeof(level_->level_hp));
 			
 	game_->set_level(level_);
 	
@@ -308,8 +318,10 @@ bool ServerClient::process(CommandAddPlayer *command)
 
 	otherplayer->position->x = command->data.x;
 	otherplayer->position->y = command->data.y;
-	otherplayer->set_sprite((command->data.facingRight ? SPR_R : SPR_L));
+
+	// First reset, then set correct sprite (order is important)
 	otherplayer->reset();
+	otherplayer->set_sprite((command->data.current_sprite));
 			
 	game_->add_player(otherplayer);
 	return true;
@@ -319,5 +331,71 @@ bool ServerClient::process(CommandDelPlayer *command)
 {
 	game_->del_player_by_id(command->data.client_id);
 			
+	return true;
+}
+
+bool ServerClient::process(CommandUpdateTile *command)
+{
+	level_->level_hp[command->data.tile] = command->data.tile_hp;
+
+	if(level_->level_hp[command->data.tile] <= 0)
+		level_->level[command->data.tile] = -1;
+
+	return true;
+}
+
+#include "Projectile.h"
+bool ServerClient::process(CommandShotFired *command)
+{
+	// I'm currently too lazy to create function for it, I will refactor! (Todo!!)
+	auto &players = *(game_->players);
+	for (auto i=players.begin(); i!=players.end(); i++)
+	{
+		auto &otherplayer = **i;
+
+		if (otherplayer.number == command->data.client_id)
+		{
+			// Make sure the correct sprite is set, so the bullet will go the correct direction
+			otherplayer.current_sprite = command->data.current_sprite;
+
+			Projectile *proj = otherplayer.create_projectile(command->data.x, command->data.y);
+
+			proj->distance_traveled = command->data.distance_travelled;
+
+			// Account for lag
+			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			for (int i=0; i<processFrames; i++)
+				game_->process_gameplayobj(proj);
+
+			return true;
+		}
+	}
+	return true;
+}
+
+#include "Bomb.h"
+bool ServerClient::process(CommandBombDropped *command)
+{
+	// I'm currently too lazy to create function for it, I will refactor! (Todo!!)
+	auto &players = *(game_->players);
+	for (auto i=players.begin(); i!=players.end(); i++)
+	{
+		auto &otherplayer = **i;
+
+		if (otherplayer.number == command->data.client_id)
+		{
+			// Make sure the correct sprite is set, so the bullet will go the correct direction
+			otherplayer.current_sprite = command->data.current_sprite;
+
+			GameplayObject *obj = otherplayer.create_bomb(command->data.x, command->data.y);
+
+			// Account for lag
+			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			for (int i=0; i<processFrames; i++)
+				game_->process_gameplayobj(obj);
+
+			return true;
+		}
+	}
 	return true;
 }

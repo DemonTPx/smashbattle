@@ -266,7 +266,7 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 
 	// Show lag above player if server is active
 	if (Main::runmode == Main::RunModes::SERVER) {
-		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %f", server_util::get_lag_for(*this)).c_str());
+		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f", server_util::get_lag_for(*this)).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
@@ -717,6 +717,9 @@ bool Player::damage(int damage) {
 	return true;
 }
 
+#include "ServerClient.h"
+#include "commands/CommandShotFired.hpp"
+#include "commands/CommandBombDropped.hpp"
 void Player::process() {
 	if(is_dead)
 		return;
@@ -725,97 +728,150 @@ void Player::process() {
 		if(Gameplay::frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
 			(((bullets == BULLETS_UNLIMITED) ||  bullets > 0) ||
 			((doubledamagebullets == BULLETS_UNLIMITED) ||  doubledamagebullets > 0) ||
-			((instantkillbullets == BULLETS_UNLIMITED) ||  instantkillbullets > 0))) {
-			shoot_start = Gameplay::frame;
-			Projectile * pr;
-			SDL_Rect * clip_weapon;
-			bool doubledamage;
-			bool instantkill;
+			((instantkillbullets == BULLETS_UNLIMITED) ||  instantkillbullets > 0))) 
+		{
+			Projectile *proj = create_projectile(position->x, position->y);
 
-			doubledamage = doubledamagebullets > 0;
-			instantkill = instantkillbullets > 0;
-
-			clip_weapon = new SDL_Rect();
-			if(instantkill)
-				clip_weapon->x = 16;
-			else if(doubledamage)
-				clip_weapon->x = 8;
-			else
-				clip_weapon->x = 0;
-			clip_weapon->y = 0;
-			clip_weapon->w = 8;
-			clip_weapon->h = 8;
-
-			pr = new Projectile(Main::graphics->weapons, clip_weapon);
-			pr->owner = this;
-			if(instantkill)
-				pr->damage = 100;
-			else if(doubledamage)
-				pr->damage = WEAPONCLASSES[weaponclass].damage * 2;
-			else
-				pr->damage = WEAPONCLASSES[weaponclass].damage;
-
-			if(current_sprite >= SPR_L && current_sprite <= SPR_L_DUCK) {
-				pr->speedx = -10;
-				pr->position->x = position->x - pr->position->w - 1;
-			} else {
-				pr->speedx = 10;
-				pr->position->x = position->x + position->w + 1;
+			if (Main::runmode == Main::RunModes::CLIENT && ServerClient::getInstance().isConnected())
+			{
+				CommandShotFired fire;
+				fire.data.time = SDL_GetTicks();
+				// this is discarded by server anyway, we cannot send for other clients
+				fire.data.client_id = ServerClient::getInstance().getClientId(); 
+				// current sprite determines direction of bullet
+				fire.data.current_sprite = current_sprite;
+				fire.data.x = position->x;
+				fire.data.y = position->y;
+				fire.data.distance_travelled = proj->distance_traveled;
+				ServerClient::getInstance().send(fire);
 			}
-			if(is_duck)
-				pr->position->y = position->y + 28;
-			else
-				pr->position->y = position->y + 8;
-			Gameplay::instance->add_object(pr);
-
-			pr->max_distance = WEAPONCLASSES[weaponclass].distance;
-			
-			if(instantkill)
-				instantkillbullets--;
-			else if(doubledamage)
-				doubledamagebullets--;
-//			else if(ruleset.doubledamagebullets != BULLETS_UNLIMITED)
-//				bullets--;
-			
-			bullets_fired++;
-
-			Main::instance->audio->play(SND_SHOOT, pr->position->x);
 		}
 	}
 	if(input->is_pressed(A_BOMB)) {
 		if(Gameplay::frame > bomb_start + bomb_delay &&
-			(bombs > 0 || bombs == -1 || mines > 0 || mines == -1)) {
-			bomb_start = Gameplay::frame;
-
-			Bomb * b;
-
-			if(mines > 0 || mines == -1)
-				b = new Mine(Main::graphics->bombs);
-			else
-				b = new Bomb(Main::graphics->bombs);
-
-			b->damage = BOMBPOWERCLASSES[bombpowerclass].damage;
-			b->time = 60;
-			b->frame_start = Gameplay::frame;
-			b->frame_change_start = Gameplay::frame;
-			b->frame_change_count = 12;
-			b->owner = this;
-			b->position->x = position->x + (position->w - b->position->w) / 2;
-			b->position->y = position->y + (position->h - b->position->h);
-			Gameplay::instance->add_object(b);
+			(bombs > 0 || bombs == -1 || mines > 0 || mines == -1)) 
+		{
+			Bomb *newbomb = create_bomb_for_player(position->x, position->y);
 			
-			if(mines > 0) {
-				mines -= 1;
-			} else if(mines != -1) {
-				if(bombs != -1)
-					bombs -= 1;
+			if (Main::runmode == Main::RunModes::CLIENT && ServerClient::getInstance().isConnected())
+			{
+				CommandBombDropped bomb;
+				bomb.data.time = SDL_GetTicks();
+				// this is discarded by server anyway, we cannot send for other clients
+				bomb.data.client_id = ServerClient::getInstance().getClientId(); 
+				// current sprite determines direction of bullet
+				bomb.data.current_sprite = current_sprite;
+				bomb.data.x = newbomb->position->x;
+				bomb.data.y = newbomb->position->y;
+				ServerClient::getInstance().send(bomb);
 			}
-
-			bombs_fired++;
-
-			Main::instance->audio->play(SND_SHOOT, b->position->x);
 		}
 	}
+}
+
+Projectile * Player::create_projectile(Sint16 x, Sint16 y)
+{
+	shoot_start = Gameplay::frame;
+	Projectile * pr;
+	SDL_Rect * clip_weapon;
+	bool doubledamage;
+	bool instantkill;
+
+	doubledamage = doubledamagebullets > 0;
+	instantkill = instantkillbullets > 0;
+
+	clip_weapon = new SDL_Rect();
+	if(instantkill)
+		clip_weapon->x = 16;
+	else if(doubledamage)
+		clip_weapon->x = 8;
+	else
+		clip_weapon->x = 0;
+	clip_weapon->y = 0;
+	clip_weapon->w = 8;
+	clip_weapon->h = 8;
+
+	pr = new Projectile(Main::graphics->weapons, clip_weapon);
+	pr->owner = this;
+	if(instantkill)
+		pr->damage = 100;
+	else if(doubledamage)
+		pr->damage = WEAPONCLASSES[weaponclass].damage * 2;
+	else
+		pr->damage = WEAPONCLASSES[weaponclass].damage;
+
+	if(current_sprite >= SPR_L && current_sprite <= SPR_L_DUCK) {
+		pr->speedx = -10;
+		pr->position->x = x - pr->position->w - 1;
+	} else {
+		pr->speedx = 10;
+		pr->position->x = x + position->w + 1;
+	}
+	if(is_duck)
+		pr->position->y = y + 28;
+	else
+		pr->position->y = y + 8;
+	Gameplay::instance->add_object(pr);
+
+	pr->max_distance = WEAPONCLASSES[weaponclass].distance;
+	
+	if(instantkill)
+		instantkillbullets--;
+	else if(doubledamage)
+		doubledamagebullets--;
+//			else if(ruleset.doubledamagebullets != BULLETS_UNLIMITED)
+//				bullets--;
+	
+	bullets_fired++;
+
+	Main::instance->audio->play(SND_SHOOT, pr->position->x);
+
+	return pr;
+}
+
+Bomb* Player::create_bomb_for_player(Sint16 x, Sint16 y)
+{
+	Bomb *b = create_bomb(x, y);
+
+	b->position->x = x + (position->w - b->position->w) / 2;
+	b->position->y = y + (position->h - b->position->h);
+
+	return b;
+}
+
+Bomb* Player::create_bomb(Sint16 x, Sint16 y)
+{
+	bomb_start = Gameplay::frame;
+
+	Bomb * b;
+
+	if(mines > 0 || mines == -1)
+		b = new Mine(Main::graphics->bombs);
+	else
+		b = new Bomb(Main::graphics->bombs);
+
+	b->damage = BOMBPOWERCLASSES[bombpowerclass].damage;
+	b->time = 60;
+	b->frame_start = Gameplay::frame;
+	b->frame_change_start = Gameplay::frame;
+	b->frame_change_count = 12;
+	b->owner = this;
+	b->position->x = x;
+	b->position->y = y;
+	Gameplay::instance->add_object(b);
+	
+	if(mines > 0) {
+		mines -= 1;
+	} else if(mines != -1) {
+		if(bombs != -1)
+			bombs -= 1;
+	}
+
+	bombs_fired++;
+
+	Main::instance->audio->play(SND_SHOOT, b->position->x);
+
+	return b;
 }
 
 void Player::set_sprite(int sprite) {

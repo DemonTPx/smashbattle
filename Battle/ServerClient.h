@@ -36,6 +36,9 @@ class CommandSetCharacter;
 class CommandSetPlayerData;
 class CommandAddPlayer;
 class CommandDelPlayer;
+class CommandUpdateTile;
+class CommandShotFired;
+class CommandBombDropped;
 
 class ServerClient : public CommandProcessor
 {
@@ -95,7 +98,9 @@ protected:
 	bool process(CommandSetPlayerData *command);
 	bool process(CommandAddPlayer *command);
 	bool process(CommandDelPlayer *command);
-	// not for server client bool process(CommandSetCharacter *command);
+	bool process(CommandUpdateTile *command);
+	bool process(CommandShotFired *command);
+	bool process(CommandBombDropped *command);
 
 private:
 	ServerClient();

@@ -79,16 +79,18 @@ void ServerStateInitialize::execute(Server &server, Client &client) const
 			// Send level to client
 			case Client::State::CHARACTER_INITIALIZED:
 				{
+					Level &level (server.getLevel());
+
 					// First send level with the id so he knows which one he is
 					CommandSetLevel cmd;
 					cmd.data.your_id = client.getClientId();
-					strncpy(cmd.data.level, server.getLevelName().c_str(), server.getLevelName().size());
+					strncpy(cmd.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
+					memcpy(&cmd.data.level, &level.level, sizeof(level.level));
+					memcpy(&cmd.data.level_hp, &level.level_hp, sizeof(level.level_hp));
 					client.send(cmd);
 
 
-
 					// Create player object for client, determine starting position from level
-					Level &level (server.getLevel());
 					Player *newplayer = new Player (client.getCharacter(), client.getClientId());
 					GameInputStub *playerinput = new GameInputStub();
 					newplayer->input = playerinput;
@@ -112,7 +114,7 @@ void ServerStateInitialize::execute(Server &server, Client &client) const
 							otherplayer.data.character = player.character;
 							otherplayer.data.x = player.position->x;
 							otherplayer.data.y = player.position->y;
-							otherplayer.data.facingRight = player.current_sprite == SPR_R ? true : false;
+							otherplayer.data.current_sprite = player.current_sprite;
 							client.send(otherplayer);
 
 							// And send others "add player" for this new client
@@ -120,7 +122,7 @@ void ServerStateInitialize::execute(Server &server, Client &client) const
 							otherplayer.data.character = newplayer->character;
 							otherplayer.data.x = newplayer->position->x;
 							otherplayer.data.y = newplayer->position->y;
-							otherplayer.data.facingRight = newplayer->current_sprite == SPR_R ? true : false;
+							otherplayer.data.current_sprite = newplayer->current_sprite;
 							server.getClientById(player.number).send(otherplayer);
 						}
 

@@ -10,5 +10,8 @@
 #include "commands/CommandSetPlayerData.hpp"
 #include "commands/CommandAddPlayer.hpp"
 #include "commands/CommandDelPlayer.hpp"
+#include "commands/CommandUpdateTile.hpp"
+#include "commands/CommandShotFired.hpp"
+#include "commands/CommandBombDropped.hpp"
 
 #endif //__COMMANDS_H___

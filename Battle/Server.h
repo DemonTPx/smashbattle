@@ -46,6 +46,8 @@ public:
 	NetworkMultiplayer &getGame();
 	Client& getClientById(int client_id);
 
+	void sendAll(Command &command);
+
 private:
     Server();
 	~Server();

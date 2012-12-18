@@ -15,6 +15,8 @@ class CommandPong;
 class CommandSetCharacter;
 class CommandSetPlayerData;
 class CommandSetClientData;
+class CommandShotFired;
+class CommandBombDropped;
 class Server;
 
 class Client : public CommandProcessor
@@ -38,6 +40,8 @@ public:
 	bool process(CommandPong *command);
 	bool process(CommandSetCharacter *command);
 	bool process(CommandSetPlayerData *command);
+	bool process(CommandShotFired *command);
+	bool process(CommandBombDropped *command);
 
 	// accessors
 	TCPsocket socket() { return socket_; }

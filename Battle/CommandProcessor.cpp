@@ -16,7 +16,7 @@ void CommandProcessor::receive(int bytes_received, const char * const buffer)
 	buffer_idx_ += bytes_received;
 }
 
-
+#include "log.h"
 bool CommandProcessor::parse()
 {
 	size_t processed = 0;
@@ -33,6 +33,7 @@ bool CommandProcessor::parse()
 
 				cmd.get()->print();
 
+				log(format("Received packet of type %d", expectRequestFor_), Logger::Priority::DEBUG);
 				process(std::move(cmd));
 
 				expectRequestFor_ = 0;

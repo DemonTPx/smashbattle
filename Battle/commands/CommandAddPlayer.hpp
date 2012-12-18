@@ -24,7 +24,7 @@ public:
 
 		Sint16 x;
 		Sint16 y;
-		bool facingRight;
+		int current_sprite;
 
 		// Health et.al.
 

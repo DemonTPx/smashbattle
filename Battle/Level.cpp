@@ -8,6 +8,7 @@
 #include "Main.h"
 #include "Gameplay.h"
 #include "Level.h"
+#include "util/ServerUtil.h"
 
 const int Level::LEVEL_COUNT = 16;
 const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
@@ -751,9 +752,27 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 			pos = tile_pos(wx, y);
 
 			if(!tile[pos].indestructible) {
-				level_hp[pos] -= damage;
-				if(level_hp[pos] <= 0)
-					level[pos] = -1;
+				switch (Main::runmode) {
+					case Main::RunModes::CLIENT:
+						// Server handles this, we update level_hp and level through receiving
+						//  CommandUpdateTile's
+						break;
+					case Main::RunModes::SERVER:
+
+						level_hp[pos] -= damage;
+						if(level_hp[pos] <= 0)
+							level[pos] = -1;
+
+						// Server will send all clients an update regarding this block
+						server_util::update_tile(pos, level_hp[pos]);
+
+						break;
+					default:
+						level_hp[pos] -= damage;
+						if(level_hp[pos] <= 0)
+							level[pos] = -1;
+						break;
+				}
 			}
 		}
 	}
