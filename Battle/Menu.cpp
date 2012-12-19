@@ -35,8 +35,8 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-const int Menu::ITEMCOUNT = 4;
-const char * Menu::item[ITEMCOUNT] = {"MISSIONS", "MULTIPLAYER", "OPTIONS", "QUIT"};
+const int Menu::ITEMCOUNT = /*4*/ 3;
+const char * Menu::item[ITEMCOUNT] = {/*"MISSIONS", */"MULTIPLAYER", "OPTIONS", "QUIT"};
 
 Menu::Menu() {
 }
@@ -215,7 +215,7 @@ void Menu::process_cursor() {
 
 void Menu::select() {
 	Main::audio->play(SND_SELECT);
-	switch(selected_item) {
+	switch(selected_item + 1) {
 		case 0:
 			start_missions();
 			break;
