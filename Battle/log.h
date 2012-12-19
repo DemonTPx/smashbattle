@@ -1,6 +1,7 @@
 #ifndef __LOG_HPP__
 #define __LOG_HPP__
 
+#include <stdexcept>
 #include <iostream>
 #include <vector>
 #include <string>

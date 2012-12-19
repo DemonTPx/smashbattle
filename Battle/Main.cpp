@@ -1,6 +1,5 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_mixer.h"
-#include "SDL/SDL_ttf.h"
 
 #include <cstdio>
 #include <iostream>
@@ -75,7 +74,7 @@ unsigned int Main::last_activity = 0;
 bool Main::autoreset = true;
 bool Main::is_reset = false;
 
-Main::RunModes Main::runmode = Main::RunModes::ARCADE;
+MainRunModes Main::runmode = MainRunModes::ARCADE;
 
 Main::Main()
 {
@@ -131,7 +130,7 @@ bool Main::init() {
 	}
 	input_master = NULL;
 
-	if (Main::runmode == Main::RunModes::SERVER) {
+	if (Main::runmode == MainRunModes::SERVER) {
 		// In case we need to do a level select we need to have a master input already
 		Main::instance->input_master = input[0];
 		Main::instance->input_master->set_delay(20);
@@ -247,24 +246,24 @@ void Main::handle_event(SDL_Event * event) {
 
 	/* A server can only be closed with ESCAPE */
 	if(event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
-		if (Main::runmode == Main::RunModes::SERVER)
+		if (Main::runmode == MainRunModes::SERVER)
 			running = false;
 	}
 
 	/* Catch quit event and ALT-F4 */
 	if(event->type == SDL_QUIT) {
-		if (Main::runmode != Main::RunModes::SERVER)
+		if (Main::runmode != MainRunModes::SERVER)
 			running = false;
 	}
 	if(event->type == SDL_KEYDOWN) {
 		if(event->key.keysym.mod & KMOD_ALT) {
-			if(event->key.keysym.sym == SDLK_F4 && Main::runmode != Main::RunModes::SERVER) {
+			if(event->key.keysym.sym == SDLK_F4 && Main::runmode != MainRunModes::SERVER) {
 				running = false;
 			}
 		}
 		if(event->key.keysym.sym == SDLK_F1) {
 			// Toggle console in case we're in client mode
-			if (Main::runmode == Main::RunModes::CLIENT && ServerClient::getInstance().isConnected())
+			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
 				ServerClient::getInstance().toggleConsole();
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
@@ -290,7 +289,7 @@ void Main::handle_event(SDL_Event * event) {
 	}
 }
 
-int Main::run(const Main::RunModes &runmode) 
+int Main::run(const MainRunModes &runmode) 
 {
 
 	Main::runmode = runmode;
@@ -307,7 +306,7 @@ int Main::run(const Main::RunModes &runmode)
 
 	switch (runmode)
 	{
-		case Main::RunModes::ARCADE:
+		case MainRunModes::ARCADE:
 			{
 				Menu menu;
 
@@ -316,7 +315,7 @@ int Main::run(const Main::RunModes &runmode)
 			}
 			break;
 
-		case Main::RunModes::SERVER:
+		case MainRunModes::SERVER:
 			running = true;
 			while (Server::active() && running)
 			{
@@ -335,7 +334,7 @@ int Main::run(const Main::RunModes &runmode)
 				multiplayer.run();
 			}
 			break;
-		case Main::RunModes::CLIENT:
+		case MainRunModes::CLIENT:
 			fps_counter_visible = true;
 
 			ClientNetworkMultiplayer clientgame;
@@ -401,7 +400,7 @@ int main(int argc, char* args[])
 			
 			Server::getInstance().setState(new ServerStateInitialize(level, stoi(strport)));
 
-			return main.run(Main::RunModes::SERVER);
+			return main.run(MainRunModes::SERVER);
 		}
 
 		// Usage smashbattle smashbattle://localhost:1100/ --> connect to server at host localhost port 1100
@@ -416,11 +415,11 @@ int main(int argc, char* args[])
 				ServerClient::getInstance().setHost(host);
 				ServerClient::getInstance().setPort(atoi(port));
 
-				return main.run(Main::RunModes::CLIENT);
+				return main.run(MainRunModes::CLIENT);
 			}
 		}
 	}
-	return main.run(Main::RunModes::ARCADE);
+	return main.run(MainRunModes::ARCADE);
 }
 
 void Main::load_options() {

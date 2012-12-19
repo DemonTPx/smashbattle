@@ -8,6 +8,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_net.h"
 
+#include <stdexcept>
 #include <vector>
 #include <iostream>
 

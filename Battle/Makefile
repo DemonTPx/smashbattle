@@ -1,6 +1,7 @@
 CC=g++
-CFLAGS=-c -Wall
-LDFLAGS=-lSDL -lSDL_mixer -lz -lstdc++
+CFLAGS=-c -Wall -std=c++11 -I./
+LDFLAGS=-lz -lstdc++ 
+LDPOSTFLAGS= `sdl-config --libs` -lSDL -lSDL_mixer -lSDL_net
 SRCS=Airstrike.cpp\
 	AirstrikePowerUp.cpp\
 	AmmoPowerUp.cpp\
@@ -11,6 +12,10 @@ SRCS=Airstrike.cpp\
 	CannonNPC.cpp\
 	CharacterSelect.cpp\
 	ChickNPC.cpp\
+	Client.cpp\
+	ClientNetworkMultiplayer.cpp\
+	CommandProcessor.cpp\
+	Commands.cpp\
 	ControlsOptions.cpp\
 	DoubleDamagePowerUp.cpp\
 	GameInput.cpp\
@@ -26,30 +31,41 @@ SRCS=Airstrike.cpp\
 	LevelSelect.cpp\
 	LocalMultiplayer.cpp\
 	LocalMultiplayerRoundEnd.cpp\
+	log.cpp\
 	Main.cpp\
 	Menu.cpp\
 	Mine.cpp\
 	MinePowerUp.cpp\
 	Mission.cpp\
 	MissionSelect.cpp\
+	NetworkMultiplayer.cpp\
 	NPC.cpp\
 	Options.cpp\
 	OptionsScreen.cpp\
 	PauseMenu.cpp\
-	Player.cpp\
 	PlayerAnimation.cpp\
+	Player.cpp\
 	Projectile.cpp\
 	RandomPowerUp.cpp\
+	ServerClient.cpp\
+	Server.cpp\
 	ShieldPowerUp.cpp\
+	states/ServerState.cpp\
+	states/ServerStateInactive.cpp\
+	states/ServerStateInitialize.cpp\
 	Text.cpp\
-	Timer.cpp
+	Timer.cpp\
+	Util.cpp\
+	util/LevelUtil.cpp\
+	util/PlayerUtil.cpp\
+	util/ServerUtil.cpp
 OBJS=$(SRCS:.cpp=.o)
 EXECUTABLE=battle
 
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJS)
-	$(CC) $(LDFLAGS) $(OBJS) -o battle
+	$(CC) $(LDFLAGS) $(OBJS) -o battle $(LDPOSTFLAGS)
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

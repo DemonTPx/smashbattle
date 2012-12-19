@@ -1,5 +1,6 @@
 #include "SDL/SDL.h"
 
+#include <stdexcept>
 #include "Player.h"
 #include "Level.h"
 

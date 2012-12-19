@@ -22,12 +22,28 @@ Client::Client()
 	  
 {}	
 
+Client::Client(Client &&other) 
+	: CommandProcessor(NULL),
+	  test(0),
+
+	  lag_(INITIAL_LAG_TESTS), 
+	  lastLagTime_(0),
+	  initialLagTests_(INITIAL_LAG_TESTS),
+	  server_(NULL),
+
+	  currentState_(Client::State::CONNECTING)
+	  
+{}	
+
 Client & Client::operator=(Client&& other)
 {
-	// The parameters from 'normal' constructor
-	this->client_id_ = other.client_id_;
-	this->set_socket(other.socket_);
-	this->server_ = other.server_;
+	if (this != &other)
+	{
+		// The parameters from 'normal' constructor
+		this->client_id_ = other.client_id_;
+		this->set_socket(other.socket_);
+		this->server_ = other.server_;
+	}
 	
 	return *this; 
 }

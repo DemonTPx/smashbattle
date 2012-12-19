@@ -7,7 +7,7 @@ class CharacterSelect {
 public:
 	CharacterSelect();
 
-	CharacterSelect::CharacterSelect(int max_possible_players, int required_num_players);
+	CharacterSelect(int max_possible_players, int required_num_players);
 	
 	void run();
 

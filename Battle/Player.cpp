@@ -270,7 +270,7 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 	}
 
 	// Show lag above player if server is active
-	if (Main::runmode == Main::RunModes::SERVER) {
+	if (Main::runmode == MainRunModes::SERVER) {
 		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f", server_util::get_lag_for(*this)).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
@@ -720,7 +720,7 @@ bool Player::damage(int damage) {
 			if (hitpoints < 0)
 				hitpoints = 0;
 			break;
-		case Main::RunModes::SERVER:
+		case MainRunModes::SERVER:
 			{
 				hitpoints -= damage;
 				if (hitpoints < 0)
@@ -734,7 +734,7 @@ bool Player::damage(int damage) {
 				Server::getInstance().sendAll(points);
 			}
 			break;
-		case Main::RunModes::CLIENT:
+		case MainRunModes::CLIENT:
 			break;
 	}
 
@@ -753,7 +753,7 @@ void Player::process() {
 		{
 			Projectile *proj = create_projectile(position->x, position->y);
 
-			if (Main::runmode == Main::RunModes::CLIENT && ServerClient::getInstance().isConnected())
+			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
 			{
 				CommandShotFired fire;
 				fire.data.time = SDL_GetTicks();
@@ -774,7 +774,7 @@ void Player::process() {
 		{
 			Bomb *newbomb = create_bomb_for_player(position->x, position->y);
 			
-			if (Main::runmode == Main::RunModes::CLIENT && ServerClient::getInstance().isConnected())
+			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
 			{
 				CommandBombDropped bomb;
 				bomb.data.time = SDL_GetTicks();

@@ -104,10 +104,10 @@ void Gameplay::run() {
 					p->move(level);
 					switch (Main::runmode)
 					{
-						case Main::RunModes::SERVER:
+						case MainRunModes::SERVER:
 							// Server gets projectiles from client through commands
 							break;
-						case Main::RunModes::CLIENT:
+						case MainRunModes::CLIENT:
 							// Client will only process and send it's own projectiles to server, 
 							//  for other player bullets we depend on the server for sending them.
 							if (p->number == ServerClient::getInstance().getClientId())
@@ -185,7 +185,7 @@ void Gameplay::run() {
 			draw_countdown();
 		}
 
-		if (Main::runmode == Main::RunModes::CLIENT)
+		if (Main::runmode == MainRunModes::CLIENT)
 		{
 			if (!ServerClient::getInstance().isConnected())
 				draw_disconnected();
@@ -366,7 +366,7 @@ void Gameplay::reset_game() {
 	strcpy(countdown_pre_text, "GET READY");
 
 	// In ServerClient upon receiving the level from server, we reset already, and then initialize the tiles
-	if (Main::runmode != Main::RunModes::CLIENT)
+	if (Main::runmode != MainRunModes::CLIENT)
 	{
 		level->reset();
 	}
@@ -551,7 +551,7 @@ void Gameplay::process_player_collission() {
 				//  on the server (I learned this by actually implementing it wrong).
 				// Therefore (re)set a timer that will periodically send our data to server.
 				// But we cannot do this 
-				if (Main::runmode == Main::RunModes::CLIENT && ServerClient::getInstance().isConnected()) {
+				if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected()) {
 					CommandSetPlayerData mydata;
 
 					if (ServerClient::getInstance().getClientId() == p1->number || ServerClient::getInstance().getClientId() == p2->number) {

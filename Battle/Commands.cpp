@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 
 #include "Commands.hpp"
+#include <stdexcept>
 
 std::unique_ptr<Command> Command::factory(Command::Types type)
 {

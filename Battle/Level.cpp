@@ -753,11 +753,11 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 
 			if(!tile[pos].indestructible) {
 				switch (Main::runmode) {
-					case Main::RunModes::CLIENT:
+					case MainRunModes::CLIENT:
 						// Server handles this, we update level_hp and level through receiving
 						//  CommandUpdateTile's
 						break;
-					case Main::RunModes::SERVER:
+					case MainRunModes::SERVER:
 
 						level_hp[pos] -= damage;
 						if(level_hp[pos] <= 0)

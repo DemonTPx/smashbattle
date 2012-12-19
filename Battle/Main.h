@@ -20,6 +20,14 @@ struct SaveHeader {
 	short version;
 };
 
+enum MainRunModes
+{ 
+	ARCADE,
+	SERVER,
+	CLIENT
+};
+
+
 class Main {
 public:
 	static Main * instance;
@@ -44,8 +52,7 @@ public:
 
 	static const int JOYSTICK_AXIS_THRESHOLD;
 
-	static enum RunModes { ARCADE, SERVER, CLIENT };
-	static Main::RunModes runmode;
+	static MainRunModes runmode;
 
 	static Timer * fps;
 
@@ -69,7 +76,7 @@ public:
 
 	Main();
 	~Main();
-	int run(const Main::RunModes &);
+	int run(const MainRunModes &);
 	void flip(bool no_cap = false);
 	void handle_event(SDL_Event * event);
 private:

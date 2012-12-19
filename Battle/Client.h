@@ -33,6 +33,7 @@ public:
 
 
 	Client(int client_id, TCPsocket socket, Server * const server);
+	Client(Client &&other);
 	Client & operator=(Client&& other);
 
 	bool process(std::unique_ptr<Command> command);

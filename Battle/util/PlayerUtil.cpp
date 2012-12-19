@@ -1,6 +1,8 @@
 #include "SDL/SDL.h"
 #include "Player.h"
 
+#include <stdexcept>
+
 #include "commands/CommandSetPlayerData.hpp"
 #include "ServerClient.h" // todo refactor this
 #include "Server.h" // todo refactor this
@@ -77,9 +79,9 @@ namespace player_util
 	Player &get_player_by_id(char client_id)
 	{
 		Gameplay * game = NULL;
-		if (Main::runmode == Main::RunModes::CLIENT)
+		if (Main::runmode == MainRunModes::CLIENT)
 			game = &ServerClient::getInstance().getGame();
-		else if (Main::runmode == Main::RunModes::SERVER)
+		else if (Main::runmode == MainRunModes::SERVER)
 			game = &Server::getInstance().getGame();
 
 		auto &players = *(*game).players;

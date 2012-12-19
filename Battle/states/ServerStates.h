@@ -1,6 +1,8 @@
 #ifndef __SERVER_STATES_H__
 #define __SERVER_STATES_H__
 
+#include <typeinfo>
+
 #include "ServerState.h"
 
 #include "states/ServerStateInactive.h"
