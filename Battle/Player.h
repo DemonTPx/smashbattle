@@ -52,6 +52,7 @@ namespace player_util
 {
 	void set_position_data(CommandSetPlayerData &data, char client_id, Uint32 time, Player &player);
 	void set_player_data(Player &player, CommandSetPlayerData &data);
+	Player &get_player_by_id(char client_id);
 }
 
 class Projectile;

@@ -23,6 +23,7 @@
 #include "util/LagMeasure.hpp"
 
 
+class Gameplay;
 class ClientNetworkMultiplayer;
 class Level;
 class Player;
@@ -39,6 +40,8 @@ class CommandDelPlayer;
 class CommandUpdateTile;
 class CommandShotFired;
 class CommandBombDropped;
+class CommandSetHitPoints;
+class CommandSetPlayerAmmo;
 
 class ServerClient : public CommandProcessor
 {
@@ -85,8 +88,12 @@ public:
 	ServerClient::State getState() { return currentState_; }
 
 	LagMeasure &getLag() { return lag; }
+	Gameplay &getGame();
 
 	char getClientId() { return my_id_; }
+
+	void resetTimer() { lastResetTimer_ = SDL_GetTicks(); }
+	Uint32 getResetTimer() { return lastResetTimer_; }
 
 protected:
 	bool process(std::unique_ptr<Command> command);
@@ -101,6 +108,8 @@ protected:
 	bool process(CommandUpdateTile *command);
 	bool process(CommandShotFired *command);
 	bool process(CommandBombDropped *command);
+	bool process(CommandSetHitPoints *command);
+	bool process(CommandSetPlayerAmmo *command);
 
 private:
 	ServerClient();
@@ -140,6 +149,8 @@ private:
 	ClientNetworkMultiplayer * game_;
 	Level * level_;
 	Player * player_;
+
+	Uint32 lastResetTimer_;
 };
 
 

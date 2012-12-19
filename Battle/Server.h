@@ -9,6 +9,7 @@
 #include "Level.h"
 
 class ServerState;
+class Gameplay;
 class NetworkMultiplayer;
 
 #include "util/ServerUtil.h"
@@ -43,7 +44,7 @@ public:
 
 	Uint32 getServerTime() { return serverTime_; }
 
-	NetworkMultiplayer &getGame();
+	Gameplay &getGame();
 	Client& getClientById(int client_id);
 
 	void sendAll(Command &command);

@@ -44,8 +44,18 @@ void Server::setLevel(std::string level)
 	levelName_ = level;
 	
 }
+
+#include "LevelSelect.h"
 void Server::initializeLevel()
 {
+	if (levelName_ == "")
+	{
+		// A bit dirty to do this here, but it works :)
+		LevelSelect ls;
+		ls.run();
+		levelName_.assign(Level::LEVELS[ls.level].name);
+
+	}
 	level_.load(level_util::get_filename_by_name(levelName_).c_str());
 }
 
@@ -55,7 +65,7 @@ void Server::initializeGame(NetworkMultiplayer &game)
 }
 
 
-NetworkMultiplayer & Server::getGame()
+Gameplay & Server::getGame()
 {
 	return *game_;
 }
@@ -164,7 +174,7 @@ void Server::poll()
 		Client &client(i->second);
 		if(SDLNet_SocketReady(client.socket()))
 		{
-			char buffer[512] = {0x00};
+			char buffer[16384] = {0x00};
 			int bytesReceived = SDLNet_TCP_Recv(client.socket(), buffer, sizeof(buffer));
 
 			if (bytesReceived > 0)

@@ -517,12 +517,12 @@ bool Gameplay::is_intersecting(SDL_Rect * one, SDL_Rect * two) {
 }
 
 
+#include "commands/CommandSetPlayerData.hpp"
 void Gameplay::process_player_collission() {
 	if(!players_collide)
 		return;
 
 	Player * p1, * p2;
-	SDL_Rect * r1, * r2;
 
 	for(unsigned int i1 = 0; i1 < players->size(); i1++) {
 		p1 = players->at(i1);
@@ -534,10 +534,10 @@ void Gameplay::process_player_collission() {
 
 			if(p2->is_dead) continue;
 
-			r1 = p1->get_rect();
-			r2 = p2->get_rect();
+			std::unique_ptr<SDL_Rect> r1 (p1->get_rect());
+			std::unique_ptr<SDL_Rect> r2 (p2->get_rect());
 
-			if(is_intersecting(r1, r2)) {
+			if(is_intersecting(r1.get(), r2.get())) {
 				Main::audio->play(SND_BOUNCE, (p1->position->x + p2->position->x) / 2);
 
 				p1->bounce(p2);
@@ -545,10 +545,20 @@ void Gameplay::process_player_collission() {
 
 				p1->momentumx = p1->newmomentumx;
 				p2->momentumx = p2->newmomentumx;
-			}
 
-			delete r1;
-			delete r2;
+				// We re-send our position to the server if we bounced someone, just in case some bounce didn't happen on the server.
+				//  We cannot however send this update immediately, because if we send the new position *we* know of now, we may not bounce
+				//  on the server (I learned this by actually implementing it wrong).
+				// Therefore (re)set a timer that will periodically send our data to server.
+				// But we cannot do this 
+				if (Main::runmode == Main::RunModes::CLIENT && ServerClient::getInstance().isConnected()) {
+					CommandSetPlayerData mydata;
+
+					if (ServerClient::getInstance().getClientId() == p1->number || ServerClient::getInstance().getClientId() == p2->number) {
+						ServerClient::getInstance().resetTimer();
+					}
+				}
+			}
 		}
 	}
 }

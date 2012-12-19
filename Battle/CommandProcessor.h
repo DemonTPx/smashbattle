@@ -34,7 +34,7 @@ public:
 
 	TCPsocket socket_;
 	// received
-	char buffer_[8192];
+	char buffer_[32768];
 	int buffer_idx_;
 	char expectRequestFor_;
 

@@ -13,5 +13,7 @@
 #include "commands/CommandUpdateTile.hpp"
 #include "commands/CommandShotFired.hpp"
 #include "commands/CommandBombDropped.hpp"
+#include "commands/CommandSetHitPoints.hpp"
+#include "commands/CommandSetPlayerAmmo.hpp"
 
 #endif //__COMMANDS_H___

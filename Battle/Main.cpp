@@ -131,6 +131,12 @@ bool Main::init() {
 	}
 	input_master = NULL;
 
+	if (Main::runmode == Main::RunModes::SERVER) {
+		// In case we need to do a level select we need to have a master input already
+		Main::instance->input_master = input[0];
+		Main::instance->input_master->set_delay(20);
+	}
+
 	return true;
 }
 
@@ -283,10 +289,14 @@ void Main::handle_event(SDL_Event * event) {
 		last_activity = frame;
 	}
 }
-int Main::run(const Main::RunModes &runmode) {
-	if(!init()) return 1;
+
+int Main::run(const Main::RunModes &runmode) 
+{
 
 	Main::runmode = runmode;
+
+	if(!init()) return 1;
+
 
 	frame_delay = 1000 / FRAMES_PER_SECOND;
 	frame = 0;
@@ -373,9 +383,20 @@ int main(int argc, char* args[])
 		}
 		
 		// Usage smashbattle -s "TRAINING DOJO" 1100 --> start server on port 1100 with level "TRAINING DOJO"
-		else if(strcmp(args[1], "-s") == 0 && argc > 3) {
-			string level(string(args[2]).substr(0, 80));
-			string strport(string(args[3]).substr(0, 5));
+		else if(strcmp(args[1], "-s") == 0 && argc >= 2) {
+			string level, strport;
+			if (argc == 2) {
+				strport = "1100";
+			}
+			else if (argc == 3) {
+				strport = string(args[2]).substr(0, 5);
+			}
+			else if (argc == 4) {
+				// Get level from param
+				level = string(args[2]).substr(0, 80);
+				strport = string(args[3]).substr(0, 5);
+			}
+
 			log(format("program started with -s flag, parsed level %s and port %d", level.c_str(), stoi(strport)), Logger::Priority::INFO);
 			
 			Server::getInstance().setState(new ServerStateInitialize(level, stoi(strport)));

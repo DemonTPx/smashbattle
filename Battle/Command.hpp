@@ -22,6 +22,8 @@ public:
 		UpdateTile = 0x0A,
 		ShotFired = 0x0B,
 		BombDropped = 0x0C,
+		SetHitPoints = 0x0D,
+		SetPlayerAmmo = 0x0E
 	};
 
 	Command::Types getType() const { return type_; }

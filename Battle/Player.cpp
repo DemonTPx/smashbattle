@@ -4,6 +4,8 @@
 
 #include "Main.h"
 
+#include "ServerClient.h"
+#include "Server.h"
 #include "Projectile.h"
 #include "Bomb.h"
 #include "Mine.h"
@@ -12,6 +14,9 @@
 #include "Player.h"
 #include "log.h"
 #include "util/ServerUtil.h"
+#include "commands/CommandShotFired.hpp"
+#include "commands/CommandBombDropped.hpp"
+#include "commands/CommandSetHitPoints.hpp"
 
 #define BULLETS_UNLIMITED -1
 
@@ -709,17 +714,33 @@ bool Player::damage(int damage) {
 	is_hit = true;
 	hit_start = Gameplay::frame;
 
-	hitpoints -= damage;
+	switch (Main::runmode) {
+		default:
+			hitpoints -= damage;
+			if (hitpoints < 0)
+				hitpoints = 0;
+			break;
+		case Main::RunModes::SERVER:
+			{
+				hitpoints -= damage;
+				if (hitpoints < 0)
+					hitpoints = 0;
 
-	if(hitpoints < 0)
-		hitpoints = 0;
+				CommandSetHitPoints points;
+				points.data.time = SDL_GetTicks();
+				points.data.client_id = number;
+				points.data.hitpoints = hitpoints;
+
+				Server::getInstance().sendAll(points);
+			}
+			break;
+		case Main::RunModes::CLIENT:
+			break;
+	}
 
 	return true;
 }
 
-#include "ServerClient.h"
-#include "commands/CommandShotFired.hpp"
-#include "commands/CommandBombDropped.hpp"
 void Player::process() {
 	if(is_dead)
 		return;

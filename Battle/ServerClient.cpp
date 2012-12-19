@@ -21,7 +21,8 @@ ServerClient::ServerClient()
 	  lag(INITIAL_LAG_TESTS),
 	  game_(NULL),
 	  level_(NULL),
-	  my_id_(0x00)
+	  my_id_(0x00),
+	  lastResetTimer_(0)
 {
 }
 
@@ -104,6 +105,25 @@ void ServerClient::poll()
 	}
 
 
+	// Send update if ResetTimer was not reset for 200 milliseconds
+	// To generally fix out of sync errors if they occur
+	if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED)
+	{
+		if ((SDL_GetTicks() - ServerClient::getInstance().getResetTimer()) > 200)
+		{
+			CommandSetPlayerData pos;
+			try {
+				player_util::set_position_data(pos, getClientId(), SDL_GetTicks(), player_util::get_player_by_id(getClientId()));
+				ServerClient::getInstance().resetTimer();
+				ServerClient::getInstance().send(pos);
+			}
+			catch (std::runtime_error &err) {
+				log(err.what(), Logger::Priority::ERROR);
+			}
+		}
+	}
+
+
 	/* we poll keyboard every 1/10th of a second...simpler than threads */
 	/* this is fine for a text application */
 		
@@ -118,7 +138,7 @@ void ServerClient::poll()
 	/* check to see if the server sent us data */
 	if(numready && SDLNet_SocketReady(sock))
 	{
-		char buffer[512] = {0x00};
+		char buffer[16384] = {0x00};
 		int bytesReceived = SDLNet_TCP_Recv(sock, buffer, sizeof(buffer));
 
 		if (bytesReceived > 0)
@@ -173,6 +193,13 @@ void ServerClient::test()
 	this->send(command);
 }
 
+Gameplay &ServerClient::getGame()
+{
+
+	return *game_;
+}
+
+
 
 bool ServerClient::process(std::unique_ptr<Command> command)
 {
@@ -209,6 +236,12 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 			break;
 		case Command::Types::BombDropped:
 			process(dynamic_cast<CommandBombDropped *>(command.get()));
+			break;
+		case Command::Types::SetHitPoints:
+			process(dynamic_cast<CommandSetHitPoints *>(command.get()));
+			break;
+		case Command::Types::SetPlayerAmmo:
+			process(dynamic_cast<CommandSetPlayerAmmo *>(command.get()));
 			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
@@ -397,5 +430,34 @@ bool ServerClient::process(CommandBombDropped *command)
 			return true;
 		}
 	}
+	return true;
+}
+
+bool ServerClient::process(CommandSetHitPoints *command)
+{
+	try {
+		Player &player(player_util::get_player_by_id(command->data.client_id));
+
+		log("Procesing hit point!", Logger::Priority::CONSOLE);
+		player.hitpoints = command->data.hitpoints;
+	}
+	catch (std::runtime_error &err) {
+		log(err.what(), Logger::Priority::CONSOLE);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandSetPlayerAmmo *command)
+{
+	try {
+		Player &player(player_util::get_player_by_id(command->data.client_id));
+
+		player.bombs = command->data.bombs;
+	}
+	catch (std::runtime_error &err) {
+		log(err.what(), Logger::Priority::CONSOLE);
+	}
+
 	return true;
 }

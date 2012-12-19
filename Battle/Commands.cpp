@@ -31,6 +31,10 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandShotFired());
 		case Command::Types::BombDropped:
 			return std::unique_ptr<Command>(new CommandBombDropped());
+		case Command::Types::SetHitPoints:
+			return std::unique_ptr<Command>(new CommandSetHitPoints());
+		case Command::Types::SetPlayerAmmo:
+			return std::unique_ptr<Command>(new CommandSetPlayerAmmo());
 	}
 	throw std::runtime_error("failure");
 }

@@ -3,6 +3,9 @@
 
 #include "commands/CommandSetPlayerData.hpp"
 #include "ServerClient.h" // todo refactor this
+#include "Server.h" // todo refactor this
+#include "Gameplay.h"
+
 namespace player_util
 {
 	void set_position_data(CommandSetPlayerData &playerpos, char client_id, Uint32 time, Player &player)
@@ -69,5 +72,22 @@ namespace player_util
 		player.is_falling = command.data.is_falling;
 		//player.cycle_direction = command.data.cycle_direction;
 		//player.distance_walked = command.data.distance_walked;
+	}
+
+	Player &get_player_by_id(char client_id)
+	{
+		Gameplay * game = NULL;
+		if (Main::runmode == Main::RunModes::CLIENT)
+			game = &ServerClient::getInstance().getGame();
+		else if (Main::runmode == Main::RunModes::SERVER)
+			game = &Server::getInstance().getGame();
+
+		auto &players = *(*game).players;
+		for (auto i = players.begin(); i != players.end(); i++) {
+			auto &player = **i;
+			if (player.number == client_id)
+				return player;
+		}
+		throw std::runtime_error("player not found by id");
 	}
 }

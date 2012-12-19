@@ -30,7 +30,8 @@ void ServerStateInitialize::initialize(Server &server) const
 	server.setPort(port_);
 }
 
-
+// Todo : maybe more protocol related stuff should be in here,
+//   and move the rest to pre and post processing in NetworkMultiplayer
 void ServerStateInitialize::execute(Server &server, Client &client) const
 {
 	Uint32 servertime = server.getServerTime();
@@ -39,6 +40,36 @@ void ServerStateInitialize::execute(Server &server, Client &client) const
 		client.setLastLagTime(servertime);
 		return;
 	}
+
+	//// temp hack, does not belong here at all, just want to make the network proof of concept a little more interesting :p
+	static Uint32 lastlevelReset = server.getServerTime();
+	// Reset level state every 30 secs
+	if ((server.getServerTime() - lastlevelReset) > 30000)
+	{
+		server.getLevel().reset();
+
+		CommandSetLevel lvl;
+		strncpy(lvl.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
+		memcpy(&lvl.data.level, &server.getLevel().level, sizeof(server.getLevel().level));
+		memcpy(&lvl.data.level_hp, &server.getLevel().level_hp, sizeof(server.getLevel().level_hp));
+
+		auto &players = *(server.getGame().players);
+		for (auto i= players.begin(); i!=players.end(); i++)
+		{
+			auto &player = **i;
+
+			lvl.data.your_id = player.number;
+			server.getClientById(player.number).send(lvl);
+
+			CommandSetPlayerData pd;
+			level_util::set_player_start(player, server.getLevel());
+			player_util::set_position_data(pd, player.number, servertime, player);
+			server.sendAll(pd);
+		}
+
+		lastlevelReset = server.getServerTime();
+	}
+	///
 
 	if (client.getInitialLagTests()) {
 		// Make sure player has all initial lag tests
@@ -130,6 +161,20 @@ void ServerStateInitialize::execute(Server &server, Client &client) const
 						CommandSetPlayerData playerpos;
 						player_util::set_position_data(playerpos, player.number, server.getServerTime(), player);
 						client.send(playerpos);
+
+						// Send the client player 's health
+						CommandSetHitPoints points;
+						points.data.time = server.getServerTime();
+						points.data.client_id = player.number;
+						points.data.hitpoints = player.hitpoints;
+						client.send(points);
+
+						// Send the client player's ammo
+						CommandSetPlayerAmmo ammo;
+						ammo.data.time = server.getServerTime();
+						ammo.data.client_id = player.number;
+						ammo.data.bombs = 3;
+						client.send(ammo);
 					}
 
 					client.setState(Client::State::ACTIVE);
@@ -138,8 +183,36 @@ void ServerStateInitialize::execute(Server &server, Client &client) const
 
 			// For now the client is initialized (it knows the other players)
 			case Client::State::ACTIVE:
-				break;
+				Player &player(player_util::get_player_by_id(client.getClientId()));
+				if (player.is_dead) {
 
+					// Do something fancy here
+					player.hitpoints = 100;
+					CommandSetHitPoints hp;
+					hp.data.time = server.getServerTime();
+					hp.data.client_id = client.getClientId();
+					hp.data.hitpoints = player.hitpoints;
+					server.sendAll(hp);
+
+					Level &level (server.getLevel());
+					level_util::set_player_start(player, level);
+
+					CommandSetPlayerData pd;
+					player_util::set_position_data(pd, client.getClientId(), server.getServerTime(), player);
+					server.sendAll(pd);
+
+					player.is_dead = false;
+					player.bombs = 3;
+
+					// Send the client player's ammo
+					CommandSetPlayerAmmo ammo;
+					ammo.data.time = server.getServerTime();
+					ammo.data.client_id = player.number;
+					ammo.data.bombs = 3;
+					server.sendAll(ammo);
+
+				}
+				break;
 		}
 	}
 }
