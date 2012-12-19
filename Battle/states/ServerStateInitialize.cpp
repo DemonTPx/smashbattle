@@ -173,7 +173,7 @@ void ServerStateInitialize::execute(Server &server, Client &client) const
 						CommandSetPlayerAmmo ammo;
 						ammo.data.time = server.getServerTime();
 						ammo.data.client_id = player.number;
-						ammo.data.bombs = 3;
+						ammo.data.bombs = player.bombs;
 						client.send(ammo);
 					}
 
