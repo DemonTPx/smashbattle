@@ -9,8 +9,6 @@ class ServerStateInactive : public ServerState
 public:
 	ServerStateInactive();
 
-	int test() const ;
-
 	const std::string type() const { return typeid(this).name(); }
 };
 

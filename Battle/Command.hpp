@@ -23,7 +23,12 @@ public:
 		ShotFired = 0x0B,
 		BombDropped = 0x0C,
 		SetHitPoints = 0x0D,
-		SetPlayerAmmo = 0x0E
+		SetPlayerAmmo = 0x0E,
+		SetBroadcastText = 0x0F,
+		SetPlayerDeath = 0x10,
+		SetGameEnd = 0x11,
+		SetPlayerScore = 0x12,
+		SetGameStart = 0x13
 	};
 
 	Command::Types getType() const { return type_; }

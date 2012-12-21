@@ -15,5 +15,10 @@
 #include "commands/CommandBombDropped.hpp"
 #include "commands/CommandSetHitPoints.hpp"
 #include "commands/CommandSetPlayerAmmo.hpp"
+#include "commands/CommandSetBroadcastText.hpp"
+#include "commands/CommandSetPlayerDeath.hpp"
+#include "commands/CommandSetGameEnd.hpp"
+#include "commands/CommandSetPlayerScore.hpp"
+#include "commands/CommandSetGameStart.hpp"
 
 #endif //__COMMANDS_H___

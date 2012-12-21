@@ -162,7 +162,8 @@ void LocalMultiplayer::on_post_processing() {
 		}
 
 		// Generate powerup
-		generate_powerup();
+		if (Main::runmode == MainRunModes::ARCADE) // temporarily disable for client/server as it is not yet properly supported
+			generate_powerup();
 	}
 }
 

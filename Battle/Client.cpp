@@ -122,6 +122,9 @@ bool Client::process(CommandSetCharacter *command)
 
 bool Client::process(CommandSetPlayerData *command)
 {
+	if (server_->getGame().is_ended())
+		return true;
+
 	Player *updatedPlayer = NULL;
 	auto playersvec = *(server_->getGame().players);
 	for (auto i = playersvec.begin(); i != playersvec.end(); i++)
@@ -195,8 +198,6 @@ bool Client::process(CommandShotFired *command)
 				auto &player = **i;
 				if (player.number != client_id_)
 				{
-					// reuse command
-					// TODO ADD TTL HERE AND EVERYWHERE :P
 					command->data.time = server_->getServerTime();
 					command->data.client_id = client_id_;
 					command->data.x = proj->position->x;
@@ -245,10 +246,6 @@ bool Client::process(CommandBombDropped *command)
 				auto &player = **i;
 				if (player.number != client_id_)
 				{
-					// reuse command
-					// TODO ADD TTL HERE AND EVERYWHERE :P
-					// SECOND fix facing Right or left, want dat bepaald richting van kogels.
-					// neem ook mee in object van dit.
 					command->data.time = server_->getServerTime();
 					command->data.client_id = client_id_;
 					command->data.x = obj->position->x;

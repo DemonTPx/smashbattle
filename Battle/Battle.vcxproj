@@ -145,6 +145,8 @@
     <ClCompile Include="ServerClient.cpp" />
     <ClCompile Include="ShieldPowerUp.cpp" />
     <ClCompile Include="states\ServerState.cpp" />
+    <ClCompile Include="states\ServerStateAcceptClients.cpp" />
+    <ClCompile Include="states\ServerStateGameStarted.cpp" />
     <ClCompile Include="states\ServerStateInactive.cpp" />
     <ClCompile Include="states\ServerStateInitialize.cpp" />
     <ClCompile Include="Text.cpp" />
@@ -176,11 +178,16 @@
     <ClInclude Include="commands\CommandPing.hpp" />
     <ClInclude Include="commands\CommandPong.hpp" />
     <ClInclude Include="commands\CommandRequestCharacter.hpp" />
+    <ClInclude Include="commands\CommandSetBroadcastText.hpp" />
     <ClInclude Include="commands\CommandSetCharacter.hpp" />
+    <ClInclude Include="commands\CommandSetGameEnd.hpp" />
+    <ClInclude Include="commands\CommandSetGameStart.hpp" />
     <ClInclude Include="commands\CommandSetHitPoints.hpp" />
     <ClInclude Include="commands\CommandSetLevel.hpp" />
     <ClInclude Include="commands\CommandSetPlayerAmmo.hpp" />
     <ClInclude Include="commands\CommandSetPlayerData.hpp" />
+    <ClInclude Include="commands\CommandSetPlayerDeath.hpp" />
+    <ClInclude Include="commands\CommandSetPlayerScore.hpp" />
     <ClInclude Include="commands\CommandSetPosition.hpp" />
     <ClInclude Include="commands\CommandShotFired.hpp" />
     <ClInclude Include="commands\CommandUpdateTile.hpp" />
@@ -220,6 +227,8 @@
     <ClInclude Include="ServerClient.h" />
     <ClInclude Include="ShieldPowerUp.h" />
     <ClInclude Include="states\ServerState.h" />
+    <ClInclude Include="states\ServerStateAcceptClients.h" />
+    <ClInclude Include="states\ServerStateGameStarted.h" />
     <ClInclude Include="states\ServerStateInactive.h" />
     <ClInclude Include="states\ServerStateInitialize.h" />
     <ClInclude Include="states\ServerStates.h" />

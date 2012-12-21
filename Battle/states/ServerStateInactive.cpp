@@ -6,9 +6,3 @@ ServerStateInactive::ServerStateInactive()
 {
 
 }
-
-int ServerStateInactive::test() const
-{
-
-	return 999;
-}

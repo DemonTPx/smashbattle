@@ -31,6 +31,7 @@ public:
 	void poll();
 
 	static bool active();
+	static bool gameStarted();
 
 	void setState(const ServerState * const state);
 
@@ -46,6 +47,7 @@ public:
 
 	Gameplay &getGame();
 	Client& getClientById(int client_id);
+	size_t numActiveClients();
 
 	void sendAll(Command &command);
 

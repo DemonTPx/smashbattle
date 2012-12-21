@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include <string>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,8 +20,11 @@ using std::cout;
 using std::endl;
 using std::map;
 using std::vector;
+using std::string;
 
 #include "NetworkMultiplayer.h"
+#include "states/ServerStateAcceptClients.h"
+#include "commands/CommandSetBroadcastText.hpp"
 
 Server::Server()
 	: is_listening_(false),
@@ -124,6 +128,8 @@ void Server::listen()
 	}
 
 	is_listening_ = true;
+
+	setState(new ServerStateAcceptClients());
 }
 
 void Server::poll() 
@@ -203,6 +209,15 @@ void Server::poll()
 	for (vector<int>::iterator i=dead_clients.begin(); i != dead_clients.end(); i++)
 		clients_.erase(*i);
 
+	if (!dead_clients.empty())
+	{
+		CommandSetBroadcastText broadcast;
+		broadcast.data.time = getServerTime();
+		string text("ANOTHER PLAYER DISCONNECTED");
+		strncpy(broadcast.data.text, text.c_str() , text.length());
+		broadcast.data.duration = 2000;
+		sendAll(broadcast);
+	}
 }
 
 /* create a socket set that has the server socket and all the client sockets */
@@ -235,6 +250,14 @@ bool Server::active()
 	return Server::getInstance().currentState_->type() != "class ServerStateInactive const *"; 
 }
 
+bool Server::gameStarted()
+{
+	if (!Server::getInstance().currentState_)
+		return false;
+
+	return Server::getInstance().currentState_->type() == "class ServerStateGameStarted const *"; 
+}
+
 void Server::setState(const ServerState * const state)
 {
 	if (currentState_ != NULL)
@@ -253,6 +276,16 @@ Client& Server::getClientById(int client_id)
 		return clients_[client_id];
 
 	throw std::runtime_error("client not found by id");
+}
+
+size_t Server::numActiveClients()
+{
+	size_t num = 0;
+	for (map<int, Client>::iterator i=clients_.begin(); i!=clients_.end(); i++)
+		if (i->second.getState() == Client::State::ACTIVE)
+			num++;
+
+	return num;
 }
 
 void Server::sendAll(Command &command)

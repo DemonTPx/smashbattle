@@ -1,15 +1,17 @@
-#ifndef __INCLUDE__SERVERSTATEINITIALIZE_H__
-#define __INCLUDE__SERVERSTATEINITIALIZE_H__
+#ifndef __INCLUDE__SERVERSTATEGAMESTARTED_H__
+#define __INCLUDE__SERVERSTATEGAMESTARTED_H__
 
 #include "ServerState.h"
 
 #include <string>
 
-class ServerStateInitialize : public ServerState
+#include <SDL/SDL_stdinc.h>
+
+class ServerStateGameStarted : public ServerState
 {
 
 public:
-	ServerStateInitialize(std::string level, int port);
+	ServerStateGameStarted();
 
 	const std::string type() const { return typeid(this).name(); }
 
@@ -18,11 +20,9 @@ public:
 	virtual void execute(Server &server, Client &client) const;
 
 private:
-	std::string level_;
-	int port_;
 
 	friend class Server;
 };
 
 
-#endif //__INCLUDE__SERVERSTATEINITIALIZE_H__
+#endif //__INCLUDE__SERVERSTATEGAMESTARTED_H__

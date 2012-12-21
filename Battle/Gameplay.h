@@ -38,6 +38,10 @@ public:
 	void bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source);
 
 	static bool is_intersecting(SDL_Rect * one, SDL_Rect * two);
+
+	bool is_ended() { return ended; }
+	void set_broadcast(std::string msg, int duration);
+
 protected:
 	virtual void initialize();
 	virtual void deinitialize();
@@ -54,6 +58,7 @@ protected:
 	virtual void draw_countdown();
 	virtual void draw_disconnected();
 	virtual void draw_console() {};
+	virtual void draw_broadcast();
 
 	virtual void on_game_reset() = 0;
 
@@ -89,6 +94,9 @@ protected:
 	bool npcs_collide;
 	// Do players collide with NPC's?
 	bool players_npcs_collide;
+
+	std::string broadcast_msg;
+	int broadcast_duration;
 };
 
 #endif

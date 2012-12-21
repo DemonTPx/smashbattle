@@ -45,20 +45,22 @@ namespace player_util
 		//playerpos.data.distance_walked = player.distance_walked;
 	}
 
-	void set_player_data(Player &player, CommandSetPlayerData &command)
+	void set_player_data(Player &player, CommandSetPlayerData &command, bool skip_input)
 	{
 		//data for this client
-		memset(player.input->pressed, 0x00, sizeof(player.input->pressed));
-		short flags = command.data.flags;
-		if (flags & ServerClient::FLAG_LEFT)	player.input->pressed[A_LEFT] = true;
-		if (flags & ServerClient::FLAG_RIGHT) 	player.input->pressed[A_RIGHT] = true;
-		if (flags & ServerClient::FLAG_UP)		player.input->pressed[A_UP] = true;
-		if (flags & ServerClient::FLAG_DOWN)	player.input->pressed[A_DOWN] = true;
-		if (flags & ServerClient::FLAG_JUMP)	player.input->pressed[A_JUMP] = true;
-		if (flags & ServerClient::FLAG_RUN)		player.input->pressed[A_RUN] = true;
-		if (flags & ServerClient::FLAG_SHOOT)	player.input->pressed[A_SHOOT] = true;
-		if (flags & ServerClient::FLAG_BOMB)	player.input->pressed[A_BOMB] = true;
-		if (flags & ServerClient::FLAG_START)	player.input->pressed[A_START] = true;
+		if (!skip_input) {
+			memset(player.input->pressed, 0x00, sizeof(player.input->pressed));
+			short flags = command.data.flags;
+			if (flags & ServerClient::FLAG_LEFT)	player.input->pressed[A_LEFT] = true;
+			if (flags & ServerClient::FLAG_RIGHT) 	player.input->pressed[A_RIGHT] = true;
+			if (flags & ServerClient::FLAG_UP)		player.input->pressed[A_UP] = true;
+			if (flags & ServerClient::FLAG_DOWN)	player.input->pressed[A_DOWN] = true;
+			if (flags & ServerClient::FLAG_JUMP)	player.input->pressed[A_JUMP] = true;
+			if (flags & ServerClient::FLAG_RUN)		player.input->pressed[A_RUN] = true;
+			if (flags & ServerClient::FLAG_SHOOT)	player.input->pressed[A_SHOOT] = true;
+			if (flags & ServerClient::FLAG_BOMB)	player.input->pressed[A_BOMB] = true;
+			if (flags & ServerClient::FLAG_START)	player.input->pressed[A_START] = true;
+		}
 
 		player.position->x =command.data.x;
 		player.position->y =command.data.y;
@@ -91,5 +93,18 @@ namespace player_util
 				return player;
 		}
 		throw std::runtime_error("player not found by id");
+	}
+
+	void unset_input(Player &player)
+	{
+		player.input->pressed[A_LEFT] = false;
+		player.input->pressed[A_RIGHT] = false;
+		player.input->pressed[A_UP] = false;
+		player.input->pressed[A_DOWN] = false;
+		player.input->pressed[A_JUMP] = false;
+		player.input->pressed[A_RUN] = false;
+		player.input->pressed[A_SHOOT] = false;
+		player.input->pressed[A_BOMB] = false;
+		player.input->pressed[A_START] = false;
 	}
 }

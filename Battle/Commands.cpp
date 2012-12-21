@@ -36,6 +36,16 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandSetHitPoints());
 		case Command::Types::SetPlayerAmmo:
 			return std::unique_ptr<Command>(new CommandSetPlayerAmmo());
+		case Command::Types::SetBroadcastText:
+			return std::unique_ptr<Command>(new CommandSetBroadcastText());
+		case Command::Types::SetPlayerDeath:
+			return std::unique_ptr<Command>(new CommandSetPlayerDeath());
+		case Command::Types::SetGameEnd:
+			return std::unique_ptr<Command>(new CommandSetGameEnd());
+		case Command::Types::SetPlayerScore:
+			return std::unique_ptr<Command>(new CommandSetPlayerScore());
+		case Command::Types::SetGameStart:
+			return std::unique_ptr<Command>(new CommandSetGameStart());
 	}
 	throw std::runtime_error("failure");
 }

@@ -13,7 +13,6 @@ public:
 	ServerState();
 	virtual ~ServerState() = 0;
 
-	virtual int test() const = 0;
 	virtual const std::string type() const = 0;
 
 	virtual void initialize(Server &server) const {};

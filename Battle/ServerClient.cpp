@@ -22,7 +22,8 @@ ServerClient::ServerClient()
 	  game_(NULL),
 	  level_(NULL),
 	  my_id_(0x00),
-	  lastResetTimer_(0)
+	  lastResetTimer_(0),
+	  resumeGameTime_(0)
 {
 }
 
@@ -115,12 +116,22 @@ void ServerClient::poll()
 			try {
 				player_util::set_position_data(pos, getClientId(), SDL_GetTicks(), player_util::get_player_by_id(getClientId()));
 				ServerClient::getInstance().resetTimer();
-				ServerClient::getInstance().send(pos);
+
+				// Do not send update to server if we're dead
+				if (!player_->is_dead)
+					ServerClient::getInstance().send(pos);
 			}
 			catch (std::runtime_error &err) {
 				log(err.what(), Logger::Priority::ERROR);
 			}
 		}
+	}
+
+	if (resumeGameTime_ && SDL_GetTicks() >= resumeGameTime_)
+	{
+		resumeGameTime_ = 0;
+
+		game_->set_ended(false);
 	}
 
 
@@ -200,6 +211,17 @@ Gameplay &ServerClient::getGame()
 }
 
 
+void ServerClient::resumeGameIn(short delay)
+{
+	// Substract lag
+
+	delay -= static_cast<short>(lag.avg() + 0.5);
+	if (delay < 0)
+		delay = 0;
+
+	resumeGameTime_ = SDL_GetTicks() + delay;
+}
+
 
 bool ServerClient::process(std::unique_ptr<Command> command)
 {
@@ -242,6 +264,21 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 			break;
 		case Command::Types::SetPlayerAmmo:
 			process(dynamic_cast<CommandSetPlayerAmmo *>(command.get()));
+			break;
+		case Command::Types::SetBroadcastText:
+			process(dynamic_cast<CommandSetBroadcastText *>(command.get()));
+			break;
+		case Command::Types::SetPlayerDeath:
+			process(dynamic_cast<CommandSetPlayerDeath *>(command.get()));
+			break;
+		case Command::Types::SetGameEnd:
+			process(dynamic_cast<CommandSetGameEnd *>(command.get()));
+			break;
+		case Command::Types::SetPlayerScore:
+			process(dynamic_cast<CommandSetPlayerScore *>(command.get()));
+			break;
+		case Command::Types::SetGameStart:
+			process(dynamic_cast<CommandSetGameStart *>(command.get()));
 			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
@@ -315,10 +352,8 @@ bool ServerClient::process(CommandSetPlayerData *command)
 
 	if (my_id_ == command->data.client_id)
 	{
-		// You only receive a SetPlayerData for yourself initially on connect.
-		player_->position->x = command->data.x;
-		player_->position->y = command->data.y;
-		//player_util::set_player_data(player_, *command);
+		// Do not reset inputs!
+		player_util::set_player_data(*player_, *command, true /* no resetting of inputs*/);
 	}
 	else
 	{
@@ -459,5 +494,64 @@ bool ServerClient::process(CommandSetPlayerAmmo *command)
 		log(err.what(), Logger::Priority::CONSOLE);
 	}
 
+	return true;
+}
+
+bool ServerClient::process(CommandSetBroadcastText *command)
+{
+	getGame().set_broadcast(command->data.text, command->data.duration);
+	return true;
+}
+
+bool ServerClient::process(CommandSetPlayerDeath *command)
+{
+	try {
+		Player &player(player_util::get_player_by_id(command->data.client_id));
+
+		player.is_dead = command->data.is_dead;
+		getGame().set_broadcast("make undead", 1000);
+	}
+	catch (std::runtime_error &err) {
+		log(err.what(), Logger::Priority::CONSOLE);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandSetGameEnd *command)
+{
+	try {
+		Player &winner(player_util::get_player_by_id(command->data.winner_id));
+
+		game_->set_ended(true);
+		game_->set_draw(command->data.is_draw);
+		game_->set_winner(winner);
+
+		getGame().set_broadcast("WINNER", 1000);
+	}
+	catch (std::runtime_error &err) {
+		log(err.what(), Logger::Priority::CONSOLE);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandSetPlayerScore *command)
+{
+	try {
+		Player &player(player_util::get_player_by_id(command->data.client_id));
+
+		player.score = command->data.score;
+	}
+	catch (std::runtime_error &err) {
+		log(err.what(), Logger::Priority::CONSOLE);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandSetGameStart *command)
+{
+	ServerClient::getInstance().resumeGameIn(command->data.delay);
 	return true;
 }

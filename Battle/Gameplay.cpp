@@ -31,6 +31,7 @@ Gameplay::Gameplay() {
 	npcs_collide = true;
 	players_npcs_collide = true;
 
+	broadcast_duration = 0;
 }
 
 Gameplay::~Gameplay() {
@@ -177,7 +178,10 @@ void Gameplay::run() {
 		if(ended) {
 			draw_game_ended();
 
-			if(frame - end_start > 120) {
+			if (Main::runmode == MainRunModes::CLIENT) {
+				// reset games are handled by server
+			}
+			else if(frame - end_start > 120) {
 				reset_game();
 			}
 		}
@@ -191,6 +195,15 @@ void Gameplay::run() {
 				draw_disconnected();
 			else if (ServerClient::getInstance().showConsole())
 				draw_console();
+		}
+
+		draw_broadcast();
+		if (broadcast_duration > 0) {
+			for (int i=0; i<frames_processed; i++) {
+				broadcast_duration -= Main::MILLISECS_PER_FRAME;
+				if (broadcast_duration < 0)
+					broadcast_duration = 0;
+			}
 		}
 
 		Main::instance->flip(true);
@@ -456,6 +469,23 @@ void Gameplay::draw_disconnected()
 	SDL_FreeSurface(surf);
 }
 
+void Gameplay::draw_broadcast()
+{
+	if (broadcast_duration == 0)
+		return;
+
+	SDL_Surface * surf;
+
+	surf = Main::text->render_text_medium(broadcast_msg.c_str());
+
+	SDL_Rect rect;
+	rect.x = (screen->w - surf->w) / 2;
+	rect.y = (screen->h - surf->h) / 2;
+	
+	SDL_BlitSurface(surf, NULL, screen, &rect);
+	SDL_FreeSurface(surf);
+
+}
 
 
 void Gameplay::draw_pause_screen() {
@@ -646,4 +676,10 @@ void Gameplay::process_countdown() {
 		if(countdown_sec_left <= 3)
 			Main::audio->play(SND_COUNTDOWN);
 	}
+}
+
+void Gameplay::set_broadcast(std::string msg, int duration) 
+{
+	broadcast_msg = msg;
+	broadcast_duration = duration;
 }

@@ -42,6 +42,11 @@ class CommandShotFired;
 class CommandBombDropped;
 class CommandSetHitPoints;
 class CommandSetPlayerAmmo;
+class CommandSetBroadcastText;
+class CommandSetPlayerDeath;
+class CommandSetGameEnd;
+class CommandSetPlayerScore;
+class CommandSetGameStart;
 
 class ServerClient : public CommandProcessor
 {
@@ -95,6 +100,8 @@ public:
 	void resetTimer() { lastResetTimer_ = SDL_GetTicks(); }
 	Uint32 getResetTimer() { return lastResetTimer_; }
 
+	void resumeGameIn(short delay);
+
 protected:
 	bool process(std::unique_ptr<Command> command);
 	
@@ -110,6 +117,11 @@ protected:
 	bool process(CommandBombDropped *command);
 	bool process(CommandSetHitPoints *command);
 	bool process(CommandSetPlayerAmmo *command);
+	bool process(CommandSetBroadcastText *command);
+	bool process(CommandSetPlayerDeath *command);
+	bool process(CommandSetGameEnd *command);
+	bool process(CommandSetPlayerScore *command);
+	bool process(CommandSetGameStart *command);
 
 private:
 	ServerClient();
@@ -151,7 +163,7 @@ private:
 	Player * player_;
 
 	Uint32 lastResetTimer_;
+	Uint32 resumeGameTime_;
 };
-
 
 #endif // __SERVER_CLIENT_H__

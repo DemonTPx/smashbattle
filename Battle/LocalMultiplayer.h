@@ -5,6 +5,11 @@
 
 class LocalMultiplayer : public Gameplay {
 public:
+
+	void set_ended(bool val) { this->ended = val; };
+	void set_draw(bool val) { this->draw = val; };
+	void set_winner(Player &winner) { this->winner = &winner; }
+
 protected:
 	virtual void initialize();
 

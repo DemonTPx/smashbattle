@@ -148,6 +148,10 @@ void ClientNetworkMultiplayer::on_input_handled()
 {
 	Player &player(*players->at(0));
 	static short flags = 0;
+	if (player.is_dead) {
+		flags = 0;
+		return;
+	}
 	short previous_flags = flags;
 		
 	CommandSetPlayerData req;
