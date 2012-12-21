@@ -18,6 +18,7 @@ struct OptionItem {
 class OptionsScreen {
 public:
 	OptionsScreen();
+	virtual ~OptionsScreen() {}
 
 	void run();
 protected:

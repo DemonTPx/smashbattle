@@ -82,9 +82,6 @@ SDL_Surface * Text::render_glyph(SDL_Surface * font, int w, int h, const char g,
 
 	SDL_Surface * surface;
 	SDL_Rect * rect;
-	int idx;
-
-	idx = (g - TEXT_ASCII_OFFSET);
 
 	rect = glyph_clip(w, h, g, gray);
 
@@ -103,9 +100,6 @@ SDL_Surface * Text::render_glyph_shadow(SDL_Surface * font, int w, int h, const 
 	SDL_Surface * surface;
 	SDL_Rect * rect;
 	SDL_Rect rect_d;
-	int idx;
-
-	idx = (g - TEXT_ASCII_OFFSET);
 
 	surface = SDL_CreateRGBSurface(0, w + offx, h + offy, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
 

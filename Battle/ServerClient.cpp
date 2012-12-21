@@ -184,7 +184,7 @@ void ServerClient::send(Command &command)
 
 	if(result < sizeof(char)) {
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-			("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
 		return;
 	}
 

@@ -187,9 +187,10 @@ void CharacterSelect::prerender_background() {
 	// PLAYERS
 	SDL_Rect r_block, r_pnumber;
 	SDL_Rect r_stats;
-	int stats_w, stats_h;
+	//int stats_w
+	int stats_h;
 	int direction;
-	stats_w = 100;
+	//stats_w = 100;
 	stats_h = 20;
 
 	for(int i = 0; i < possible_players_; i++) {
@@ -282,15 +283,8 @@ void CharacterSelect::prerender_background() {
 }
 
 void CharacterSelect::process_cursors() {
-	bool players_ready;
 	bool can_select;
 	int direction;
-
-	players_ready = true;
-	for(int i = 0; i < possible_players_; i++) {
-		if(player_joined[i] && !player_ready[i])
-			players_ready = false;
-	}
 
 	for(int i = 0; i < possible_players_; i++) {
 		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
@@ -570,7 +564,6 @@ void CharacterSelect::draw() {
 	// PLAYERS
 	SDL_Rect r_block, r_pnumber,r_playername, r_ready;
 	SDL_Rect r_stats;
-	SDL_Rect * clip_direction;
 	int stats_w, stats_h;
 	int direction;
 	stats_w = 100;
@@ -587,7 +580,6 @@ void CharacterSelect::draw() {
 				r_block.y = 10;
 				r_pnumber.x = r_block.x + r_block.w;
 				r_pnumber.y = r_block.y;
-				clip_direction = Main::graphics->player_clip[SPR_R];
 				r_playername.x = 50 + PLAYER_W;
 				r_playername.y = 30;
 				r_ready.x = 50 + PLAYER_W;
@@ -601,7 +593,6 @@ void CharacterSelect::draw() {
 				r_block.y = 10;
 				r_pnumber.x = r_block.x - r_pnumber.w;
 				r_pnumber.y = r_block.y;
-				clip_direction = Main::graphics->player_clip[SPR_L];
 				r_playername.x = 590 - PLAYER_W;
 				r_playername.y = 30;
 				r_ready.x = 590 - PLAYER_W;
@@ -613,7 +604,6 @@ void CharacterSelect::draw() {
 			case 2:
 				r_block.x = 10;
 				r_block.y = 270;
-				clip_direction = Main::graphics->player_clip[SPR_R];
 				r_playername.x = 50 + PLAYER_W;
 				r_playername.y = 290;
 				r_ready.x = 50 + PLAYER_W;
@@ -625,7 +615,6 @@ void CharacterSelect::draw() {
 			case 3:
 				r_block.x = 440;
 				r_block.y = 270;
-				clip_direction = Main::graphics->player_clip[SPR_L];
 				r_playername.x = 590 - PLAYER_W;
 				r_playername.y = 290;
 				r_ready.x = 590 - PLAYER_W;

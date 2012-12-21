@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall -std=c++11 -I./
+CFLAGS=-c -Wall -Wno-reorder -Wno-switch -std=c++11 -I./
 LDFLAGS=-lz -lstdc++ 
 LDPOSTFLAGS= `sdl-config --libs` -lSDL -lSDL_mixer -lSDL_net
 SRCS=LevelSelect.cpp\

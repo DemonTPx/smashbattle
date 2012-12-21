@@ -34,13 +34,13 @@ void Graphics::load_all() {
 	npc_cannon = load_bmp("gfx/cannon.bmp");
 	npc_gatling = load_bmp("gfx/gatling.bmp");
 
-	statsblock[0] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	statsblock[0] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
 	SDL_FillRect(statsblock[0], NULL, 0x880000);
 
-	statsblock[1] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	statsblock[1] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
 	SDL_FillRect(statsblock[1], NULL, 0x888800);
 
-	statsblock[2] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
+	statsblock[2] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
 	SDL_FillRect(statsblock[2], NULL, 0x008800);
 
 	text_ready = Main::text->render_text_medium("READY");

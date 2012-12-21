@@ -80,7 +80,6 @@ void Server::listen()
 	if (is_listening_)
 		return;
 
-	char *message=NULL;
 	const char *host=NULL;
 	
 	/* initialize SDL_net */
@@ -163,8 +162,6 @@ void Server::poll()
 		sock = SDLNet_TCP_Accept(server);
 		if(sock)
 		{
-			char *name=NULL;
-
 			int nextId = 0;
 			for (; clients_.find(nextId) != clients_.end(); nextId++)
 				;

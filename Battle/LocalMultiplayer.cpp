@@ -536,7 +536,7 @@ void LocalMultiplayer::draw_score_multi() {
 
 	int player_count;
 	
-	int x, y, w, h;
+	int x, y;
 
 	int item_w, spacing;
 
@@ -549,8 +549,6 @@ void LocalMultiplayer::draw_score_multi() {
 
 	x = 0;
 	y = WINDOW_HEIGHT - 32;
-	w = WINDOW_WIDTH / player_count;
-	h = 32;
 
 	int divisor = player_count - 1;
 	if (player_count == 1)

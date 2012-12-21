@@ -62,7 +62,7 @@ struct GameInputJoystickEvent {
 class GameInput {
 public:
 	GameInput();
-	~GameInput();
+	virtual ~GameInput();
 
 	GameInput * clone(bool clone_binds = true);
 	void copy_from(GameInput * gi);

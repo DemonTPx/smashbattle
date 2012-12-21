@@ -376,7 +376,7 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 	gzread(file, &tile, sizeof(tile));
 	gzclose(file);
 
-	surface = SDL_CreateRGBSurface(NULL, TILE_COLS * 2 + 4, TILE_ROWS * 2 + 4, 32, 0, 0, 0, 0);
+	surface = SDL_CreateRGBSurface(0, TILE_COLS * 2 + 4, TILE_ROWS * 2 + 4, 32, 0, 0, 0, 0);
 	SDL_FillRect(surface, NULL, 0x444444);
 	rect.x = 2;
 	rect.y = 2;
@@ -695,12 +695,12 @@ bool Level::is_intersecting(SDL_Rect * rect) {
 
 bool Level::is_on_bottom(SDL_Rect * rect) {
 	// Check if there is anything to stand on below the rect
-	int l, r, t, b;
+	int l, r, b;
 
 	l = rect->x;
 	r = rect->x + rect->w - 1;
 
-	t = rect->y;
+	//t = rect->y;
 	b = rect->y + rect->h - 1;
 
 	// Above the screen is no bottom

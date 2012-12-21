@@ -129,7 +129,7 @@ void ClientNetworkMultiplayer::draw_console()
 
 	int textpos = 5;
 	for_each(std::begin(Logger::console) + beginSize, std::end(Logger::console), [&](const string &str) {
-		SDL_Rect textLocation = { 10, textpos, 0, 0 };
+		SDL_Rect textLocation = { 10, static_cast<short>(textpos), 0, 0 };
 		textpos += 24;
 		string text = str;
 		to_upper<char>(text);

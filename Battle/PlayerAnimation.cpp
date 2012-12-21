@@ -54,16 +54,8 @@ void PlayerAnimation::set_character(int character) {
 }
 
 void PlayerAnimation::move() {
-	int speedx, speedy;
+	int speedx = SPEED_HORIZ;
 	int maxx;
-	int momentumx_old;
-	
-	speedx = 0;
-	speedy = 0;
-
-	speedx = SPEED_HORIZ;
-
-	momentumx_old = momentumx;
 	
 	// Are we running?
 	if(is_running) {
