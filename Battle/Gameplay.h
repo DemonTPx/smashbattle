@@ -67,6 +67,8 @@ protected:
 	virtual void on_post_processing() = 0;
 	virtual void on_input_handled() {};
 
+	virtual void on_pre_delete_player(const Player &player) {}
+
 	void process_player_collission();
 	void process_npc_collission();
 	void process_player_npc_collission();

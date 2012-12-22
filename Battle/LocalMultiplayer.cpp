@@ -713,3 +713,9 @@ void LocalMultiplayer::draw_game_ended() {
 		SDL_BlitSurface(winner->sprites, &clip_avatar, screen, &rect);
 	}
 }
+
+void LocalMultiplayer::on_pre_delete_player(const Player &player)
+{
+	if (winner && winner->number == player.number)
+		winner = NULL;
+}

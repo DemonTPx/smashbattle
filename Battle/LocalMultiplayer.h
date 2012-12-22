@@ -24,6 +24,7 @@ protected:
 
 	virtual void on_pre_processing();
 	virtual void on_post_processing();
+	virtual void on_pre_delete_player(const Player &player);
 
 	virtual void draw_score();
 	virtual void draw_game_ended();

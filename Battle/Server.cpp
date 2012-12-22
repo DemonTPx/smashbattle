@@ -31,6 +31,7 @@ Server::Server()
 	  currentState_(NULL),
 	  port_((Uint16)1099),
 	  serverTime_(SDL_GetTicks()),
+	  ignoreClientInputUntil_(SDL_GetTicks()),
 	  game_(NULL)
 {
 }

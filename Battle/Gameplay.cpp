@@ -337,6 +337,7 @@ void Gameplay::del_player_by_id(char number)
 		if (number == player->number)
 		{
 			deletePlayer = std::move(std::unique_ptr<Player>(player));
+			on_pre_delete_player(*deletePlayer.get());
 			players->erase(i);
 			return;
 		}

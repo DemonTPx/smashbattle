@@ -122,7 +122,7 @@ bool Client::process(CommandSetCharacter *command)
 
 bool Client::process(CommandSetPlayerData *command)
 {
-	if (server_->getGame().is_ended())
+	if (server_->getGame().is_ended() || server_->ignoreClientInput())
 		return true;
 
 	Player *updatedPlayer = NULL;

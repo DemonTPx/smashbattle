@@ -15,7 +15,6 @@ protected:
 
 	virtual void on_pre_processing() {}
 	virtual void on_post_processing();
-
 };
 
 #endif //__NETWORKMULTIPLAYER_H__

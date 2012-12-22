@@ -21,8 +21,11 @@ void ServerStateGameStarted::initialize(Server &server) const
 	{
 		auto &player = **i;
 
+		server.ignoreClientInputFor(3000);
+
 		player.hitpoints = 100;
 		player.score = 0;
+		player_util::unset_input(player);
 		level_util::set_player_start(player, server.getLevel());
 
 		// Use game end to lock all activity at clients

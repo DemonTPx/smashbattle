@@ -51,6 +51,9 @@ public:
 
 	void sendAll(Command &command);
 
+	void ignoreClientInputFor(int ms) { ignoreClientInputUntil_ = serverTime_ + ms; }
+	bool ignoreClientInput() { return ignoreClientInputUntil_ > serverTime_; }
+
 private:
     Server();
 	~Server();
@@ -82,6 +85,7 @@ private:
 	const ServerState * currentState_;
 	
 	Uint32 serverTime_;
+	Uint32 ignoreClientInputUntil_;
 
 	// temp
 	//friend class Gameplay;
