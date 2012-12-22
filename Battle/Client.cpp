@@ -272,7 +272,7 @@ void Client::send(Command &command)
 
 
 	char type = command.getType();
-	int result = SDLNet_TCP_Send(socket_, &type, sizeof(char));
+	size_t result = SDLNet_TCP_Send(socket_, &type, sizeof(char));
 
 	if(result < sizeof(char)) {
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */

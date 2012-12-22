@@ -142,7 +142,7 @@ private:
 	Uint16 port_;
 	SDLNet_SocketSet set;
 	fd_set fdset;
-	int result;
+	size_t result;
 	char *name,*str;
 	struct timeval tv;
 

@@ -37,6 +37,10 @@ GatlingNPC::GatlingNPC() : NPC() {
 	frame_last = GATLING_L2;
 }
 
+GatlingNPC::~GatlingNPC()
+{
+}
+
 void GatlingNPC::process() {
 	if(!is_dead && hitpoints <= 0) {
 		is_dead = true;

@@ -296,7 +296,6 @@ SDL_Rect * Player::get_rect() {
 void Player::move(Level * level) {
 	int speedx, speedy;
 	int maxx;
-	int momentumx_old;
 	SDL_Rect rect;
 
 	if(is_dead)
@@ -338,7 +337,6 @@ void Player::move(Level * level) {
 
 	speedx = SPEED_HORIZ;
 
-	momentumx_old = momentumx;
 	
 	// Are we running?
 	if(input->is_pressed(A_RUN)) {

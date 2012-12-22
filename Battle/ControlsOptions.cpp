@@ -188,7 +188,7 @@ void ControlsOptions::show_notification(const char * text) {
 
 	screen = Main::instance->screen;
 
-	surface = SDL_CreateRGBSurface(NULL, screen->w / 2, 50, 32, 0, 0, 0, 0);
+	surface = SDL_CreateRGBSurface(0, screen->w / 2, 50, 32, 0, 0, 0, 0);
 	rect.x = 100;
 	rect.y = screen->h / 2 - 25;
 	rect.w = screen->w - 200;

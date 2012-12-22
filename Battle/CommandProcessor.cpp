@@ -47,7 +47,7 @@ bool CommandProcessor::parse()
 			std::cout << " error: " << err.what() << std::endl;
 		}
 	}
-	else if (buffer_idx_ >= sizeof(char)) 
+	else if (static_cast<size_t>(buffer_idx_) >= sizeof(char)) 
 	{
 		expectRequestFor_ = *buffer_;
 

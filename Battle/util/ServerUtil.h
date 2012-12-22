@@ -9,4 +9,4 @@ namespace server_util
 	void update_tile(int tile_pos, int tile_hp);
 }
 
-#endif __SERVERUTIL_H__
+#endif //__SERVERUTIL_H__

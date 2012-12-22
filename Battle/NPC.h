@@ -10,7 +10,7 @@
 class NPC {
 public:
 	NPC();
-	~NPC();
+	virtual ~NPC();
 
 	SDL_Rect * position;
 	SDL_Rect * last_position;

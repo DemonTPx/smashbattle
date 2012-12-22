@@ -208,11 +208,6 @@ void Main::fps_count() {
 
 		SDL_Surface * surf;
 		SDL_Rect rect;
-		SDL_Color color;
-		
-		color.r = 0xff;
-		color.g = 0xff;
-		color.b = 0xff;
 
 		if (ServerClient::getInstance().isConnected())
 			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, ServerClient::getInstance().getLag().avg());
@@ -372,7 +367,7 @@ int main(int argc, char* args[])
 	chdir(cwd.c_str());
 #endif
 
-	printf("%d\n");
+	printf("%d\n", argc);
 	for (int i=0; i<argc; i++)
 		printf("%d = %s\n",i, args[i]);
 

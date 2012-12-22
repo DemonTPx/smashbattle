@@ -43,6 +43,10 @@ CannonNPC::CannonNPC() : NPC() {
 	frame_last = CANNON_E;
 }
 
+CannonNPC::~CannonNPC()
+{
+}
+
 void CannonNPC::process() {
 	if(!is_dead && hitpoints <= 0) {
 		is_dead = true;
