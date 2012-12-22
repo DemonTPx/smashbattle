@@ -509,7 +509,6 @@ bool ServerClient::process(CommandSetPlayerDeath *command)
 		Player &player(player_util::get_player_by_id(command->data.client_id));
 
 		player.is_dead = command->data.is_dead;
-		getGame().set_broadcast("make undead", 1000);
 	}
 	catch (std::runtime_error &err) {
 		log(err.what(), Logger::Priority::CONSOLE);
@@ -526,8 +525,6 @@ bool ServerClient::process(CommandSetGameEnd *command)
 		game_->set_ended(true);
 		game_->set_draw(command->data.is_draw);
 		game_->set_winner(winner);
-
-		getGame().set_broadcast("WINNER", 1000);
 	}
 	catch (std::runtime_error &err) {
 		log(err.what(), Logger::Priority::CONSOLE);
