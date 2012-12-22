@@ -3,6 +3,8 @@
  *  Jon C. Atkins, found here: http://jcatki.no-ip.org:8080/SDL_net/
  */
 
+#include <algorithm>
+
 #include "ServerClient.h"
 
 #include "Commands.hpp"
@@ -10,7 +12,7 @@
 #include "Level.h"
 
 #include "log.h"
-#include <algorithm>
+
 using std::for_each;
 using std::begin;
 using std::end;
