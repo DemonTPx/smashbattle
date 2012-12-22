@@ -160,6 +160,7 @@ public:
 
 	void move(Level * level);
 	void process();
+	Projectile * create_projectile_for_player(Sint16 x, Sint16 y);
 	Projectile * create_projectile(Sint16 x, Sint16 y);
 	Bomb * create_bomb_for_player(Sint16 x, Sint16 y);
 	Bomb * create_bomb(Sint16 x, Sint16 y);

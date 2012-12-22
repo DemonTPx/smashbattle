@@ -10,6 +10,10 @@
 #include "Level.h"
 
 #include "log.h"
+#include <algorithm>
+using std::for_each;
+using std::begin;
+using std::end;
 
 ServerClient::ServerClient()
 	: is_connected_(false),
@@ -23,6 +27,7 @@ ServerClient::ServerClient()
 	  level_(NULL),
 	  my_id_(0x00),
 	  lastResetTimer_(0),
+	  resumeGameWithCountdown_(true),
 	  resumeGameTime_(0)
 {
 }
@@ -118,7 +123,7 @@ void ServerClient::poll()
 				ServerClient::getInstance().resetTimer();
 
 				// Do not send update to server if we're dead
-				if (!player_->is_dead)
+				if (!player_->is_dead && !ServerClient::getInstance().getGame().is_ended() && !ServerClient::getInstance().getGame().is_countdown())
 					ServerClient::getInstance().send(pos);
 			}
 			catch (std::runtime_error &err) {
@@ -132,6 +137,12 @@ void ServerClient::poll()
 		resumeGameTime_ = 0;
 
 		game_->set_ended(false);
+		if (resumeGameWithCountdown_)
+			game_->set_countdown(true, 3 + 1);
+
+		// Clear gameplay objects
+		for_each(begin(*game_->objects), end(*game_->objects), [&] (GameplayObject *obj) { delete obj; });
+			game_->objects->clear();
 	}
 
 
@@ -213,13 +224,15 @@ Gameplay &ServerClient::getGame()
 
 void ServerClient::resumeGameIn(short delay)
 {
-	// Substract lag
+	resumeGameWithCountdown_ = delay != 0;
 
 	delay -= static_cast<short>(lag.avg() + 0.5);
 	if (delay < 0)
 		delay = 0;
 
+	// Substract lag
 	resumeGameTime_ = SDL_GetTicks() + delay;
+
 }
 
 
@@ -358,21 +371,14 @@ bool ServerClient::process(CommandSetPlayerData *command)
 	else
 	{
 		// You do receive the SetPlayerData command for each other player change
-		auto &players = *(game_->players);
-		for (auto i=players.begin(); i!=players.end(); i++)
-		{
-			auto &otherplayer = **i;
+		auto &otherplayer = player_util::get_player_by_id(command->data.client_id);
 
-			if (otherplayer.number == command->data.client_id)
-			{
-				player_util::set_player_data(otherplayer, *command);
+		player_util::set_player_data(otherplayer, *command);
 
-				// Account for lag
-				int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
-				for (int i=0; i<processFrames; i++)
-					game_->move_player(otherplayer);
-				}
-		}
+		// Account for lag
+		int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+		for (int i=0; i<processFrames; i++)
+			game_->move_player(otherplayer);
 	}
 
 	return true;
@@ -415,29 +421,22 @@ bool ServerClient::process(CommandUpdateTile *command)
 #include "Projectile.h"
 bool ServerClient::process(CommandShotFired *command)
 {
-	// I'm currently too lazy to create function for it, I will refactor! (Todo!!)
-	auto &players = *(game_->players);
-	for (auto i=players.begin(); i!=players.end(); i++)
-	{
-		auto &otherplayer = **i;
+	auto &otherplayer = player_util::get_player_by_id(command->data.client_id);
 
-		if (otherplayer.number == command->data.client_id)
-		{
-			// Make sure the correct sprite is set, so the bullet will go the correct direction
-			otherplayer.current_sprite = command->data.current_sprite;
+	if (otherplayer.number == command->data.client_id) {
+		// Make sure the correct sprite is set, so the bullet will go the correct direction
+		otherplayer.current_sprite = command->data.current_sprite;
 
-			Projectile *proj = otherplayer.create_projectile(command->data.x, command->data.y);
+		Projectile *proj = otherplayer.create_projectile(command->data.x, command->data.y);
 
-			proj->distance_traveled = command->data.distance_travelled;
+		proj->distance_traveled = command->data.distance_travelled;
 
-			// Account for lag
-			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
-			for (int i=0; i<processFrames; i++)
-				game_->process_gameplayobj(proj);
-
-			return true;
-		}
+		// Account for lag
+		int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+		for (int i=0; i<processFrames; i++)
+			game_->process_gameplayobj(proj);
 	}
+
 	return true;
 }
 
@@ -526,8 +525,12 @@ bool ServerClient::process(CommandSetGameEnd *command)
 		game_->set_draw(command->data.is_draw);
 		game_->set_winner(winner);
 	}
-	catch (std::runtime_error &err) {
-		log(err.what(), Logger::Priority::CONSOLE);
+	catch (std::runtime_error &) {
+
+		// Probably no winner, just a game-end.
+		game_->set_ended(true);
+		game_->set_draw(command->data.is_draw);
+		game_->unset_winner();
 	}
 
 	return true;

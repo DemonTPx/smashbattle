@@ -40,7 +40,9 @@ public:
 		bool is_jumping;
 		bool is_falling;
 		int jump_start;
-		//int current_sprite;
+		int current_sprite;
+
+		bool is_hit;
 
 		//int cycle_direction;
 		//int distance_walked;

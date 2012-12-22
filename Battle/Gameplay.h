@@ -40,6 +40,7 @@ public:
 	static bool is_intersecting(SDL_Rect * one, SDL_Rect * two);
 
 	bool is_ended() { return ended; }
+	bool is_countdown() { return countdown; }
 	void set_broadcast(std::string msg, int duration);
 
 protected:

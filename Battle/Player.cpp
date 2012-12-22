@@ -749,7 +749,7 @@ void Player::process() {
 			((doubledamagebullets == BULLETS_UNLIMITED) ||  doubledamagebullets > 0) ||
 			((instantkillbullets == BULLETS_UNLIMITED) ||  instantkillbullets > 0))) 
 		{
-			Projectile *proj = create_projectile(position->x, position->y);
+			Projectile *proj = create_projectile_for_player(position->x, position->y);
 
 			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
 			{
@@ -788,6 +788,23 @@ void Player::process() {
 	}
 }
 
+Projectile * Player::create_projectile_for_player(Sint16 x, Sint16 y)
+{
+	Projectile *pr = create_projectile(x, y);
+
+	if(current_sprite >= SPR_L && current_sprite <= SPR_L_DUCK) {
+		pr->position->x = x - pr->position->w - 1;
+	} else {
+		pr->position->x = x + position->w + 1;
+	}
+	if(is_duck)
+		pr->position->y = y + 28;
+	else
+		pr->position->y = y + 8;
+
+	return pr;
+}
+
 Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 {
 	shoot_start = Gameplay::frame;
@@ -821,15 +838,15 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 
 	if(current_sprite >= SPR_L && current_sprite <= SPR_L_DUCK) {
 		pr->speedx = -10;
-		pr->position->x = x - pr->position->w - 1;
+		pr->position->x = x;
 	} else {
 		pr->speedx = 10;
-		pr->position->x = x + position->w + 1;
+		pr->position->x = x;
 	}
 	if(is_duck)
-		pr->position->y = y + 28;
+		pr->position->y = y;
 	else
-		pr->position->y = y + 8;
+		pr->position->y = y;
 	Gameplay::instance->add_object(pr);
 
 	pr->max_distance = WEAPONCLASSES[weaponclass].distance;

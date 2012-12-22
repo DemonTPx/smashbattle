@@ -16,6 +16,52 @@ ServerStateGameStarted::ServerStateGameStarted()
 
 void ServerStateGameStarted::initialize(Server &server) const
 {
+	auto &players = *(server.getGame().players);
+	for (auto i = players.begin(); i!=players.end(); i++)
+	{
+		auto &player = **i;
+
+		player.hitpoints = 100;
+		player.score = 0;
+		level_util::set_player_start(player, server.getLevel());
+
+		// Use game end to lock all activity at clients
+		CommandSetGameEnd ge;
+		ge.data.time = server.getServerTime();
+		ge.data.is_draw = false;
+		ge.data.winner_id = -1;
+		server.sendAll(ge);
+
+		// Reset there health
+		CommandSetHitPoints hp;
+		hp.data.time = server.getServerTime();
+		hp.data.client_id = player.number;
+		hp.data.hitpoints = player.hitpoints;
+		server.sendAll(hp);
+
+		// Make them countdown
+		CommandSetGameStart gs;
+		gs.data.time = server.getServerTime();
+		gs.data.delay = 1000;
+		server.sendAll(gs);
+
+		// Set their correct positions
+		CommandSetPlayerData pd;
+		player_util::set_position_data(pd, player.number, server.getServerTime(), player);
+		server.sendAll(pd);
+
+		CommandSetPlayerAmmo ammo;
+		ammo.data.time = server.getServerTime();
+		ammo.data.client_id = player.number;
+		ammo.data.bombs = player.bombs;
+		server.sendAll(ammo);
+
+		CommandSetPlayerScore score;
+		score.data.time = server.getServerTime();
+		score.data.client_id = player.number;
+		score.data.score = player.score;
+		server.sendAll(score);
+	}
 }
 
 // Todo : maybe more protocol related stuff should be in here,

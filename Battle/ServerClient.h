@@ -163,6 +163,7 @@ private:
 	Player * player_;
 
 	Uint32 lastResetTimer_;
+	bool resumeGameWithCountdown_;
 	Uint32 resumeGameTime_;
 };
 

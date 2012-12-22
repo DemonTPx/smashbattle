@@ -33,46 +33,6 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 		return;
 	}
 
-#if 1 == 0
-	//// temp hack, does not belong here at all, just want to make the network proof of concept a little more interesting :p
-	static Uint32 lastlevelReset = server.getServerTime();
-	// Reset level state every 30 secs
-	if ((server.getServerTime() - lastlevelReset) > 30000)
-	{
-		server.getLevel().reset();
-
-		CommandSetLevel lvl;
-		strncpy(lvl.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
-		memcpy(&lvl.data.level, &server.getLevel().level, sizeof(server.getLevel().level));
-		memcpy(&lvl.data.level_hp, &server.getLevel().level_hp, sizeof(server.getLevel().level_hp));
-
-		auto &players = *(server.getGame().players);
-		for (auto i= players.begin(); i!=players.end(); i++)
-		{
-			auto &player = **i;
-
-			lvl.data.your_id = player.number;
-			server.getClientById(player.number).send(lvl);
-
-			CommandSetPlayerData pd;
-			level_util::set_player_start(player, server.getLevel());
-			player_util::set_position_data(pd, player.number, servertime, player);
-			server.sendAll(pd);
-
-			// Welcome the player
-			CommandSetBroadcastText broadcast;
-			broadcast.data.time = server.getServerTime();
-			string welcome("LEVEL RESET!!!");
-			strncpy(broadcast.data.text, welcome.c_str() , welcome.length());
-			broadcast.data.duration = 2000;
-			server.getClientById(player.number).send(broadcast);
-		}
-
-		lastlevelReset = server.getServerTime();
-	}
-	///
-#endif
-
 	if (client.getInitialLagTests()) {
 		// Make sure player has all initial lag tests
 		Uint32 lagdiff = servertime - client.getLastLagTime();

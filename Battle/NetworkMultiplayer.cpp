@@ -39,6 +39,7 @@ void NetworkMultiplayer::on_game_reset()
 		server.getClientById(player.number).send(lvl);
 
 		CommandSetPlayerData pd;
+		level_util::set_player_start(player, *level);
 		player_util::set_position_data(pd, player.number, server.getServerTime(), player);
 		server.sendAll(pd);
 
@@ -113,7 +114,24 @@ void NetworkMultiplayer::on_post_processing()
 			if (once) {
 				once = false;
 
-				// Send player score
+				if (winner != NULL) {
+					// Send game end
+					CommandSetGameEnd end;
+					end.data.time = server.getServerTime();
+					end.data.winner_id = winner->number;
+					end.data.is_draw = draw;
+					server.sendAll(end);
+
+					if (game_running) {
+						// Send game resume instruction
+						CommandSetGameStart start;
+						start.data.time = server.getServerTime();
+						start.data.delay = we_have_a_winner() ? 0 : 3000;
+						server.sendAll(start);
+					}
+				}
+
+				// Send player score, new player positions
 				for (auto i = vec.begin(); i != vec.end(); i++) {
 					auto &player(**i);
 					CommandSetPlayerScore score;
@@ -121,20 +139,13 @@ void NetworkMultiplayer::on_post_processing()
 					score.data.client_id = player.number;
 					score.data.score = player.score;
 					server.sendAll(score);
+
+					// Unset input's for players, do not change location yet
+					player_util::unset_input(player);
+					CommandSetPlayerData pd;
+					player_util::set_position_data(pd, player.number, server.getServerTime(), player);
+					server.sendAll(pd);
 				}
-
-				// Send game end
-				CommandSetGameEnd end;
-				end.data.time = server.getServerTime();
-				end.data.winner_id = winner->number;
-				end.data.is_draw = draw;
-				server.sendAll(end);
-
-				// Send game resume instruction
-				CommandSetGameStart start;
-				start.data.time = server.getServerTime();
-				start.data.delay = 5000;
-				server.sendAll(start);
 			}
 		} else {
 			once = true;

@@ -476,11 +476,11 @@ void Gameplay::draw_broadcast()
 
 	SDL_Surface * surf;
 
-	surf = Main::text->render_text_medium(broadcast_msg.c_str());
+	surf = Main::text->render_text_medium_shadow(broadcast_msg.c_str());
 
 	SDL_Rect rect;
 	rect.x = (screen->w - surf->w) / 2;
-	rect.y = (screen->h - surf->h) / 2;
+	rect.y = ((screen->h - surf->h) / 2) - TILE_H;
 	
 	SDL_BlitSurface(surf, NULL, screen, &rect);
 	SDL_FreeSurface(surf);

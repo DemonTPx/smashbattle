@@ -6,9 +6,16 @@
 class LocalMultiplayer : public Gameplay {
 public:
 
+	LocalMultiplayer() : Gameplay(), winner(NULL) {}
+
+
 	void set_ended(bool val) { this->ended = val; };
+	void set_countdown(bool countdown, int seconds = -1);
 	void set_draw(bool val) { this->draw = val; };
 	void set_winner(Player &winner) { this->winner = &winner; }
+	void unset_winner() { this->winner = NULL; }
+
+	bool we_have_a_winner();
 
 protected:
 	virtual void initialize();

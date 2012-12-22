@@ -21,6 +21,13 @@
 #define sprintf_s snprintf
 #endif
 
+void LocalMultiplayer::set_countdown(bool countdown, int seconds)
+{
+	this->countdown = countdown;
+	if (seconds != -1)
+		this->countdown_sec_left = seconds; 
+}
+
 void LocalMultiplayer::initialize() {
 	Gameplay::initialize();
 
@@ -41,17 +48,13 @@ void LocalMultiplayer::initialize() {
 	round = 0;
 }
 
-void LocalMultiplayer::on_game_reset() {
-	int x, y;
-	int sprite;
-	Player * p;
-	int pstart;
-	
+bool LocalMultiplayer::we_have_a_winner() 
+{
+	bool we_have_a_winner = false;
 	if(round >= 5) {
 		int highest = 0;
-		bool we_have_a_winner = false;
 		for(unsigned int idx = 0; idx < players->size(); idx++) {
-			p = players->at(idx);
+			auto *p = players->at(idx);
 			if(p->score == highest) {
 				we_have_a_winner = false;
 			}
@@ -60,11 +63,21 @@ void LocalMultiplayer::on_game_reset() {
 				we_have_a_winner = true;
 			}
 		}
-		if(we_have_a_winner) {
-			game_running = false;
-			strcpy(countdown_pre_text, "");
-			return;
-		}
+	}
+	return we_have_a_winner;
+}
+
+void LocalMultiplayer::on_game_reset() 
+{
+	int x, y;
+	int sprite;
+	Player * p;
+	int pstart;
+	
+	if(we_have_a_winner()) {
+		game_running = false;
+		strcpy(countdown_pre_text, "");
+		return;
 	}
 
 	for(unsigned int idx = 0; idx < players->size(); idx++) {
@@ -671,6 +684,9 @@ void LocalMultiplayer::draw_game_ended() {
 
 	char text[30];
 	
+	if (!winner)
+		return;
+
 	if(draw)
 		sprintf(text, "DRAW");
 	else

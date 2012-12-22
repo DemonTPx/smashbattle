@@ -152,6 +152,14 @@ void ClientNetworkMultiplayer::on_input_handled()
 		flags = 0;
 		return;
 	}
+	if (ServerClient::getInstance().isConnected())
+	{
+		if (ServerClient::getInstance().getGame().is_ended() || ServerClient::getInstance().getGame().is_countdown())
+		{
+			flags = 0;
+			return;
+		}
+	}
 	short previous_flags = flags;
 		
 	CommandSetPlayerData req;
@@ -160,7 +168,5 @@ void ClientNetworkMultiplayer::on_input_handled()
 	flags = req.data.flags;
 
 	if (flags != previous_flags)
-	{
 		ServerClient::getInstance().send(req);
-	}
 };

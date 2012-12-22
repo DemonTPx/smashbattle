@@ -177,7 +177,7 @@ bool Client::process(CommandShotFired *command)
 			// Make sure the correct sprite is set, so the bullet will go the correct direction
 			player.current_sprite = command->data.current_sprite;
 
-			Projectile *proj = player.create_projectile(command->data.x, command->data.y);
+			Projectile *proj = player.create_projectile_for_player(command->data.x, command->data.y);
 
 			proj->distance_traveled = command->data.distance_travelled;
 

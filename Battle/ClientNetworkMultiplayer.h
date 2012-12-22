@@ -8,7 +8,7 @@ class LagMeasure;
 class ClientNetworkMultiplayer : public LocalMultiplayer 
 {
 public:
-	ClientNetworkMultiplayer() : lag_(NULL) {}
+	ClientNetworkMultiplayer() : lag_(NULL), LocalMultiplayer() {}
 	~ClientNetworkMultiplayer() {}
 
 	/**

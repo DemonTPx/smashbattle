@@ -40,7 +40,8 @@ namespace player_util
 		playerpos.data.is_jumping = player.is_jumping;
 		playerpos.data.is_falling = player.is_falling;
 		playerpos.data.jump_start = player.jump_start;
-		//int current_sprite;
+		playerpos.data.current_sprite = player.current_sprite;
+		playerpos.data.is_hit = player.is_hit;
 		//playerpos.data.cycle_direction = player.cycle_direction;
 		//playerpos.data.distance_walked = player.distance_walked;
 	}
@@ -74,6 +75,8 @@ namespace player_util
 		player.duck_force_start = command.data.duck_force_start;
 		player.is_jumping = command.data.is_jumping;
 		player.is_falling = command.data.is_falling;
+		player.current_sprite = command.data.current_sprite;
+		player.is_hit = command.data.is_hit;
 		//player.cycle_direction = command.data.cycle_direction;
 		//player.distance_walked = command.data.distance_walked;
 	}
