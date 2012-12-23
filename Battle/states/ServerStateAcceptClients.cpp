@@ -197,15 +197,15 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 
 	size_t numActiveClients = server.numActiveClients();
 	if (numActiveClients >= 2) {
-		if (gameStart_ == 0 && gameStartForPlayers_ != numActiveClients) {
+		if (gameStart_ == 0 || gameStartForPlayers_ != numActiveClients) {
 			gameStartForPlayers_ = numActiveClients;
-			gameStart_ = servertime + 10 * 1000;
+			gameStart_ = servertime + 15 * 1000;
 			//gameStart_ = servertime + 1 * 1000; // temp set to 1
 			gameStartSendTime_ = servertime;
 
 			CommandSetBroadcastText broadcast;
 			broadcast.data.time = server.getServerTime();
-			string text("GAME STARTS IN 10 SECONDS");
+			string text("GAME STARTS IN 15 SECONDS");
 			strncpy(broadcast.data.text, text.c_str() , text.length());
 			broadcast.data.duration = 2000;
 			server.sendAll(broadcast);

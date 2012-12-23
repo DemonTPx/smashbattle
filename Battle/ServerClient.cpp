@@ -590,6 +590,9 @@ bool ServerClient::process(CommandGeneratePowerup *command)
 
 	game_->add_object(newpowerup);
 
+	if (currentState_ != ServerClient::State::INITIALIZED)
+		return true;
+
 	// Account for lag
 	int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
 	for (int i=0; i<processFrames; i++)

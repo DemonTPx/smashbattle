@@ -261,6 +261,11 @@ void Main::handle_event(SDL_Event * event) {
 			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
 				ServerClient::getInstance().toggleConsole();
 		}
+		if(event->key.keysym.sym == SDLK_F5) {
+			// Re-set server, accept client connects..
+			if (Main::runmode == MainRunModes::SERVER && Server::getInstance().active())
+				Server::getInstance().setState(new ServerStateAcceptClients());
+		}
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
 			if (!SDL_WM_ToggleFullScreen(screen)) {
