@@ -2,65 +2,66 @@ CC=g++
 CFLAGS=-c -Wall -Wno-reorder -Wno-switch -std=c++11 -I./
 LDFLAGS=-lz -lstdc++ 
 LDPOSTFLAGS= `sdl-config --libs` -lSDL -lSDL_mixer -lSDL_net
-SRCS=LevelSelect.cpp\
-	Player.cpp\
+SRCS=Airstrike.cpp\
+	AirstrikePowerUp.cpp\
+	AmmoPowerUp.cpp\
+	AudioController.cpp\
+	AudioOptions.cpp\
+	Bomb.cpp\
+	BombPowerUp.cpp\
+	CannonNPC.cpp\
+	CharacterSelect.cpp\
 	ChickNPC.cpp\
+	Client.cpp\
+	ClientNetworkMultiplayer.cpp\
+	CommandProcessor.cpp\
+	commands/CommandGeneratePowerup.cpp\
 	Commands.cpp\
-	Options.cpp\
-	HealthPowerUp.cpp\
-	RandomPowerUp.cpp\
-	Menu.cpp\
-	GameInput.cpp\
-	InstantKillBulletPowerUp.cpp\
-	MinePowerUp.cpp\
-	NPC.cpp\
-	Airstrike.cpp\
-	PauseMenu.cpp\
-	OptionsScreen.cpp\
+	ControlsOptions.cpp\
 	DoubleDamagePowerUp.cpp\
-	Projectile.cpp\
+	GameInput.cpp\
+	Gameplay.cpp\
+	GameplayObject.cpp\
+	GatlingNPC.cpp\
+	Graphics.cpp\
+	HealthPowerUp.cpp\
+	InstantKillBulletPowerUp.cpp\
+	LaserBeam.cpp\
+	LaserBeamPowerUp.cpp\
+	Level.cpp\
+	LevelSelect.cpp\
+	LocalMultiplayer.cpp\
+	LocalMultiplayerRoundEnd.cpp\
 	log.cpp\
 	Main.cpp\
-	AmmoPowerUp.cpp\
-	PlayerAnimation.cpp\
-	Timer.cpp\
-	LaserBeam.cpp\
+	Menu.cpp\
 	Mine.cpp\
+	MinePowerUp.cpp\
+	Mission.cpp\
 	MissionSelect.cpp\
 	NetworkMultiplayer.cpp\
-	GatlingNPC.cpp\
-	Gameplay.cpp\
-	AirstrikePowerUp.cpp\
-	CommandProcessor.cpp\
-	AudioOptions.cpp\
-	LocalMultiplayer.cpp\
-	states/ServerStateInactive.cpp\
-	states/ServerStateGameStarted.cpp\
+	NPC.cpp\
+	Options.cpp\
+	OptionsScreen.cpp\
+	PauseMenu.cpp\
+	PlayerAnimation.cpp\
+	Player.cpp\
+	Projectile.cpp\
+	RandomPowerUp.cpp\
+	ServerClient.cpp\
+	Server.cpp\
+	ShieldPowerUp.cpp\
 	states/ServerStateAcceptClients.cpp\
 	states/ServerState.cpp\
+	states/ServerStateGameStarted.cpp\
+	states/ServerStateInactive.cpp\
 	states/ServerStateInitialize.cpp\
-	Server.cpp\
-	util/PlayerUtil.cpp\
-	util/ServerUtil.cpp\
-	util/LevelUtil.cpp\
-	LocalMultiplayerRoundEnd.cpp\
-	Level.cpp\
-	ClientNetworkMultiplayer.cpp\
-	AudioController.cpp\
-	Client.cpp\
-	Graphics.cpp\
-	GameplayObject.cpp\
-	Mission.cpp\
-	Bomb.cpp\
 	Text.cpp\
-	CharacterSelect.cpp\
-	ServerClient.cpp\
-	ShieldPowerUp.cpp\
-	CannonNPC.cpp\
-	LaserBeamPowerUp.cpp\
-	BombPowerUp.cpp\
-	ControlsOptions.cpp\
-	Util.cpp
+	Timer.cpp\
+	Util.cpp\
+	util/LevelUtil.cpp\
+	util/PlayerUtil.cpp\
+	util/ServerUtil.cpp
 OBJS=$(SRCS:.cpp=.o)
 EXECUTABLE=battle
 
