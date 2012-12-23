@@ -2,8 +2,11 @@
 
 #include "GameplayObject.h"
 #include "BombPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 BombPowerUp::BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount) {
+	clip->x = 16;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -40,3 +43,11 @@ void BombPowerUp::move(Level * level) {
 }
 
 void BombPowerUp::process() {}
+
+void BombPowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeBomb;
+	powerup.data.param = this->ammount;
+}

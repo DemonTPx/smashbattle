@@ -47,6 +47,7 @@ class CommandSetPlayerDeath;
 class CommandSetGameEnd;
 class CommandSetPlayerScore;
 class CommandSetGameStart;
+class CommandGeneratePowerup;
 
 class ServerClient : public CommandProcessor
 {
@@ -122,6 +123,7 @@ protected:
 	bool process(CommandSetGameEnd *command);
 	bool process(CommandSetPlayerScore *command);
 	bool process(CommandSetGameStart *command);
+	bool process(CommandGeneratePowerup *command);
 
 private:
 	ServerClient();

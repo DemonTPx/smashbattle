@@ -15,6 +15,8 @@ protected:
 
 	virtual void on_pre_processing() {}
 	virtual void on_post_processing();
+
+	virtual GameplayObject *generate_powerup(bool force = false);
 };
 
 #endif //__NETWORKMULTIPLAYER_H__

@@ -4,8 +4,11 @@
 #include "LaserBeam.h"
 
 #include "LaserBeamPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 LaserBeamPowerUp::LaserBeamPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position) {
+	clip->x = 112;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -88,3 +91,10 @@ void LaserBeamPowerUp::move(Level * level) {
 }
 
 void LaserBeamPowerUp::process() {}
+
+void LaserBeamPowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeLaserBeam;
+}

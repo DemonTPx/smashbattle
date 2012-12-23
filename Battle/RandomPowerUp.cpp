@@ -12,6 +12,7 @@
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 const int RandomPowerUp::CYCLE_COUNT = 7;
 const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 80, 64, 112, 16, 128, 96};
@@ -31,7 +32,7 @@ RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position) {
 
 	cycle = rand() % CYCLE_COUNT;
 
-	frame_last_cycle = Gameplay::frame;
+	frame_counter = 0;
 
 	clip = new SDL_Rect();
 	clip->x = CYCLE_X[cycle];
@@ -89,6 +90,7 @@ void RandomPowerUp::hit_player(Player * p) {
 void RandomPowerUp::hit_npc(NPC * npc) {}
 
 void RandomPowerUp::draw(SDL_Surface * screen, int frames_processed) {
+	frame_counter += frames_processed;
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 
@@ -99,7 +101,7 @@ void RandomPowerUp::move(Level * level) {
 }
 
 void RandomPowerUp::process() {
-	if(Gameplay::frame - frame_last_cycle >= CYCLE_DELAY) {
+	if(frame_counter >= CYCLE_DELAY) {
 		int last;
 
 		last = cycle;
@@ -108,6 +110,13 @@ void RandomPowerUp::process() {
 		}
 
 		clip->x = CYCLE_X[cycle];
-		frame_last_cycle = Gameplay::frame;
+		frame_counter = 0;
 	}
+}
+
+void RandomPowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeRandom;
 }

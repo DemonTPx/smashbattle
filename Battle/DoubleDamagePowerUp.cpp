@@ -2,8 +2,11 @@
 
 #include "GameplayObject.h"
 #include "DoubleDamagePowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 DoubleDamagePowerUp::DoubleDamagePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo) {
+	clip->x = 48;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -40,3 +43,11 @@ void DoubleDamagePowerUp::move(Level * level) {
 }
 
 void DoubleDamagePowerUp::process() {}
+
+void DoubleDamagePowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeDoubleDamage;
+	powerup.data.param = this->ammo;
+}

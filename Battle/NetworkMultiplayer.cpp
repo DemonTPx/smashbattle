@@ -12,6 +12,17 @@ using std::map;
 
 #include "states/ServerStateAcceptClients.h"
 
+#include "HealthPowerUp.h"
+#include "AmmoPowerUp.h"
+#include "DoubleDamagePowerUp.h"
+#include "InstantKillBulletPowerUp.h"
+#include "BombPowerUp.h"
+#include "MinePowerUp.h"
+#include "AirstrikePowerUp.h"
+#include "LaserBeamPowerUp.h"
+#include "ShieldPowerUp.h"
+#include "RandomPowerUp.h"
+
 void NetworkMultiplayer::on_game_reset()
 {
 	countdown = false;
@@ -151,4 +162,18 @@ void NetworkMultiplayer::on_post_processing()
 			once = true;
 		}
 	}
+}
+
+GameplayObject *NetworkMultiplayer::generate_powerup(bool force)
+{
+	GameplayObject *powerup = LocalMultiplayer::generate_powerup(force);
+	if (powerup)
+	{
+		CommandGeneratePowerup genpow;
+		genpow.data.time = Server::getInstance().getServerTime();
+		powerup->copyTo(genpow);
+
+		Server::getInstance().sendAll(genpow);
+	}
+	return powerup;
 }

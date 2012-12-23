@@ -1,6 +1,8 @@
 #ifndef _INSTANTKILLBULLETPOWERUP_H
 #define _INSTANTKILLBULLETPOWERUP_H
 
+class CommandGeneratePowerup;
+
 class InstantKillBulletPowerUp : public GameplayObject {
 public:
 	InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo);
@@ -13,6 +15,8 @@ public:
 	virtual void hit_npc(NPC * npc);
 	
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
+
+	virtual void copyTo(CommandGeneratePowerup &powerup);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;

@@ -4,8 +4,11 @@
 #include "Airstrike.h"
 
 #include "AirstrikePowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 AirstrikePowerUp::AirstrikePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position) {
+	clip->x = 80;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -47,3 +50,10 @@ void AirstrikePowerUp::move(Level * level) {
 }
 
 void AirstrikePowerUp::process() {}
+
+void AirstrikePowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeAirstrike;
+}

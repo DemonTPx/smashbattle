@@ -1,6 +1,8 @@
 #ifndef _RANDOMPOWERUP_H
 #define _RANDOMPOWERUP_H
 
+class CommandGeneratePowerup;
+
 class RandomPowerUp : public GameplayObject {
 public:
 	RandomPowerUp(SDL_Surface * surface, SDL_Rect * position);
@@ -18,13 +20,16 @@ public:
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
 
+	virtual void copyTo(CommandGeneratePowerup &powerup);
+
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 
 	int cycle;
 	
-	int frame_last_cycle;
 	int frame_cycle;
+
+	int frame_counter;
 };
 
 #endif

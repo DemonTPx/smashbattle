@@ -3,6 +3,8 @@
 
 #include "GameplayObject.h"
 
+class CommandGeneratePowerup;
+
 class AirstrikePowerUp : public GameplayObject {
 public:
 	AirstrikePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position);
@@ -16,8 +18,11 @@ public:
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
 
+	virtual void copyTo(CommandGeneratePowerup &powerup);
+
 	static void shoot_airstrike(Player * p);
 	
+
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 };

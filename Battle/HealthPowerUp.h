@@ -13,6 +13,8 @@ public:
 	virtual void hit_npc(NPC * npc);
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
+
+	virtual void copyTo(CommandGeneratePowerup &powerup);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;

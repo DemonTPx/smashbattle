@@ -2,6 +2,7 @@
 #define _LASERBEAMPOWERUP_H
 
 #include "GameplayObject.h"
+class CommandGeneratePowerup;
 
 class LaserBeamPowerUp : public GameplayObject {
 public:
@@ -15,6 +16,8 @@ public:
 	virtual void hit_npc(NPC * npc);
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
+
+	virtual void copyTo(CommandGeneratePowerup &powerup);
 
 	static void shoot_laserbeam(Player * player);
 	

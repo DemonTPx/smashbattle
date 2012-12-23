@@ -32,7 +32,7 @@ protected:
 	void draw_score_duel();
 	void draw_score_multi();
 
-	void generate_powerup(bool force = false);
+	virtual GameplayObject *generate_powerup(bool force = false);
 	
 	int end_avatar_start_frame;
 

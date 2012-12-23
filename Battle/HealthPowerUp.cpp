@@ -2,8 +2,11 @@
 
 #include "GameplayObject.h"
 #include "HealthPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 HealthPowerUp::HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp) {
+	clip->x = 0;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -40,3 +43,11 @@ void HealthPowerUp::move(Level * level) {
 }
 
 void HealthPowerUp::process() {}
+
+void HealthPowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeHealth;
+	powerup.data.param = this->hp;
+}

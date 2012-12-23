@@ -31,6 +31,7 @@ protected:
 
 	virtual void on_input_handled();
 
+	virtual GameplayObject *generate_powerup(bool force = false);
 
 private:
 	LagMeasure *lag_;

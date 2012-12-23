@@ -2,8 +2,11 @@
 
 #include "GameplayObject.h"
 #include "MinePowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 MinePowerUp::MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount) {
+	clip->x = 128;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -40,3 +43,11 @@ void MinePowerUp::move(Level * level) {
 }
 
 void MinePowerUp::process() {}
+
+void MinePowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeMine;
+	powerup.data.param = this->ammount;
+}

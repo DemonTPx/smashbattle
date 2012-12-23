@@ -110,6 +110,7 @@
     <ClCompile Include="ClientNetworkMultiplayer.cpp" />
     <ClCompile Include="CommandProcessor.cpp" />
     <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="commands\CommandGeneratePowerup.cpp" />
     <ClCompile Include="ControlsOptions.cpp" />
     <ClCompile Include="DoubleDamagePowerUp.cpp" />
     <ClCompile Include="GameInput.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="commands\CommandAddPlayer.hpp" />
     <ClInclude Include="commands\CommandBombDropped.hpp" />
     <ClInclude Include="commands\CommandDelPlayer.hpp" />
+    <ClInclude Include="commands\CommandGeneratePowerup.h" />
     <ClInclude Include="commands\CommandPing.hpp" />
     <ClInclude Include="commands\CommandPong.hpp" />
     <ClInclude Include="commands\CommandRequestCharacter.hpp" />

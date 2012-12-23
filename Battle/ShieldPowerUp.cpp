@@ -3,8 +3,11 @@
 #include "Gameplay.h"
 #include "GameplayObject.h"
 #include "ShieldPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 ShieldPowerUp::ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position) {
+	clip->x = 96;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -38,3 +41,10 @@ void ShieldPowerUp::move(Level * level) {
 }
 
 void ShieldPowerUp::process() {}
+
+void ShieldPowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeShield;
+}

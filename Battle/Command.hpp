@@ -28,7 +28,8 @@ public:
 		SetPlayerDeath = 0x10,
 		SetGameEnd = 0x11,
 		SetPlayerScore = 0x12,
-		SetGameStart = 0x13
+		SetGameStart = 0x13,
+		GeneratePowerup = 0x14
 	};
 
 	Command::Types getType() const { return type_; }

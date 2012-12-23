@@ -2,8 +2,11 @@
 
 #include "GameplayObject.h"
 #include "InstantKillBulletPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
 
 InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo) {
+	clip->x = 64;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -40,3 +43,11 @@ void InstantKillBulletPowerUp::move(Level * level) {
 }
 
 void InstantKillBulletPowerUp::process() {}
+
+void InstantKillBulletPowerUp::copyTo(CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeInstantKillBullet;
+	powerup.data.param = this->ammo;
+}

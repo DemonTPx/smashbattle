@@ -295,6 +295,9 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 		case Command::Types::SetGameStart:
 			process(dynamic_cast<CommandSetGameStart *>(command.get()));
 			break;
+		case Command::Types::GeneratePowerup:
+			process(dynamic_cast<CommandGeneratePowerup *>(command.get()));
+			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
 	}
@@ -555,5 +558,26 @@ bool ServerClient::process(CommandSetPlayerScore *command)
 bool ServerClient::process(CommandSetGameStart *command)
 {
 	ServerClient::getInstance().resumeGameIn(command->data.delay);
+	return true;
+}
+
+bool ServerClient::process(CommandGeneratePowerup *command)
+{
+	SDL_Rect *rect = new SDL_Rect;
+	SDL_Rect *pos = new SDL_Rect;
+	rect->w = 16;
+	rect->h = 16;
+	memcpy(pos, &command->data.position, sizeof(SDL_Rect));
+	std::unique_ptr<GameplayObject> powerup = CommandGeneratePowerup::factory(command->data.type, rect, pos, command->data.param);
+
+	auto *newpowerup = powerup.release();
+
+	game_->add_object(newpowerup);
+
+	// Account for lag
+	int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+	for (int i=0; i<processFrames; i++)
+		game_->process_gameplayobj(newpowerup);
+
 	return true;
 }

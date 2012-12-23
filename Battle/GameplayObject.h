@@ -5,6 +5,8 @@
 #include "Player.h"
 #include "NPC.h"
 
+class CommandGeneratePowerup;
+
 class GameplayObject {
 public:
 	GameplayObject();
@@ -17,6 +19,8 @@ public:
 	virtual void hit_npc(NPC * npc) = 0;
 
 	virtual void draw(SDL_Surface * screen, int frames_processed) = 0;
+
+	virtual void copyTo(CommandGeneratePowerup &powerup);
 
 	bool done;
 	bool is_powerup;

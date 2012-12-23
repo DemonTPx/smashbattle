@@ -1,6 +1,8 @@
 #ifndef _SHIELDPOWERUP_H
 #define _SHIELDPOWERUP_H
 
+class CommandGeneratePowerup;
+
 class ShieldPowerUp : public GameplayObject {
 public:
 	ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position);
@@ -13,6 +15,7 @@ public:
 	virtual void hit_npc(NPC * npc);
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
+	virtual void copyTo(CommandGeneratePowerup &powerup);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;

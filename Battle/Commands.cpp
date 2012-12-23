@@ -46,6 +46,8 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandSetPlayerScore());
 		case Command::Types::SetGameStart:
 			return std::unique_ptr<Command>(new CommandSetGameStart());
+		case Command::Types::GeneratePowerup:
+			return std::unique_ptr<Command>(new CommandGeneratePowerup());
 	}
 	throw std::runtime_error("failure");
 }

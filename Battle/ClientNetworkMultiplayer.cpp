@@ -170,3 +170,9 @@ void ClientNetworkMultiplayer::on_input_handled()
 	if (flags != previous_flags)
 		ServerClient::getInstance().send(req);
 };
+
+GameplayObject *ClientNetworkMultiplayer::generate_powerup(bool force)
+{
+	/* all handled by the server */
+	return NULL;
+}

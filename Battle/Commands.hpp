@@ -20,5 +20,6 @@
 #include "commands/CommandSetGameEnd.hpp"
 #include "commands/CommandSetPlayerScore.hpp"
 #include "commands/CommandSetGameStart.hpp"
+#include "commands/CommandGeneratePowerup.h"
 
 #endif //__COMMANDS_H___

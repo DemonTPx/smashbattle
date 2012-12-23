@@ -43,7 +43,10 @@ void LocalMultiplayer::initialize() {
 	powerup_airstrike_rate = 2;
 	powerup_laserbeam_rate = 3;
 	powerup_shield_rate = 4;
-	powerup_random_rate = 6;
+	if (Main::runmode == MainRunModes::SERVER)
+		powerup_random_rate = 0; // currently server does not support random powerup yet
+	else
+		powerup_random_rate = 6;
 
 	round = 0;
 }
@@ -174,15 +177,14 @@ void LocalMultiplayer::on_post_processing() {
 			}
 		}
 
-		// Generate powerup
-		if (Main::runmode == MainRunModes::ARCADE) // temporarily disable for client/server as it is not yet properly supported
-			generate_powerup();
+		generate_powerup();
 	}
 }
 
-void LocalMultiplayer::generate_powerup(bool force) {
+GameplayObject *LocalMultiplayer::generate_powerup(bool force) 
+{
 	if(!force) {
-		if(rand() % powerup_rate != 0) return;
+		if(rand() % powerup_rate != 0) return NULL;
 	}
 
 	int powerups;
@@ -194,7 +196,7 @@ void LocalMultiplayer::generate_powerup(bool force) {
 	}
 
 	if(powerups >= powerup_max)
-		return;
+		return NULL;
 
 	int r;
 	int row, col;
@@ -244,63 +246,54 @@ void LocalMultiplayer::generate_powerup(bool force) {
 	first = 0;
 	last = first + powerup_health_rate;
 	if(r >= first && r < last) {
-		rect->x = 0; rect->y = 0;
 		gpo = new HealthPowerUp(Main::graphics->powerups, rect, pos, 25);
 	}
 
 	first = last;
 	last = first + powerup_bullet_rate;
 	if(r >= first && r < last) {
-		rect->x = 32; rect->y = 0;
 		gpo = new AmmoPowerUp(Main::graphics->powerups, rect, pos, 20);
 	}
 
 	first = last;
 	last = first + powerup_doubledamage_rate;
 	if(r >= first && r < last) {
-		rect->x = 48; rect->y = 0;
 		gpo = new DoubleDamagePowerUp(Main::graphics->powerups, rect, pos, 5);
 	}
 
 	first = last;
 	last = first + powerup_instantkill_rate;
 	if(r >= first && r < last) {
-		rect->x = 64; rect->y = 0;
 		gpo = new InstantKillBulletPowerUp(Main::graphics->powerups, rect, pos, 1);
 	}
 
 	first = last;
 	last = first + powerup_bomb_rate;
 	if(r >= first && r < last) {
-		rect->x = 16; rect->y = 0;
 		gpo = new BombPowerUp(Main::graphics->powerups, rect, pos, 1);
 	}
 
 	first = last;
 	last = first + powerup_mine_rate;
 	if(r >= first && r < last) {
-		rect->x = 128; rect->y = 0;
 		gpo = new MinePowerUp(Main::graphics->powerups, rect, pos, 1);
 	}
 
 	first = last;
 	last = first + powerup_airstrike_rate;
 	if(r >= first && r < last) {
-		rect->x = 80; rect->y = 0;
 		gpo = new AirstrikePowerUp(Main::graphics->powerups, rect, pos);
 	}
 
 	first = last;
 	last = first + powerup_laserbeam_rate;
 	if(r >= first && r < last) {
-		rect->x = 112; rect->y = 0;
 		gpo = new LaserBeamPowerUp(Main::graphics->powerups, rect, pos);
 	}
 
 	first = last;
 	last = first + powerup_shield_rate;
 	if(r >= first && r < last) {
-		rect->x = 96; rect->y = 0;
 		gpo = new ShieldPowerUp(Main::graphics->powerups, rect, pos);
 	}
 
@@ -317,6 +310,8 @@ void LocalMultiplayer::generate_powerup(bool force) {
 		delete rect;
 		delete pos;
 	}
+
+	return gpo;
 }
 
 void LocalMultiplayer::draw_score() {
