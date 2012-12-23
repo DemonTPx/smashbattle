@@ -21,5 +21,7 @@
 #include "commands/CommandSetPlayerScore.hpp"
 #include "commands/CommandSetGameStart.hpp"
 #include "commands/CommandGeneratePowerup.h"
+#include "commands/CommandApplyPowerup.hpp"
+#include "commands/CommandRemovePowerup.hpp"
 
 #endif //__COMMANDS_H___

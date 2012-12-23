@@ -174,11 +174,13 @@
     <ClInclude Include="CommandProcessor.h" />
     <ClInclude Include="Commands.hpp" />
     <ClInclude Include="commands\CommandAddPlayer.hpp" />
+    <ClInclude Include="commands\CommandApplyPowerup.hpp" />
     <ClInclude Include="commands\CommandBombDropped.hpp" />
     <ClInclude Include="commands\CommandDelPlayer.hpp" />
     <ClInclude Include="commands\CommandGeneratePowerup.h" />
     <ClInclude Include="commands\CommandPing.hpp" />
     <ClInclude Include="commands\CommandPong.hpp" />
+    <ClInclude Include="commands\CommandRemovePowerup.hpp" />
     <ClInclude Include="commands\CommandRequestCharacter.hpp" />
     <ClInclude Include="commands\CommandSetBroadcastText.hpp" />
     <ClInclude Include="commands\CommandSetCharacter.hpp" />

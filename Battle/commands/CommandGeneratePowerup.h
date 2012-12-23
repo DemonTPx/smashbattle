@@ -26,7 +26,7 @@ public:
 		TypeRandom = 0x0A
 	};
 
-	static std::unique_ptr<GameplayObject> factory(CommandGeneratePowerup::PowerUps type, SDL_Rect *rect, SDL_Rect *pos, int param = 0);
+	static std::unique_ptr<GameplayObject> factory(CommandGeneratePowerup::PowerUps type, short powerupid, SDL_Rect *rect, SDL_Rect *pos, int param = 0);
 
 	CommandGeneratePowerup() : Command(Command::Types::GeneratePowerup) 
 	{
@@ -40,6 +40,7 @@ public:
 	struct
 	{
 		Uint32 time;
+		short powerupid;
 		CommandGeneratePowerup::PowerUps type;
 		SDL_Rect position;
 		int param;

@@ -26,6 +26,13 @@ public:
 	bool is_powerup;
 
 	SDL_Rect * position;
+
+	void set_id(short id) { id_ = id; };
+	short id() { return id_; }
+
+private:
+
+	short id_;
 };
 
 #endif

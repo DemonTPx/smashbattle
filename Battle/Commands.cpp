@@ -48,6 +48,10 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandSetGameStart());
 		case Command::Types::GeneratePowerup:
 			return std::unique_ptr<Command>(new CommandGeneratePowerup());
+		case Command::Types::ApplyPowerup:
+			return std::unique_ptr<Command>(new CommandApplyPowerup());
+		case Command::Types::RemovePowerup:
+			return std::unique_ptr<Command>(new CommandRemovePowerup());
 	}
 	throw std::runtime_error("failure");
 }

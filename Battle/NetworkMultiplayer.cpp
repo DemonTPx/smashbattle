@@ -171,6 +171,7 @@ GameplayObject *NetworkMultiplayer::generate_powerup(bool force)
 	{
 		CommandGeneratePowerup genpow;
 		genpow.data.time = Server::getInstance().getServerTime();
+		genpow.data.powerupid = powerup->id();
 		powerup->copyTo(genpow);
 
 		Server::getInstance().sendAll(genpow);

@@ -11,6 +11,7 @@
 #include "Gameplay.h"
 
 #include "ServerClient.h"
+#include "commands/CommandApplyPowerup.hpp"
 
 #ifndef WIN32
 #define sprintf_s snprintf
@@ -234,7 +235,18 @@ void Gameplay::move_player(Player &player)
 				continue;
 			std::unique_ptr<SDL_Rect> rect(p->get_rect());
 			if(is_intersecting(rect.get(), obj->position)) {
-				obj->hit_player(p);
+ 				// In case the runmode is client, and it is a powerup, skip hit_player() call, we receive these commands from the server
+				if (!obj->is_powerup || Main::runmode != MainRunModes::CLIENT) {
+					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
+					if (obj->is_powerup && Main::runmode == MainRunModes::SERVER) {
+						CommandApplyPowerup apply;
+						apply.data.time = Server::getInstance().getServerTime();
+						apply.data.player_id = p->number;
+						apply.data.powerup_id = obj->id();
+						Server::getInstance().sendAll(apply);
+					}
+					obj->hit_player(p);
+				}
 			}
 		}
 		for(unsigned int i = 0; i < npcs->size(); i++) {
@@ -276,7 +288,19 @@ bool Gameplay::process_gameplayobj(GameplayObject *gameplayobj)
 			SDL_Rect * rect;
 			rect = p->get_rect();
 			if(is_intersecting(rect, obj->position)) {
-				obj->hit_player(p);
+ 				// In case the runmode is client, and it is a powerup, skip hit_player() call, we receive these commands from the server
+				if (!obj->is_powerup || Main::runmode != MainRunModes::CLIENT)
+				{
+					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
+					if (obj->is_powerup && Main::runmode == MainRunModes::SERVER) {
+						CommandApplyPowerup apply;
+						apply.data.time = Server::getInstance().getServerTime();
+						apply.data.player_id = p->number;
+						apply.data.powerup_id = obj->id();
+						Server::getInstance().sendAll(apply);
+					}
+					obj->hit_player(p);
+				}
 			}
 			delete rect;
 		}

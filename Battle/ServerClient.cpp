@@ -142,9 +142,19 @@ void ServerClient::poll()
 		if (resumeGameWithCountdown_)
 			game_->set_countdown(true, 3 + 1);
 
-		// Clear gameplay objects
-		for_each(begin(*game_->objects), end(*game_->objects), [&] (GameplayObject *obj) { delete obj; });
-			game_->objects->clear();
+		// Clear gameplay objects, powerups excluded, these are destroyed by command on the server
+		std::vector<GameplayObject *> deleteObjs;
+		for_each(begin(*game_->objects), end(*game_->objects), [&] (GameplayObject *obj) { 
+			if (!obj->is_powerup)
+				deleteObjs.push_back(obj); 
+		});
+		for_each(begin(deleteObjs), end(deleteObjs), [&] (GameplayObject *obj) { 
+			auto &objects = (*game_->objects);
+			auto iter = std::find(begin(objects), end(objects), obj);
+			delete obj;
+			if (iter != end(objects))
+				objects.erase(iter);
+		});
 	}
 
 
@@ -297,6 +307,12 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 			break;
 		case Command::Types::GeneratePowerup:
 			process(dynamic_cast<CommandGeneratePowerup *>(command.get()));
+			break;
+		case Command::Types::ApplyPowerup:
+			process(dynamic_cast<CommandApplyPowerup *>(command.get()));
+			break;
+		case Command::Types::RemovePowerup:
+			process(dynamic_cast<CommandRemovePowerup *>(command.get()));
 			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
@@ -568,7 +584,7 @@ bool ServerClient::process(CommandGeneratePowerup *command)
 	rect->w = 16;
 	rect->h = 16;
 	memcpy(pos, &command->data.position, sizeof(SDL_Rect));
-	std::unique_ptr<GameplayObject> powerup = CommandGeneratePowerup::factory(command->data.type, rect, pos, command->data.param);
+	std::unique_ptr<GameplayObject> powerup = CommandGeneratePowerup::factory(command->data.type, command->data.powerupid, rect, pos, command->data.param);
 
 	auto *newpowerup = powerup.release();
 
@@ -578,6 +594,52 @@ bool ServerClient::process(CommandGeneratePowerup *command)
 	int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
 	for (int i=0; i<processFrames; i++)
 		game_->process_gameplayobj(newpowerup);
+
+	return true;
+}
+
+bool ServerClient::process(CommandApplyPowerup *command)
+{
+	try {
+		auto &objs = *game_->objects;
+		for (auto i=objs.begin(); i!=objs.end(); i++) {
+			auto &obj = **i;
+			if (obj.is_powerup && obj.id() == command->data.powerup_id) {
+				obj.hit_player(&player_util::get_player_by_id(command->data.player_id));
+				obj.done = true;
+				return true;
+			}
+		}
+	}
+	catch (std::runtime_error &err) 
+	{
+		log(format("failure in process(CommandApplyPowerup): %s", err.what()), Logger::Priority::ERROR);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandRemovePowerup *command)
+{
+	try {
+		auto &objs = *game_->objects;
+		for (auto i=objs.begin(); i!=objs.end(); i++) {
+			auto *obj = *i;
+			if (obj->is_powerup && obj->id() == command->data.powerup_id) {
+				//obj.done = true;
+
+				auto iter = std::find(begin(objs), end(objs), obj);
+				delete obj;
+				objs.erase(iter);
+
+				return true;
+			}
+		}
+	}
+	catch (std::runtime_error &err) 
+	{
+		log(format("failure in process(CommandApplyPowerup): %s", err.what()), Logger::Priority::ERROR);
+	}
 
 	return true;
 }

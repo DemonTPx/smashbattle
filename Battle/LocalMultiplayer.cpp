@@ -305,6 +305,9 @@ GameplayObject *LocalMultiplayer::generate_powerup(bool force)
 	}
 
 	if(gpo != NULL) {
+		static short unique_id = 0;
+		gpo->set_id(unique_id);
+		unique_id++; // doesn't matter if it rotates
 		objects->push_back(gpo);
 	} else {
 		delete rect;
