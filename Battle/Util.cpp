@@ -11,12 +11,17 @@ namespace util
 
 const string basedir(const string &fullpath)
 {
+#ifdef _WIN32
+	char pathsep = '\\';
+#else
+	char pathsep = '/';
+#endif
 	vector<string> tokens;
-	util::split(fullpath, '\\', tokens);
+	util::split(fullpath, pathsep, tokens);
 	string cwd;
 	for (vector<string>::iterator i = tokens.begin(); i!=tokens.end(); i++) {
 		if (cwd != "")
-			cwd.append("\\"); // implode tokens with \'s
+			cwd.append(std::string(1, pathsep)); // implode tokens with \'s
 		if (i + 1 == tokens.end())
 			break; // discard last tokenized (executable name)
 		cwd.append(*i);

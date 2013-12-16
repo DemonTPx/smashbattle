@@ -66,10 +66,10 @@ public:
 
 	short test;
 
-private:
-	
-	friend std::map<int, Client>;
+	// Required for std::map, couldn't get it to work with friend classes..
 	Client();
+	
+private:
 	
 	int client_id_;
 	char character_;
@@ -81,6 +81,9 @@ private:
 	int initialLagTests_;
 
 	Client::State currentState_;
+	
+	//friend std::map<int, Client>;
+	//friend class Server;
 };
 
 #endif //__CLIENT_H__
