@@ -2,8 +2,8 @@
 #include <stdexcept>
 #include "Player.h"
 
-#include "Server.h"
-#include "Commands.hpp"
+#include "network/Server.h"
+#include "network/Commands.hpp"
 
 namespace server_util
 {

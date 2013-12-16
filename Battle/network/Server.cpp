@@ -2,7 +2,7 @@
  * The SDL_Net code could not have been so easily written without the examples provided by
  *  Jon C. Atkins, found here: http://jcatki.no-ip.org:8080/SDL_net/
  */
-#include "Server.h"
+#include "network/Server.h"
 #include "states/ServerState.h"
 
 #include "SDL/SDL.h"

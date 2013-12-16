@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Command.hpp"
+#include "network/Command.hpp"
 
 class CommandSetPlayerAmmo : public Command
 {

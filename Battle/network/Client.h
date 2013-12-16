@@ -5,7 +5,7 @@
 #include <map>
 #include <memory>
 
-#include "CommandProcessor.h"
+#include "network/CommandProcessor.h"
 
 #include "util/LagMeasure.hpp"
 

@@ -4,15 +4,15 @@
 
 #include "Main.h"
 
-#include "ServerClient.h"
-#include "Server.h"
+#include "network/ServerClient.h"
+#include "network/Server.h"
 #include "Projectile.h"
 #include "Bomb.h"
 #include "Mine.h"
 #include "Gameplay.h"
 #include "Level.h"
 #include "Player.h"
-#include "log.h"
+#include "util/Log.h"
 #include "util/ServerUtil.h"
 #include "commands/CommandShotFired.hpp"
 #include "commands/CommandBombDropped.hpp"

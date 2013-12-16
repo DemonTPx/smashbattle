@@ -10,7 +10,7 @@
 
 #include "Gameplay.h"
 
-#include "ServerClient.h"
+#include "network/ServerClient.h"
 #include "commands/CommandApplyPowerup.hpp"
 
 #ifndef WIN32
@@ -39,10 +39,10 @@ Gameplay::~Gameplay() {
 	instance = NULL;
 }
 
-#include "Server.h"
+#include "network/Server.h"
 #include <map>
 using std::map;
-#include "Client.h"
+#include "network/Client.h"
 
 void Gameplay::run() {
 	SDL_Event event;

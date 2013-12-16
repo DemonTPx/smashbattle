@@ -3,9 +3,9 @@
 #include <memory>
 
 // temp
-#include "Client.h"
+#include "network/Client.h"
 
-#include "Commands.hpp"
+#include "network/Commands.hpp"
 
 void CommandProcessor::receive(int bytes_received, const char * const buffer)
 {
@@ -16,7 +16,7 @@ void CommandProcessor::receive(int bytes_received, const char * const buffer)
 	buffer_idx_ += bytes_received;
 }
 
-#include "log.h"
+#include "util/Log.h"
 bool CommandProcessor::parse()
 {
 	size_t processed = 0;

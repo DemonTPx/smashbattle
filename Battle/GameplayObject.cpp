@@ -1,6 +1,6 @@
 #include "SDL/SDL.h"
 
-#include "Server.h"
+#include "network/Server.h"
 #include "Level.h"
 #include "Player.h"
 #include "GameplayObject.h"

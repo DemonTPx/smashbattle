@@ -1,10 +1,10 @@
 #include "SDL/SDL.h"
 
-#include "ClientNetworkMultiplayer.h"
+#include "network/ClientNetworkMultiplayer.h"
 
-#include "ServerClient.h"
-#include "Server.h"
-#include "Commands.hpp"
+#include "network/ServerClient.h"
+#include "network/Server.h"
+#include "network/Commands.hpp"
 #include <map>
 #include <algorithm>
 #include <string>
@@ -13,9 +13,9 @@ using std::map;
 using std::for_each;
 using std::string;
 
-#include "ClientNetworkMultiplayer.h"
+#include "network/ClientNetworkMultiplayer.h"
 #include "CharacterSelect.h"
-#include "log.h"
+#include "util/Log.h"
 
 void ClientNetworkMultiplayer::start()
 {

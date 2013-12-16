@@ -1,10 +1,10 @@
 #include "ServerStates.h"
-#include "Server.h"
+#include "network/Server.h"
 #include <vector>
 
-#include "log.h"
+#include "util/Log.h"
 
-#include "Commands.hpp"
+#include "network/Commands.hpp"
 #include "Player.h"
 #include "NetworkMultiplayer.h"
 

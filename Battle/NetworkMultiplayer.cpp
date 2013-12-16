@@ -2,8 +2,8 @@
 
 #include "NetworkMultiplayer.h"
 #include "Player.h"
-#include "Server.h"
-#include "Commands.hpp"
+#include "network/Server.h"
+#include "network/Commands.hpp"
 
 #include <map>
 #include <string>

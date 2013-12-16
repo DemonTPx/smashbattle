@@ -5,7 +5,7 @@
 #include "Gameplay.h"
 #include "Player.h"
 #include "PauseMenu.h"
-#include "Server.h"
+#include "network/Server.h"
 
 PauseMenu::PauseMenu(SDL_Surface * s) {
 	screen = s;

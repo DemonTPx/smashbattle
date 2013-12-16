@@ -1,7 +1,7 @@
 #include "ServerStates.h"
-#include "Server.h"
+#include "network/Server.h"
 
-#include "log.h"
+#include "util/Log.h"
 
 using std::string;
 

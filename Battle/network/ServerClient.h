@@ -18,7 +18,7 @@
 #include "SDL/SDL_net.h"
 
 
-#include "CommandProcessor.h"
+#include "network/CommandProcessor.h"
 #include "util/LagMeasure.hpp"
 
 

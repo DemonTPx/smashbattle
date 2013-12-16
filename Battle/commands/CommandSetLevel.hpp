@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Command.hpp"
+#include "network/Command.hpp"
 #include "Level.h"
 
 class CommandSetLevel : public Command

@@ -11,16 +11,17 @@
 #include "AudioController.h"
 #include "Graphics.h"
 
-#include "Util.h"
 
 #include "Main.h"
-#include "ServerClient.h"
-#include "Server.h"
+#include "network/ServerClient.h"
+#include "network/Server.h"
 #include "NetworkMultiplayer.h"
-#include "ClientNetworkMultiplayer.h"
+#include "network/ClientNetworkMultiplayer.h"
 
 #include "states/ServerStates.h"
-#include "log.h"
+
+#include "util/StringUtils.h"
+#include "util/Log.h"
 
 using std::string;
 

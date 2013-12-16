@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "Command.hpp"
+#include "network/Command.hpp"
 
 #include "GameplayObject.h"
 

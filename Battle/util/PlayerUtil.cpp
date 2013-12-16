@@ -4,8 +4,8 @@
 #include <stdexcept>
 
 #include "commands/CommandSetPlayerData.hpp"
-#include "ServerClient.h" // todo refactor this
-#include "Server.h" // todo refactor this
+#include "network/ServerClient.h" // todo refactor this
+#include "network/Server.h" // todo refactor this
 #include "Gameplay.h"
 
 namespace player_util

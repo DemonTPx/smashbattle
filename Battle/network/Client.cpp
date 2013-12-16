@@ -1,7 +1,7 @@
-#include "Client.h"
-#include "Server.h"
-#include "Commands.hpp"
-#include "log.h"
+#include "network/Client.h"
+#include "network/Server.h"
+#include "network/Commands.hpp"
+#include "util/Log.h"
 #include "NetworkMultiplayer.h"
 
 /**
@@ -19,7 +19,7 @@ Client::Client()
 
 	  currentState_(Client::State::CONNECTING)
 	  
-{}	
+{}
 
 Client::Client(Client &&other) 
 	: CommandProcessor(NULL),

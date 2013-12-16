@@ -4,7 +4,7 @@
  
 #include "SDL/SDL_net.h"
 
-#include "Client.h"
+#include "network/Client.h"
 #include "Level.h"
 
 class ServerState;

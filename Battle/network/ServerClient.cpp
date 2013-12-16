@@ -5,13 +5,13 @@
 
 #include <algorithm>
 
-#include "ServerClient.h"
+#include "network/ServerClient.h"
 
-#include "Commands.hpp"
-#include "ClientNetworkMultiplayer.h"
+#include "network/Commands.hpp"
+#include "network/ClientNetworkMultiplayer.h"
 #include "Level.h"
 
-#include "log.h"
+#include "util/Log.h"
 
 using std::for_each;
 using std::begin;
@@ -194,8 +194,8 @@ void ServerClient::poll()
 }
 
 
-#include "Commands.hpp"
-#include "log.h"
+#include "network/Commands.hpp"
+#include "util/Log.h"
 void ServerClient::send(Command &command)
 {
 	if (!is_connected_)
