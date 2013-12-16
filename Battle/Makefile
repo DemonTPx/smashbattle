@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -Wall
-LDFLAGS=-lSDL -lSDL_mixer -lz -lstdc++
+LDFLAGS=`sdl-config --libs` -lSDL_mixer -lz -lstdc++
 SRCS=Airstrike.cpp\
 	AirstrikePowerUp.cpp\
 	AmmoPowerUp.cpp\
@@ -49,7 +49,7 @@ EXECUTABLE=battle
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJS)
-	$(CC) $(LDFLAGS) $(OBJS) -o battle
+	$(CC) $(OBJS) -o battle $(LDFLAGS)
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@
