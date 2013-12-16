@@ -365,17 +365,12 @@ int main(int argc, char* args[])
 	// In windows when clicking on a smashbattle:// link, the current working dir is not set.
 	// Therefore extract it from args[0] and change work dir.
 	string cwd(util::basedir(string(args[0])));
-	log(format("changing current directory to: %s", cwd.c_str()), Logger::Priority::INFO);
 
 #ifdef WIN32
 	_chdir(cwd.c_str());
 #else
-	chdir(cwd.c_str());
+	chdir("/usr/share/games/smashbattle/");
 #endif
-
-	printf("%d\n", argc);
-	for (int i=0; i<argc; i++)
-		printf("%d = %s\n",i, args[i]);
 
 	if(argc > 1) {
 		if(strcmp(args[1], "-f") == 0) {
