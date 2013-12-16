@@ -1,5 +1,4 @@
-#ifndef _LOCALMULTIPLAYERROUNDEND_H
-#define _LOCALMULTIPLAYERROUNDEND_H
+#pragma once
 
 #define ROUNDEND_CHANGE_CHARACTER 1
 #define ROUNDEND_CHANGE_LEVEL 2
@@ -51,5 +50,3 @@ private:
 
 	int selected_item;
 };
-
-#endif

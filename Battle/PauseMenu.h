@@ -1,5 +1,4 @@
-#ifndef _PAUSEMENU_H
-#define _PAUSEMENU_H
+#pragma once
 
 class PauseMenu {
 public:
@@ -23,5 +22,3 @@ private:
 	std::vector<char*> * options;
 	unsigned int selected_option;
 };
-
-#endif

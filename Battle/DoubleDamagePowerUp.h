@@ -1,5 +1,4 @@
-#ifndef _DOUBLEDAMAGEPOWERUP_H
-#define _DOUBLEDAMAGEPOWERUP_H
+#pragma once
 
 class CommandGeneratePowerup;
 
@@ -22,5 +21,3 @@ public:
 	SDL_Rect * clip;
 	int ammo;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _RANDOMPOWERUP_H
-#define _RANDOMPOWERUP_H
+#pragma once
 
 class CommandGeneratePowerup;
 
@@ -31,5 +30,3 @@ public:
 
 	int frame_counter;
 };
-
-#endif

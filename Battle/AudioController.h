@@ -1,5 +1,4 @@
-#ifndef _AUDIOCONTROLLER_H
-#define _AUDIOCONTROLLER_H
+#pragma once
 
 #include "SDL/SDL_mixer.h"
 
@@ -68,5 +67,3 @@ private:
 	static const char * sound_files[];
 	static const int soundvolume[];
 };
-
-#endif

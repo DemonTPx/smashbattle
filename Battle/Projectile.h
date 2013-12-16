@@ -1,5 +1,4 @@
-#ifndef _PROJECTILE_H
-#define _PROJECTILE_H
+#pragma once
 
 #include "GameplayObject.h"
 
@@ -32,5 +31,3 @@ public:
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
 private:
 };
-
-#endif

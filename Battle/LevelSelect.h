@@ -1,5 +1,4 @@
-#ifndef _LEVELSELECT_H
-#define _LEVELSELECT_H
+#pragma once
 
 class LevelSelect {
 public:
@@ -38,5 +37,3 @@ private:
 
 	int frame;
 };
-
-#endif

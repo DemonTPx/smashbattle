@@ -1,5 +1,4 @@
-#ifndef _GRAPHICS_H
-#define _GRAPHICS_H
+#pragma once
 
 #include "SDL/SDL.h"
 
@@ -93,5 +92,3 @@ public:
 private:
 	SDL_Surface * load_bmp(const char * filename);
 };
-
-#endif

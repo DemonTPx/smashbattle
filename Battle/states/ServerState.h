@@ -1,5 +1,4 @@
-#ifndef __INCLUDE__SERVERSTATE_H__
-#define __INCLUDE__SERVERSTATE_H__
+#pragma once
 
 #include <string>
 
@@ -18,6 +17,3 @@ public:
 	virtual void initialize(Server &server) const {};
 	virtual void execute(Server &server, Client &client) const {};
 };
-
-
-#endif //__INCLUDE__SERVERSTATE_H__

@@ -1,5 +1,4 @@
-#ifndef __INCLUDE__SERVERSTATEINACTIVE_H__
-#define __INCLUDE__SERVERSTATEINACTIVE_H__
+#pragma once
 
 #include "ServerState.h"
 
@@ -11,6 +10,3 @@ public:
 
 	const std::string type() const { return typeid(this).name(); }
 };
-
-
-#endif //__INCLUDE__SERVERSTATEINACTIVE_H__

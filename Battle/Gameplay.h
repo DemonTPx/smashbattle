@@ -1,5 +1,4 @@
-#ifndef _GAMEPLAY_H
-#define _GAMEPLAY_H
+#pragma once
 
 #include <vector>
 
@@ -101,5 +100,3 @@ protected:
 	std::string broadcast_msg;
 	int broadcast_duration;
 };
-
-#endif

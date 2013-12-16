@@ -1,5 +1,4 @@
-#ifndef _LOCALMULTIPLAYER_H
-#define _LOCALMULTIPLAYER_H
+#pragma once
 
 #include "Gameplay.h"
 
@@ -55,5 +54,3 @@ protected:
 	int powerup_shield_rate;
 	int powerup_random_rate;
 };
-
-#endif

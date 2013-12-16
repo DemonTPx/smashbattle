@@ -1,5 +1,4 @@
-#ifndef _MENU_H
-#define _MENU_H
+#pragma once
 
 #include <vector>
 #include "Main.h"
@@ -51,6 +50,3 @@ private:
 	void init();
 	void cleanup();
 };
-
-#endif
-

@@ -1,5 +1,4 @@
-#ifndef __COMMAND_HPP__
-#define __COMMAND_HPP__
+#pragma once
 
 #include <memory>
 #include <iostream>
@@ -51,5 +50,5 @@ protected:
 	Command::Types type_;
 
 private:
+
 };
-#endif //__COMMAND_HPP__

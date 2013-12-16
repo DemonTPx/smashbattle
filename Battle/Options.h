@@ -1,5 +1,5 @@
-#ifndef _OPTIONS_H
-#define _OPTIONS_H
+#pragma once
+
 #include "OptionsScreen.h"
 
 class Options : public OptionsScreen {
@@ -9,5 +9,3 @@ public:
 	void run();
 	void item_selected();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _BOMBPOWERUP_H
-#define _BOMBPOWERUP_H
+#pragma once
 
 class CommandGeneratePowerup;
 
@@ -22,5 +21,3 @@ public:
 	SDL_Rect * clip;
 	int ammount;
 };
-
-#endif

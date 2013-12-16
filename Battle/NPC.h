@@ -1,5 +1,4 @@
-#ifndef _NPC_H
-#define _NPC_H
+#pragma once
 
 #include "Level.h"
 #include "Player.h"
@@ -96,5 +95,3 @@ protected:
 
 	int bounce_direction_x, bounce_direction_y;
 };
-
-#endif

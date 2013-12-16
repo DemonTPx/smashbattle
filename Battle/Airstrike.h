@@ -1,5 +1,4 @@
-#ifndef _AIRSTRIKE_H
-#define _AIRSTRIKE_H
+#pragma once
 
 #include "GameplayObject.h"
 
@@ -22,5 +21,3 @@ public:
 
 	Player * owner;
 };
-
-#endif

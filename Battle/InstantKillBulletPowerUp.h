@@ -1,5 +1,4 @@
-#ifndef _INSTANTKILLBULLETPOWERUP_H
-#define _INSTANTKILLBULLETPOWERUP_H
+#pragma once
 
 class CommandGeneratePowerup;
 
@@ -22,5 +21,3 @@ public:
 	SDL_Rect * clip;
 	int ammo;
 };
-
-#endif

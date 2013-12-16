@@ -1,5 +1,4 @@
-#ifndef __SERVER_STATES_H__
-#define __SERVER_STATES_H__
+#pragma once
 
 #include <typeinfo>
 
@@ -10,4 +9,3 @@
 #include "states/ServerStateAcceptClients.h"
 #include "states/ServerStateGameStarted.h"
 
-#endif //__SERVER_STATES_H__

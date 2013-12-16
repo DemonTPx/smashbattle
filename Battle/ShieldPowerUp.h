@@ -1,5 +1,4 @@
-#ifndef _SHIELDPOWERUP_H
-#define _SHIELDPOWERUP_H
+#pragma once
 
 class CommandGeneratePowerup;
 
@@ -20,5 +19,3 @@ public:
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 };
-
-#endif

@@ -1,5 +1,5 @@
-#ifndef _AUDIOOPTIONS_H
-#define _AUDIOOPTIONS_H
+#pragma once
+
 #include "OptionsScreen.h"
 
 class AudioOptions : public OptionsScreen {
@@ -10,5 +10,3 @@ public:
 	void item_selected();
 	void selection_changed();
 };
-
-#endif

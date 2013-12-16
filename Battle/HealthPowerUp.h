@@ -1,5 +1,4 @@
-#ifndef _HEALTHPOWERUP_H
-#define _HEALTHPOWERUP_H
+#pragma once
 
 class HealthPowerUp : public GameplayObject {
 public:
@@ -20,5 +19,3 @@ public:
 	SDL_Rect * clip;
 	int hp;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PLAYERANIMATION_H
-#define _PLAYERANIMATION_H
+#pragma once
 
 #include "Player.h"
 
@@ -36,5 +35,3 @@ public:
 	int distance_walked;
 	int total_distance_walked;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _PLAYER_H
-#define _PLAYER_H
+#pragma once
 
 #include "Main.h"
 #include "Level.h"
@@ -176,5 +175,3 @@ public:
 	SDL_Rect * get_rect();
 private:
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _CANNONNPC_H
-#define _CANNONNPC_H
+#pragma once
 
 #include "NPC.h"
 
@@ -20,5 +19,3 @@ protected:
 	int frame_first;
 	int frame_last;
 };
-
-#endif

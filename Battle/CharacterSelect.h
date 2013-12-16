@@ -1,5 +1,4 @@
-#ifndef _CHARACTERSELECT_H
-#define _CHARACTERSELECT_H
+#pragma once
 
 #include "PlayerAnimation.h"
 
@@ -53,5 +52,3 @@ private:
 	int possible_players_;
 	int required_num_players_;
 };
-
-#endif

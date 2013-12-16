@@ -1,5 +1,4 @@
-#ifndef _AIRSTRIKEPOWERUP_H
-#define _AIRSTRIKEPOWERUP_H
+#pragma once
 
 #include "GameplayObject.h"
 
@@ -26,5 +25,3 @@ public:
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 };
-
-#endif

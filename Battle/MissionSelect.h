@@ -1,5 +1,4 @@
-#ifndef _MISSIONSELECT_H
-#define _MISSIONSELECT_H
+#pragma once
 
 class MissionSelect {
 public:
@@ -36,5 +35,3 @@ private:
 
 	int frame;
 };
-
-#endif

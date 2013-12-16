@@ -1,5 +1,4 @@
-#ifndef _MAIN_H
-#define _MAIN_H
+#pragma once
 
 #include <iostream>
 
@@ -92,6 +91,3 @@ private:
 
 	void set_default_controlschemes();
 };
-
-#endif
-

@@ -1,5 +1,4 @@
-#ifndef _LASERBEAMPOWERUP_H
-#define _LASERBEAMPOWERUP_H
+#pragma once
 
 #include "GameplayObject.h"
 class CommandGeneratePowerup;
@@ -24,5 +23,3 @@ public:
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 };
-
-#endif

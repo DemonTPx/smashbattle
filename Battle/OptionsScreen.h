@@ -1,5 +1,4 @@
-#ifndef _OPTIONSSCREEN_H
-#define _OPTIONSSCREEN_H
+#pragma once
 
 #include <vector>
 #include "Main.h"
@@ -67,5 +66,3 @@ private:
 	void select_right();
 	void select();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _BOMB_H
-#define _BOMB_H
+#pragma once
 
 #include "GameplayObject.h"
 #include "Player.h"
@@ -56,5 +55,3 @@ public:
 protected:
 	void set_clips();
 };
-
-#endif

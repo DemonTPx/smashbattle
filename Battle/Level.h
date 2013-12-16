@@ -1,5 +1,4 @@
-#ifndef _LEVEL_H
-#define _LEVEL_H
+#pragma once
 
 #include "SDL/SDL_mixer.h"
 #include <vector>
@@ -208,5 +207,3 @@ private:
 	SDL_Surface * tiles;
 	SDL_Surface * background;
 };
-
-#endif

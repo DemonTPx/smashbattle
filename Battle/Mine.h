@@ -1,5 +1,4 @@
-#ifndef _MINE_H
-#define _MINE_H
+#pragma once
 
 #include "Bomb.h"
 #include "Player.h"
@@ -19,5 +18,3 @@ public:
 protected:
 	void set_clips();
 };
-
-#endif

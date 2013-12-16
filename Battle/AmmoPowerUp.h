@@ -1,5 +1,4 @@
-#ifndef _AMMOPOWERUP_H
-#define _AMMOPOWERUP_H
+#pragma once
 
 class CommandGeneratePowerup;
 
@@ -22,5 +21,3 @@ public:
 	SDL_Rect * clip;
 	int ammo;
 };
-
-#endif

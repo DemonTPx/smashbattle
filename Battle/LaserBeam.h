@@ -1,5 +1,4 @@
-#ifndef _LASERBEAM_H
-#define _LASERBEAM_H
+#pragma once
 
 #include "GameplayObject.h"
 
@@ -21,5 +20,3 @@ public:
 	Player * owner;
 	Player * target;
 };
-
-#endif

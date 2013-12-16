@@ -1,5 +1,4 @@
-#ifndef _GAMEINPUT_H
-#define _GAMEINPUT_H
+#pragma once
 
 #include <vector>
 
@@ -147,4 +146,3 @@ public:
 
 	virtual void handle_event(SDL_Event * event) { /* handle nothing */ }
 };
-#endif

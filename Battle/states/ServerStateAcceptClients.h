@@ -1,5 +1,4 @@
-#ifndef __INCLUDE__SERVERSTATEACCEPTCLIENTS_H__
-#define __INCLUDE__SERVERSTATEACCEPTCLIENTS_H__
+#pragma once
 
 #include "ServerState.h"
 
@@ -27,6 +26,3 @@ private:
 	mutable Uint32 gameStartSendTime_;
 	mutable Uint32 gameStartForPlayers_;
 };
-
-
-#endif //__INCLUDE__SERVERSTATEACCEPTCLIENTS_H__

@@ -1,5 +1,4 @@
-#ifndef __LAG_MEASURE__HPP__
-#define __LAG_MEASURE__HPP__
+#pragma once
 
 #include <vector>
 
@@ -45,6 +44,3 @@ private:
     int numMeasures_;
     std::vector<float> lag_;
 };
-
-
-#endif //__LAG_MEASURE__HPP__

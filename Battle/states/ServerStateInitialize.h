@@ -1,5 +1,4 @@
-#ifndef __INCLUDE__SERVERSTATEINITIALIZE_H__
-#define __INCLUDE__SERVERSTATEINITIALIZE_H__
+#pragma once
 
 #include "ServerState.h"
 
@@ -23,6 +22,3 @@ private:
 
 	friend class Server;
 };
-
-
-#endif //__INCLUDE__SERVERSTATEINITIALIZE_H__

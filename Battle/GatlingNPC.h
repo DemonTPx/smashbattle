@@ -1,5 +1,4 @@
-#ifndef _GATLINGNPC_H
-#define _GATLINGNPC_H
+#pragma once
 
 #include "NPC.h"
 
@@ -24,5 +23,3 @@ protected:
 
 	SDL_Rect range;
 };
-
-#endif

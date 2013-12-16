@@ -1,5 +1,4 @@
-#ifndef _MINEPOWERUP_H
-#define _MINEPOWERUP_H
+#pragma once
 
 class CommandGeneratePowerup;
 
@@ -22,5 +21,3 @@ public:
 	SDL_Rect * clip;
 	int ammount;
 };
-
-#endif

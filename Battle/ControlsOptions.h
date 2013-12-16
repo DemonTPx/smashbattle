@@ -1,5 +1,5 @@
-#ifndef _CONTROLSOPTIONS_H
-#define _CONTROLSOPTIONS_H
+#pragma once
+
 #include "OptionsScreen.h"
 
 class ControlsOptions : public OptionsScreen {
@@ -32,5 +32,3 @@ private:
 	int cancel_idx;
 	char joystick_name[10][80];
 };
-
-#endif

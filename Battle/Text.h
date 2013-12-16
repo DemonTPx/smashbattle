@@ -1,5 +1,4 @@
-#ifndef _TEXT_H
-#define _TEXT_H
+#pragma once
 
 class Text {
 public:
@@ -42,5 +41,3 @@ private:
 
 	SDL_Rect * glyph_clip(int w, int h, const char g, bool gray);
 };
-
-#endif

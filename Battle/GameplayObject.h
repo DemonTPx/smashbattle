@@ -1,5 +1,4 @@
-#ifndef _GAMEPLAYOBJECT_H
-#define _GAMEPLAYOBJECT_H
+#pragma once
 
 #include "Level.h"
 #include "Player.h"
@@ -34,5 +33,3 @@ private:
 
 	short id_;
 };
-
-#endif
