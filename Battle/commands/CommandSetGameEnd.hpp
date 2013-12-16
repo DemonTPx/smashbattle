@@ -1,5 +1,4 @@
-#ifndef __COMMAND_SET_GAME_END__HPP__
-#define __COMMAND_SET_GAME_END__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -23,6 +22,3 @@ public:
 		bool is_draw;
 	} data;
 };
-
-
-#endif //__COMMAND_SET_GAME_END__HPP__

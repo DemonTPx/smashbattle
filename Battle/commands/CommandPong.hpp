@@ -1,5 +1,4 @@
-#ifndef __COMMANDPONG_HPP__
-#define __COMMANDPONG_HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -25,5 +24,3 @@ private:
 
 
 };
-
-#endif //__COMMANDPONG_HPP__

@@ -1,4 +1,3 @@
-//#include "ServerClient.h" // flags should not be inside here
 #include "Client.h"
 #include "Server.h"
 #include "Commands.hpp"

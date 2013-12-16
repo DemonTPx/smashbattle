@@ -1,5 +1,4 @@
-#ifndef __COMMANDSETPOSITION_HPP__
-#define __COMMANDSETPOSITION_HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -23,6 +22,3 @@ public:
 		Sint16 y;
 	} data;
 };
-
-
-#endif //__COMMANDSETPOSITION_HPP__

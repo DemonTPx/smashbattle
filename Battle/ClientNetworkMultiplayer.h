@@ -1,5 +1,4 @@
-#ifndef __CLIENTNETWORKMULTIPLAYER_H__
-#define __CLIENTNETWORKMULTIPLAYER_H__
+#pragma once
 
 #include "LocalMultiplayer.h"
 
@@ -37,5 +36,3 @@ private:
 	LagMeasure *lag_;
 
 };
-
-#endif //__CLIENTNETWORKMULTIPLAYER_H__

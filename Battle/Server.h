@@ -1,5 +1,4 @@
-#ifndef __SERVER_H__
-#define __SERVER_H__
+#pragma once
 
 #include <map>
  
@@ -87,8 +86,5 @@ private:
 	Uint32 serverTime_;
 	Uint32 ignoreClientInputUntil_;
 
-	// temp
-	//friend class Gameplay;
 	friend class ClientNetworkMultiplayer;
 };
-#endif // __SERVER_H__

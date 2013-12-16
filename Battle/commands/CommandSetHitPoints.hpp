@@ -1,5 +1,4 @@
-#ifndef __COMMAND_SET_HIT_POINTS__HPP__
-#define __COMMAND_SET_HIT_POINTS__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -23,6 +22,3 @@ public:
 		int hitpoints;
 	} data;
 };
-
-
-#endif //__COMMAND_SET_HIT_POINTS__HPP__

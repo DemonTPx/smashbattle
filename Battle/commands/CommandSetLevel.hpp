@@ -1,5 +1,4 @@
-#ifndef __COMMANDSETLEVEL_HPP__
-#define __COMMANDSETLEVEL_HPP__
+#pragma once
 
 #include "Command.hpp"
 #include "Level.h"
@@ -28,5 +27,3 @@ public:
 
 private:
 };
-
-#endif //__COMMANDSETLEVEL_HPP__

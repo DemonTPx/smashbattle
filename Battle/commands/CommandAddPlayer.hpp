@@ -1,5 +1,4 @@
-#ifndef __COMMAND_ADD_PLAYER__HPP__
-#define __COMMAND_ADD_PLAYER__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -30,6 +29,3 @@ public:
 
 	} data;
 };
-
-
-#endif //__COMMAND_ADD_PLAYER__HPP__

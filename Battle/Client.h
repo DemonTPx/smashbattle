@@ -1,5 +1,4 @@
-#ifndef __CLIENT_H__
-#define __CLIENT_H__
+#pragma once
 
 #include "SDL/SDL.h"
 #include <string>
@@ -81,9 +80,4 @@ private:
 	int initialLagTests_;
 
 	Client::State currentState_;
-	
-	//friend std::map<int, Client>;
-	//friend class Server;
 };
-
-#endif //__CLIENT_H__

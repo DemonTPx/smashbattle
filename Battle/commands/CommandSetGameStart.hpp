@@ -1,5 +1,4 @@
-#ifndef __COMMAND_SET_GAME_START__HPP__
-#define __COMMAND_SET_GAME_START__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -22,6 +21,3 @@ public:
 		short delay;
 	} data;
 };
-
-
-#endif //__COMMAND_SET_GAME_START__HPP__

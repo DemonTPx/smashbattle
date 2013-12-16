@@ -1,5 +1,4 @@
-#ifndef __COMMANDS_H___
-#define __COMMANDS_H___
+#pragma once
 
 #include "commands/CommandPing.hpp"
 #include "commands/CommandPong.hpp"
@@ -23,5 +22,3 @@
 #include "commands/CommandGeneratePowerup.h"
 #include "commands/CommandApplyPowerup.hpp"
 #include "commands/CommandRemovePowerup.hpp"
-
-#endif //__COMMANDS_H___

@@ -1,5 +1,4 @@
-#ifndef __COMMAND_SHOT_FIRED__HPP__
-#define __COMMAND_SHOT_FIRED__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -26,6 +25,3 @@ public:
 		int distance_travelled;
 	} data;
 };
-
-
-#endif //__COMMAND_SHOT_FIRED__HPP__

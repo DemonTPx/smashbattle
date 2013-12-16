@@ -1,5 +1,4 @@
-#ifndef __SERVER_CLIENT_H__
-#define __SERVER_CLIENT_H__
+#pragma once
 
 #include <string>
 
@@ -172,5 +171,3 @@ private:
 	bool resumeGameWithCountdown_;
 	Uint32 resumeGameTime_;
 };
-
-#endif // __SERVER_CLIENT_H__

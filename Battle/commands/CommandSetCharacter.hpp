@@ -1,5 +1,4 @@
-#ifndef __COMMAND_SET_CHARACTER__HPP__
-#define __COMMAND_SET_CHARACTER__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -23,6 +22,3 @@ public:
 		char nickname[80 + 1];
 	} data;
 };
-
-
-#endif //__COMMAND_SET_CHARACTER__HPP__

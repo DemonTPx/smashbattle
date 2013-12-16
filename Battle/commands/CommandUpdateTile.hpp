@@ -1,5 +1,4 @@
-#ifndef __COMMAND_UPDATE_TILE__HPP__
-#define __COMMAND_UPDATE_TILE__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -23,6 +22,3 @@ public:
 		int tile_hp;
 	} data;
 };
-
-
-#endif //__COMMAND_UPDATE_TILE__HPP__

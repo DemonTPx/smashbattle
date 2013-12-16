@@ -1,5 +1,4 @@
-#ifndef __COMMAND_GENERATE_POWERUP__HPP__
-#define __COMMAND_GENERATE_POWERUP__HPP__
+#pragma once
 
 #include <memory>
 #include "Command.hpp"
@@ -26,7 +25,13 @@ public:
 		TypeRandom = 0x0A
 	};
 
-	static std::unique_ptr<GameplayObject> factory(CommandGeneratePowerup::PowerUps type, short powerupid, SDL_Rect *rect, SDL_Rect *pos, int param = 0);
+	static std::unique_ptr<GameplayObject> factory(
+		CommandGeneratePowerup::PowerUps type,
+		short powerupid,
+		SDL_Rect *rect,
+		SDL_Rect *pos,
+		int param = 0
+	);
 
 	CommandGeneratePowerup() : Command(Command::Types::GeneratePowerup) 
 	{
@@ -46,6 +51,3 @@ public:
 		int param;
 	} data;
 };
-
-
-#endif //__COMMAND_GENERATE_POWERUP__HPP__

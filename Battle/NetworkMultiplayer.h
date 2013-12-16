@@ -1,5 +1,4 @@
-#ifndef __NETWORKMULTIPLAYER_H__
-#define __NETWORKMULTIPLAYER_H__
+#pragma once
 
 #include "LocalMultiplayer.h"
 
@@ -18,5 +17,3 @@ protected:
 
 	virtual GameplayObject *generate_powerup(bool force = false);
 };
-
-#endif //__NETWORKMULTIPLAYER_H__

@@ -1,5 +1,4 @@
-#ifndef __LOG_HPP__
-#define __LOG_HPP__
+#pragma once
 
 #include <stdexcept>
 #include <iostream>
@@ -95,5 +94,3 @@ void to_lower(std::basic_string<C>& s, const std::locale& loc = std::locale( )) 
 		*p = std::use_facet<std::ctype<C> >(loc).tolower(*p);
 	}
 }
-
-#endif //__LOG_HPP__

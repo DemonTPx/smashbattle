@@ -1,5 +1,4 @@
-#ifndef __COMMAND_DEL_PLAYER__HPP__
-#define __COMMAND_DEL_PLAYER__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -22,6 +21,3 @@ public:
 		char client_id;
 	} data;
 };
-
-
-#endif //__COMMAND_DEL_PLAYER__HPP__

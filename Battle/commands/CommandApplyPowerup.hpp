@@ -1,5 +1,4 @@
-#ifndef __COMMAND_APPLY_POWERUP__HPP__
-#define __COMMAND_APPLY_POWERUP__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -23,6 +22,3 @@ public:
 		char player_id;
 	} data;
 };
-
-
-#endif //__COMMAND_APPLY_POWERUP__HPP__

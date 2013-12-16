@@ -13,8 +13,13 @@
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
 
-std::unique_ptr<GameplayObject> CommandGeneratePowerup::factory(CommandGeneratePowerup::PowerUps type, short powerupid, SDL_Rect *rect, SDL_Rect *pos, int param)
-{
+std::unique_ptr<GameplayObject> CommandGeneratePowerup::factory(
+	CommandGeneratePowerup::PowerUps type,
+	short powerupid,
+	SDL_Rect *rect,
+	SDL_Rect *pos,
+	int param
+){
 	std::unique_ptr<GameplayObject> powerup;
 
 	switch (type) {

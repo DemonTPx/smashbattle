@@ -1,5 +1,4 @@
-#ifndef __COMMAND_PROCESSOR_H___
-#define __COMMAND_PROCESSOR_H___
+#pragma once
 
 #include <memory>
 #include "SDL/SDL.h"
@@ -40,5 +39,3 @@ public:
 
 	
 };
-
-#endif //__COMMAND_PROCESSOR_H___

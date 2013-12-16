@@ -1,5 +1,4 @@
-#ifndef __COMMAND_REMOVE_POWERUP__HPP__
-#define __COMMAND_REMOVE_POWERUP__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -22,6 +21,3 @@ public:
 		short powerup_id;
 	} data;
 };
-
-
-#endif //__COMMAND_REMOVE_POWERUP__HPP__

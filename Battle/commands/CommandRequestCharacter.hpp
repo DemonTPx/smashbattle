@@ -1,5 +1,4 @@
-#ifndef __COMMAND_REQUEST_CHARACTER__HPP__
-#define __COMMAND_REQUEST_CHARACTER__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -18,6 +17,3 @@ public:
 		Uint32 time;
 	} data;
 };
-
-
-#endif //__COMMAND_REQUEST_CHARACTER__HPP__

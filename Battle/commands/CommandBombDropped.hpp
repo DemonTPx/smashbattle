@@ -1,5 +1,4 @@
-#ifndef __COMMAND_BOMB_DROPPED__HPP__
-#define __COMMAND_BOMB_DROPPED__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -25,6 +24,3 @@ public:
 		Sint16 y;
 	} data;
 };
-
-
-#endif //__COMMAND_BOMB_DROPPED__HPP__

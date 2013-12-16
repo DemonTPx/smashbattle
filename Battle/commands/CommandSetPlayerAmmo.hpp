@@ -1,5 +1,4 @@
-#ifndef __COMMAND_SET_PLAYER_AMMO__HPP__
-#define __COMMAND_SET_PLAYER_AMMO__HPP__
+#pragma once
 
 #include "Command.hpp"
 
@@ -25,6 +24,3 @@ public:
 
 	} data;
 };
-
-
-#endif //__COMMAND_SET_PLAYER_AMMO__HPP__
