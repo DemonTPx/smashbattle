@@ -19,3 +19,10 @@ set(SRCS ./Battle/AudioOptions.cpp ./Battle/Gameplay.cpp ./Battle/commands/Comma
 add_executable(Battle/smashbattle WIN32 ${SRCS})
  
 target_link_libraries(Battle/smashbattle ${wxWidgets_LIBRARIES} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY} ${SDL_NET_LIBRARY} ${ZLIB_LIBRARIES})
+
+install (TARGETS Battle/smashbattle DESTINATION /usr/share/games/smashbattle/)
+install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/gfx/  DESTINATION /usr/share/games/smashbattle/gfx FILES_MATCHING PATTERN "*")
+install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/sfx/  DESTINATION /usr/share/games/smashbattle/sfx FILES_MATCHING PATTERN "*")
+install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/music/  DESTINATION /usr/share/games/smashbattle/music FILES_MATCHING PATTERN "*")
+install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/stage/  DESTINATION /usr/share/games/smashbattle/stage FILES_MATCHING PATTERN "*")
+install (TARGETS Battle/smashbattle DESTINATION /usr/local/bin/)
