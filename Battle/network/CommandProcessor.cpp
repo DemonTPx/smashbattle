@@ -57,7 +57,11 @@ bool CommandProcessor::parse()
 	if (!processed)
 		return false;
 
-	memcpy(buffer_, buffer_ +  processed, buffer_idx_ - processed);
+	// This gives undefined behaviour in Linux :)
+	// Windows it was no problem, so I guess the implementation is different..
+	//memcpy(buffer_, buffer_ +  processed, buffer_idx_ - processed);
+	memmove(buffer_, buffer_ + processed, buffer_idx_ - processed);
+
 	buffer_idx_ -= processed;
 
 	return true;
