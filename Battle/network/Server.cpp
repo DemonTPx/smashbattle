@@ -245,7 +245,7 @@ bool Server::active()
 	if (!Server::getInstance().currentState_)
 		return false;
 
-	return Server::getInstance().currentState_->type() != "class ServerStateInactive const *"; 
+	return Server::getInstance().currentState_->type().find("ServerStateInactive") == std::string::npos; 
 }
 
 bool Server::gameStarted()
@@ -253,7 +253,7 @@ bool Server::gameStarted()
 	if (!Server::getInstance().currentState_)
 		return false;
 
-	return Server::getInstance().currentState_->type() == "class ServerStateGameStarted const *"; 
+	return Server::getInstance().currentState_->type().find("ServerStateGameStarted") != std::string::npos;
 }
 
 void Server::setState(const ServerState * const state)

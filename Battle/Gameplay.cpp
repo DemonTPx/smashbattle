@@ -33,7 +33,6 @@ Gameplay::Gameplay() {
 	players_npcs_collide = true;
 
 	broadcast_duration = 0;
-	ended = false;
 }
 
 Gameplay::~Gameplay() {

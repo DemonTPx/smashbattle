@@ -15,19 +15,37 @@ find_package(ZLIB)
  
 # generate with: find ./Battle/ -name '*.cpp'|xargs echo
 
-file(GLOB_RECURSE Foo_SOURCES "Battle/*.cpp")
-file(GLOB_RECURSE Foo_HEADERS "Battle/*.h")
+file(GLOB_RECURSE Battle_SOURCES "Battle/*.cpp")
+file(GLOB_RECURSE Battle_HEADERS "Battle/*.h")
 
-set (Foo_INCLUDE_DIRS "")
-foreach (_headerFile ${Foo_HEADERS})
+set (Battle_INCLUDE_DIRS "")
+foreach (_headerFile ${Battle_HEADERS})
     get_filename_component(_dir ${_headerFile} PATH)
-    list (APPEND Foo_INCLUDE_DIRS ${_dir})
+    list (APPEND Battle_INCLUDE_DIRS ${_dir})
 endforeach()
-list(REMOVE_DUPLICATES Foo_INCLUDE_DIRS)
+list(REMOVE_DUPLICATES Battle_INCLUDE_DIRS)
 
-include_directories(${Foo_INCLUDE_DIRS})
+include_directories(${Battle_INCLUDE_DIRS})
 
-add_executable (smashbattle ${Foo_SOURCES})
+add_executable (smashbattle ${Battle_SOURCES})
+
+file(GLOB_RECURSE tests_SOURCES "tests/*.cpp")
+file(GLOB_RECURSE tests_HEADERS "tests/*.h")
+file(GLOB_RECURSE tests_HEADERS "tests/*.hpp")
+
+set (Tests_INCLUDE_DIRS "")
+foreach (_headerFile ${Tests_HEADERS})
+    get_filename_component(_dir ${_headerFile} PATH)
+    list (APPEND Tests_INCLUDE_DIRS ${_dir})
+endforeach()
+list(REMOVE_DUPLICATES Tests_INCLUDE_DIRS)
+
+include_directories(${Tests_INCLUDE_DIRS})
+
+add_executable (smashbattle_tests ${tests_SOURCES} 
+	#"Battle/states/ServerStateGameStarted.cpp"
+	#"Battle/network/Server.cpp"
+)
  
 target_link_libraries(smashbattle ${wxWidgets_LIBRARIES} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY} ${SDL_NET_LIBRARY} ${ZLIB_LIBRARIES})
 
