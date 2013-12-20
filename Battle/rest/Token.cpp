@@ -12,7 +12,7 @@ Token::Token()
 
 std::string Token::get()
 {
-	json::Object obj = request("http://battle.cppse.nl/token");
+	json::Object obj = request("http://battle.cppse.nl/client/token");
 	std::string tokenString(obj["random_string"]);
 
 	return tokenString;
