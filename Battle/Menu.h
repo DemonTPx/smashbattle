@@ -43,10 +43,15 @@ private:
 
 	void start_missions();
 	void start_local_multiplayer();
+	void start_server_listing();
 
 	void next_playeranimation();
 	void process_playeranimation();
 
 	void init();
 	void cleanup();
+
+	void show_error(const std::string &error_msg);
+
+	std::string serverToken_;
 };
