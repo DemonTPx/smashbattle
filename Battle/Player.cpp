@@ -21,6 +21,32 @@
 #define BULLETS_UNLIMITED -1
 
 const int Player::CHARACTER_COUNT = 20;
+#define TWEAKERS
+#ifdef TWEAKERS
+const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
+	//      Name               	Filename            			sp wt wp bd
+	{(char *)"JEROEN", 		(char *)"gfx/jeroen.bmp",		1, 1, 1, 1},
+	{(char *)"MISHA", 		(char *)"gfx/misha.bmp",		1, 1, 1, 1},
+	{(char *)"ANNE_WILLEMIJN", 	(char *)"gfx/anne_willemijn.bmp", 	1, 1, 1, 1},
+	{(char *)"RAY", 		(char *)"gfx/ray.bmp",			1, 1, 1, 1},
+	{(char *)"TINO", 		(char *)"gfx/tino.bmp",			1, 1, 1, 1},
+	{(char *)"WILBERT", 		(char *)"gfx/wilbert.bmp",		1, 1, 1, 1},
+	{(char *)"ARJEN", 		(char *)"gfx/arjen.bmp",		1, 1, 1, 1},
+	{(char *)"FEMME", 		(char *)"gfx/femme.bmp",		1, 1, 1, 1},
+	{(char *)"MAITE", 		(char *)"gfx/maite.bmp",		1, 1, 1, 1},
+	{(char *)"FREDERIK", 		(char *)"gfx/frederik.bmp",		1, 1, 1, 1},
+	{(char *)"WOUT", 		(char *)"gfx/wout.bmp",			1, 1, 1, 1},
+	{(char *)"PAUL", 		(char *)"gfx/paul.bmp",			1, 1, 1, 1},
+	{(char *)"JUR", 		(char *)"gfx/jur.bmp",			1, 1, 1, 1},
+	{(char *)"ROBERT", 		(char *)"gfx/robert.bmp",		1, 1, 1, 1},
+	{(char *)"ARNOUD", 		(char *)"gfx/arnoud.bmp",		1, 1, 1, 1},
+	{(char *)"JOOST", 		(char *)"gfx/joost.bmp",		1, 1, 1, 1},
+	{(char *)"KEES", 		(char *)"gfx/kees.bmp",			1, 1, 1, 1},
+	{(char *)"BRYAN", 		(char *)"gfx/bryan.bmp",		1, 1, 1, 1},
+	{(char *)"MARK", 		(char *)"gfx/mark.bmp", 		1, 1, 1, 1},
+	{(char *)"SIM", 		(char *)"gfx/sim.bmp", 			1, 1, 1, 1},
+};
+#else
 const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	//      Name               Filename            sp wt wp bd
 	{(char*)"BERT",		(char*)"gfx/bert.bmp",		1, 1, 1, 1},
@@ -45,6 +71,8 @@ const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	{(char*)"RUTGER",	(char*)"gfx/rutger.bmp",	2, 0, 2, 0},
 	{(char*)"KIM",		(char*)"gfx/kim.bmp",		1, 1, 1, 1},
 };
+#endif
+
 const int Player::COLORS_COUNT = 4;
 const int Player::COLORS[4] = {
 	0xaa0000,
