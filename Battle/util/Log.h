@@ -9,12 +9,10 @@
 
 #undef ERROR
 
-class Logger
-{
+class Logger {
 public:
 
-	enum Priority
-	{
+	enum Priority {
 		DEBUG = 10,
 		INFO = 20,
 		WARNING = 30,
@@ -27,11 +25,10 @@ public:
 
 	static std::vector<std::string> console;
 
-	static void log(std::string filename, long line, std::string log, Logger::Priority priority)
-	{
+	static void log(std::string filename, long line, std::string log, Logger::Priority priority) {
 		if (priority >= Logger::currentprio)
 			std::cout << Logger::toString(priority) << " " << log << std::endl;
-		
+
 		if (priority == Logger::Priority::CONSOLE)
 			Logger::console.push_back(log);
 
@@ -39,10 +36,8 @@ public:
 
 private:
 
-	static std::string toString(Logger::Priority prio)
-	{
-		switch (prio)
-		{
+	static std::string toString(Logger::Priority prio) {
+		switch (prio) {
 			case Logger::Priority::DEBUG:
 				return "DEBUG";
 				break;
@@ -73,24 +68,4 @@ private:
 
 extern std::string format(const char *format, ...);
 
-// for converting lower/uppercase 
-// from "C++ Cookbook"
-#include <locale>
-#include <cctype>
-#include <cwctype>
-
-template<typename C>
-void to_upper(std::basic_string<C>& s, const std::locale& loc = std::locale( )) {
-	typename std::basic_string<C>::iterator p;
-	for (p = s.begin( ); p != s.end( ); ++p) {
-		*p = std::use_facet<std::ctype<C> >(loc).toupper(*p);
-	}
-}
-
-template<typename C>
-void to_lower(std::basic_string<C>& s, const std::locale& loc = std::locale( )) {
-	typename std::basic_string<C>::iterator p;
-	for (p = s.begin( ); p != s.end( ); ++p) {
-		*p = std::use_facet<std::ctype<C> >(loc).tolower(*p);
-	}
-}
+#include "stringutils.hpp"
