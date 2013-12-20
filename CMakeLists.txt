@@ -1,3 +1,12 @@
+#
+#
+#
+# With debugging symbols:
+#
+# cmake -DCMAKE_BUILD_TYPE=Debug . 
+#
+#
+
 cmake_minimum_required(VERSION 2.6.2)
  
 project(smashbattle)
@@ -12,6 +21,7 @@ find_package(SDL)
 find_package(SDL_mixer)
 find_package(SDL_net)
 find_package(ZLIB)
+find_package(CURL)
  
 # generate with: find ./Battle/ -name '*.cpp'|xargs echo
 
@@ -47,7 +57,7 @@ add_executable (smashbattle_tests ${tests_SOURCES}
 	#"Battle/network/Server.cpp"
 )
  
-target_link_libraries(smashbattle ${wxWidgets_LIBRARIES} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY} ${SDL_NET_LIBRARY} ${ZLIB_LIBRARIES})
+target_link_libraries(smashbattle ${wxWidgets_LIBRARIES} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY} ${SDL_NET_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES})
 
 install (TARGETS smashbattle DESTINATION /usr/share/games/smashbattle/)
 install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/gfx/  DESTINATION /usr/share/games/smashbattle/gfx FILES_MATCHING PATTERN "*")
