@@ -25,13 +25,7 @@
 
 #include "Menu.h"
 
-#include <algorithm>
-#include "ServerListing.h"
-#include "rest/Token.h"
-#include "rest/ServerList.h"
-#include "util/json.h"
-#include "util/stringutils.hpp"
-#include "util/sha256.h"
+#include "ClientSettings.h"
 
 #define MENU_TOP_OFFSET 180
 #define MENU_ITEM_HEIGHT TILE_H
@@ -231,8 +225,11 @@ void Menu::select() {
 			start_local_multiplayer();
 			break;
 		case 2:
-			start_server_listing();
+		{
+			ClientSettings clset;
+			clset.run();
 			break;
+		}
 		case 3:
 			Options * options;
 			options = new Options();
@@ -417,54 +414,6 @@ void Menu::start_local_multiplayer() {
 	Main::audio->play_music(MUSIC_TITLE);
 }
 
-void Menu::start_server_listing() 
-{
-	if (serverToken_.empty()) {
-		rest::Token token;
-		try {
-			serverToken_ = token.get();
-		} catch (std::runtime_error &exception) {
-			show_error(exception.what());
-		}
-	}
-
-	char secretKey[] = {
-		0x56, 0xda, 0xce, 0x87, 0x52, 0x85, 0x50, 0xf1, 0xdd, 0x0c, 0x86, 0x92, 0x33, 0x49,
-		0x21, 0xf4, 0x92, 0x23, 0x2b, 0xf3, 0x0c, 0x31, 0x23, 0x0e, 0xae, 0x49, 0x83, 0x92,
-		0x2a, 0xdf, 0x9c, 0x8d
-	};
-
-	std::string secretKeyString(secretKey, sizeof (secretKey));
-	std::string secretKeyStringHex(string_to_hex(secretKeyString));
-
-	unsigned char md[32];
-	std::string inpstr = serverToken_, sha256randomhash;
-
-	inpstr.append(secretKeyStringHex);
-	sha256((void *) inpstr.c_str(), inpstr.length(), md);
-
-	char temp[4 + 1] = {0x00};
-	for (int i = 0; i < 32; i++) {
-		sprintf(temp, "%02x", md[i]);
-		sha256randomhash.append(temp);
-	}
-
-	std::cout << "our generated token is: " << sha256randomhash << std::endl;
-
-	rest::ServerList slist(sha256randomhash);
-	try {
-		json::Array servers = slist.list();
-
-		ServerListing listOpts(servers);
-		listOpts.run();
-
-
-	} catch (std::runtime_error &exception) {
-		show_error(exception.what());
-	}
-}
-
-
 void Menu::process_playeranimation() {
 	if (playeranimation->position->x < -PLAYER_W)
 		next_playeranimation();
@@ -585,35 +534,4 @@ void Menu::cleanup() {
 	delete credits;
 
 	delete playeranimation;
-}
-
-void Menu::show_error(const std::string &error_msg) {
-
-	SDL_Surface *screen = Main::instance->screen;
-	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-	SDL_Event event;
-
-	while (true) {
-		while (SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
-			for (int i = 0; i < 4; i++) {
-				input[i]->handle_event(&event);
-			}
-		}
-
-		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
-			break;
-
-		short textpos = 10;
-		SDL_Rect textLocation = {10, textpos, 0, 0};
-		textpos += 24;
-		std::string error_msg_up = error_msg;
-		to_upper<char>(error_msg_up);
-		SDL_Surface* textSurface = Main::text->render_text_small(error_msg_up.c_str());
-
-		SDL_BlitSurface(textSurface, NULL, screen, &textLocation);
-		SDL_FreeSurface(textSurface);
-
-		Main::instance->flip(true);
-	}
 }

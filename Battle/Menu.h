@@ -50,8 +50,4 @@ private:
 
 	void init();
 	void cleanup();
-
-	void show_error(const std::string &error_msg);
-
-	std::string serverToken_;
 };

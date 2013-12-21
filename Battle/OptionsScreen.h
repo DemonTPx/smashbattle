@@ -44,6 +44,10 @@ protected:
 
 	virtual void item_selected();
 	virtual void selection_changed();
+	
+	virtual bool process_event(SDL_Event &event);
+	virtual void process_cursor();
+
 private:	
 	GameInput * input;
 
@@ -57,8 +61,9 @@ private:
 	int screen_w, screen_h;
 
 	void draw();
-
-	void process_cursor();
+	
+	virtual void on_pre_draw() {};
+	virtual void on_post_draw() {};
 	
 	void select_up();
 	void select_down();

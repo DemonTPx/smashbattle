@@ -36,14 +36,17 @@ void OptionsScreen::run() {
 
 	while (Main::running && running) {
 		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+			
+			if (process_event(event)) {
+				Main::instance->handle_event(&event);
 
-			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-				running = false;
-				break;
+				if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+					running = false;
+					break;
+				}
+
+				input->handle_event(&event);
 			}
-
-			input->handle_event(&event);
 		}
 		process_cursor();
 		
@@ -56,7 +59,13 @@ void OptionsScreen::run() {
 	cleanup();
 }
 
+bool OptionsScreen::process_event(SDL_Event &event)
+{
+	return true;
+}
+
 void OptionsScreen::draw() {
+	on_pre_draw();
 	unsigned int i, j;
 	SDL_Surface * text;
 	SDL_Rect rect;
@@ -96,6 +105,7 @@ void OptionsScreen::draw() {
 			}
 		}
 	}
+	on_post_draw();
 }
 
 void OptionsScreen::process_cursor() {

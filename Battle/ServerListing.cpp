@@ -25,8 +25,16 @@ void ServerListing::run()
 	OptionsScreen::run();
 }
 
+#include "ClientNetworkMultiplayer.h"
 void ServerListing::item_selected()
 {
 	json::Object obj = servers_[(size_t)selected_item];
 	std::cout << " Selected item is: " << (std::string)obj["host"] << ":" << (int)obj["port"] << std::endl;
+	
+	
+	//fps_counter_visible = true;
+
+	ClientNetworkMultiplayer clientgame;
+
+	clientgame.start();
 }
