@@ -78,6 +78,7 @@ public:
 	int run(const MainRunModes &);
 	void flip(bool no_cap = false);
 	void handle_event(SDL_Event * event);
+	void reset_inputs();
 private:
 	bool init();
 	void clean_up();

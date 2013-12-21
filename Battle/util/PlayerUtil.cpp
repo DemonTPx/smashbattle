@@ -88,6 +88,8 @@ namespace player_util
 			game = &ServerClient::getInstance().getGame();
 		else if (Main::runmode == MainRunModes::SERVER)
 			game = &Server::getInstance().getGame();
+		else
+			throw std::runtime_error("unsupported game type");
 
 		auto &players = *(*game).players;
 		for (auto i = players.begin(); i != players.end(); i++) {

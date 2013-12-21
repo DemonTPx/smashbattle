@@ -7,6 +7,7 @@ class ServerListing : public OptionsScreen
 {
 public:
 	ServerListing(json::Array &array);
+	~ServerListing();
 
 	void run();
 	void item_selected();

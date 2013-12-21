@@ -119,6 +119,7 @@ void ClientSettings::process_cursor()
 
 #include "CharacterSelect.h"
 #include "ServerListing.h"
+#include "network/ServerClient.h"
 
 void ClientSettings::item_selected()
 {
@@ -145,6 +146,8 @@ void ClientSettings::item_selected()
 		}
 		case 2:
 		{
+			ServerClient::getInstance().setNickname(nickname_);
+			ServerClient::getInstance().setCharacter(character_);
 			connect();
 			break;
 		}

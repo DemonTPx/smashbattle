@@ -291,6 +291,16 @@ void Main::handle_event(SDL_Event * event) {
 	}
 }
 
+void Main::reset_inputs()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {}
+	for (int i = 0; i < 4; i++) {
+		input[i]->reset();
+	}
+	input_master->reset();
+}
+
 int Main::run(const MainRunModes &runmode) 
 {
 

@@ -30,7 +30,8 @@ ServerClient::ServerClient()
 	  my_id_(0x00),
 	  lastResetTimer_(0),
 	  resumeGameWithCountdown_(true),
-	  resumeGameTime_(0)
+	  resumeGameTime_(0),
+	  character_(0)
 {
 }
 
@@ -94,6 +95,15 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 	set_socket(sock);
 
 	is_connected_ = true;
+}
+
+void ServerClient::disconnect()
+{
+	if (!is_connected_)
+		return;
+	
+	SDLNet_TCP_Close(sock);
+	is_connected_ = false;
 }
 
 void ServerClient::poll()

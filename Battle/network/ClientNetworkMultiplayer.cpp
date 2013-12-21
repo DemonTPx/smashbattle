@@ -14,7 +14,6 @@ using std::for_each;
 using std::string;
 
 #include "network/ClientNetworkMultiplayer.h"
-#include "CharacterSelect.h"
 #include "util/Log.h"
 
 void ClientNetworkMultiplayer::start()
@@ -23,95 +22,94 @@ void ClientNetworkMultiplayer::start()
 
 	Main::instance->running = true;
 
-	CharacterSelect cs(1, 1);
-	cs.run();
-	if (!cs.cancel) 
-	{
-		Player player(0, 0);				
+	Player player(0, 0);				
 
-		player.input = Main::instance->input[0];
-		player.input->set_delay();
-		player.set_character(cs.player_select[0]);
+	player.input = Main::instance->input[0];
+	player.input->set_delay();
+	player.set_character(ServerClient::getInstance().getCharacter());
 
-		add_player(&player);
+	add_player(&player);
 
-		screen = Main::instance->screen;
-		
-		Uint32 begin = SDL_GetTicks();
-		Uint32 calculatedLag = begin;
-		int initialLagTests = INITIAL_LAG_TESTS;
-		
-		SDL_Event event;
+	screen = Main::instance->screen;
 
-		bool stop = false;
-		while (!stop) {
-			while(SDL_PollEvent(&event))
-				;
+	Uint32 begin = SDL_GetTicks();
+	Uint32 calculatedLag = begin;
+	int initialLagTests = INITIAL_LAG_TESTS;
 
-			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
-				break;
-		
-			if (!ServerClient::getInstance().isConnected()) {
-				begin = SDL_GetTicks();
+	SDL_Event event;
+
+	bool stop = false, once = true;;
+	while (!stop) {
+		while(SDL_PollEvent(&event))
+			;
+
+		if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+			break;
+
+		if (!ServerClient::getInstance().isConnected()) {
+			begin = SDL_GetTicks();
+			
+			if (once) {
+				once = false;
+
+				try {
+					ServerClient::getInstance().connect(*this, level, player);
+				}
+				catch (std::runtime_error &error) {
+					log(error.what(), Logger::Priority::CONSOLE);
+				}
+			}
+			else
+			{
 				static bool once = true;
-				if (once) {
-					once = false;
+				if (once)
+					log("DISCONNECTED FROM SERVER", Logger::Priority::CONSOLE);
+				once = false;
+			}
 
-					try 
-					{
-						ServerClient::getInstance().connect(*this, level, player);
-					}
-					catch (std::runtime_error &error)
-					{
-						log(error.what(), Logger::Priority::CONSOLE);
-					}
-				}
-				else
-				{
-					static bool once = true;
-					if (once)
-						log("DISCONNECTED FROM SERVER", Logger::Priority::CONSOLE);
-					once = false;
-				}
+		}
+		else {
+			Uint32 current = SDL_GetTicks();
 
+			if (initialLagTests > 0) {
+				if (calculatedLag - current > 200) {
+					calculatedLag += 200;
+					ServerClient::getInstance().test();
+					initialLagTests--;
+				}
 			}
 			else {
-				Uint32 current = SDL_GetTicks();
-
-				if (initialLagTests > 0) {
-					if (calculatedLag - current > 200) {
-						calculatedLag += 200;
-						ServerClient::getInstance().test();
-						initialLagTests--;
-					}
+				// Todo: refactor, merge with code in Poll()
+				if (calculatedLag - current > 1000)
+				{
+					calculatedLag += 1000;
+					ServerClient::getInstance().test();
 				}
-				else {
-					// Todo: refactor, merge with code in Poll()
-					if (calculatedLag - current > 1000)
-					{
-						calculatedLag += 1000;
-						ServerClient::getInstance().test();
-					}
-				}
-			}
-
-			draw_console();
-
-			ServerClient::getInstance().poll();
-
-			Main::instance->flip(true);
-
-			if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED)
-			{
-				lag_ = &(ServerClient::getInstance().getLag());
-
-				ServerClient::getInstance().resetTimer();
-
-				run();
-				stop = true;
 			}
 		}
+
+		draw_console();
+
+		ServerClient::getInstance().poll();
+
+		Main::instance->flip(true);
+
+		if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED) {
+			lag_ = &(ServerClient::getInstance().getLag());
+
+			ServerClient::getInstance().resetTimer();
+
+			run();
+			stop = true;
+		}
 	}
+	
+	std::cout << " Disconnecting etc. " << std::endl;
+	
+	ServerClient::getInstance().setState(ServerClient::State::INITIALIZING);
+	ServerClient::getInstance().disconnect();
+	
+	Main::instance->input_master->set_delay(20);
 }
 
 void ClientNetworkMultiplayer::draw_console()
