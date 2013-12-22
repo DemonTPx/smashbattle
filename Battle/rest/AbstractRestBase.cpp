@@ -49,10 +49,9 @@ AbstractRestBase::~AbstractRestBase()
 {
 }
 
-json::Object AbstractRestBase::request(const std::string &url, const std::string &token)
+json::Object AbstractRestBase::request(const std::string &method, const std::string &url, const std::string &token, const std::string &jsonStringPost)
 {
 	CURL *curl = curl_easy_init();
-	;
 
 	std::string data;
 	if (!curl)
@@ -66,6 +65,10 @@ json::Object AbstractRestBase::request(const std::string &url, const std::string
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+	if (method != "GET") {
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method.c_str());
+	}
+	
 
 	struct curl_slist *chunk = NULL;
 	chunk = curl_slist_append(chunk, "Accept: application/json");
@@ -74,6 +77,10 @@ json::Object AbstractRestBase::request(const std::string &url, const std::string
 	if (!token.empty())
 		chunk = curl_slist_append(chunk, std::string(std::string("Token: ") + token).c_str());
 
+	if (method != "GET" && jsonStringPost != "") {
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonStringPost.c_str());
+	}
+	
 	CURLcode res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 
 	res = curl_easy_perform(curl);

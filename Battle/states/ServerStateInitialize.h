@@ -8,7 +8,7 @@ class ServerStateInitialize : public ServerState
 {
 
 public:
-	ServerStateInitialize(std::string level, int port);
+	ServerStateInitialize(std::string level, int port, std::string servername);
 
 	const std::string type() const { return typeid(this).name(); }
 
@@ -19,6 +19,7 @@ public:
 private:
 	std::string level_;
 	int port_;
+	std::string servername_;
 
 	friend class Server;
 };

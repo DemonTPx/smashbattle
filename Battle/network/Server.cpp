@@ -64,6 +64,50 @@ void Server::initializeLevel()
 	}
 	level_.load(level_util::get_filename_by_name(levelName_).c_str());
 }
+#include "rest/ServerToken.h"
+#include "rest/RegisterServer.h"
+#include "util/stringutils.hpp"
+#include "util/sha256.h"
+void Server::registerServer()
+{
+	if (serverToken_.empty()) {
+		rest::ServerToken token;
+		try {
+			serverToken_ = token.get();
+		} catch (std::runtime_error &exception) {
+			std::cout << " show_error(exception.what()); " << exception.what() << std::endl;
+		}
+	}
+
+	// @Todo use another key
+	char secretKey[] = {
+		0x56, 0xda, 0xce, 0x87, 0x52, 0x85, 0x50, 0xf1, 0xdd, 0x0c, 0x86, 0x92, 0x33, 0x49,
+		0x21, 0xf4, 0x92, 0x23, 0x2b, 0xf3, 0x0c, 0x31, 0x23, 0x0e, 0xae, 0x49, 0x83, 0x92,
+		0x2a, 0xdf, 0x9c, 0x8f
+	};
+
+	std::string secretKeyString(secretKey, sizeof (secretKey));
+	std::string secretKeyStringHex(string_to_hex(secretKeyString));
+
+	unsigned char md[32];
+	std::string inpstr = serverToken_, sha256randomhash;
+
+	inpstr.append(secretKeyStringHex);
+	sha256((void *) inpstr.c_str(), inpstr.length(), md);
+
+	char temp[4 + 1] = {0x00};
+	for (int i = 0; i < 32; i++) {
+		sprintf(temp, "%02x", md[i]);
+		sha256randomhash.append(temp);
+	}
+
+	std::cout << "our generated token is: " << sha256randomhash << std::endl;
+	
+	serverToken_ = sha256randomhash;
+	
+	rest::RegisterServer regsrv(serverToken_);
+	regsrv.put();
+}
 
 void Server::initializeGame(NetworkMultiplayer &game)
 {

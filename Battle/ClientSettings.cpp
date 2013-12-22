@@ -194,7 +194,7 @@ void ClientSettings::on_post_draw()
 
 #include <algorithm>
 #include "ServerListing.h"
-#include "rest/Token.h"
+#include "rest/ClientToken.h"
 #include "rest/ServerList.h"
 #include "util/json.h"
 #include "util/stringutils.hpp"
@@ -203,7 +203,7 @@ void ClientSettings::on_post_draw()
 void ClientSettings::connect()
 {
 	if (serverToken_.empty()) {
-		rest::Token token;
+		rest::ClientToken token;
 		try {
 			serverToken_ = token.get();
 		} catch (std::runtime_error &exception) {

@@ -19,7 +19,7 @@ ServerList::~ServerList()
 
 json::Array ServerList::list()
 {
-	json::Object obj = request("http://battle.cppse.nl/server/list", token_);
+	json::Object obj = request("GET", "http://battle.cppse.nl/server/list", token_);
 
 	if (!(bool)obj["return"]) {
 		throw std::runtime_error(std::string(obj["error_message"]));

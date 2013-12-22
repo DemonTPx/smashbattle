@@ -38,8 +38,10 @@ public:
 	std::string getLevelName() { return levelName_; }
 	void setLevel(std::string level);
 	void setPort(int port) { port_ = (Uint16)port; };
+	void setName(std::string name) { servername_ = name; };
 
 	void initializeLevel();
+	void registerServer();
 	void initializeGame(NetworkMultiplayer &);
 
 	Uint32 getServerTime() { return serverTime_; }
@@ -52,6 +54,9 @@ public:
 
 	void ignoreClientInputFor(int ms) { ignoreClientInputUntil_ = serverTime_ + ms; }
 	bool ignoreClientInput() { return ignoreClientInputUntil_ > serverTime_; }
+	
+	std::string getName() { return servername_; }
+	int getPort() { return port_; }
 
 private:
     Server();
@@ -75,6 +80,7 @@ private:
 	SDLNet_SocketSet set;
 	Uint32 ipaddr;
 	Uint16 port_;
+	std::string servername_;
 
 	Level level_;
 	std::string levelName_;
@@ -86,5 +92,7 @@ private:
 	Uint32 serverTime_;
 	Uint32 ignoreClientInputUntil_;
 
+	std::string serverToken_;
+	
 	friend class ClientNetworkMultiplayer;
 };

@@ -340,6 +340,8 @@ int Main::run(const MainRunModes &runmode)
 				Server::getInstance().initializeGame(multiplayer);
 
 				Server::getInstance().initializeLevel();
+				
+				Server::getInstance().registerServer();
 
 				Server::getInstance().listen();
 
@@ -482,7 +484,7 @@ int main(int argc, char* args[])
 		
 		// Usage smashbattle -s "TRAINING DOJO" 1100 --> start server on port 1100 with level "TRAINING DOJO"
 		else if(strcmp(args[1], "-s") == 0 && argc >= 2) {
-			string level, strport;
+			string level, strport, servername;
 			if (argc == 2) {
 				strport = "1100";
 			}
@@ -494,10 +496,16 @@ int main(int argc, char* args[])
 				level = string(args[2]).substr(0, 80);
 				strport = string(args[3]).substr(0, 5);
 			}
+			else if (argc == 5) {
+				// Get level from param
+				level = string(args[2]).substr(0, 80);
+				strport = string(args[3]).substr(0, 5);
+				servername = string(args[4]).substr(0, 80);
+			}
 
 			log(format("program started with -s flag, parsed level %s and port %d", level.c_str(), stoi(strport)), Logger::Priority::INFO);
 			
-			Server::getInstance().setState(new ServerStateInitialize(level, stoi(strport)));
+			Server::getInstance().setState(new ServerStateInitialize(level, stoi(strport), servername));
 
 			return main.run(MainRunModes::SERVER);
 		}

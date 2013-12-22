@@ -13,7 +13,7 @@ public:
 	AbstractRestBase();
 	virtual ~AbstractRestBase();
 
-	json::Object request(const std::string &url, const std::string &token = "");
+	json::Object request(const std::string &method, const std::string &url, const std::string &token = "", const std::string &jsonString = "");
 
 private:
 

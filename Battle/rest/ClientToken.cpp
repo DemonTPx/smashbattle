@@ -1,4 +1,4 @@
-#include "Token.h"
+#include "ClientToken.h"
 
 #include <iostream>
 #include <cstring>
@@ -6,13 +6,13 @@
 
 namespace rest {
 
-Token::Token()
+ClientToken::ClientToken()
 {
 }
 
-std::string Token::get()
+std::string ClientToken::get()
 {
-	json::Object obj = request("http://battle.cppse.nl/client/token");
+	json::Object obj = request("GET", "http://battle.cppse.nl/client/token");
 	std::string tokenString(obj["random_string"]);
 
 	return tokenString;

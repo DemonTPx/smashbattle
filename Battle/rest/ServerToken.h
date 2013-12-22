@@ -6,10 +6,10 @@
 
 namespace rest {
 
-class Token : public AbstractRestBase {
+class ServerToken : public AbstractRestBase {
 public:
 
-	Token();
+	ServerToken();
 
 	std::string get();
 
