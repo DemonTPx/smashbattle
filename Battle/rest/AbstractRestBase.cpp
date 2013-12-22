@@ -62,7 +62,7 @@ json::Object AbstractRestBase::request(const std::string &method, const std::str
 
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
 	if (method != "GET") {
