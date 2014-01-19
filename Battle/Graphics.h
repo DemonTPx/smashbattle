@@ -51,6 +51,7 @@ public:
 	void clear_player_clips();
 
 	static Uint32 combine_colors(Uint32 color1, Uint32 color2);
+	static void replace_color(SDL_Surface * surface, Uint32 color_old, Uint32 color_new);
 	static SDL_Surface * load_icon(const char * filename, Uint8 ** mask, Uint32 color);
 
 	SDL_Surface * weapons;

@@ -81,6 +81,24 @@ const int Player::COLORS[4] = {
 	0xaa9900,
 };
 
+const short Player::SUIT_COLOR_COUNT = 5;
+const Uint32 Player::SUIT_ORIGINAL[Player::SUIT_COLOR_COUNT] = {
+	0x486d9f, // shirt
+	0x395479, // shirt dark
+	0x6d9360, // pants
+	0x5e7855, // pants dark
+	0x4c5f45 // pants darker
+};
+
+const Uint32 Player::SUIT_REPLACE[Player::COLORS_COUNT][Player::SUIT_COLOR_COUNT] = {
+	//   shirt      dark     pants      dark    darker
+	{ 0xcc0000, 0xaa0000, 0x6d9360, 0x5e7855, 0x4c5f45 },
+	{ 0x0000cc, 0x0000aa, 0x6d9360, 0x5e7855, 0x4c5f45 },
+	{ 0x00aa00, 0x009900, 0x6d9360, 0x5e7855, 0x4c5f45 },
+	{ 0xccaa00, 0xaa9900, 0x6d9360, 0x5e7855, 0x4c5f45 }
+};
+
+
 const int Player::SPEEDCLASS_COUNT = 3;
 const SpeedClass Player::SPEEDCLASSES[Player::SPEEDCLASS_COUNT] = {
 	{30},
@@ -130,6 +148,9 @@ const int Player::jump_height = 144;
 // Shield time
 #define PLAYER_SHIELD_FRAMES 180
 
+// Replace player suits with player color
+#define PLAYER_REPLACE_SUIT_COLOR
+
 Player::Player(int character, int number) {
 	name = CHARACTERS[character].name;
 	this->character = character;
@@ -152,7 +173,8 @@ Player::Player(int character, int number) {
 	position->w = PLAYER_W;
 	position->h = PLAYER_H;
 
-	sprites = Main::graphics->player->at(character);
+	sprites = NULL;
+	set_sprites();
 	marker_clip_above = Main::graphics->pmarker_clip_above[(number - 1)];
 	marker_clip_below = Main::graphics->pmarker_clip_below[(number - 1)];
 }
@@ -160,6 +182,9 @@ Player::Player(int character, int number) {
 Player::~Player() {
 	delete position;
 	delete last_position;
+#ifdef PLAYER_REPLACE_SUIT_COLOR
+	SDL_FreeSurface(sprites);
+#endif
 }
 
 void Player::set_character(int character) {
@@ -171,7 +196,31 @@ void Player::set_character(int character) {
 	weaponclass = CHARACTERS[character].weaponclass;
 	bombpowerclass = CHARACTERS[character].bombpowerclass;
 
+	set_sprites();
+}
+
+void Player::set_sprites() {
+#ifdef PLAYER_REPLACE_SUIT_COLOR
+	SDL_Surface * original;
+	Uint32 c_old, n_new;
+
+	if (sprites != NULL) {
+		SDL_FreeSurface(sprites);
+	}
+
+	original = Main::graphics->player->at(character);
+	sprites = SDL_ConvertSurface(original, original->format, original->flags);
+
+	for (short i = 0; i < Player::SUIT_COLOR_COUNT; i++) {
+		c_old = Player::SUIT_ORIGINAL[i];
+		n_new = Player::SUIT_REPLACE[(this->number - 1)][i];
+		if (c_old != n_new) {
+			Main::graphics->replace_color(sprites, c_old, n_new);
+		}
+	}
+#else
 	sprites = Main::graphics->player->at(character);
+#endif
 }
 
 void Player::reset() {

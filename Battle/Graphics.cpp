@@ -89,6 +89,27 @@ void Graphics::load_players() {
 
 }
 
+void Graphics::replace_color(SDL_Surface * surface, Uint32 color_old, Uint32 color_new) {
+	Uint32 pixel;
+	Uint32 * p;
+	Uint8 * pixels;
+	int pixelcount;
+	int mask;
+
+	pixels = (Uint8 *)surface->pixels;
+	pixelcount = surface->w * surface->h;
+
+	mask = surface->format->Rmask | surface->format->Gmask | surface->format->Bmask;
+
+	for (int x = 0; x < pixelcount * surface->format->BytesPerPixel; x += surface->format->BytesPerPixel) {
+		pixel = *((Uint32 *)(pixels + x)) & mask;
+		p = ((Uint32 *)(pixels + x));
+		if (pixel == color_old) {
+			*p = color_new;
+		}
+	}
+}
+
 /*
 void Graphics::create_player_masks() {
 	SDL_Surface * surface;

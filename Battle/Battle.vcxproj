@@ -160,6 +160,7 @@
     <ClCompile Include="util\LevelUtil.cpp" />
     <ClCompile Include="util\Log.cpp" />
     <ClCompile Include="util\PlayerUtil.cpp" />
+    <ClCompile Include="util\random.cpp" />
     <ClCompile Include="util\ServerUtil.cpp" />
     <ClCompile Include="util\sha256.cpp" />
     <ClCompile Include="util\StringUtils.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="util\json.h" />
     <ClInclude Include="util\LagMeasure.hpp" />
     <ClInclude Include="util\Log.h" />
+    <ClInclude Include="util\random.h" />
     <ClInclude Include="util\ServerUtil.h" />
     <ClInclude Include="util\sha256.h" />
     <ClInclude Include="util\StringUtils.h" />

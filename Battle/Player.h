@@ -67,6 +67,10 @@ public:
 	static const Character CHARACTERS[];
 	static const int COLORS_COUNT;
 	static const int COLORS[];
+
+	static const short SUIT_COLOR_COUNT;
+	static const Uint32 SUIT_ORIGINAL[];
+	static const Uint32 SUIT_REPLACE[4][5];
 	
 	static const int SPEEDCLASS_COUNT;
 	static const SpeedClass SPEEDCLASSES[];
@@ -78,6 +82,7 @@ public:
 	static const BombPowerClass BOMBPOWERCLASSES[];
 
 	void set_character(int character);
+	void set_sprites();
 	void reset();
 
 	char * name;
