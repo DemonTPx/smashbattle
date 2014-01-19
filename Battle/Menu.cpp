@@ -433,11 +433,7 @@ void Menu::process_playeranimation() {
 		playeranimation->is_walking = false;
 		playeranimation->direction = -1;
 	}
-	if (playeranimation->character == 2 && frame - animation_start == 100) {
-		playeranimation->is_duck = true;
-	}
 	if (frame - animation_start == 150) {
-		playeranimation->is_duck = false;
 		playeranimation->is_walking = true;
 		playeranimation->direction = -1;
 	}
