@@ -126,6 +126,10 @@ void OptionsScreen::process_cursor() {
 }
 
 void OptionsScreen::select() {
+	if (items->size() == 0) {
+		return;
+	}
+
 	Main::audio->play(SND_SELECT);
 	item_selected();
 }
