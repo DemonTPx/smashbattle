@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstring>
 #include "util/json.h"
-#include "Server.h"
+#include "network/Server.h"
 
 namespace rest {
 

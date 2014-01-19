@@ -1,8 +1,8 @@
 #include "SDL/SDL.h"
 #include "ServerListing.h"
 #include "Options.h"
-#include "ClientNetworkMultiplayer.h"
 #include "util/stringutils.hpp"
+#include "network/ClientNetworkMultiplayer.h"
 #include "network/ServerClient.h"
 
 ServerListing::ServerListing(json::Array &servers)

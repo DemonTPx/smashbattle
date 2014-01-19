@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -10,9 +10,7 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and '$(VisualStudioVersion)' == ''">$(VCTargetsPath11)</VCTargetsPath>
-  </PropertyGroup>
+  <PropertyGroup Label="Globals" />
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0B41AD8A-641E-4854-9075-382245257AE3}</ProjectGuid>
     <RootNamespace>Battle</RootNamespace>
@@ -21,13 +19,13 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v110_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -47,8 +45,8 @@
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.\;.\zlib-1.2.7;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>..\Lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+    <IncludePath>./;../include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>../lib/x86;../lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
@@ -69,7 +67,7 @@
       <DisableSpecificWarnings>4996;4312;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_mixer.lib;SDL_net.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_mixer.lib;SDL_net.lib;zdll.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -106,10 +104,7 @@
     <ClCompile Include="CannonNPC.cpp" />
     <ClCompile Include="CharacterSelect.cpp" />
     <ClCompile Include="ChickNPC.cpp" />
-    <ClCompile Include="Client.cpp" />
-    <ClCompile Include="ClientNetworkMultiplayer.cpp" />
-    <ClCompile Include="CommandProcessor.cpp" />
-    <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="ClientSettings.cpp" />
     <ClCompile Include="commands\CommandGeneratePowerup.cpp" />
     <ClCompile Include="ControlsOptions.cpp" />
     <ClCompile Include="DoubleDamagePowerUp.cpp" />
@@ -126,7 +121,6 @@
     <ClCompile Include="LevelSelect.cpp" />
     <ClCompile Include="LocalMultiplayer.cpp" />
     <ClCompile Include="LocalMultiplayerRoundEnd.cpp" />
-    <ClCompile Include="log.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Mine.cpp" />
@@ -134,6 +128,12 @@
     <ClCompile Include="Mission.cpp" />
     <ClCompile Include="MissionSelect.cpp" />
     <ClCompile Include="NetworkMultiplayer.cpp" />
+    <ClCompile Include="network\Client.cpp" />
+    <ClCompile Include="network\ClientNetworkMultiplayer.cpp" />
+    <ClCompile Include="network\CommandProcessor.cpp" />
+    <ClCompile Include="network\Commands.cpp" />
+    <ClCompile Include="network\Server.cpp" />
+    <ClCompile Include="network\ServerClient.cpp" />
     <ClCompile Include="NPC.cpp" />
     <ClCompile Include="Options.cpp" />
     <ClCompile Include="OptionsScreen.cpp" />
@@ -142,8 +142,12 @@
     <ClCompile Include="PlayerAnimation.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RandomPowerUp.cpp" />
-    <ClCompile Include="Server.cpp" />
-    <ClCompile Include="ServerClient.cpp" />
+    <ClCompile Include="rest\AbstractRestBase.cpp" />
+    <ClCompile Include="rest\ClientToken.cpp" />
+    <ClCompile Include="rest\RegisterServer.cpp" />
+    <ClCompile Include="rest\ServerList.cpp" />
+    <ClCompile Include="rest\ServerToken.cpp" />
+    <ClCompile Include="ServerListing.cpp" />
     <ClCompile Include="ShieldPowerUp.cpp" />
     <ClCompile Include="states\ServerState.cpp" />
     <ClCompile Include="states\ServerStateAcceptClients.cpp" />
@@ -152,10 +156,13 @@
     <ClCompile Include="states\ServerStateInitialize.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="util\json.cpp" />
     <ClCompile Include="util\LevelUtil.cpp" />
+    <ClCompile Include="util\Log.cpp" />
     <ClCompile Include="util\PlayerUtil.cpp" />
     <ClCompile Include="util\ServerUtil.cpp" />
+    <ClCompile Include="util\sha256.cpp" />
+    <ClCompile Include="util\StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Airstrike.h" />
@@ -168,11 +175,7 @@
     <ClInclude Include="CannonNPC.h" />
     <ClInclude Include="CharacterSelect.h" />
     <ClInclude Include="ChickNPC.h" />
-    <ClInclude Include="Client.h" />
-    <ClInclude Include="ClientNetworkMultiplayer.h" />
-    <ClInclude Include="Command.hpp" />
-    <ClInclude Include="CommandProcessor.h" />
-    <ClInclude Include="Commands.hpp" />
+    <ClInclude Include="ClientSettings.h" />
     <ClInclude Include="commands\CommandAddPlayer.hpp" />
     <ClInclude Include="commands\CommandApplyPowerup.hpp" />
     <ClInclude Include="commands\CommandBombDropped.hpp" />
@@ -210,7 +213,6 @@
     <ClInclude Include="LevelSelect.h" />
     <ClInclude Include="LocalMultiplayer.h" />
     <ClInclude Include="LocalMultiplayerRoundEnd.h" />
-    <ClInclude Include="log.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Mine.h" />
@@ -218,6 +220,13 @@
     <ClInclude Include="Mission.h" />
     <ClInclude Include="MissionSelect.h" />
     <ClInclude Include="NetworkMultiplayer.h" />
+    <ClInclude Include="network\Client.h" />
+    <ClInclude Include="network\ClientNetworkMultiplayer.h" />
+    <ClInclude Include="network\Command.hpp" />
+    <ClInclude Include="network\CommandProcessor.h" />
+    <ClInclude Include="network\Commands.hpp" />
+    <ClInclude Include="network\Server.h" />
+    <ClInclude Include="network\ServerClient.h" />
     <ClInclude Include="NPC.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="OptionsScreen.h" />
@@ -227,8 +236,12 @@
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="RandomPowerUp.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Server.h" />
-    <ClInclude Include="ServerClient.h" />
+    <ClInclude Include="rest\AbstractRestBase.h" />
+    <ClInclude Include="rest\ClientToken.h" />
+    <ClInclude Include="rest\RegisterServer.h" />
+    <ClInclude Include="rest\ServerList.h" />
+    <ClInclude Include="rest\ServerToken.h" />
+    <ClInclude Include="ServerListing.h" />
     <ClInclude Include="ShieldPowerUp.h" />
     <ClInclude Include="states\ServerState.h" />
     <ClInclude Include="states\ServerStateAcceptClients.h" />
@@ -238,9 +251,13 @@
     <ClInclude Include="states\ServerStates.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="Util.h" />
+    <ClInclude Include="util\json.h" />
     <ClInclude Include="util\LagMeasure.hpp" />
+    <ClInclude Include="util\Log.h" />
     <ClInclude Include="util\ServerUtil.h" />
+    <ClInclude Include="util\sha256.h" />
+    <ClInclude Include="util\StringUtils.h" />
+    <ClInclude Include="util\stringutils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="music\a_hero_rises.ogg" />
