@@ -15,7 +15,7 @@ ServerListing::ServerListing(json::Array &servers)
 		json::Object obj = servers[(size_t) i];
 		std::string str = (std::string) obj["servername"];
 		item = new OptionItem();
-		item->name = const_cast<char *> (str.c_str());
+		item->name = strdup(const_cast<char *> (str.c_str()));
 		item->options = NULL;
 		item->selected = 0;
 		add_item(item);
