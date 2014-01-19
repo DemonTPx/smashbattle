@@ -2,6 +2,7 @@
 #include "network/Server.h"
 #include "network/Commands.hpp"
 #include "util/Log.h"
+#include "util/random.h"
 #include "NetworkMultiplayer.h"
 
 /**
@@ -17,8 +18,9 @@ Client::Client()
 	  initialLagTests_(INITIAL_LAG_TESTS),
 	  server_(NULL),
 
-	  currentState_(Client::State::CONNECTING)
-	  
+	  currentState_(Client::State::CONNECTING),
+	  commToken_(rand_get()),
+	  lastUdpSeq_(0)
 {}
 
 Client::Client(Client &&other) 
@@ -30,8 +32,9 @@ Client::Client(Client &&other)
 	  initialLagTests_(INITIAL_LAG_TESTS),
 	  server_(NULL),
 
-	  currentState_(Client::State::CONNECTING)
-	  
+	  currentState_(Client::State::CONNECTING),
+	  commToken_(other.getCommToken()),
+	  lastUdpSeq_(0)
 {}	
 
 Client & Client::operator=(Client&& other)
@@ -42,6 +45,7 @@ Client & Client::operator=(Client&& other)
 		this->client_id_ = other.client_id_;
 		this->set_socket(other.socket_);
 		this->server_ = other.server_;
+		this->lastUdpSeq_ = other.lastUdpSeq_;
 	}
 	
 	return *this; 
@@ -62,8 +66,9 @@ Client::Client(int client_id, TCPsocket socket, Server * const server)
 	  lastLagTime_(0),
 	  initialLagTests_(10),
 
-	  currentState_(Client::State::CONNECTING)
-	  
+	  currentState_(Client::State::CONNECTING),
+	  commToken_(rand_get()),
+	  lastUdpSeq_(0)
 {
 }
 
@@ -123,16 +128,25 @@ bool Client::process(CommandSetPlayerData *command)
 {
 	if (server_->getGame().is_ended() || server_->ignoreClientInput())
 		return true;
-
+	
 	Player *updatedPlayer = NULL;
 	auto playersvec = *(server_->getGame().players);
 	for (auto i = playersvec.begin(); i != playersvec.end(); i++)
 	{
 		auto &player = **i;
-		if (player.number == (int)command->data.client_id)
-		{
-			player_util::set_player_data(player, *command);
+		if (player.number == (int)command->data.client_id) {
+			short lastSeq = server_->getClientById(player.number).getLastUdpSeq();
+			short currSeq = command->data.udp_sequence;
 
+			// A following sequence is valid if it's bigger than the lastSeq.
+			// But it's also valid if it's smaller, (i.e. wrapped, short is overflown). That's where 
+			//  the check if the difference is in that case > sizeof(short) / 2)..
+			if ( ! ((currSeq > lastSeq || (currSeq < lastSeq && (lastSeq-currSeq)) > (sizeof(short)/2)))) {
+				log(format("sequence, discarding because of more recent package existant. %d < %d\n", currSeq, lastSeq), Logger::Priority::INFO);
+				continue;
+			}
+
+			player_util::set_player_data(player, *command);
 
 			// Account for lag
 			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
@@ -151,11 +165,10 @@ bool Client::process(CommandSetPlayerData *command)
 	for (auto i = playersvec.begin(); i != playersvec.end(); i++)
 	{
 		auto &player = **i;
-		if (player.number != (int)command->data.client_id)
-		{
+		if (player.number != (int)command->data.client_id) {
 			CommandSetPlayerData data;
 
-			player_util::set_position_data(data, updatedPlayer->number, server_->getServerTime(), *updatedPlayer);
+			player_util::set_position_data(data, updatedPlayer->number, server_->getServerTime(), server_->getUdpSeq(), *updatedPlayer);
 
 			server_->getClientById(player.number).send(data);
 		}
@@ -275,7 +288,7 @@ void Client::send(Command &command)
 
 	if(result < sizeof(char)) {
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+			log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 		return;
 	}
 
@@ -283,7 +296,7 @@ void Client::send(Command &command)
 
 	if(result < sizeof(socket_)) {
 		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+			log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 		return;
 	}
 }

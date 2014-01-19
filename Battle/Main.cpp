@@ -341,9 +341,9 @@ int Main::run(const MainRunModes &runmode)
 
 				Server::getInstance().initializeLevel();
 				
-				Server::getInstance().registerServer();
-
 				Server::getInstance().listen();
+
+				Server::getInstance().registerServer();
 
 				multiplayer.run();
 			}

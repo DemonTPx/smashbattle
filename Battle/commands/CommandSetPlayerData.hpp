@@ -17,6 +17,7 @@ public:
 
 	struct
 	{
+		short udp_sequence;
 		char client_id;
 		Uint32 time;
 		short flags;

@@ -10,9 +10,8 @@
 
 namespace player_util
 {
-	void set_position_data(CommandSetPlayerData &playerpos, char client_id, Uint32 time, Player &player)
+	void set_position_data(CommandSetPlayerData &playerpos, char client_id, Uint32 time, short udpseq, Player &player)
 	{
-
 		// todo: remove param client_id, it is always player.number (!)
 		short flags = 0;
 		if (player.input->is_pressed(A_LEFT))		flags |= ServerClient::FLAG_LEFT;
@@ -25,6 +24,7 @@ namespace player_util
 		if (player.input->is_pressed(A_BOMB))		flags |= ServerClient::FLAG_BOMB;
 		if (player.input->is_pressed(A_START))		flags |= ServerClient::FLAG_START;
 
+		playerpos.data.udp_sequence = udpseq;
 		playerpos.data.client_id = player.number;
 		playerpos.data.time = time;
 		playerpos.data.flags = flags;

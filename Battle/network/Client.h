@@ -56,7 +56,10 @@ public:
 	void send(Command &command);
 
 	void cleanup(); 
-	
+
+	Uint64 getCommToken() { return commToken_; }
+	short getLastUdpSeq() { return lastUdpSeq_; }
+
 	// lag
 	Uint32 getLastLagTime() { return lastLagTime_; }
 	void setLastLagTime(Uint32 time) { lastLagTime_ = time; }
@@ -80,4 +83,7 @@ private:
 	int initialLagTests_;
 
 	Client::State currentState_;
+
+	Uint64 commToken_;
+	short lastUdpSeq_;
 };
