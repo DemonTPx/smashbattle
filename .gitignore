@@ -10,3 +10,10 @@ BattleVS2011.sdf
 BattleVS2011.v11.suo
 Battle/Battle.vcxproj.filters
 Battle/Battle.vcxproj.user
+/Battle/nbproject/private/
+/nbproject/private/
+*.o
+*~
+*.cmake
+Battle/battle
+smashbattle
