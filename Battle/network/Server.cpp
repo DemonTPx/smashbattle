@@ -72,7 +72,7 @@ void Server::initializeLevel()
 #include "rest/RegisterServer.h"
 #include "util/stringutils.hpp"
 #include "util/sha256.h"
-#include "Log.h"
+#include "util/Log.h"
 void Server::registerServer()
 {
 	if (serverToken_.empty()) {
