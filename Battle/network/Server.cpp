@@ -32,14 +32,18 @@ Server::Server()
 	  port_((Uint16)1099),
 	  serverTime_(SDL_GetTicks()),
 	  ignoreClientInputUntil_(0),
-	  game_(NULL)
+	  game_(NULL),
+	  udpsequence_(0)
 {
 }
 
-Server::~Server()
-{
+Server::~Server() {
+	// UDP cleanup
+	SDLNet_FreePacket(p);
+
+	// SQL Net cleanup
 	SDLNet_Quit();
-	
+
 	if (currentState_ != NULL)
 		delete(currentState_);
 }
@@ -68,6 +72,7 @@ void Server::initializeLevel()
 #include "rest/RegisterServer.h"
 #include "util/stringutils.hpp"
 #include "util/sha256.h"
+#include "Log.h"
 void Server::registerServer()
 {
 	if (serverToken_.empty()) {
@@ -130,14 +135,14 @@ void Server::listen()
 	/* initialize SDL_net */
 	if(SDLNet_Init()==-1)
 	{
-		printf("SDLNet_Init: %s\n",SDLNet_GetError());
+		log(format("SDLNet_Init: %s\n",SDLNet_GetError()), Logger::Priority::FATAL);
 		return;
 	}
 
 		/* Resolve the argument into an IPaddress type */
 	if(SDLNet_ResolveHost(&ip,NULL,port_)==-1)
 	{
-		printf("SDLNet_ResolveHost: %s\n",SDLNet_GetError());
+		log(format("SDLNet_ResolveHost: %s\n",SDLNet_GetError()), Logger::Priority::FATAL);
 		return;
 	}
 
@@ -145,39 +150,97 @@ void Server::listen()
 	ipaddr=SDL_SwapBE32(ip.host);
 
 	/* output the IP address nicely */
-	printf("IP Address : %d.%d.%d.%d\n",
+	log(format("IP Address : %d.%d.%d.%d\n",
 			ipaddr>>24,
 			(ipaddr>>16)&0xff,
 			(ipaddr>>8)&0xff,
-			ipaddr&0xff);
+			ipaddr&0xff), Logger::Priority::INFO);
 
 	/* resolve the hostname for the IPaddress */
 	host=SDLNet_ResolveIP(&ip);
 
 	/* print out the hostname we got */
-	if(host)
-		printf("Hostname   : %s\n",host);
-	else
-		printf("Hostname   : N/A\n");
+	if(host) {
+		log(format("Hostname   : %s\n",host), Logger::Priority::DEBUG);
+	}
+	else {
+		log(format("Hostname   : N/A\n"), Logger::Priority::DEBUG);
+	}
 
 	/* output the port number */
-	printf("Port       : %d\n",port_);
+	log(format("Port       : %d\n",port_), Logger::Priority::DEBUG);
 
 	/* open the server socket */
 	server=SDLNet_TCP_Open(&ip);
 	if(!server)
 	{
-		printf("SDLNet_TCP_Open: %s\n",SDLNet_GetError());
+		log(format("SDLNet_TCP_Open: %s\n",SDLNet_GetError()), Logger::Priority::DEBUG);
 		return;
 	}
+
+
+	/* Initialize SDL_net */
+	if (SDLNet_Init() < 0)
+	{
+		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+ 
+	/* Open a socket */
+	if (!(sd = SDLNet_UDP_Open(port_)))
+	{
+		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+ 
+	/* Make space for the packet */
+	if (!(p = SDLNet_AllocPacket(512)))
+	{
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+
 
 	is_listening_ = true;
 
 	setState(new ServerStateAcceptClients());
 }
 
-void Server::poll() 
-{
+void Server::poll() {
+
+
+	while (SDLNet_UDP_Recv(sd, p)) {
+		log(format("UDP Packet incoming\n"), Logger::Priority::DEBUG);
+		log(format("\tChan:    %d\n", p->channel), Logger::Priority::DEBUG);
+		log(format("\tData:    %s\n", (char *) p->data), Logger::Priority::DEBUG);
+		log(format("\tFirst_char: %X\n", p->data[0]), Logger::Priority::DEBUG);
+		if (p->data[0] != 0x07)
+			continue;
+
+		Uint64 commToken = *(Uint64 *) (p->data + 1);
+		if (communicationTokens_.find(commToken) != communicationTokens_.end()) {
+			log(format("\tMatched client: %d\n", communicationTokens_[commToken]), Logger::Priority::DEBUG);
+		} else {
+			log(format("\tNo matching client..\n"), Logger::Priority::DEBUG);
+		}
+		log(format("\tLen:     %d\n", p->len), Logger::Priority::DEBUG);
+		log(format("\tMaxlen:  %d\n", p->maxlen), Logger::Priority::DEBUG);
+		log(format("\tStatus:  %d\n", p->status), Logger::Priority::DEBUG);
+		log(format("\tAddress: %x %x\n", p->address.host, p->address.port), Logger::Priority::DEBUG);
+
+		Client & client(clients_[communicationTokens_[commToken]]);
+		char *temp = (char *) p->data;
+		temp += sizeof (Uint64); // skip one byte before the actual struct
+		*temp = p->data[0];
+		client.receive(p->len - sizeof (Uint64), temp);
+		while (client.parse())
+			;
+	}
+
+
+
+	
 	if (!is_listening_)
 		return;
 
@@ -212,7 +275,9 @@ void Server::poll()
 				;
 			clients_[nextId] = Client(nextId, sock, this);
 
-			printf("New client connected with id: %d\n", nextId);
+			communicationTokens_[clients_[nextId].getCommToken()] = nextId;
+
+			log(format("New client connected with id: %d\n", nextId), Logger::Priority::INFO);
 		}
 	}
 
@@ -240,7 +305,7 @@ void Server::poll()
 				// Mark for deletion
 				dead_clients.push_back(client.id());
 
-				printf("Cleaned up client: %d\n", client.id());
+				log(format("Cleaned up client: %d\n", client.id()), Logger::Priority::INFO);
 
 				client.cleanup();
 			}
@@ -248,11 +313,17 @@ void Server::poll()
 	}
 
 	// Remove deleted clients by key
-	for (vector<int>::iterator i=dead_clients.begin(); i != dead_clients.end(); i++)
+	bool anotherPlayerDisconnected = false;
+	for (vector<int>::iterator i = dead_clients.begin(); i != dead_clients.end(); i++) {
+		// Verify with a breakpoint if this is correct code...
+		if (clients_[*i].getState() == Client::State::ACTIVE) {
+			anotherPlayerDisconnected = true;
+		}
+		communicationTokens_.erase(clients_[*i].getCommToken());
 		clients_.erase(*i);
+	}
 
-	if (!dead_clients.empty())
-	{
+	if (anotherPlayerDisconnected) {
 		CommandSetBroadcastText broadcast;
 		broadcast.data.time = getServerTime();
 		string text("ANOTHER PLAYER DISCONNECTED");
@@ -260,6 +331,7 @@ void Server::poll()
 		broadcast.data.duration = 2000;
 		sendAll(broadcast);
 	}
+
 }
 
 /* create a socket set that has the server socket and all the client sockets */

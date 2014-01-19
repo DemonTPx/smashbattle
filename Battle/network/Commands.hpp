@@ -22,3 +22,4 @@
 #include "commands/CommandGeneratePowerup.h"
 #include "commands/CommandApplyPowerup.hpp"
 #include "commands/CommandRemovePowerup.hpp"
+#include "commands/CommandSetCommunicationToken.hpp"

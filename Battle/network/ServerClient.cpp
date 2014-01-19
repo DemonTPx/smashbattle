@@ -31,7 +31,9 @@ ServerClient::ServerClient()
 	  lastResetTimer_(0),
 	  resumeGameWithCountdown_(true),
 	  resumeGameTime_(0),
-	  character_(0)
+	  character_(0),
+	  communicationToken_(0),
+	  udpsequence_(0)
 {
 }
 
@@ -76,6 +78,11 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 		throw std::runtime_error(format("SDLNet_ResolveHost: %s\n",SDLNet_GetError()));
 	}
 
+	// UDP initialize
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	}
+	
 	/* open the server socket */
 	sock=SDLNet_TCP_Open(&ip);
 	if(!sock)
@@ -131,7 +138,7 @@ void ServerClient::poll()
 		{
 			CommandSetPlayerData pos;
 			try {
-				player_util::set_position_data(pos, getClientId(), SDL_GetTicks(), player_util::get_player_by_id(getClientId()));
+				player_util::set_position_data(pos, getClientId(), SDL_GetTicks(), ServerClient::getInstance().getUdpSeq(), player_util::get_player_by_id(getClientId()));
 				ServerClient::getInstance().resetTimer();
 
 				// Do not send update to server if we're dead
@@ -212,22 +219,56 @@ void ServerClient::send(Command &command)
 		return;
 
 	char type = command.getType();
-	log(format("Send packet of type %d",type), Logger::Priority::CONSOLE);
-	result = SDLNet_TCP_Send(sock, &type, sizeof(char));
+	if (type == Command::Types::SetPlayerData) {
+		log(format("Send packet of type %d through UDP with seq %d", type, getUdpSeq()), Logger::Priority::CONSOLE);
 
-	if(result < sizeof(char)) {
-		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
-		return;
+		UDPpacket *p;
+		if (!(sd = SDLNet_UDP_Open(0))) {
+			fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+			return;
+		}
+		size_t packetsize = command.getDataLen() + sizeof (Uint64) + 1;
+		if (!(p = SDLNet_AllocPacket(packetsize))) {
+			fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+			return;
+		}
+		
+		char *packet = (char *)p->data;
+		*packet = type;
+		memcpy(packet + 1, (void *) &communicationToken_, sizeof (Uint64));
+		memcpy(packet + 1 + sizeof (Uint64), command.getData(), command.getDataLen());
+
+		p->data = (Uint8 *) packet;
+		p->address.host = ip.host;
+		p->address.port = ip.port;
+
+		p->len = packetsize;
+
+		SDLNet_UDP_Send(sd, -1, p); /* This sets the p->channel */
+
+		SDLNet_FreePacket(p);
+
+		setNextUdpSeq();
+
+	} else {
+		log(format("Send packet of type %d through TCP", type), Logger::Priority::CONSOLE);
+		result = SDLNet_TCP_Send(sock, &type, sizeof (char));
+
+		if (result < sizeof (char)) {
+			if (SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
+				printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+			return;
+		}
+
+		result = SDLNet_TCP_Send(sock, command.getData(), command.getDataLen());
+
+		if (result < sizeof (char)) {
+			if (SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
+				printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+			return;
+		}
 	}
-
-	result = SDLNet_TCP_Send(sock, command.getData(), command.getDataLen());
-
-	if(result < sizeof(char)) {
-		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-			printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
-		return;
-	}
+	
 }
 void ServerClient::test()
 {
@@ -323,6 +364,9 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 			break;
 		case Command::Types::RemovePowerup:
 			process(dynamic_cast<CommandRemovePowerup *>(command.get()));
+			break;
+		case Command::Types::SetCommunicationToken:
+			process(dynamic_cast<CommandSetCommunicationToken *>(command.get()));
 			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
@@ -652,6 +696,19 @@ bool ServerClient::process(CommandRemovePowerup *command)
 	catch (std::runtime_error &err) 
 	{
 		log(format("failure in process(CommandApplyPowerup): %s", err.what()), Logger::Priority::ERROR);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandSetCommunicationToken *command)
+{
+	try {
+		communicationToken_ = command->data.commToken;
+	}
+	catch (std::runtime_error &err) 
+	{
+		log(format("failure in process(CommandSetCommunicationToken): %s", err.what()), Logger::Priority::ERROR);
 	}
 
 	return true;

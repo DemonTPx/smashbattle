@@ -50,7 +50,7 @@ void ServerStateGameStarted::initialize(Server &server) const
 
 		// Set their correct positions
 		CommandSetPlayerData pd;
-		player_util::set_position_data(pd, player.number, server.getServerTime(), player);
+		player_util::set_position_data(pd, player.number, server.getServerTime(), server.getUdpSeq(), player);
 		server.sendAll(pd);
 
 		CommandSetPlayerAmmo ammo;

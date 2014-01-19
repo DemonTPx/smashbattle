@@ -161,7 +161,7 @@ void ClientNetworkMultiplayer::on_input_handled()
 	short previous_flags = flags;
 		
 	CommandSetPlayerData req;
-	player_util::set_position_data(req, ServerClient::getInstance().getClientId(), SDL_GetTicks(), player);
+	player_util::set_position_data(req, ServerClient::getInstance().getClientId(), SDL_GetTicks(), ServerClient::getInstance().getUdpSeq(), player);
 
 	flags = req.data.flags;
 

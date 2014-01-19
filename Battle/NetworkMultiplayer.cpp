@@ -51,7 +51,7 @@ void NetworkMultiplayer::on_game_reset()
 
 		CommandSetPlayerData pd;
 		level_util::set_player_start(player, *level);
-		player_util::set_position_data(pd, player.number, server.getServerTime(), player);
+		player_util::set_position_data(pd, player.number, server.getServerTime(), server.getUdpSeq(), player);
 		server.sendAll(pd);
 
 		CommandSetHitPoints points;
@@ -154,7 +154,7 @@ void NetworkMultiplayer::on_post_processing()
 					// Unset input's for players, do not change location yet
 					player_util::unset_input(player);
 					CommandSetPlayerData pd;
-					player_util::set_position_data(pd, player.number, server.getServerTime(), player);
+					player_util::set_position_data(pd, player.number, server.getServerTime(), server.getUdpSeq(), player);
 					server.sendAll(pd);
 				}
 			}

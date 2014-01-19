@@ -1,7 +1,7 @@
 #pragma once
 
 #include <map>
- 
+
 #include "SDL/SDL_net.h"
 
 #include "network/Client.h"
@@ -13,15 +13,13 @@ class NetworkMultiplayer;
 
 #include "util/ServerUtil.h"
 
-class Server
-{
+class Server {
 public:
 
-    static Server& getInstance()
-    {
-        static Server instance;
-        return instance;
-    }
+	static Server& getInstance() {
+		static Server instance;
+		return instance;
+	}
 
 	// Server listens
 	void listen();
@@ -34,17 +32,30 @@ public:
 
 	void setState(const ServerState * const state);
 
-	Level &getLevel() { return level_; }
-	std::string getLevelName() { return levelName_; }
+	Level &getLevel() {
+		return level_;
+	}
+
+	std::string getLevelName() {
+		return levelName_;
+	}
 	void setLevel(std::string level);
-	void setPort(int port) { port_ = (Uint16)port; };
-	void setName(std::string name) { servername_ = name; };
+
+	void setPort(int port) {
+		port_ = (Uint16) port;
+	};
+
+	void setName(std::string name) {
+		servername_ = name;
+	};
 
 	void initializeLevel();
 	void registerServer();
 	void initializeGame(NetworkMultiplayer &);
 
-	Uint32 getServerTime() { return serverTime_; }
+	Uint32 getServerTime() {
+		return serverTime_;
+	}
 
 	Gameplay &getGame();
 	Client& getClientById(int client_id);
@@ -52,27 +63,46 @@ public:
 
 	void sendAll(Command &command);
 
-	void ignoreClientInputFor(int ms) { ignoreClientInputUntil_ = serverTime_ + ms; }
-	bool ignoreClientInput() { return ignoreClientInputUntil_ > serverTime_; }
-	
-	std::string getName() { return servername_; }
-	int getPort() { return port_; }
+	void ignoreClientInputFor(int ms) {
+		ignoreClientInputUntil_ = serverTime_ + ms;
+	}
+
+	bool ignoreClientInput() {
+		return ignoreClientInputUntil_ > serverTime_;
+	}
+
+	std::string getName() {
+		return servername_;
+	}
+
+	int getPort() {
+		return port_;
+	}
+
+	short getUdpSeq() {
+		return udpsequence_;
+	}
+
+	void setNextUdpSeq() {
+		udpsequence_++;
+	}
 
 private:
-    Server();
+	Server();
 	~Server();
-	
+
 	// Prevent copies of server
 	Server(Server const&); // Don't implement
-    void operator=(Server const&); // Don't implement
+	void operator=(Server const&); // Don't implement
 
 	SDLNet_SocketSet create_sockset();
 
-	
+
 	bool is_listening_;
 
 	std::map<int, Client> clients_;
-	
+	std::map<Uint64, int> communicationTokens_;
+
 	TCPsocket server;
 
 	IPaddress ip;
@@ -88,11 +118,16 @@ private:
 	NetworkMultiplayer *game_;
 
 	const ServerState * currentState_;
-	
+
 	Uint32 serverTime_;
 	Uint32 ignoreClientInputUntil_;
 
 	std::string serverToken_;
-	
+
+	// UDP
+	UDPsocket sd; /* Socket descriptor */
+	UDPpacket *p; /* Pointer to packet memory */
+	short udpsequence_;
+
 	friend class ClientNetworkMultiplayer;
 };

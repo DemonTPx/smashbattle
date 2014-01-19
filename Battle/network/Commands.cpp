@@ -52,6 +52,8 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandApplyPowerup());
 		case Command::Types::RemovePowerup:
 			return std::unique_ptr<Command>(new CommandRemovePowerup());
+		case Command::Types::SetCommunicationToken:
+			return std::unique_ptr<Command>(new CommandSetCommunicationToken());
 	}
 	throw std::runtime_error("failure");
 }

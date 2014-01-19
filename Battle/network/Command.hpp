@@ -30,7 +30,8 @@ public:
 		SetGameStart = 0x13,
 		GeneratePowerup = 0x14,
 		ApplyPowerup = 0x15,
-		RemovePowerup = 0x16
+		RemovePowerup = 0x16,
+		SetCommunicationToken = 0x17,
 	};
 
 	Command::Types getType() const { return type_; }

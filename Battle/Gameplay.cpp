@@ -607,8 +607,6 @@ void Gameplay::process_player_collission() {
 				// Therefore (re)set a timer that will periodically send our data to server.
 				// But we cannot do this 
 				if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected()) {
-					CommandSetPlayerData mydata;
-
 					if (ServerClient::getInstance().getClientId() == p1->number || ServerClient::getInstance().getClientId() == p2->number) {
 						ServerClient::getInstance().resetTimer();
 					}

@@ -1,3 +1,5 @@
+#pragma once
+
 // for converting lower/uppercase 
 // from "C++ Cookbook"
 #include <locale>

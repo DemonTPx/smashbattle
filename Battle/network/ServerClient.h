@@ -49,6 +49,7 @@ class CommandSetGameStart;
 class CommandGeneratePowerup;
 class CommandApplyPowerup;
 class CommandRemovePowerup;
+class CommandSetCommunicationToken;
 
 class ServerClient : public CommandProcessor
 {
@@ -109,6 +110,9 @@ public:
 
 	void resumeGameIn(short delay);
 
+	short getUdpSeq() { return udpsequence_; }
+	void setNextUdpSeq() { udpsequence_++; }
+
 protected:
 	bool process(std::unique_ptr<Command> command);
 	
@@ -132,7 +136,9 @@ protected:
 	bool process(CommandGeneratePowerup *command);
 	bool process(CommandApplyPowerup *command);
 	bool process(CommandRemovePowerup *command);
+	bool process(CommandSetCommunicationToken *command);
 
+	
 private:
 	ServerClient();
 	~ServerClient();
@@ -177,4 +183,10 @@ private:
 	Uint32 lastResetTimer_;
 	bool resumeGameWithCountdown_;
 	Uint32 resumeGameTime_;
+
+
+	// UDP STUFF
+	UDPsocket sd;
+	Uint64 communicationToken_;
+	short udpsequence_;
 };

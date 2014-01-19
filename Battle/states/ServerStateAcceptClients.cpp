@@ -63,6 +63,10 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 					CommandRequestCharacter req;
 					client.send(req);
 
+					CommandSetCommunicationToken commtok;
+					commtok.data.commToken = client.getCommToken();
+					client.send(commtok);
+
 					client.setState(Client::State::CHARACTER_REQUESTED);
 				}
 				break;
@@ -129,7 +133,7 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 
 						// Send the client "player data"
 						CommandSetPlayerData playerpos;
-						player_util::set_position_data(playerpos, player.number, server.getServerTime(), player);
+						player_util::set_position_data(playerpos, player.number, server.getServerTime(), server.getUdpSeq(), player);
 						client.send(playerpos);
 
 						// Send the client player 's health
@@ -176,7 +180,7 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 					level_util::set_player_start(player, level);
 
 					CommandSetPlayerData pd;
-					player_util::set_position_data(pd, client.getClientId(), server.getServerTime(), player);
+					player_util::set_position_data(pd, client.getClientId(), server.getServerTime(), server.getUdpSeq(), player);
 					server.sendAll(pd);
 
 					player.is_dead = false;
