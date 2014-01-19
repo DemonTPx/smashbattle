@@ -1,13 +1,18 @@
 #include "SDL/SDL.h"
 
 #include "ControlsOptions.h"
+#include <sstream>
 
 #ifndef WIN32
 #define sprintf_s snprintf
 #endif
 
-ControlsOptions::ControlsOptions(GameInput * input) {
+ControlsOptions::ControlsOptions(GameInput * input, int number) {
 	OptionItem * item;
+
+	std::stringstream ss;
+	ss << "OPTIONS > CONTROLS PLAYER " << number;
+	title = ss.str();
 
 	this->input = input;
 

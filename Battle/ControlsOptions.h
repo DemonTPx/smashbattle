@@ -4,7 +4,7 @@
 
 class ControlsOptions : public OptionsScreen {
 public:
-	ControlsOptions(GameInput * input);
+	ControlsOptions(GameInput * input, int number);
 	~ControlsOptions();
 
 	void run();

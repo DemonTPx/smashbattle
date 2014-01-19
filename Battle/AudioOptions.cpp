@@ -3,7 +3,7 @@
 
 #include "AudioOptions.h"
 
-AudioOptions::AudioOptions() {
+AudioOptions::AudioOptions() : OptionsScreen("OPTIONS > SOUND AND MUSIC") {
 	OptionItem * item;
 
 	item = new OptionItem();

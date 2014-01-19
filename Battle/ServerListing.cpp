@@ -4,12 +4,17 @@
 #include "util/stringutils.hpp"
 #include "network/ClientNetworkMultiplayer.h"
 #include "network/ServerClient.h"
+#include <sstream>
 
 ServerListing::ServerListing(json::Array &servers)
-    : servers_(servers)
+    : OptionsScreen(), servers_(servers)
 {
 	Main::runmode = MainRunModes::CLIENT;
-		
+
+	std::stringstream ss;
+	ss << "SERVERS FOUND: " << servers.size();
+	title = ss.str();
+
 	OptionItem * item;
 	for (int i = 0, n = servers.size(); i < n; i++) {
 		json::Object obj = servers[(size_t) i];

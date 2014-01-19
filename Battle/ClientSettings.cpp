@@ -4,7 +4,7 @@
 #include "PlayerAnimation.h"
 
 ClientSettings::ClientSettings()
-: nickname_("TWEAKER"), character_(0), anim(new PlayerAnimation(1)),
+: OptionsScreen("SET UP YOUR CHARACTER"), nickname_("TWEAKER"), character_(0), anim(new PlayerAnimation(1)),
 oitem1_(NULL), oitem2_(NULL), oitem3_(NULL), editting_nickname_(false)
 {
 	initialize();
@@ -165,7 +165,7 @@ void ClientSettings::on_post_draw()
 	anim->animate_in_place = true;
 	anim->is_walking = true;
 	anim->position->x = 400;
-	anim->position->y = 28;
+	anim->position->y = 68;
 	anim->direction = -1;
 	SDL_Surface *screen = Main::instance->screen;
 

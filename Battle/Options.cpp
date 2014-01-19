@@ -5,7 +5,7 @@
 
 #include "Options.h"
 
-Options::Options() {
+Options::Options() : OptionsScreen("OPTIONS") {
 	OptionItem * item;
 
 	item = new OptionItem();
@@ -55,25 +55,25 @@ void Options::item_selected() {
 	switch(selected_item) {
 		case 0:
 			ControlsOptions * co1;
-			co1 = new ControlsOptions(Main::instance->input[0]);
+			co1 = new ControlsOptions(Main::instance->input[0], 1);
 			co1->run();
 			delete co1;
 			break;
 		case 1:
 			ControlsOptions * co2;
-			co2 = new ControlsOptions(Main::instance->input[1]);
+			co2 = new ControlsOptions(Main::instance->input[1], 2);
 			co2->run();
 			delete co2;
 			break;
 		case 2:
 			ControlsOptions * co3;
-			co3 = new ControlsOptions(Main::instance->input[2]);
+			co3 = new ControlsOptions(Main::instance->input[2], 3);
 			co3->run();
 			delete co3;
 			break;
 		case 3:
 			ControlsOptions * co4;
-			co4 = new ControlsOptions(Main::instance->input[3]);
+			co4 = new ControlsOptions(Main::instance->input[3], 4);
 			co4->run();
 			delete co4;
 			break;

@@ -17,6 +17,7 @@ struct OptionItem {
 class OptionsScreen {
 public:
 	OptionsScreen();
+	OptionsScreen(std::string title);
 	virtual ~OptionsScreen() {}
 
 	void run();
@@ -24,6 +25,7 @@ protected:
 	int selected_item;
 	bool running;
 
+	std::string title;
 	std::vector<OptionItem *> * items;
 
 	enum {
@@ -31,6 +33,9 @@ protected:
 		CENTER,
 		RIGHT
 	} align;
+
+	int title_left_offset;
+	int title_top_offset;
 	
 	int menu_item_height;
 	int menu_top_offset;
@@ -51,6 +56,7 @@ protected:
 private:	
 	GameInput * input;
 
+	SDL_Surface * surf_title;
 	std::vector<SDL_Surface *> * surf_items;
 	std::vector<SDL_Rect *> * surf_items_clip;
 

@@ -10,14 +10,20 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-OptionsScreen::OptionsScreen() {
+OptionsScreen::OptionsScreen() : OptionsScreen("") {}
+
+OptionsScreen::OptionsScreen(std::string title) {
+	this->title = title;
 	items = new std::vector<OptionItem*>(0);
 
 	align = LEFT;
+	
+	title_left_offset = 20;
+	title_top_offset = 20;
 
 	menu_item_height = 26;
-	menu_top_offset = 30;
 	menu_left_offset = 20;
+	menu_top_offset = 70;
 	menu_options_left_offset = 250;
 }
 
@@ -211,6 +217,13 @@ void OptionsScreen::init() {
 			SDL_BlitSurface(Main::graphics->bg_grey, NULL, background, &rect_d);
 		}
 	}
+
+	rect_d.x = title_left_offset;
+	rect_d.y = title_top_offset;
+
+	surface = Main::text->render_text_medium_shadow(title.c_str());
+	SDL_BlitSurface(surface, NULL, background, &rect_d);
+	SDL_FreeSurface(surface);
 
 	if(selected_item < 0 || selected_item >= (int)items->size())
 		selected_item = 0;
