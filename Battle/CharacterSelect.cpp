@@ -283,7 +283,6 @@ void CharacterSelect::prerender_background() {
 }
 
 void CharacterSelect::process_cursors() {
-	bool can_select;
 	int direction;
 
 	for(int i = 0; i < possible_players_; i++) {
@@ -295,24 +294,15 @@ void CharacterSelect::process_cursors() {
 						Main::audio->play(SND_SELECT);
 						player_joined[i] = true;
 					} else if(!player_ready[i]) {
-						can_select = true;
-						for(int idx = 0; idx < possible_players_; idx++) {
-							if(i == idx) continue;
-							if(player_ready[idx] && (player_select[idx] == player_select[i])) {
-								can_select = false;
-							}
-						}
-						if(can_select) {
-							player_ready[i] = true;
+						player_ready[i] = true;
 
-							player_random[i] = false;
+						player_random[i] = false;
 
-							flicker[i] = true;
-							flicker_frame[i] = 0;
+						flicker[i] = true;
+						flicker_frame[i] = 0;
 
-							playeranimation[i]->is_walking = true;
-							Main::audio->play(SND_SELECT_CHARACTER);
-						}
+						playeranimation[i]->is_walking = true;
+						Main::audio->play(SND_SELECT_CHARACTER);
 					}
 				}
 		}
@@ -334,30 +324,14 @@ void CharacterSelect::process_cursors() {
 
 void CharacterSelect::process_random_players() {
 	int last;
-	bool is_last;
-	bool can_select;
 
 	for(int i = 0; i < possible_players_; i++) {
 		if(player_random[i] && (frame - player_random_start[i] == 6)) {
 			last = player_select[i];
 
 			do {
-				is_last = false;
 				player_select[i] = rand() % Player::CHARACTER_COUNT;
-
-				if(player_select[i] == last) is_last = true;
-				
-				can_select = true;
-				if(!is_last) {
-					for(int idx = 0; idx < possible_players_; idx++) {
-						if(i == idx) continue;
-						if(player_ready[idx] && (player_select[idx] == player_select[i])) {
-							can_select = false;
-							break;
-						}
-					}
-				}
-			} while(!can_select || is_last);
+			} while (player_select[i] == last);
 
 			playeranimation[i]->set_character(player_select[i]);
 
@@ -511,8 +485,10 @@ void CharacterSelect::draw() {
 					else
 						color = Player::COLORS[i];
 					if(player_ready[i]) {
-						color_back = Player::COLORS[i];
-						color = Player::COLORS[i];
+						if(color_back != 0)
+							color_back = Graphics::combine_colors(color_back, Player::COLORS[i]);
+						else
+							color_back = Player::COLORS[i];
 						if(flicker[i]) {
 							if(flicker_frame[i] > 0x30)
 								flicker[i] = false;
@@ -521,8 +497,6 @@ void CharacterSelect::draw() {
 							flicker_frame[i]++;
 						}
 						clip = Main::graphics->player_clip[SPR_AVATAR_SELECTED];
-
-						break;
 					}
 				}
 			}
