@@ -42,7 +42,7 @@ void ClientSettings::initialize()
 	oitem2_->selected = 0;
 	add_item(oitem2_);
 
-	item3_ = "CONNECT";
+	item3_ = "SELECT SERVER";
 	oitem3_ = new OptionItem();
 	oitem3_->name = const_cast<char *> (item3_.c_str());
 	oitem3_->options = NULL;
