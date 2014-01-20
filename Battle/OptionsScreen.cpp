@@ -116,7 +116,8 @@ void OptionsScreen::draw() {
 
 void OptionsScreen::process_cursor() {
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
-			input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
+			input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB) ||
+			input->is_pressed(A_START)) {
 		if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) // It's likely that up and jump are the same keybind
 			select();
 	}
