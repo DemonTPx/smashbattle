@@ -21,7 +21,11 @@ LaserBeam::~LaserBeam() {
 }
 
 void LaserBeam::move(Level * level) {
-	if(Gameplay::frame - start == 10) {
+	int frame;
+
+	frame = Gameplay::instance->frame - start;
+
+	if (frame == 10) {
 		SDL_Rect rect;
 
 		rect.x = position->x - 34;
@@ -30,6 +34,10 @@ void LaserBeam::move(Level * level) {
 		rect.h = 200 + WINDOW_HEIGHT;
 
 		level->damage_tiles(&rect, 25);
+	}
+	if (frame == 12) {
+		position->x -= 32;
+		position->w = 66;
 	}
 }
 
@@ -76,11 +84,6 @@ void LaserBeam::draw(SDL_Surface * screen, int frames_processed) {
 	frame = Gameplay::instance->frame - start;
 
 	if(frame < 0) return;
-
-	if(frame == 12) {
-		position->x -= 32;
-		position->w = 66;
-	}
 
 	rect.x = position->x;
 	rect.y = 0;
