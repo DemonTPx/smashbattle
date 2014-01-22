@@ -214,9 +214,6 @@ void Bomb::explode() {
 	if(player_hit || npcs_hit)
 		owner->bombs_hit++;
 
-	// Tiles below are also to be damaged
-	rect_bomb->h += TILE_H;
-
 	Gameplay::instance->level->damage_tiles(rect_bomb, damage);
 
 	delete rect_bomb;
@@ -259,11 +256,11 @@ void Bomb::set_clips() {
 	clip[FRAME_STRIKE_FLASH]->h = BOMB_H;
 	
 	clip[FRAME_EXPLOSION] = new SDL_Rect();
-	clip[FRAME_EXPLOSION]->x = 0;
-	clip[FRAME_EXPLOSION]->y = BOMB_H;
+	clip[FRAME_EXPLOSION]->x = 4;
+	clip[FRAME_EXPLOSION]->y = 24;
 	clip[FRAME_EXPLOSION]->w = 86;
 	clip[FRAME_EXPLOSION]->h = 68;
 
 	explosion_offset_x = (clip[FRAME_NORMAL]->w - clip[FRAME_EXPLOSION]->w) / 2;
-	explosion_offset_y = -clip[FRAME_EXPLOSION]->h + clip[FRAME_NORMAL]->h;
+	explosion_offset_y = -clip[FRAME_EXPLOSION]->h + clip[FRAME_NORMAL]->h + 12;
 }
