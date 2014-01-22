@@ -38,7 +38,7 @@
 #define DIRECTION_DOWN	8
 
 const int Menu::ITEMCOUNT = /*5*/ 4;
-const char * Menu::item[ITEMCOUNT] = {/*"MISSIONS", */"MULTIPLAYER", "ONLINE", "OPTIONS", "QUIT"};
+const char * Menu::item[ITEMCOUNT] = {/*"MISSIONS", */"PLAY LOCAL", "PLAY ONLINE", "OPTIONS", "QUIT"};
 
 Menu::Menu() {
 }
