@@ -74,16 +74,11 @@ void PauseMenu::process() {
 		selected_option = selected_option - 1;
 	}
 
-	if(player->input->is_pressed(A_START)) {
-		Main::audio->play(SND_PAUSE);
-		selected_option = 0;
-		paused = false;
-	}
-
 	if(player->input->is_pressed(A_JUMP) || player->input->is_pressed(A_RUN) ||
-		player->input->is_pressed(A_SHOOT) || player->input->is_pressed(A_BOMB)) {
+		player->input->is_pressed(A_SHOOT) || player->input->is_pressed(A_BOMB) ||
+		player->input->is_pressed(A_START)) {
 		if(!(player->input->is_pressed(A_JUMP) && player->input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
-			Main::audio->play(SND_SELECT);
+			Main::audio->play(selected_option == 0 ? SND_PAUSE : SND_SELECT);
 			paused = false;
 		}
 	}
