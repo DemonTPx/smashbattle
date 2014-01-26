@@ -604,18 +604,18 @@ void Main::set_default_controlschemes() {
 	// Player 1
 	input[0]->enable_keyboard(true);
 
-	input[0]->bind_key(SDLK_a, A_LEFT);
-	input[0]->bind_key(SDLK_d, A_RIGHT);
-	input[0]->bind_key(SDLK_w, A_UP);
-	input[0]->bind_key(SDLK_s, A_DOWN);
-	
-	input[0]->bind_key(SDLK_w, A_JUMP);
-	input[0]->bind_key(SDLK_LSHIFT, A_RUN);
-	
-	input[0]->bind_key(SDLK_LCTRL, A_SHOOT);
-	input[0]->bind_key(SDLK_LALT, A_BOMB);
+	input[0]->bind_key(SDLK_LEFT, A_LEFT);
+	input[0]->bind_key(SDLK_RIGHT, A_RIGHT);
+	input[0]->bind_key(SDLK_UP, A_UP);
+	input[0]->bind_key(SDLK_DOWN, A_DOWN);
 
-	input[0]->bind_key(SDLK_ESCAPE, A_START);
+	input[0]->bind_key(SDLK_UP, A_JUMP);
+	input[0]->bind_key(SDLK_RSHIFT, A_RUN);
+	
+	input[0]->bind_key(SDLK_RCTRL, A_SHOOT);
+	input[0]->bind_key(SDLK_RALT, A_BOMB);
+
+	input[0]->bind_key(SDLK_RETURN, A_START);
 
 	input[0]->enable_joystick(true);
 	input[0]->open_joystick(0);
@@ -637,22 +637,22 @@ void Main::set_default_controlschemes() {
 	input[0]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
 	input[0]->bind_joyhat(0, SDL_HAT_UP, A_UP);
 	input[0]->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
-	
+
 	// Player 2
 	input[1]->enable_keyboard(true);
 
-	input[1]->bind_key(SDLK_LEFT, A_LEFT);
-	input[1]->bind_key(SDLK_RIGHT, A_RIGHT);
-	input[1]->bind_key(SDLK_UP, A_UP);
-	input[1]->bind_key(SDLK_DOWN, A_DOWN);
+	input[1]->bind_key(SDLK_a, A_LEFT);
+	input[1]->bind_key(SDLK_d, A_RIGHT);
+	input[1]->bind_key(SDLK_w, A_UP);
+	input[1]->bind_key(SDLK_s, A_DOWN);
 
-	input[1]->bind_key(SDLK_UP, A_JUMP);
-	input[1]->bind_key(SDLK_RSHIFT, A_RUN);
-	
-	input[1]->bind_key(SDLK_RCTRL, A_SHOOT);
-	input[1]->bind_key(SDLK_RALT, A_BOMB);
+	input[1]->bind_key(SDLK_w, A_JUMP);
+	input[1]->bind_key(SDLK_LSHIFT, A_RUN);
 
-	input[1]->bind_key(SDLK_RETURN, A_START);
+	input[1]->bind_key(SDLK_LCTRL, A_SHOOT);
+	input[1]->bind_key(SDLK_LALT, A_BOMB);
+
+	input[1]->bind_key(SDLK_ESCAPE, A_START);
 
 	input[1]->enable_joystick(true);
 	input[1]->open_joystick(1);
@@ -674,6 +674,7 @@ void Main::set_default_controlschemes() {
 	input[1]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
 	input[1]->bind_joyhat(0, SDL_HAT_UP, A_UP);
 	input[1]->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
+
 
 	// Players 3 and 4
 	input[2]->enable_keyboard(false);
