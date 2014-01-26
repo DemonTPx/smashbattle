@@ -295,7 +295,10 @@ void Client::send(Command &command)
 {
 	char type = command.getType();
 	
-	if (type == Command::Types::SetPlayerData) {
+	if (type == Command::Types::SetPlayerData ||
+		type == Command::Types::Ping ||
+		type == Command::Types::Pong
+	){
 		log(format("Sending to client %d packet of type %d over UDP with seq %d", client_id_, expectRequestFor_, getUdpSeq()), Logger::Priority::DEBUG);
 
 		UDPpacket *p;

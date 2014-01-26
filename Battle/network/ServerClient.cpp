@@ -88,11 +88,18 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 		throw std::runtime_error(format("SDLNet_TCP_AddSocket: %s\n",SDLNet_GetError()));
 	}
 	
-	// UDP initialize
-	if (!(sd = SDLNet_UDP_Open(0))) {
-		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	/* Make space for the packet */
+	if (!(p = SDLNet_AllocPacket(4096)))
+	{
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
 	}
 
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+	
 	log(format("CONNECTION SUCCESFUL",host_.c_str(),port_), Logger::Priority::CONSOLE);
 
 	set_socket(sock);
@@ -116,9 +123,6 @@ void ServerClient::poll()
 		log(format("\tChan:    %d\n", p->channel), Logger::Priority::DEBUG);
 		log(format("\tData:    %s\n", (char *) p->data), Logger::Priority::DEBUG);
 		log(format("\tFirst_char: %X\n", p->data[0]), Logger::Priority::DEBUG);
-		if (p->data[0] != 0x07)
-			continue;
-
 		log(format("\tLen:     %d\n", p->len), Logger::Priority::DEBUG);
 		log(format("\tMaxlen:  %d\n", p->maxlen), Logger::Priority::DEBUG);
 		log(format("\tStatus:  %d\n", p->status), Logger::Priority::DEBUG);
@@ -238,7 +242,10 @@ void ServerClient::send(Command &command)
 		return;
 
 	char type = command.getType();
-	if (type == Command::Types::SetPlayerData) {
+	if (type == Command::Types::SetPlayerData ||
+		type == Command::Types::Ping ||
+		type == Command::Types::Pong
+	){
 		log(format("Send packet of type %d through UDP with seq %d", type, getUdpSeq()), Logger::Priority::CONSOLE);
 
 		UDPpacket *p;

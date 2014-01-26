@@ -204,8 +204,6 @@ void Server::poll() {
 		log(format("\tChan:    %d\n", p->channel), Logger::Priority::DEBUG);
 		log(format("\tData:    %s\n", (char *) p->data), Logger::Priority::DEBUG);
 		log(format("\tFirst_char: %X\n", p->data[0]), Logger::Priority::DEBUG);
-		if (p->data[0] != 0x07)
-			continue;
 
 		Uint64 commToken = *(Uint64 *) (p->data + 1);
 		if (communicationTokens_.find(commToken) != communicationTokens_.end()) {
