@@ -112,6 +112,10 @@ void Menu::draw() {
 	rect.x = (WINDOW_WIDTH - title->w) / 2;
 	rect.y = 40;
 	SDL_BlitSurface(title, NULL, screen, &rect);
+        
+        rect.x = (WINDOW_WIDTH - subtitle->w) / 2;
+	rect.y = 80;
+        SDL_BlitSurface(subtitle, NULL, screen, &rect);
 
 	// Tile border
 	rect_s.x = 0;
@@ -152,7 +156,7 @@ void Menu::draw() {
 				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
 				rect.h = MENU_ITEM_HEIGHT;
 
-				SDL_FillRect(screen, &rect, 0x0088ff);
+				SDL_FillRect(screen, &rect, 0xa0062e);
 			}
 
 			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
@@ -483,7 +487,8 @@ void Menu::init() {
 
 	selected_item = 0;
 
-	title = Main::text->render_text_large("SMASH BATTLE");
+	title = Main::text->render_text_large("TWEAK   BATTLE");
+       	subtitle = Main::text->render_text_small("PICK UP YOUR NERFGUNS AND FIGHT");
 
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
@@ -498,9 +503,9 @@ void Menu::init() {
 	}
 
 	credits = new std::vector<SDL_Surface*>(0);
-	surface = Main::text->render_text_small("PROGRAMMING BY BERT HEKMAN");
+	surface = Main::text->render_text_small("PROGRAMMING BY BERT HEKMAN & RAY BURGEMEESTRE");
 	credits->push_back(surface);
-	surface = Main::text->render_text_small("GRAPHICS BY JEROEN GROENEWEG AND OKKE VOERMAN");
+	surface = Main::text->render_text_small("CONCEPT & GRAPHICS BY JEROEN GROENEWEG");
 	credits->push_back(surface);
 	surface = Main::text->render_text_small("MUSIC BY NICK PERRIN");
 	credits->push_back(surface);
@@ -511,6 +516,7 @@ void Menu::init() {
 
 void Menu::cleanup() {
 	SDL_FreeSurface(title);
+        SDL_FreeSurface(subtitle);
 
 	for (unsigned int i = 0; i < surf_items->size(); i++) {
 		SDL_FreeSurface(surf_items->at(i));
