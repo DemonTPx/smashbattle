@@ -16,7 +16,7 @@ public:
 	void select();
 private:
 	SDL_Surface * title;
-       	SDL_Surface * subtitle;
+    SDL_Surface * subtitle;
 
 	int selected_item;
 

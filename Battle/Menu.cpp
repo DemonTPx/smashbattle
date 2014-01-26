@@ -113,9 +113,9 @@ void Menu::draw() {
 	rect.y = 40;
 	SDL_BlitSurface(title, NULL, screen, &rect);
         
-        rect.x = (WINDOW_WIDTH - subtitle->w) / 2;
+	rect.x = (WINDOW_WIDTH - subtitle->w) / 2;
 	rect.y = 80;
-        SDL_BlitSurface(subtitle, NULL, screen, &rect);
+	SDL_BlitSurface(subtitle, NULL, screen, &rect);
 
 	// Tile border
 	rect_s.x = 0;
