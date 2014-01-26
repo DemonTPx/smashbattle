@@ -21,7 +21,13 @@ Client::Client()
 	  currentState_(Client::State::CONNECTING),
 	  commToken_(rand_get()),
 	  lastUdpSeq_(0)
-{}
+{
+
+	// UDP initialize
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	}
+}
 
 Client::Client(Client &&other) 
 	: CommandProcessor(NULL),
@@ -35,7 +41,12 @@ Client::Client(Client &&other)
 	  currentState_(Client::State::CONNECTING),
 	  commToken_(other.getCommToken()),
 	  lastUdpSeq_(0)
-{}	
+{
+	// UDP initialize
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	}
+}	
 
 Client & Client::operator=(Client&& other)
 {
@@ -46,6 +57,7 @@ Client & Client::operator=(Client&& other)
 		this->set_socket(other.socket_);
 		this->server_ = other.server_;
 		this->lastUdpSeq_ = other.lastUdpSeq_;
+		this->sd = other.sd;
 	}
 	
 	return *this; 
@@ -70,6 +82,10 @@ Client::Client(int client_id, TCPsocket socket, Server * const server)
 	  commToken_(rand_get()),
 	  lastUdpSeq_(0)
 {
+	// UDP initialize
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	}
 }
 
 bool Client::process(std::unique_ptr<Command> command)
@@ -283,10 +299,6 @@ void Client::send(Command &command)
 		log(format("Sending to client %d packet of type %d over UDP with seq %d", client_id_, expectRequestFor_, getUdpSeq()), Logger::Priority::DEBUG);
 
 		UDPpacket *p;
-		if (!(sd = SDLNet_UDP_Open(0))) {
-			fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
-			return;
-		}
 		size_t packetsize = command.getDataLen() + sizeof (Uint64) + 1;
 		if (!(p = SDLNet_AllocPacket(packetsize))) {
 			fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());

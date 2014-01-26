@@ -75,11 +75,6 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 	{
 		throw std::runtime_error(format("SDLNet_ResolveHost: %s\n",SDLNet_GetError()));
 	}
-
-	// UDP initialize
-	if (!(sd = SDLNet_UDP_Open(0))) {
-		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
-	}
 	
 	/* open the server socket */
 	sock=SDLNet_TCP_Open(&ip);
@@ -93,11 +88,9 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 		throw std::runtime_error(format("SDLNet_TCP_AddSocket: %s\n",SDLNet_GetError()));
 	}
 	
-	/* Make space for the packet */
-	if (!(p = SDLNet_AllocPacket(512)))
-	{
-		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
+	// UDP initialize
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
 	}
 
 	log(format("CONNECTION SUCCESFUL",host_.c_str(),port_), Logger::Priority::CONSOLE);
@@ -249,10 +242,6 @@ void ServerClient::send(Command &command)
 		log(format("Send packet of type %d through UDP with seq %d", type, getUdpSeq()), Logger::Priority::CONSOLE);
 
 		UDPpacket *p;
-		if (!(sd = SDLNet_UDP_Open(0))) {
-			fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
-			return;
-		}
 		size_t packetsize = command.getDataLen() + sizeof (Uint64) + 1;
 		if (!(p = SDLNet_AllocPacket(packetsize))) {
 			fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
