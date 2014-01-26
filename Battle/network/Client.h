@@ -57,6 +57,9 @@ public:
 
 	void cleanup(); 
 
+	void setUDPOrigin(IPaddress address) { address_ = address; }
+	const IPaddress &getUDPOrigin() { return address_; }
+	
 	Uint64 getCommToken() { return commToken_; }
 	short getLastUdpSeq() { return lastUdpSeq_; }
 
@@ -86,4 +89,5 @@ private:
 
 	Uint64 commToken_;
 	short lastUdpSeq_;
+	IPaddress address_;
 };

@@ -108,8 +108,6 @@ public:
 
 	void resumeGameIn(short delay);
 
-	short getUdpSeq() { return udpsequence_; }
-	void setNextUdpSeq() { udpsequence_++; }
 
 protected:
 	bool process(std::unique_ptr<Command> command);
@@ -180,10 +178,7 @@ private:
 	Uint32 lastResetTimer_;
 	bool resumeGameWithCountdown_;
 	Uint32 resumeGameTime_;
+	
+	UDPpacket *p;
 
-
-	// UDP STUFF
-	UDPsocket sd;
-	Uint64 communicationToken_;
-	short udpsequence_;
 };
