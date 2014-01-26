@@ -43,14 +43,6 @@ void ClientSettings::initialize()
 	init();
 }
 
-void ClientSettings::process_cursor()
-{
-	if (!editting_nickname_) {
-		OptionsScreen::process_cursor();
-	}
-
-}
-
 #include "CharacterSelect.h"
 #include "ServerListing.h"
 #include "network/ServerClient.h"

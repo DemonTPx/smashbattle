@@ -19,8 +19,6 @@ public:
 
 protected:
 
-	virtual void process_cursor();
-
 private:
 
 	std::string nickname_;
@@ -35,9 +33,6 @@ private:
 	std::string item3_;
 
 	PlayerAnimation *anim;
-
-	bool editting_nickname_;
-
 
 	void connect();
 	void show_error(const std::string &error_msg);
