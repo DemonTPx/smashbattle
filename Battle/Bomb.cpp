@@ -259,7 +259,7 @@ void Bomb::set_clips() {
 	clip[FRAME_EXPLOSION]->x = 4;
 	clip[FRAME_EXPLOSION]->y = 24;
 	clip[FRAME_EXPLOSION]->w = 86;
-	clip[FRAME_EXPLOSION]->h = 68;
+	clip[FRAME_EXPLOSION]->h = 67;
 
 	explosion_offset_x = (clip[FRAME_NORMAL]->w - clip[FRAME_EXPLOSION]->w) / 2;
 	explosion_offset_y = -clip[FRAME_EXPLOSION]->h + clip[FRAME_NORMAL]->h + 12;
