@@ -4,8 +4,7 @@
 #include "PlayerAnimation.h"
 
 ClientSettings::ClientSettings()
-: OptionsScreen("SET UP YOUR CHARACTER"), character_(0), anim(new PlayerAnimation(1)),
-oitem1_(NULL), oitem2_(NULL), oitem3_(NULL)
+: OptionsScreen("SET UP YOUR CHARACTER"), character_(0), anim(new PlayerAnimation(0))
 {
 	initialize();
 }
@@ -20,23 +19,7 @@ ClientSettings::~ClientSettings()
  */
 void ClientSettings::initialize()
 {
-	items->clear();
-	
-	item2_ = "CHARACTER: ";
-	item2_.append(Player::CHARACTERS[character_].name);
-
-	oitem2_ = new OptionItem();
-	oitem2_->name = const_cast<char *> (item2_.c_str());
-	oitem2_->options = NULL;
-	oitem2_->selected = 0;
-	add_item(oitem2_);
-
-	item3_ = "SELECT SERVER";
-	oitem3_ = new OptionItem();
-	oitem3_->name = const_cast<char *> (item3_.c_str());
-	oitem3_->options = NULL;
-	oitem3_->selected = 0;
-	add_item(oitem3_);
+	create_items();
 
 	OptionsScreen::align = LEFT;
 
@@ -72,7 +55,8 @@ void ClientSettings::item_selected()
 			break;
 		}
 	}
-	initialize();
+	create_items();
+	update();
 }
 
 void ClientSettings::on_pre_draw()
@@ -92,6 +76,28 @@ void ClientSettings::on_post_draw()
 	char *name = Player::CHARACTERS[1].name;
 
 	anim->draw(screen);
+}
+
+void ClientSettings::create_items()
+{
+	items->clear();
+
+	OptionItem * item;
+
+	text = "CHARACTER: ";
+	text.append(Player::CHARACTERS[character_].name);
+
+	item = new OptionItem();
+	item->name = const_cast<char *> (text.c_str());
+	item->options = NULL;
+	item->selected = 0;
+	add_item(item);
+
+	item = new OptionItem();
+	item->name = "SELECT SERVER";
+	item->options = NULL;
+	item->selected = 0;
+	add_item(item);
 }
 
 #include <algorithm>

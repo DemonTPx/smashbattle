@@ -208,10 +208,7 @@ void OptionsScreen::selection_changed() { }
 
 void OptionsScreen::init() {
 	SDL_Surface * surface;
-	SDL_Rect * rect;
 	SDL_Rect rect_d;
-	OptionItem * item;
-	int x;
 	
 	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
 
@@ -230,34 +227,59 @@ void OptionsScreen::init() {
 	SDL_BlitSurface(surface, NULL, background, &rect_d);
 	SDL_FreeSurface(surface);
 
-	if(selected_item < 0 || selected_item >= (int)items->size())
+	initialize_items();
+}
+
+void OptionsScreen::update() {
+	cleanup_items(false);
+	initialize_items();
+}
+
+void OptionsScreen::cleanup() {
+	cleanup_items(true);
+	items->clear();
+	delete items;
+
+	SDL_FreeSurface(background);
+}
+
+void OptionsScreen::initialize_items()
+{
+	SDL_Surface * surface;
+	SDL_Rect * rect;
+	OptionItem * item;
+	int x;
+
+	if (selected_item < 0 || selected_item >= (int)items->size())
 		selected_item = 0;
 
 	screen_w = Main::instance->screen->w;
 	screen_h = Main::instance->screen->h;
 
-	for(unsigned int i = 0; i < items->size(); i++) {
+	for (unsigned int i = 0; i < items->size(); i++) {
 		item = items->at(i);
-		
+
 		item->surf_name = Main::text->render_text_medium(item->name);
 
 		item->rect_name = new SDL_Rect();
 
 		item->rect_name->y = menu_top_offset + (i * menu_item_height) - 3;
-		if(align == LEFT) {
+		if (align == LEFT) {
 			item->rect_name->x = menu_left_offset;
-		} else if(align == CENTER) {
+		}
+		else if (align == CENTER) {
 			item->rect_name->x = (screen_w - item->surf_name->w) / 2;
-		} else {
+		}
+		else {
 			item->rect_name->x = screen_w - item->surf_name->w - menu_left_offset;
 		}
 
 		x = menu_options_left_offset;
 
-		if(item->options != NULL) {
+		if (item->options != NULL) {
 			item->surf_options = new std::vector<SDL_Surface *>(0);
 			item->rect_options = new std::vector<SDL_Rect *>(0);
-			for(unsigned int j = 0; j < item->options->size(); j++) {
+			for (unsigned int j = 0; j < item->options->size(); j++) {
 				surface = Main::text->render_text_medium(item->options->at(j));
 				item->surf_options->push_back(surface);
 
@@ -269,34 +291,40 @@ void OptionsScreen::init() {
 
 				x += surface->w + 10;
 			}
-		} else {
+		}
+		else {
 			item->surf_options = NULL;
 			item->rect_options = NULL;
 		}
 	}
 }
 
-void OptionsScreen::cleanup() {
-	for(unsigned int i = 0; i < items->size(); i++) {
-		if(items->at(i)->options != NULL) {
-			for(unsigned int j = 0; j < items->at(i)->options->size(); j++) {
+void OptionsScreen::cleanup_items(bool with_delete)
+{
+	for (unsigned int i = 0; i < items->size(); i++) {
+		if (items->at(i)->options != NULL) {
+			for (unsigned int j = 0; j < items->at(i)->options->size(); j++) {
 				SDL_FreeSurface(items->at(i)->surf_options->at(j));
 				delete(items->at(i)->rect_options->at(j));
 			}
-			
+
 			delete items->at(i)->surf_options;
 			delete items->at(i)->rect_options;
 
-			items->at(i)->options->clear();
-			delete items->at(i)->options;
+			if (with_delete) {
+				items->at(i)->options->clear();
+				delete items->at(i)->options;
+			}
 		}
 		SDL_FreeSurface(items->at(i)->surf_name);
 		delete items->at(i)->rect_name;
 
-		delete items->at(i);
+		if (with_delete) {
+			delete items->at(i);
+		}
 	}
-	items->clear();
-	delete items;
 
-	SDL_FreeSurface(background);
+	if (with_delete) {
+		items->clear();
+	}
 }

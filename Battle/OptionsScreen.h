@@ -45,6 +45,8 @@ protected:
 	void init();
 	void cleanup();
 
+	void update();
+
 	void add_item(OptionItem *);
 
 	virtual void item_selected();
@@ -76,4 +78,7 @@ private:
 	void select_left();
 	void select_right();
 	void select();
+
+	void initialize_items();
+	void cleanup_items(bool with_delete);
 };

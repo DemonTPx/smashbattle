@@ -3,7 +3,7 @@
 #include "OptionsScreen.h"
 
 class PlayerAnimation;
-class OptionItem;
+struct OptionItem;
 
 class ClientSettings : public OptionsScreen {
 public:
@@ -20,19 +20,13 @@ public:
 protected:
 
 private:
-
-	std::string nickname_;
 	int character_;
 
-	OptionItem *oitem1_;
-	OptionItem *oitem2_;
-	OptionItem *oitem3_;
-
-	std::string item1_;
-	std::string item2_;
-	std::string item3_;
+	std::string text;
 
 	PlayerAnimation *anim;
+
+	void create_items();
 
 	void connect();
 	void show_error(const std::string &error_msg);
