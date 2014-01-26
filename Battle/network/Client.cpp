@@ -313,9 +313,6 @@ void Client::send(Command &command)
 
 	}
 	else {
-		if (!is_connected_)
--			return;
-
 		log(format("Sending to client %d packet of type %d over TCP", client_id_, expectRequestFor_), Logger::Priority::DEBUG);
 
 		size_t result = SDLNet_TCP_Send(socket_, &type, sizeof(char));
