@@ -23,6 +23,8 @@ Gameplay * Gameplay::instance = 0;
 Gameplay::Gameplay() {
 	instance = this;
 
+	ticks_start = SDL_GetTicks();
+	
 	game_running = false;
 	players = new std::vector<Player*>();
 	npcs = new std::vector<NPC*>();
@@ -66,7 +68,7 @@ void Gameplay::run() {
 	}
 
 	// Get ticks (milliseconds since SDL started)
-	Uint32 ticks_start = SDL_GetTicks();
+	ticks_start = SDL_GetTicks();
 
 	while(Main::running && game_running) {
 		// Event handling
@@ -333,11 +335,17 @@ void Gameplay::handle_pause_input(SDL_Event * event) {
 			pause(player);
 		}
 	}
+	
+	// In Arcade mode time does not elapse in pause menu
+	if (Main::runmode == MainRunModes::ARCADE) {
+		ticks_start = SDL_GetTicks();
+	}
 }
 
 void Gameplay::pause(Player * p) {
 	int ret;
 	ret = pause_menu->pause(p);
+	
 	if(ret == 1) game_running = false;
 }
 
