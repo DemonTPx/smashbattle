@@ -123,9 +123,6 @@ void ServerClient::poll()
 		log(format("\tChan:    %d\n", p->channel), Logger::Priority::DEBUG);
 		log(format("\tData:    %s\n", (char *) p->data), Logger::Priority::DEBUG);
 		log(format("\tFirst_char: %X\n", p->data[0]), Logger::Priority::DEBUG);
-		if (p->data[0] != 0x07)
-			continue;
-
 		log(format("\tLen:     %d\n", p->len), Logger::Priority::DEBUG);
 		log(format("\tMaxlen:  %d\n", p->maxlen), Logger::Priority::DEBUG);
 		log(format("\tStatus:  %d\n", p->status), Logger::Priority::DEBUG);
@@ -245,7 +242,10 @@ void ServerClient::send(Command &command)
 		return;
 
 	char type = command.getType();
-	if (type == Command::Types::SetPlayerData) {
+	if (type == Command::Types::SetPlayerData ||
+		type == Command::Types::Ping ||
+		type == Command::Types::Pong
+	){
 		log(format("Send packet of type %d through UDP with seq %d", type, getUdpSeq()), Logger::Priority::CONSOLE);
 
 		UDPpacket *p;
