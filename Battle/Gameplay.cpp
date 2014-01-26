@@ -335,11 +335,6 @@ void Gameplay::handle_pause_input(SDL_Event * event) {
 			pause(player);
 		}
 	}
-	
-	// In Arcade mode time does not elapse in pause menu
-	if (Main::runmode == MainRunModes::ARCADE) {
-		ticks_start = SDL_GetTicks();
-	}
 }
 
 void Gameplay::pause(Player * p) {
@@ -347,6 +342,11 @@ void Gameplay::pause(Player * p) {
 	ret = pause_menu->pause(p);
 	
 	if(ret == 1) game_running = false;
+	
+	// In Arcade mode time does not elapse in pause menu
+	if (Main::runmode == MainRunModes::ARCADE) {
+		ticks_start = SDL_GetTicks();
+	}
 }
 
 void Gameplay::set_level(Level * l) {
