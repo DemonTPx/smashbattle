@@ -91,7 +91,7 @@ void OptionsScreen::draw() {
 			rect.y = item->rect_name->y - 5;
 			rect.w = text->w + 10;
 			rect.h = menu_item_height;
-			SDL_FillRect(screen, &rect, 0x444488);
+			SDL_FillRect(screen, &rect, 0xa0062e);
 		}
 
 		SDL_BlitSurface(text, NULL, screen, item->rect_name);
@@ -104,7 +104,7 @@ void OptionsScreen::draw() {
 					rect.y = item->rect_options->at(j)->y - 5;
 					rect.w = text->w + 10;
 					rect.h = menu_item_height;
-					SDL_FillRect(screen, &rect, 0x444488);
+					SDL_FillRect(screen, &rect, 0xa0062e);
 				}
 
 				SDL_BlitSurface(text, NULL, screen, item->rect_options->at(j));

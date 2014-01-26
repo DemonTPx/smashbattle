@@ -53,13 +53,13 @@ ControlsOptions::ControlsOptions(GameInput * input, int number) {
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"RETURN AND SAVE";
+	item->name = (char*)"SAVE";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = (char*)"RETURN AND CANCEL";
+	item->name = (char*)"CANCEL";
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);
