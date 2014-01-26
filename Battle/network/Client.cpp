@@ -277,27 +277,62 @@ bool Client::process(CommandBombDropped *command)
 
 void Client::send(Command &command)
 {
-	//	if (!is_connected_)
-	//    return;
-
-	log(format("Sending to client %d packet of type %d", client_id_, expectRequestFor_), Logger::Priority::DEBUG);
-
-
 	char type = command.getType();
-	size_t result = SDLNet_TCP_Send(socket_, &type, sizeof(char));
+	
+	if (type == Command::Types::SetPlayerData) {
+		log(format("Sending to client %d packet of type %d over UDP with seq %d", client_id_, expectRequestFor_, getUdpSeq()), Logger::Priority::DEBUG);
 
-	if(result < sizeof(char)) {
-		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-			log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
-		return;
+		UDPpacket *p;
+		if (!(sd = SDLNet_UDP_Open(0))) {
+			fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+			return;
+		}
+		size_t packetsize = command.getDataLen() + sizeof (Uint64) + 1;
+		if (!(p = SDLNet_AllocPacket(packetsize))) {
+			fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+			return;
+		}
+		
+		char *packet = (char *)p->data;
+		*packet = type;
+		memcpy(packet + 1, (void *) &communicationToken_, sizeof (Uint64));
+		memcpy(packet + 1 + sizeof (Uint64), command.getData(), command.getDataLen());
+
+		p->data = (Uint8 *) packet;
+		const IPaddress &origin = getUDPOrigin();
+		p->address.host = origin.host;
+		p->address.port = origin.port;
+
+		p->len = packetsize;
+
+		SDLNet_UDP_Send(sd, -1, p); // This sets the p->channel
+
+		SDLNet_FreePacket(p);
+
+		setNextUdpSeq();
+
 	}
+	else {
+		if (!is_connected_)
+-			return;
 
-	result = SDLNet_TCP_Send(socket_, command.getData(), command.getDataLen());
+		log(format("Sending to client %d packet of type %d over TCP", client_id_, expectRequestFor_), Logger::Priority::DEBUG);
 
-	if(result < sizeof(socket_)) {
-		if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-			log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
-		return;
+		size_t result = SDLNet_TCP_Send(socket_, &type, sizeof(char));
+
+		if(result < sizeof(char)) {
+			if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
+				log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
+			return;
+		}
+
+		result = SDLNet_TCP_Send(socket_, command.getData(), command.getDataLen());
+
+		if(result < sizeof(socket_)) {
+			if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
+				log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
+			return;
+		}
 	}
 }
 

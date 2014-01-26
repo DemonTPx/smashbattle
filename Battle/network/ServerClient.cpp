@@ -31,9 +31,7 @@ ServerClient::ServerClient()
 	  lastResetTimer_(0),
 	  resumeGameWithCountdown_(true),
 	  resumeGameTime_(0),
-	  character_(0),
-	  communicationToken_(0),
-	  udpsequence_(0)
+	  character_(0)
 {
 }
 
@@ -95,7 +93,12 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 		throw std::runtime_error(format("SDLNet_TCP_AddSocket: %s\n",SDLNet_GetError()));
 	}
 	
-	
+	/* Make space for the packet */
+	if (!(p = SDLNet_AllocPacket(512)))
+	{
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
 
 	log(format("CONNECTION SUCCESFUL",host_.c_str(),port_), Logger::Priority::CONSOLE);
 
@@ -115,6 +118,29 @@ void ServerClient::disconnect()
 
 void ServerClient::poll()
 {
+	while (SDLNet_UDP_Recv(sd, p)) {
+		log(format("UDP Packet incoming\n"), Logger::Priority::DEBUG);
+		log(format("\tChan:    %d\n", p->channel), Logger::Priority::DEBUG);
+		log(format("\tData:    %s\n", (char *) p->data), Logger::Priority::DEBUG);
+		log(format("\tFirst_char: %X\n", p->data[0]), Logger::Priority::DEBUG);
+		if (p->data[0] != 0x07)
+			continue;
+
+		log(format("\tLen:     %d\n", p->len), Logger::Priority::DEBUG);
+		log(format("\tMaxlen:  %d\n", p->maxlen), Logger::Priority::DEBUG);
+		log(format("\tStatus:  %d\n", p->status), Logger::Priority::DEBUG);
+		log(format("\tAddress: %x %x\n", p->address.host, p->address.port), Logger::Priority::DEBUG);
+
+		char *temp = (char *) p->data;
+		temp += sizeof (Uint64); // skip one byte before the actual struct
+		*temp = p->data[0];
+		
+		receive(p->len - sizeof (Uint64), temp);
+		while (parse())
+			;
+	}
+	
+	
 	if (!is_connected_)
 		return;
 

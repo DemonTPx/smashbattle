@@ -230,6 +230,9 @@ void Server::poll() {
 		log(format("\tAddress: %x %x\n", p->address.host, p->address.port), Logger::Priority::DEBUG);
 
 		Client & client(clients_[communicationTokens_[commToken]]);
+		
+		client.setUDPOrigin(p->address);
+		
 		char *temp = (char *) p->data;
 		temp += sizeof (Uint64); // skip one byte before the actual struct
 		*temp = p->data[0];
