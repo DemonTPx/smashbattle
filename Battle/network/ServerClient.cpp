@@ -88,11 +88,18 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 		throw std::runtime_error(format("SDLNet_TCP_AddSocket: %s\n",SDLNet_GetError()));
 	}
 	
-	// UDP initialize
-	if (!(sd = SDLNet_UDP_Open(0))) {
-		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	/* Make space for the packet */
+	if (!(p = SDLNet_AllocPacket(4096)))
+	{
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
 	}
 
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+	
 	log(format("CONNECTION SUCCESFUL",host_.c_str(),port_), Logger::Priority::CONSOLE);
 
 	set_socket(sock);
