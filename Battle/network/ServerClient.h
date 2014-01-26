@@ -79,7 +79,6 @@ public:
 		return instance;
 	}
 
-	void setNickname(std::string nickname) { nickname_ = nickname; }
 	void setCharacter(int character) { character_ = character; }
 	void setHost(std::string host) { host_ = host; }
 	void setPort(int port) { port_ = (Uint16)port; }
@@ -102,7 +101,6 @@ public:
 	Gameplay &getGame();
 
 	char getClientId() { return my_id_; }
-	std::string getNickname() { return nickname_; }
 	int getCharacter() { return character_; }
 
 	void resetTimer() { lastResetTimer_ = SDL_GetTicks(); }
@@ -152,7 +150,6 @@ private:
 	
 	ServerClient::State currentState_;
 
-	std::string nickname_;
 	int character_;
 	IPaddress ip;
 	TCPsocket sock;

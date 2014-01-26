@@ -12,7 +12,6 @@ public:
 
 	void initialize();
 
-	void run();
 	void item_selected();
 
 	virtual void on_pre_draw();
@@ -20,7 +19,6 @@ public:
 
 protected:
 
-	virtual bool process_event(SDL_Event &event);
 	virtual void process_cursor();
 
 private:

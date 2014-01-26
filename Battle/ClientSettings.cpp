@@ -4,8 +4,8 @@
 #include "PlayerAnimation.h"
 
 ClientSettings::ClientSettings()
-: OptionsScreen("SET UP YOUR CHARACTER"), nickname_("TWEAKER"), character_(0), anim(new PlayerAnimation(1)),
-oitem1_(NULL), oitem2_(NULL), oitem3_(NULL), editting_nickname_(false)
+: OptionsScreen("SET UP YOUR CHARACTER"), character_(0), anim(new PlayerAnimation(1)),
+oitem1_(NULL), oitem2_(NULL), oitem3_(NULL)
 {
 	initialize();
 }
@@ -21,18 +21,7 @@ ClientSettings::~ClientSettings()
 void ClientSettings::initialize()
 {
 	items->clear();
-
-	item1_ = "NICKNAME: ";
-	item1_.append(nickname_);
-
-	std::cout << item1_ << std::endl;
-
-	oitem1_ = new OptionItem();
-	oitem1_->name = const_cast<char *> (item1_.c_str());
-	oitem1_->options = NULL;
-	oitem1_->selected = 0;
-	add_item(oitem1_);
-
+	
 	item2_ = "CHARACTER: ";
 	item2_.append(Player::CHARACTERS[character_].name);
 
@@ -54,61 +43,6 @@ void ClientSettings::initialize()
 	init();
 }
 
-void ClientSettings::run()
-{
-	OptionsScreen::run();
-
-	std::cout << " after run" << std::endl;
-}
-
-bool ClientSettings::process_event(SDL_Event &event)
-{
-	if (!editting_nickname_) {
-		return true;
-	}
-
-	if (event.type != SDL_KEYDOWN)
-		return false;
-
-	std::cout << "Do something with the event key!" << std::endl;
-
-	std::cout << event.key.keysym.sym << std::endl;
-
-	if (event.key.keysym.sym == 8) {
-		nickname_ = nickname_.substr(0, nickname_.length() - 1);
-	}
-	if (event.key.keysym.sym >= 'a' && event.key.keysym.sym <= 'z') {
-		nickname_ += (char) event.key.keysym.sym + ('A' - 'a');
-	}
-	if (event.key.keysym.sym >= '0' && event.key.keysym.sym <= '9') {
-		nickname_ += (char) event.key.keysym.sym;
-	}
-	if (event.key.keysym.sym == '_' || event.key.keysym.sym == '-') {
-		nickname_ += (char) event.key.keysym.sym;
-	}
-
-	if (event.key.keysym.sym == 27 || event.key.keysym.sym == 13) {
-		std::cout << " Resetting this shit" << std::endl;
-
-		SDL_Event event;
-		while (SDL_PollEvent(&event)) {
-			//Main::instance->handle_event(&event);
-
-		}
-		for (int i = 0; i < 4; i++) {
-			//Main::instance->input[i]->set_delay();
-			//Main::instance->input[i]->handle_event(&event);
-			Main::instance->input[i]->reset();
-		}
-
-		Main::instance->input_master->reset();
-		editting_nickname_ = false;
-	}
-
-	std::cout << "Nickname is nu: " << nickname_ << std::endl;
-	return false;
-}
-
 void ClientSettings::process_cursor()
 {
 	if (!editting_nickname_) {
@@ -128,11 +62,6 @@ void ClientSettings::item_selected()
 	switch (selected_item) {
 		case 0:
 		{
-			editting_nickname_ = true;
-			break;
-		}
-		case 1:
-		{
 			CharacterSelect cs(1, 1);
 			cs.run();
 
@@ -144,9 +73,8 @@ void ClientSettings::item_selected()
 			}
 			break;
 		}
-		case 2:
+		case 1:
 		{
-			ServerClient::getInstance().setNickname(nickname_);
 			ServerClient::getInstance().setCharacter(character_);
 			connect();
 			break;
@@ -171,25 +99,7 @@ void ClientSettings::on_post_draw()
 
 	char *name = Player::CHARACTERS[1].name;
 
-
 	anim->draw(screen);
-
-
-	if (editting_nickname_) {
-		SDL_Rect textLocation = {15, 150, 0, 0};
-		std::string error_msg_up("CHOOSE NEW NICKNAME (ONLY A-Z 0-9 AND - ARE ALLOWED)");
-		SDL_Surface* textSurface = Main::text->render_text_medium(error_msg_up.c_str());
-
-		SDL_BlitSurface(textSurface, NULL, screen, &textLocation);
-		SDL_FreeSurface(textSurface);
-
-		textLocation.y = 200;
-		textSurface = Main::text->render_text_medium(nickname_.c_str());
-		SDL_BlitSurface(textSurface, NULL, screen, &textLocation);
-		SDL_FreeSurface(textSurface);
-
-		initialize();
-	}
 }
 
 #include <algorithm>

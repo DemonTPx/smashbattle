@@ -74,6 +74,8 @@ protected:
 
 	void handle_pause_input(SDL_Event * event);
 	
+	Uint32 ticks_start;
+	
 	bool game_running;
 
 	PauseMenu * pause_menu;

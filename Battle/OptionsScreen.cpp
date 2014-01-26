@@ -10,12 +10,16 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-OptionsScreen::OptionsScreen() : OptionsScreen("") {}
+OptionsScreen::OptionsScreen() : OptionsScreen("") {
+	background = NULL;
+}
 
 OptionsScreen::OptionsScreen(std::string title) {
 	this->title = title;
 	items = new std::vector<OptionItem*>(0);
 
+	background = NULL;
+	
 	align = LEFT;
 	
 	title_left_offset = 20;
