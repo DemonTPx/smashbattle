@@ -9,6 +9,8 @@ public:
 
 	void run();
 	void item_selected();
+protected:
+	virtual void process_cursor();
 private:
 	GameInput * input;
 	GameInput * new_input;
@@ -19,6 +21,9 @@ private:
 	void poll_keyboard(int action, const char * question);
 	void poll_joystick(int action, const char * question);
 	void show_notification(const char * text);
+
+	bool save_permitted();
+	void save_input();
 };
 
 class JoystickSelect : public OptionsScreen {

@@ -332,7 +332,7 @@ void LocalMultiplayerRoundEnd::draw() {
 				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
 				rect.h = MENU_ITEM_HEIGHT;
 
-				SDL_FillRect(screen, &rect, 0x0088ff);
+				SDL_FillRect(screen, &rect, 0xa0062e);
 			}
 
 			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
@@ -362,6 +362,11 @@ void LocalMultiplayerRoundEnd::draw() {
 void LocalMultiplayerRoundEnd::process_cursor() {
 	if(frame < BEGIN_DELAY)
 		return;
+
+	if (input->is_pressed(A_BACK)) {
+		result = ROUNDEND_QUIT;
+		ready = true;
+	}
 
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
 			input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB) ||

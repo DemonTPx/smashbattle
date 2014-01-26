@@ -299,6 +299,11 @@ void CharacterSelect::prerender_background() {
 void CharacterSelect::process_cursors() {
 	int direction;
 
+	if (Main::instance->input_master->is_pressed(A_BACK)) {
+		cancel = true;
+		return;
+	}
+
 	for(int i = 0; i < possible_players_; i++) {
 		if(input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
 			input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB) ||

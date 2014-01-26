@@ -616,6 +616,7 @@ void Main::set_default_controlschemes() {
 	input[0]->bind_key(SDLK_RALT, A_BOMB);
 
 	input[0]->bind_key(SDLK_RETURN, A_START);
+	input[0]->bind_key(SDLK_BACKSPACE, A_BACK);
 
 	input[0]->enable_joystick(true);
 	input[0]->open_joystick(0);
@@ -632,6 +633,7 @@ void Main::set_default_controlschemes() {
 	input[0]->bind_joybutton(7, A_BOMB);
 
 	input[0]->bind_joybutton(9, A_START);
+	input[0]->bind_joybutton(8, A_BACK);
 
 	input[0]->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
 	input[0]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
@@ -653,6 +655,7 @@ void Main::set_default_controlschemes() {
 	input[1]->bind_key(SDLK_LALT, A_BOMB);
 
 	input[1]->bind_key(SDLK_ESCAPE, A_START);
+	input[1]->bind_key(SDLK_BACKSPACE, A_BACK);
 
 	input[1]->enable_joystick(true);
 	input[1]->open_joystick(1);
@@ -669,6 +672,7 @@ void Main::set_default_controlschemes() {
 	input[1]->bind_joybutton(7, A_BOMB);
 
 	input[1]->bind_joybutton(9, A_START);
+	input[1]->bind_joybutton(8, A_BACK);
 
 	input[1]->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
 	input[1]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);

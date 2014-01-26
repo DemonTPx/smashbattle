@@ -7,7 +7,7 @@
 #define GAMEINPUT_TYPE_JAXIS	0x0003
 #define GAMEINPUT_TYPE_JHAT		0x0004
 
-#define ACTION_COUNT 9
+#define ACTION_COUNT 10
 
 #define A_LEFT	0
 #define A_RIGHT	1
@@ -18,6 +18,7 @@
 #define A_SHOOT	6
 #define A_BOMB	7
 #define A_START	8
+#define A_BACK	9
 
 struct GameInputKeyBind {
 	int key;

@@ -52,18 +52,6 @@ ControlsOptions::ControlsOptions(GameInput * input, int number) {
 	item->selected = 0;
 	add_item(item);
 
-	item = new OptionItem();
-	item->name = (char*)"SAVE";
-	item->options = NULL;
-	item->selected = 0;
-	add_item(item);
-
-	item = new OptionItem();
-	item->name = (char*)"CANCEL";
-	item->options = NULL;
-	item->selected = 0;
-	add_item(item);
-
 	menu_options_left_offset = 400;
 
 	OptionsScreen::align = LEFT;
@@ -75,6 +63,7 @@ ControlsOptions::~ControlsOptions() {
 
 void ControlsOptions::run() {
 	OptionsScreen::run();
+	save_input();
 }
 
 void ControlsOptions::item_selected() {
@@ -110,42 +99,22 @@ void ControlsOptions::item_selected() {
 			}
 			new_input->flush_joybuttons();
 			redefine_joystick();
-			break; 
-		case 5: // Return save
-			if(items->at(0)->selected == 1 && items->at(2)->selected == 1) {
-				show_notification("ENABLE KEYBOARD OR JOYSTICK");
-				SDL_Delay(1000);
-				return;
-			}
-
-			input->copy_from(new_input);
-
-			input->enable_keyboard(items->at(0)->selected == 0);
-			input->enable_joystick(items->at(2)->selected == 0);
-
-			if(input->joystick_enabled) {
-				if(input->num_axes() >= 2) {
-					input->bind_joyaxis(0, false, A_LEFT);
-					input->bind_joyaxis(0, true, A_RIGHT);
-					input->bind_joyaxis(1, false, A_UP);
-					input->bind_joyaxis(1, true, A_DOWN);
-				}
-				if(input->num_axes() >= 1) {
-					input->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
-					input->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
-					input->bind_joyhat(0, SDL_HAT_UP, A_UP);
-					input->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
-				}
-
-			}
-		case 6: // Return cancel
-			running = false;
 			break;
 	}
 
 	for(int i = 0; i < 4; i++) {
 		Main::instance->input[i]->reset();
 	}
+}
+
+void ControlsOptions::process_cursor() {
+	if (OptionsScreen::input->is_pressed(A_BACK) && ! save_permitted()) {
+		show_notification("ENABLE KEYBOARD OR JOYSTICK");
+		SDL_Delay(1000);
+		return;
+	}
+
+	OptionsScreen::process_cursor();
 }
 
 void ControlsOptions::redefine_keyboard() {
@@ -158,6 +127,7 @@ void ControlsOptions::redefine_keyboard() {
 	poll_keyboard(A_SHOOT, "PRESS SHOOT");
 	poll_keyboard(A_BOMB, "PRESS BOMB");
 	poll_keyboard(A_START, "PRESS START");
+	poll_keyboard(A_BACK, "PRESS BACK");
 }
 
 void ControlsOptions::redefine_joystick() {
@@ -172,6 +142,7 @@ void ControlsOptions::redefine_joystick() {
 	poll_joystick(A_SHOOT, "PRESS SHOOT");
 	poll_joystick(A_BOMB, "PRESS BOMB");
 	poll_joystick(A_START, "PRESS START");
+	poll_joystick(A_BACK, "PRESS BACK");
 
 	input->reset();
 }
@@ -212,6 +183,34 @@ void ControlsOptions::show_notification(const char * text) {
 	SDL_FreeSurface(surface);
 
 	Main::instance->flip();
+}
+
+void ControlsOptions::save_input() {
+	input->copy_from(new_input);
+
+	//input->enable_keyboard(items->at(0)->selected == 0);
+	//input->enable_joystick(items->at(2)->selected == 0);
+
+	if (input->joystick_enabled) {
+		if (input->num_axes() >= 2) {
+			input->bind_joyaxis(0, false, A_LEFT);
+			input->bind_joyaxis(0, true, A_RIGHT);
+			input->bind_joyaxis(1, false, A_UP);
+			input->bind_joyaxis(1, true, A_DOWN);
+		}
+		if (input->num_axes() >= 1) {
+			input->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
+			input->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
+			input->bind_joyhat(0, SDL_HAT_UP, A_UP);
+			input->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
+		}
+
+	}
+}
+
+bool ControlsOptions::save_permitted() {
+	// Keyboard and joystick are both disabled...
+	return (items->at(0)->selected == 0 || items->at(2)->selected == 0);
 }
 
 // Joystick select

@@ -119,6 +119,11 @@ void OptionsScreen::draw() {
 }
 
 void OptionsScreen::process_cursor() {
+	if (input->is_pressed(A_BACK)) {
+		running = false;
+		return;
+	}
+
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
 			input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB) ||
 			input->is_pressed(A_START)) {

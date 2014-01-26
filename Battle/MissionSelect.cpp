@@ -82,6 +82,12 @@ void MissionSelect::run() {
 void MissionSelect::process_cursor() {
 	int direction;
 
+	if (input->is_pressed(A_BACK)) {
+		ready = true;
+		cancel = true;
+		return;
+	}
+
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
 		input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
 			if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
