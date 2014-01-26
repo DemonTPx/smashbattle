@@ -177,30 +177,19 @@ void Server::listen()
 		log(format("SDLNet_TCP_Open: %s\n",SDLNet_GetError()), Logger::Priority::DEBUG);
 		return;
 	}
-
-
-	/* Initialize SDL_net */
-	if (SDLNet_Init() < 0)
-	{
-		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
- 
-	/* Open a socket */
+	
+ 	/* Open a socket */
 	if (!(sd = SDLNet_UDP_Open(port_)))
 	{
 		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
- 
 	/* Make space for the packet */
-	if (!(p = SDLNet_AllocPacket(512)))
+	if (!(p = SDLNet_AllocPacket(4096)))
 	{
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
-
-
 
 	is_listening_ = true;
 
