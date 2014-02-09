@@ -60,8 +60,8 @@ add_executable (smashbattle_tests ${tests_SOURCES}
 target_link_libraries(smashbattle ${wxWidgets_LIBRARIES} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY} ${SDL_NET_LIBRARY} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES})
 
 install (TARGETS smashbattle DESTINATION /usr/share/games/smashbattle/)
-install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/gfx/  DESTINATION /usr/share/games/smashbattle/gfx FILES_MATCHING PATTERN "*")
-install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/sfx/  DESTINATION /usr/share/games/smashbattle/sfx FILES_MATCHING PATTERN "*")
-install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/music/  DESTINATION /usr/share/games/smashbattle/music FILES_MATCHING PATTERN "*")
-install (DIRECTORY ${CMAKE_BINARY_DIR}/Battle/stage/  DESTINATION /usr/share/games/smashbattle/stage FILES_MATCHING PATTERN "*")
+install (DIRECTORY ${CMAKE_SOURCE_DIR}/Battle/gfx/  DESTINATION /usr/share/games/smashbattle/gfx FILES_MATCHING PATTERN "*")
+install (DIRECTORY ${CMAKE_SOURCE_DIR}/Battle/sfx/  DESTINATION /usr/share/games/smashbattle/sfx FILES_MATCHING PATTERN "*")
+install (DIRECTORY ${CMAKE_SOURCE_DIR}/Battle/music/  DESTINATION /usr/share/games/smashbattle/music FILES_MATCHING PATTERN "*")
+install (DIRECTORY ${CMAKE_SOURCE_DIR}/Battle/stage/  DESTINATION /usr/share/games/smashbattle/stage FILES_MATCHING PATTERN "*")
 install (TARGETS smashbattle DESTINATION /usr/local/bin/)
