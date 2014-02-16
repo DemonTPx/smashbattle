@@ -203,28 +203,29 @@ void Server::poll() {
 			log(format("\tMatched client: %d\n", communicationTokens_[commToken]), Logger::Priority::DEBUG);
 		} else {
 			log(format("\tNo matching client..\n"), Logger::Priority::DEBUG);
+			continue;
 		}
 		log(format("\tLen:     %d\n", p->len), Logger::Priority::DEBUG);
 		log(format("\tMaxlen:  %d\n", p->maxlen), Logger::Priority::DEBUG);
 		log(format("\tStatus:  %d\n", p->status), Logger::Priority::DEBUG);
 		log(format("\tAddress: %x %x\n", p->address.host, p->address.port), Logger::Priority::DEBUG);
 
-		Client & client(clients_[communicationTokens_[commToken]]);
+		auto &client = clients_[communicationTokens_[commToken]];
 
-		client.setUDPOrigin(p->address);
+		client->setUDPOrigin(p->address);
 
 		char *temp = (char *) p->data;
 		temp += sizeof (Uint32); // skip one byte before the actual struct
 		*temp = p->data[0];
-		client.parse_udp(p->len - sizeof (Uint32), temp);
+		client->parse_udp(p->len - sizeof (Uint32), temp);
 	}
 
 	// Update servertime
 	serverTime_ = SDL_GetTicks();
 
-	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++) {
-		Client & client(i->second);
-		currentState_->execute(*this, client);
+	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++) {
+		auto & client = i->second;
+		currentState_->execute(*this, *client);
 	}
 
 
@@ -244,9 +245,9 @@ void Server::poll() {
 			int nextId = 0;
 			for (; clients_.find(nextId) != clients_.end(); nextId++)
 				;
-			clients_[nextId] = Client(nextId, sock, this);
+			clients_[nextId] = std::shared_ptr<Client>(new Client(nextId, sock, this));
 
-			communicationTokens_[clients_[nextId].getCommToken()] = nextId;
+			communicationTokens_[clients_[nextId]->getCommToken()] = nextId;
 
 			log(format("New client connected with id: %d\n", nextId), Logger::Priority::INFO);
 
@@ -269,26 +270,26 @@ void Server::poll() {
 
 	// Receive from clients
 	vector<int> dead_clients;
-	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++) {
-		Client & client(i->second);
-		if (SDLNet_SocketReady(client.socket())) {
+	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++) {
+		auto &client = i->second;
+		if (SDLNet_SocketReady(client->socket())) {
 			char buffer[16384] = {0x00};
-			int bytesReceived = SDLNet_TCP_Recv(client.socket(), buffer, sizeof (buffer));
+			int bytesReceived = SDLNet_TCP_Recv(client->socket(), buffer, sizeof (buffer));
 
 			if (bytesReceived > 0) {
-				client.receive(bytesReceived, buffer);
-				while (client.parse())
+				client->receive(bytesReceived, buffer);
+				while (client->parse())
 					;
 			} else {
 				// Close the old socket, even if it's dead... 
-				SDLNet_TCP_Close(client.socket());
+				SDLNet_TCP_Close(client->socket());
 
 				// Mark for deletion
-				dead_clients.push_back(client.id());
+				dead_clients.push_back(client->id());
 
-				log(format("Cleaned up client: %d\n", client.id()), Logger::Priority::INFO);
+				log(format("Cleaned up client: %d\n", client->id()), Logger::Priority::INFO);
 
-				client.cleanup();
+				client->cleanup();
 			}
 		}
 	}
@@ -297,10 +298,10 @@ void Server::poll() {
 	bool anotherPlayerDisconnected = false;
 	for (vector<int>::iterator i = dead_clients.begin(); i != dead_clients.end(); i++) {
 		// Verify with a breakpoint if this is correct code...
-		if (clients_[*i].getState() == Client::State::ACTIVE) {
+		if (clients_[*i]->getState() == Client::State::ACTIVE) {
 			anotherPlayerDisconnected = true;
 		}
-		communicationTokens_.erase(clients_[*i].getCommToken());
+		communicationTokens_.erase(clients_[*i]->getCommToken());
 		clients_.erase(*i);
 	}
 
@@ -330,8 +331,8 @@ SDLNet_SocketSet Server::create_sockset() {
 
 	SDLNet_TCP_AddSocket(set, server);
 
-	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++)
-		SDLNet_TCP_AddSocket(set, i->second.socket());
+	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
+		SDLNet_TCP_AddSocket(set, i->second->socket());
 
 	return (set);
 }
@@ -361,7 +362,7 @@ void Server::setState(const ServerState * const state) {
 	active();
 }
 
-Client& Server::getClientById(int client_id) {
+std::shared_ptr<Client> Server::getClientById(int client_id) {
 	if (clients_.find(client_id) != clients_.end())
 		return clients_[client_id];
 
@@ -370,14 +371,14 @@ Client& Server::getClientById(int client_id) {
 
 size_t Server::numActiveClients() {
 	size_t num = 0;
-	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++)
-		if (i->second.getState() == Client::State::ACTIVE)
+	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
+		if (i->second->getState() == Client::State::ACTIVE)
 			num++;
 
 	return num;
 }
 
 void Server::sendAll(Command &command) {
-	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++)
-		i->second.send(command);
+	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
+		i->second->send(command);
 }

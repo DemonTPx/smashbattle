@@ -47,7 +47,7 @@ void NetworkMultiplayer::on_game_reset()
 		strncpy(lvl.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
 		memcpy(&lvl.data.level, &level->level, sizeof(level->level));
 		memcpy(&lvl.data.level_hp, &level->level_hp, sizeof(level->level_hp));
-		server.getClientById(player.number).send(lvl);
+		server.getClientById(player.number)->send(lvl);
 
 		CommandSetPlayerData pd;
 		level_util::set_player_start(player, *level);

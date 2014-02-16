@@ -7,29 +7,6 @@
 
 #include <sstream>
 
-/**
- * This constructor is required for usage in a std::map by the server
- * Only accessable by it through a friend relation
- */
-Client::Client() 
-	: CommandProcessor(NULL),
-	  test(0),
-
-	  lag_(INITIAL_LAG_TESTS), 
-	  lastLagTime_(0),
-	  initialLagTests_(INITIAL_LAG_TESTS),
-	  server_(NULL),
-
-	  currentState_(Client::State::CONNECTING),
-	  commToken_(rand_get()),
-	  lastUdpSeq_(0)
-{
-	if (!(p = SDLNet_AllocPacket(4096))) {
-		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		return;
-	}
-}
-
 Client::Client(Client &&other) 
 	: CommandProcessor(NULL),
 	  test(0),
@@ -37,7 +14,7 @@ Client::Client(Client &&other)
 	  lag_(INITIAL_LAG_TESTS), 
 	  lastLagTime_(0),
 	  initialLagTests_(INITIAL_LAG_TESTS),
-	  server_(NULL),
+	  server_((Server *)0x4321),
 
 	  currentState_(Client::State::CONNECTING),
 	  commToken_(other.getCommToken()),
@@ -46,7 +23,6 @@ Client::Client(Client &&other)
 	// UDP initialize
 	if (!(p = SDLNet_AllocPacket(4096))) {
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		return;
 	}
 }
 
@@ -85,7 +61,6 @@ Client::Client(int client_id, TCPsocket socket, Server * const server)
 {
 	if (!(p = SDLNet_AllocPacket(4096))) {
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		return;
 	}
 }
 
@@ -161,7 +136,7 @@ bool Client::process(CommandSetPlayerData *command)
 	{
 		auto &player = **i;
 		if (player.number == (int)command->data.client_id) {
-			short lastSeq = server_->getClientById(player.number).getLastUdpSeq();
+			short lastSeq = server_->getClientById(player.number)->getLastUdpSeq();
 			short currSeq = command->data.udp_sequence;
 
 			// A following sequence is valid if it's bigger than the lastSeq.
@@ -196,9 +171,9 @@ bool Client::process(CommandSetPlayerData *command)
 
 			player_util::set_position_data(data, updatedPlayer->number, server_->getServerTime(), server_->getUdpSeq(), *updatedPlayer);
 
-			auto &client = server_->getClientById(player.number);
-			if (client.getState() == Client::State::ACTIVE) {
-				client.send(data);
+			auto client = server_->getClientById(player.number);
+			if (client->getState() == Client::State::ACTIVE) {
+				client->send(data);
 			}
 		}
 	}
@@ -243,7 +218,7 @@ bool Client::process(CommandShotFired *command)
 					command->data.client_id = client_id_;
 					command->data.x = proj->position->x;
 					command->data.y = proj->position->y;
-					server_->getClientById(player.number).send(*command);
+					server_->getClientById(player.number)->send(*command);
 				}
 			}
 
@@ -292,7 +267,7 @@ bool Client::process(CommandBombDropped *command)
 					command->data.x = obj->position->x;
 					command->data.y = obj->position->y;
 
-					server_->getClientById(player.number).send(*command);
+					server_->getClientById(player.number)->send(*command);
 				}
 			}
 
@@ -356,7 +331,6 @@ void Client::send(Command &command)
 		p->len = packetsize;
 
 		int numsent = SDLNet_UDP_Send(server_->getUdpSocket(), -1, p); // This sets the p->channel
-		printf("confirmed_udp_send = %d\n", numsent);
 		if(!numsent) {
 			printf("SDLNet_UDP_Send^1: %s\n", SDLNet_GetError());
 			// do something because we failed to send
@@ -400,6 +374,6 @@ void Client::cleanup()
 		cmd.data.time = server_->getServerTime();
 		cmd.data.client_id = client_id_;
 
-		server_->getClientById(player.number).send(cmd);
+		server_->getClientById(player.number)->send(cmd);
 	}
 }

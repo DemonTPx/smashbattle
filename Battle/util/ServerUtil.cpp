@@ -11,7 +11,7 @@ namespace server_util
 	{
 		try {
 			if (Server::getInstance().active())
-				return Server::getInstance().getClientById(player.number).lag().avg();
+				return Server::getInstance().getClientById(player.number)->lag().avg();
 		}
 		catch (std::runtime_error &)
 		{
