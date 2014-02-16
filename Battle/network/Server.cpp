@@ -203,6 +203,7 @@ void Server::poll() {
 			log(format("\tMatched client: %d\n", communicationTokens_[commToken]), Logger::Priority::DEBUG);
 		} else {
 			log(format("\tNo matching client..\n"), Logger::Priority::DEBUG);
+			continue;
 		}
 		log(format("\tLen:     %d\n", p->len), Logger::Priority::DEBUG);
 		log(format("\tMaxlen:  %d\n", p->maxlen), Logger::Priority::DEBUG);
