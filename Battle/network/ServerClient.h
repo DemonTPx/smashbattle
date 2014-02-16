@@ -50,6 +50,7 @@ class CommandGeneratePowerup;
 class CommandApplyPowerup;
 class CommandRemovePowerup;
 class CommandSetCommunicationToken;
+class CommandSetServerReady;
 
 class ServerClient : public CommandProcessor
 {
@@ -91,6 +92,7 @@ public:
 	void send(Command &command);
 
 	bool isConnected() { return is_connected_; }
+	bool isCommTokenAvailable() { return communicationToken_ != 0; }
 	void toggleConsole() { show_console_ = !show_console_ ; }
 	bool showConsole() { return show_console_; }
 
@@ -133,6 +135,7 @@ protected:
 	bool process(CommandApplyPowerup *command);
 	bool process(CommandRemovePowerup *command);
 	bool process(CommandSetCommunicationToken *command);
+	bool process(CommandSetServerReady *command);
 
 	
 private:
@@ -150,6 +153,7 @@ private:
 
 	int character_;
 	IPaddress ip;
+	IPaddress ip2;
 	TCPsocket sock;
 	std::string host_;
 	Uint16 port_;
@@ -179,6 +183,7 @@ private:
 	bool resumeGameWithCountdown_;
 	Uint32 resumeGameTime_;
 	
+	UDPsocket sd;
 	UDPpacket *p;
 
 };

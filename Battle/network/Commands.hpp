@@ -23,3 +23,6 @@
 #include "commands/CommandApplyPowerup.hpp"
 #include "commands/CommandRemovePowerup.hpp"
 #include "commands/CommandSetCommunicationToken.hpp"
+#include "commands/CommandCommunicationTokenAck.hpp"
+#include "commands/CommandSetServerReady.hpp"
+#include "commands/CommandSetClientReady.hpp"

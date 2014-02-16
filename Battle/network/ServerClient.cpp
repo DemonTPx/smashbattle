@@ -88,15 +88,21 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 		throw std::runtime_error(format("SDLNet_TCP_AddSocket: %s\n",SDLNet_GetError()));
 	}
 	
+
+
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+		exit(EXIT_FAILURE);
+	}
+	if(SDLNet_ResolveHost(&ip2, host_.c_str(),port_)==-1)
+	{
+		throw std::runtime_error(format("SDLNet_ResolveHost: %s\n",SDLNet_GetError()));
+	}
+	
 	/* Make space for the packet */
 	if (!(p = SDLNet_AllocPacket(4096)))
 	{
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
-
-	if (!(sd = SDLNet_UDP_Open(0))) {
-		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
 	
@@ -129,12 +135,8 @@ void ServerClient::poll()
 		log(format("\tAddress: %x %x\n", p->address.host, p->address.port), Logger::Priority::DEBUG);
 
 		char *temp = (char *) p->data;
-		temp += sizeof (Uint64); // skip one byte before the actual struct
-		*temp = p->data[0];
 		
-		receive(p->len - sizeof (Uint64), temp);
-		while (parse())
-			;
+		parse_udp(p->len, temp);
 	}
 	
 	
@@ -248,30 +250,24 @@ void ServerClient::send(Command &command)
 	){
 		log(format("Send packet of type %d through UDP with seq %d", type, getUdpSeq()), Logger::Priority::CONSOLE);
 
-		UDPpacket *p;
-		size_t packetsize = command.getDataLen() + sizeof (Uint64) + 1;
-		if (!(p = SDLNet_AllocPacket(packetsize))) {
-			fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-			return;
-		}
+		size_t packetsize = command.getDataLen() + sizeof (Uint32) + 1;
 		
 		char *packet = (char *)p->data;
 		*packet = type;
-		memcpy(packet + 1, (void *) &communicationToken_, sizeof (Uint64));
-		memcpy(packet + 1 + sizeof (Uint64), command.getData(), command.getDataLen());
+		memcpy(packet + 1, (void *) &communicationToken_, sizeof (Uint32));
+		memcpy(packet + 1 + sizeof (Uint32), command.getData(), command.getDataLen());
 
 		p->data = (Uint8 *) packet;
-		p->address.host = ip.host;
-		p->address.port = ip.port;
-
+		p->address.host = ip2.host;
+		p->address.port = ip2.port;
 		p->len = packetsize;
 
-		SDLNet_UDP_Send(sd, -1, p); /* This sets the p->channel */
-
-		SDLNet_FreePacket(p);
+		int numsent = SDLNet_UDP_Send(sd, -1, p); /* This sets the p->channel */
+		if(!numsent) {
+			printf("SDLNet_UDP_Send^2: %s\n", SDLNet_GetError());
+		}
 
 		setNextUdpSeq();
-
 	} else {
 		log(format("Send packet of type %d through TCP", type), Logger::Priority::CONSOLE);
 		result = SDLNet_TCP_Send(sock, &type, sizeof (char));
@@ -323,7 +319,7 @@ void ServerClient::resumeGameIn(short delay)
 
 bool ServerClient::process(std::unique_ptr<Command> command)
 {
-	log(format("received packet of type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
+	log(format("received packet of type: 0x%x", command.get()->getType()), Logger::Priority::CONSOLE);
 
 	switch (command.get()->getType())
 	{
@@ -389,6 +385,9 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 			break;
 		case Command::Types::SetCommunicationToken:
 			process(dynamic_cast<CommandSetCommunicationToken *>(command.get()));
+			break;
+		case Command::Types::SetServerReady:
+			process(dynamic_cast<CommandSetServerReady *>(command.get()));
 			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
@@ -726,11 +725,37 @@ bool ServerClient::process(CommandRemovePowerup *command)
 bool ServerClient::process(CommandSetCommunicationToken *command)
 {
 	try {
-		communicationToken_ = command->data.commToken;
+		communicationToken_ = command->data_.commToken;
+		
+		log(format("Acknowledging communication token from server"), Logger::Priority::CONSOLE);
+
+		CommandCommunicationTokenAck response;
+		response.data.time = command->data_.time;
+
+		this->send(response);
+		
 	}
 	catch (std::runtime_error &err) 
 	{
 		log(format("failure in process(CommandSetCommunicationToken): %s", err.what()), Logger::Priority::ERROR);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandSetServerReady *command)
+{
+	try {
+		log(format("Confirming server ready with client ready"), Logger::Priority::CONSOLE);
+
+		CommandSetClientReady response;
+
+		this->send(response);
+		
+	}
+	catch (std::runtime_error &err) 
+	{
+		log(format("failure in process(CommandSetServerReady): %s", err.what()), Logger::Priority::ERROR);
 	}
 
 	return true;

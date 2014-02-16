@@ -29,7 +29,7 @@ using std::string;
 Server::Server()
 	: is_listening_(false),
 	  currentState_(NULL),
-	  port_((Uint16)1099),
+	  port_((Uint16) 1099),
 	  serverTime_(SDL_GetTicks()),
 	  ignoreClientInputUntil_(0),
 	  game_(NULL),
@@ -48,18 +48,16 @@ Server::~Server() {
 		delete(currentState_);
 }
 
-void Server::setLevel(std::string level)
-{
+void Server::setLevel(std::string level) {
 	// Cannot load level here yet, as it requires SDL to be initialized, etc.
 	levelName_ = level;
-	
+
 }
 
 #include "LevelSelect.h"
-void Server::initializeLevel()
-{
-	if (levelName_ == "")
-	{
+
+void Server::initializeLevel() {
+	if (levelName_ == "") {
 		// A bit dirty to do this here, but it works :)
 		LevelSelect ls;
 		ls.run();
@@ -73,8 +71,8 @@ void Server::initializeLevel()
 #include "util/stringutils.hpp"
 #include "util/sha256.h"
 #include "util/Log.h"
-void Server::registerServer()
-{
+
+void Server::registerServer() {
 	if (serverToken_.empty()) {
 		rest::ServerToken token;
 		try {
@@ -107,86 +105,77 @@ void Server::registerServer()
 	}
 
 	std::cout << "our generated token is: " << sha256randomhash << std::endl;
-	
+
 	serverToken_ = sha256randomhash;
-	
+
 	rest::RegisterServer regsrv(serverToken_);
 	regsrv.put();
 }
 
-void Server::initializeGame(NetworkMultiplayer &game)
-{
+void Server::initializeGame(NetworkMultiplayer &game) {
 	game_ = &game;
 }
 
-
-Gameplay & Server::getGame()
-{
+Gameplay & Server::getGame() {
 	return *game_;
 }
 
-void Server::listen()
-{
+void Server::listen() {
 	if (is_listening_)
 		return;
 
-	const char *host=NULL;
-	
+	const char *host = NULL;
+
 	/* initialize SDL_net */
-	if(SDLNet_Init()==-1)
-	{
-		log(format("SDLNet_Init: %s\n",SDLNet_GetError()), Logger::Priority::FATAL);
+	if (SDLNet_Init() == -1) {
+		log(format("SDLNet_Init: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 		return;
 	}
 
-		/* Resolve the argument into an IPaddress type */
-	if(SDLNet_ResolveHost(&ip,NULL,port_)==-1)
-	{
-		log(format("SDLNet_ResolveHost: %s\n",SDLNet_GetError()), Logger::Priority::FATAL);
+	/* Resolve the argument into an IPaddress type */
+	if (SDLNet_ResolveHost(&ip, NULL, port_) == -1) {
+		log(format("SDLNet_ResolveHost: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 		return;
 	}
 
 	/* perform a byte endianess correction for the next printf */
-	ipaddr=SDL_SwapBE32(ip.host);
+	ipaddr = SDL_SwapBE32(ip.host);
 
 	/* output the IP address nicely */
 	log(format("IP Address : %d.%d.%d.%d\n",
-			ipaddr>>24,
-			(ipaddr>>16)&0xff,
-			(ipaddr>>8)&0xff,
-			ipaddr&0xff), Logger::Priority::INFO);
+		ipaddr >> 24,
+		(ipaddr >> 16)&0xff,
+		(ipaddr >> 8)&0xff,
+		ipaddr & 0xff), Logger::Priority::INFO);
 
 	/* resolve the hostname for the IPaddress */
-	host=SDLNet_ResolveIP(&ip);
+	host = SDLNet_ResolveIP(&ip);
 
 	/* print out the hostname we got */
-	if(host) {
-		log(format("Hostname   : %s\n",host), Logger::Priority::DEBUG);
-	}
-	else {
+	if (host) {
+		log(format("Hostname   : %s\n", host), Logger::Priority::DEBUG);
+	} else {
 		log(format("Hostname   : N/A\n"), Logger::Priority::DEBUG);
 	}
 
 	/* output the port number */
-	log(format("Port       : %d\n",port_), Logger::Priority::DEBUG);
+	log(format("Port       : %d\n", port_), Logger::Priority::DEBUG);
 
 	/* open the server socket */
-	server=SDLNet_TCP_Open(&ip);
-	if(!server)
-	{
-		log(format("SDLNet_TCP_Open: %s\n",SDLNet_GetError()), Logger::Priority::DEBUG);
+	server = SDLNet_TCP_Open(&ip);
+	if (!server) {
+		log(format("SDLNet_TCP_Open: %s\n", SDLNet_GetError()), Logger::Priority::DEBUG);
 		return;
 	}
-	
- 	/* Open a socket */
-	if (!(sd = SDLNet_UDP_Open(port_)))
-	{
+
+	/* Open a socket */
+	if (!(sd = SDLNet_UDP_Open(port_))) {
 		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
+
 	/* Make space for the packet */
-	if (!(p = SDLNet_AllocPacket(4096)))
-	{
+	if (!(p = SDLNet_AllocPacket(4096))) {
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
@@ -198,6 +187,10 @@ void Server::listen()
 
 void Server::poll() {
 
+	if (!is_listening_)
+		return;
+
+	set = create_sockset();
 
 	while (SDLNet_UDP_Recv(sd, p)) {
 		log(format("UDP Packet incoming\n"), Logger::Priority::DEBUG);
@@ -205,7 +198,7 @@ void Server::poll() {
 		log(format("\tData:    %s\n", (char *) p->data), Logger::Priority::DEBUG);
 		log(format("\tFirst_char: %X\n", p->data[0]), Logger::Priority::DEBUG);
 
-		Uint64 commToken = *(Uint64 *) (p->data + 1);
+		Uint32 commToken = *(Uint32 *) (p->data + 1);
 		if (communicationTokens_.find(commToken) != communicationTokens_.end()) {
 			log(format("\tMatched client: %d\n", communicationTokens_[commToken]), Logger::Priority::DEBUG);
 		} else {
@@ -217,49 +210,37 @@ void Server::poll() {
 		log(format("\tAddress: %x %x\n", p->address.host, p->address.port), Logger::Priority::DEBUG);
 
 		Client & client(clients_[communicationTokens_[commToken]]);
-		
+
 		client.setUDPOrigin(p->address);
-		
+
 		char *temp = (char *) p->data;
-		temp += sizeof (Uint64); // skip one byte before the actual struct
+		temp += sizeof (Uint32); // skip one byte before the actual struct
 		*temp = p->data[0];
-		client.receive(p->len - sizeof (Uint64), temp);
-		while (client.parse())
-			;
+		client.parse_udp(p->len - sizeof (Uint32), temp);
 	}
-
-
-
-	
-	if (!is_listening_)
-		return;
-
 
 	// Update servertime
 	serverTime_ = SDL_GetTicks();
 
-	for (map<int, Client>::iterator i=clients_.begin(); i!=clients_.end(); i++)
-	{
-		Client &client(i->second);
+	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++) {
+		Client & client(i->second);
 		currentState_->execute(*this, client);
 	}
 
 
-	set=create_sockset();
-	int numready=SDLNet_CheckSockets(set, 0);
-	
-	if(numready==-1)
-		return (void)printf("SDLNet_CheckSockets: %s\n",SDLNet_GetError());
 
-	if(!numready)
+	int numready = SDLNet_CheckSockets(set, 0);
+
+	if (numready == -1)
+		return (void) printf("SDLNet_CheckSockets: %s\n", SDLNet_GetError());
+
+	if (!numready)
 		return;
 
 	// Accepting new clients
-	if(SDLNet_SocketReady(server))
-	{
+	if (SDLNet_SocketReady(server)) {
 		sock = SDLNet_TCP_Accept(server);
-		if(sock)
-		{
+		if (sock) {
 			int nextId = 0;
 			for (; clients_.find(nextId) != clients_.end(); nextId++)
 				;
@@ -268,30 +249,40 @@ void Server::poll() {
 			communicationTokens_[clients_[nextId].getCommToken()] = nextId;
 
 			log(format("New client connected with id: %d\n", nextId), Logger::Priority::INFO);
+
+			IPaddress *remote_ip;
+			remote_ip = SDLNet_TCP_GetPeerAddress(sock);
+			if (!remote_ip) {
+				printf("SDLNet_TCP_GetPeerAddress: %s\n", SDLNet_GetError());
+				printf("This may be a server socket.\n");
+			} else {
+				// Bind address to the first free channel
+				int channel = SDLNet_UDP_Bind(sd, nextId, remote_ip);
+				if (channel == -1) {
+					printf("SDLNet_UDP_Bind: %s\n", SDLNet_GetError());
+					// do something because we failed to bind
+				}
+			}
+
 		}
 	}
 
 	// Receive from clients
 	vector<int> dead_clients;
-	for (map<int, Client>::iterator i=clients_.begin(); i!=clients_.end(); i++)
-	{
-		Client &client(i->second);
-		if(SDLNet_SocketReady(client.socket()))
-		{
+	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++) {
+		Client & client(i->second);
+		if (SDLNet_SocketReady(client.socket())) {
 			char buffer[16384] = {0x00};
-			int bytesReceived = SDLNet_TCP_Recv(client.socket(), buffer, sizeof(buffer));
+			int bytesReceived = SDLNet_TCP_Recv(client.socket(), buffer, sizeof (buffer));
 
-			if (bytesReceived > 0)
-			{
+			if (bytesReceived > 0) {
 				client.receive(bytesReceived, buffer);
 				while (client.parse())
 					;
-			}
-			else
-			{
+			} else {
 				// Close the old socket, even if it's dead... 
 				SDLNet_TCP_Close(client.socket());
-				
+
 				// Mark for deletion
 				dead_clients.push_back(client.id());
 
@@ -317,7 +308,7 @@ void Server::poll() {
 		CommandSetBroadcastText broadcast;
 		broadcast.data.time = getServerTime();
 		string text("ANOTHER PLAYER DISCONNECTED");
-		strncpy(broadcast.data.text, text.c_str() , text.length());
+		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		sendAll(broadcast);
 	}
@@ -325,45 +316,41 @@ void Server::poll() {
 }
 
 /* create a socket set that has the server socket and all the client sockets */
-SDLNet_SocketSet Server::create_sockset()
-{
-	static SDLNet_SocketSet set=NULL;
-	
+SDLNet_SocketSet Server::create_sockset() {
+	static SDLNet_SocketSet set = NULL;
+
 	if (set)
 		SDLNet_FreeSocketSet(set);
 
-	set=SDLNet_AllocSocketSet(clients_.size()+1);
-	if(!set) {
+	set = SDLNet_AllocSocketSet(clients_.size() + 1);
+	if (!set) {
 		printf("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
 		throw std::runtime_error("todo implement");
 	}
 
 	SDLNet_TCP_AddSocket(set, server);
-	
-	for (map<int, Client>::iterator i=clients_.begin(); i!=clients_.end(); i++)
+
+	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++)
 		SDLNet_TCP_AddSocket(set, i->second.socket());
-	
-	return(set);
+
+	return (set);
 }
 
-bool Server::active()
-{
+bool Server::active() {
 	if (!Server::getInstance().currentState_)
 		return false;
 
-	return Server::getInstance().currentState_->type().find("ServerStateInactive") == std::string::npos; 
+	return Server::getInstance().currentState_->type().find("ServerStateInactive") == std::string::npos;
 }
 
-bool Server::gameStarted()
-{
+bool Server::gameStarted() {
 	if (!Server::getInstance().currentState_)
 		return false;
 
 	return Server::getInstance().currentState_->type().find("ServerStateGameStarted") != std::string::npos;
 }
 
-void Server::setState(const ServerState * const state)
-{
+void Server::setState(const ServerState * const state) {
 	if (currentState_ != NULL)
 		delete(currentState_);
 
@@ -374,26 +361,23 @@ void Server::setState(const ServerState * const state)
 	active();
 }
 
-Client& Server::getClientById(int client_id)
-{
+Client& Server::getClientById(int client_id) {
 	if (clients_.find(client_id) != clients_.end())
 		return clients_[client_id];
 
 	throw std::runtime_error("client not found by id");
 }
 
-size_t Server::numActiveClients()
-{
+size_t Server::numActiveClients() {
 	size_t num = 0;
-	for (map<int, Client>::iterator i=clients_.begin(); i!=clients_.end(); i++)
+	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++)
 		if (i->second.getState() == Client::State::ACTIVE)
 			num++;
 
 	return num;
 }
 
-void Server::sendAll(Command &command)
-{
-	for (map<int, Client>::iterator i=clients_.begin(); i!=clients_.end(); i++)
+void Server::sendAll(Command &command) {
+	for (map<int, Client>::iterator i = clients_.begin(); i != clients_.end(); i++)
 		i->second.send(command);
 }
