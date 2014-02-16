@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 
 #include "SDL/SDL_net.h"
 
@@ -58,7 +59,7 @@ public:
 	}
 
 	Gameplay &getGame();
-	Client& getClientById(int client_id);
+	std::shared_ptr<Client> getClientById(int client_id);
 	size_t numActiveClients();
 
 	void sendAll(Command &command);
@@ -104,7 +105,7 @@ private:
 
 	bool is_listening_;
 
-	std::map<int, Client> clients_;
+	std::map<int, std::shared_ptr<Client>> clients_;
 	std::map<Uint32, int> communicationTokens_;
 
 	TCPsocket server;

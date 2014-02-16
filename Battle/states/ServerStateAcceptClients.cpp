@@ -123,7 +123,7 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 						otherplayer.data.x = newplayer->position->x;
 						otherplayer.data.y = newplayer->position->y;
 						otherplayer.data.current_sprite = newplayer->current_sprite;
-						server.getClientById(player.number).send(otherplayer);
+						server.getClientById(player.number)->send(otherplayer);
 
 						// Welcome the player
 						CommandSetBroadcastText broadcast;
@@ -131,7 +131,7 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 						string welcome("WE WELCOME A NEW PLAYER");
 						strncpy(broadcast.data.text, welcome.c_str() , welcome.length());
 						broadcast.data.duration = 2000;
-						server.getClientById(player.number).send(broadcast);
+						server.getClientById(player.number)->send(broadcast);
 					}
 
 
