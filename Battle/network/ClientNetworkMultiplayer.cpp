@@ -68,7 +68,7 @@ void ClientNetworkMultiplayer::start()
 			}
 
 		}
-		else {
+		else if (ServerClient::getInstance().isCommTokenAvailable()) {
 			Uint32 current = SDL_GetTicks();
 
 			if (initialLagTests > 0) {

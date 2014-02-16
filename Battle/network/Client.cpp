@@ -5,6 +5,8 @@
 #include "util/random.h"
 #include "NetworkMultiplayer.h"
 
+#include <sstream>
+
 /**
  * This constructor is required for usage in a std::map by the server
  * Only accessable by it through a friend relation
@@ -22,10 +24,9 @@ Client::Client()
 	  commToken_(rand_get()),
 	  lastUdpSeq_(0)
 {
-
-	// UDP initialize
-	if (!(sd = SDLNet_UDP_Open(0))) {
-		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	if (!(p = SDLNet_AllocPacket(4096))) {
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		return;
 	}
 }
 
@@ -43,10 +44,11 @@ Client::Client(Client &&other)
 	  lastUdpSeq_(0)
 {
 	// UDP initialize
-	if (!(sd = SDLNet_UDP_Open(0))) {
-		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	if (!(p = SDLNet_AllocPacket(4096))) {
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		return;
 	}
-}	
+}
 
 Client & Client::operator=(Client&& other)
 {
@@ -57,7 +59,6 @@ Client & Client::operator=(Client&& other)
 		this->set_socket(other.socket_);
 		this->server_ = other.server_;
 		this->lastUdpSeq_ = other.lastUdpSeq_;
-		this->sd = other.sd;
 	}
 	
 	return *this; 
@@ -82,10 +83,15 @@ Client::Client(int client_id, TCPsocket socket, Server * const server)
 	  commToken_(rand_get()),
 	  lastUdpSeq_(0)
 {
-	// UDP initialize
-	if (!(sd = SDLNet_UDP_Open(0))) {
-		throw std::runtime_error(format("SDLNet_UDP_Open: %s\n", SDLNet_GetError()));
+	if (!(p = SDLNet_AllocPacket(4096))) {
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		return;
 	}
+}
+
+Client::~Client()
+{
+	SDLNet_FreePacket(p);
 }
 
 bool Client::process(std::unique_ptr<Command> command)
@@ -106,6 +112,10 @@ bool Client::process(std::unique_ptr<Command> command)
 			return process(dynamic_cast<CommandShotFired *>(cmd));
 		case Command::Types::BombDropped:
 			return process(dynamic_cast<CommandBombDropped *>(cmd));
+		case Command::Types::CommunicationTokenAck:
+			return process(dynamic_cast<CommandCommunicationTokenAck *>(cmd));
+		case Command::Types::SetClientReady:
+			return process(dynamic_cast<CommandSetClientReady *>(cmd));
 	}
 
 	return true;
@@ -186,7 +196,10 @@ bool Client::process(CommandSetPlayerData *command)
 
 			player_util::set_position_data(data, updatedPlayer->number, server_->getServerTime(), server_->getUdpSeq(), *updatedPlayer);
 
-			server_->getClientById(player.number).send(data);
+			auto &client = server_->getClientById(player.number);
+			if (client.getState() == Client::State::ACTIVE) {
+				client.send(data);
+			}
 		}
 	}
 	return true;
@@ -290,6 +303,21 @@ bool Client::process(CommandBombDropped *command)
 	return true;
 }
 
+bool Client::process(CommandCommunicationTokenAck *command)
+{
+	log(format("Client confirmation received for token"), Logger::Priority::CONSOLE);
+
+	setState(Client::State::CALCULATING_LAG);
+}
+
+bool Client::process(CommandSetClientReady *command)
+{
+	log(format("Client confirmed our server-ready packet"), Logger::Priority::CONSOLE);
+
+	// i.e. It's now safe to assume we can send UDP packets for other player's data
+	
+	setState(Client::State::READY_FOR_POSITIONAL_DATA);
+}
 
 void Client::send(Command &command)
 {
@@ -299,20 +327,27 @@ void Client::send(Command &command)
 		type == Command::Types::Ping ||
 		type == Command::Types::Pong
 	){
-		log(format("Sending to client %d packet of type %d over UDP with seq %d", client_id_, expectRequestFor_, getUdpSeq()), Logger::Priority::DEBUG);
+		log(format("Sending to client %d packet of type 0x%x over UDP with seq %d", client_id_, type, getUdpSeq()), Logger::Priority::DEBUG);
+		size_t packetsize = command.getDataLen() + 1;
+		log(format(".. with packet size = %d", packetsize), Logger::Priority::DEBUG);
 
-		UDPpacket *p;
-		size_t packetsize = command.getDataLen() + sizeof (Uint64) + 1;
-		if (!(p = SDLNet_AllocPacket(packetsize))) {
-			fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-			return;
-		}
+		std::stringstream ss;
+		ss << format("sending_udp[%d] = ", packetsize);
+
 		
 		char *packet = (char *)p->data;
 		*packet = type;
-		memcpy(packet + 1, (void *) &communicationToken_, sizeof (Uint64));
-		memcpy(packet + 1 + sizeof (Uint64), command.getData(), command.getDataLen());
+		memcpy(packet + 1, command.getData(), command.getDataLen());
 
+		
+		for (int i=0; i<packetsize; i++) {
+			char p[2] = {0x00};
+			p[0] = packet[i];
+			ss << format(" %x", *p);
+		}
+		ss << std::endl;
+		log(ss.str(), Logger::Priority::DEBUG);
+		
 		p->data = (Uint8 *) packet;
 		const IPaddress &origin = getUDPOrigin();
 		p->address.host = origin.host;
@@ -320,16 +355,20 @@ void Client::send(Command &command)
 
 		p->len = packetsize;
 
-		SDLNet_UDP_Send(sd, -1, p); // This sets the p->channel
-
-		SDLNet_FreePacket(p);
-
+		int numsent = SDLNet_UDP_Send(server_->getUdpSocket(), -1, p); // This sets the p->channel
+		printf("confirmed_udp_send = %d\n", numsent);
+		if(!numsent) {
+			printf("SDLNet_UDP_Send^1: %s\n", SDLNet_GetError());
+			// do something because we failed to send
+			// this may just be because no addresses are bound to the channel...
+			//exit(1);
+		}
 		setNextUdpSeq();
 
 	}
 	else {
-		log(format("Sending to client %d packet of type %d over TCP", client_id_, expectRequestFor_), Logger::Priority::DEBUG);
-
+		log(format("Sending to client %d packet of type %d over TCP", client_id_, type), Logger::Priority::DEBUG);
+		
 		size_t result = SDLNet_TCP_Send(socket_, &type, sizeof(char));
 
 		if(result < sizeof(char)) {

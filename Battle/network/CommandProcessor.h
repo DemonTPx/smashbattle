@@ -23,12 +23,13 @@ protected:
 	{
 		memset(buffer_, 0x00, sizeof(buffer_));
 	}
-	~CommandProcessor() {}
+	virtual ~CommandProcessor() {}
 
 	void set_socket(TCPsocket socket) { socket_ = socket;}
 
 public:
 
+	void parse_udp(int bytes_received, const char * const buffer);
 	void receive(int bytes_received, const char * const buffer);
 	bool parse();
 	short getUdpSeq() { return udpsequence_; }
@@ -47,7 +48,6 @@ protected:
 	char expectRequestFor_;
 
 	// UDP
-	UDPsocket sd;
-	Uint64 communicationToken_;
+	Uint32 communicationToken_;
 	short udpsequence_;
 };

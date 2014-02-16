@@ -16,6 +16,8 @@ class CommandSetPlayerData;
 class CommandSetClientData;
 class CommandShotFired;
 class CommandBombDropped;
+class CommandCommunicationTokenAck;
+class CommandSetClientReady;
 class Server;
 
 class Client : public CommandProcessor
@@ -25,15 +27,22 @@ public:
 	enum State
 	{
 		CONNECTING = 1,
-		CHARACTER_REQUESTED = 2,
-		CHARACTER_INITIALIZED = 3,
-		ACTIVE = 4
+		COMMTOKEN_REQUESTED,
+		CALCULATING_LAG,
+		INITIALIZING,
+		CHARACTER_REQUESTED,
+		CHARACTER_INITIALIZED,
+		SERVERSIDE_READY,
+		READY_FOR_POSITIONAL_DATA,
+		ACTIVE
 	};
 
 
 	Client(int client_id, TCPsocket socket, Server * const server);
 	Client(Client &&other);
 	Client & operator=(Client&& other);
+	
+	virtual ~Client();
 
 	bool process(std::unique_ptr<Command> command);
 	bool process(CommandPing *command);
@@ -42,6 +51,8 @@ public:
 	bool process(CommandSetPlayerData *command);
 	bool process(CommandShotFired *command);
 	bool process(CommandBombDropped *command);
+	bool process(CommandCommunicationTokenAck *command);
+	bool process(CommandSetClientReady *command);
 
 	// accessors
 	TCPsocket socket() { return socket_; }
@@ -60,7 +71,7 @@ public:
 	void setUDPOrigin(IPaddress address) { address_ = address; }
 	const IPaddress &getUDPOrigin() { return address_; }
 	
-	Uint64 getCommToken() { return commToken_; }
+	Uint32 getCommToken() { return commToken_; }
 	short getLastUdpSeq() { return lastUdpSeq_; }
 
 	// lag
@@ -87,7 +98,9 @@ private:
 
 	Client::State currentState_;
 
-	Uint64 commToken_;
+	Uint32 commToken_;
 	short lastUdpSeq_;
 	IPaddress address_;
+	
+	UDPpacket *p;
 };

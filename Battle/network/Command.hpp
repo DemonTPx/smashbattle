@@ -32,6 +32,9 @@ public:
 		ApplyPowerup = 0x15,
 		RemovePowerup = 0x16,
 		SetCommunicationToken = 0x17,
+		CommunicationTokenAck = 0x18,
+		SetServerReady = 0x19,
+		SetClientReady = 0x1A,
 	};
 
 	Command::Types getType() const { return type_; }

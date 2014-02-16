@@ -87,6 +87,10 @@ public:
 		udpsequence_++;
 	}
 
+	UDPsocket & getUdpSocket() {
+		return sd;
+	}
+	
 private:
 	Server();
 	~Server();
@@ -101,7 +105,7 @@ private:
 	bool is_listening_;
 
 	std::map<int, Client> clients_;
-	std::map<Uint64, int> communicationTokens_;
+	std::map<Uint32, int> communicationTokens_;
 
 	TCPsocket server;
 

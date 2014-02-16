@@ -54,6 +54,13 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandRemovePowerup());
 		case Command::Types::SetCommunicationToken:
 			return std::unique_ptr<Command>(new CommandSetCommunicationToken());
+		case Command::Types::CommunicationTokenAck:
+			return std::unique_ptr<Command>(new CommandCommunicationTokenAck());
+		case Command::Types::SetServerReady:
+			return std::unique_ptr<Command>(new CommandSetServerReady());
+		case Command::Types::SetClientReady:
+			return std::unique_ptr<Command>(new CommandSetClientReady());
+
 	}
 	throw std::runtime_error("failure");
 }

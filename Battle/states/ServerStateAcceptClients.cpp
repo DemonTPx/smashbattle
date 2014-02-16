@@ -33,168 +33,209 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 		return;
 	}
 
-	if (client.getInitialLagTests()) {
-		// Make sure player has all initial lag tests
-		Uint32 lagdiff = servertime - client.getLastLagTime();
-		if (lagdiff >= 200) {
-			CommandPing ping;
-			ping.data.time = servertime;
-			client.send(ping);
-			client.setLastLagTime(client.getLastLagTime() + 200);
-			client.setInitialLagTests(client.getInitialLagTests() - 1);
-		}
-	}
-	else 
+	switch(client.getState())
 	{
-		// Lag test every 1s from now on
-		Uint32 lagdiff = servertime - client.getLastLagTime();
-		if (lagdiff >= 1000) {
-			CommandPing ping;
-			ping.data.time = servertime;
-			client.send(ping);
-			client.setLastLagTime(client.getLastLagTime() + 1000);
-		}
-
-		switch(client.getState())
-		{
-			// Request character from client
-			case Client::State::CONNECTING:
-				{
-					CommandRequestCharacter req;
-					client.send(req);
-
-					CommandSetCommunicationToken commtok;
-					commtok.data.commToken = client.getCommToken();
-					client.send(commtok);
-
-					client.setState(Client::State::CHARACTER_REQUESTED);
+		// Request character from client
+		case Client::State::CONNECTING:
+			{
+				static CommandSetCommunicationToken commtok;
+				commtok.data_.commToken = client.getCommToken();
+				client.send(commtok);
+				
+				client.setState(Client::State::COMMTOKEN_REQUESTED);
+			}
+			break;
+		case Client::State::COMMTOKEN_REQUESTED:
+			// If the client replies with a CommandCommunicationTokenAck
+			// We continue to state INITIALIZING!
+			break;
+		case Client::State::CALCULATING_LAG:
+			if (client.getInitialLagTests()) {
+				// Make sure player has all initial lag tests
+				Uint32 lagdiff = servertime - client.getLastLagTime();
+				if (lagdiff >= 200) {
+					CommandPing ping;
+					ping.data.time = servertime;
+					client.send(ping);
+					client.setLastLagTime(client.getLastLagTime() + 200);
+					client.setInitialLagTests(client.getInitialLagTests() - 1);
 				}
-				break;
-			case Client::State::CHARACTER_REQUESTED:
-				break;
+			} else {
+				client.setState(Client::State::INITIALIZING);
+			}
+			break;
+		case Client::State::INITIALIZING:
+			{
+				static CommandRequestCharacter req;
+				req.data.time = servertime;
+				client.send(req);
 
-			// Send level to client
-			case Client::State::CHARACTER_INITIALIZED:
+				client.setState(Client::State::CHARACTER_REQUESTED);
+			}
+			break;
+		case Client::State::CHARACTER_REQUESTED:
+			break;
+
+		// Send level to client
+		case Client::State::CHARACTER_INITIALIZED:
+			{
+				Level &level (server.getLevel());
+
+				// First send level with the id so he knows which one he is
+				CommandSetLevel cmd;
+				cmd.data.your_id = client.getClientId();
+				strncpy(cmd.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
+				memcpy(&cmd.data.level, &level.level, sizeof(level.level));
+				memcpy(&cmd.data.level_hp, &level.level_hp, sizeof(level.level_hp));
+				client.send(cmd);
+
+
+				// Create player object for client, determine starting position from level
+				Player *newplayer = new Player (client.getCharacter(), client.getClientId());
+				GameInputStub *playerinput = new GameInputStub();
+				newplayer->input = playerinput;
+				level_util::set_player_start(*newplayer, level);
+				newplayer->reset();
+
+				server.getGame().add_player(newplayer);
+
+				// Send client all other player positions
+				auto &players = *(server.getGame().players);
+				for (auto i= players.begin(); i!=players.end(); i++)
 				{
-					Level &level (server.getLevel());
+					auto &player = **i;
 
-					// First send level with the id so he knows which one he is
-					CommandSetLevel cmd;
-					cmd.data.your_id = client.getClientId();
-					strncpy(cmd.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
-					memcpy(&cmd.data.level, &level.level, sizeof(level.level));
-					memcpy(&cmd.data.level_hp, &level.level_hp, sizeof(level.level_hp));
-					client.send(cmd);
-
-
-					// Create player object for client, determine starting position from level
-					Player *newplayer = new Player (client.getCharacter(), client.getClientId());
-					GameInputStub *playerinput = new GameInputStub();
-					newplayer->input = playerinput;
-					level_util::set_player_start(*newplayer, level);
-					newplayer->reset();
-
-					server.getGame().add_player(newplayer);
-
-					// Send client all other player positions
-					auto &players = *(server.getGame().players);
-					for (auto i= players.begin(); i!=players.end(); i++)
+					if (player.number != client.getClientId())
 					{
-						auto &player = **i;
+						// Send the client "add player" for others
+						CommandAddPlayer otherplayer;
+						otherplayer.data.time = server.getServerTime();
+						otherplayer.data.client_id = player.number;
+						otherplayer.data.character = player.character;
+						otherplayer.data.x = player.position->x;
+						otherplayer.data.y = player.position->y;
+						otherplayer.data.current_sprite = player.current_sprite;
+						client.send(otherplayer);
 
-						if (player.number != client.getClientId())
-						{
-							// Send the client "add player" for others
-							CommandAddPlayer otherplayer;
-							otherplayer.data.time = server.getServerTime();
-							otherplayer.data.client_id = player.number;
-							otherplayer.data.character = player.character;
-							otherplayer.data.x = player.position->x;
-							otherplayer.data.y = player.position->y;
-							otherplayer.data.current_sprite = player.current_sprite;
-							client.send(otherplayer);
-
-							// And send others "add player" for this new client
-							otherplayer.data.client_id = newplayer->number;
-							otherplayer.data.character = newplayer->character;
-							otherplayer.data.x = newplayer->position->x;
-							otherplayer.data.y = newplayer->position->y;
-							otherplayer.data.current_sprite = newplayer->current_sprite;
-							server.getClientById(player.number).send(otherplayer);
-
-							// Welcome the player
-							CommandSetBroadcastText broadcast;
-							broadcast.data.time = server.getServerTime();
-							string welcome("WE WELCOME A NEW PLAYER");
-							strncpy(broadcast.data.text, welcome.c_str() , welcome.length());
-							broadcast.data.duration = 2000;
-							server.getClientById(player.number).send(broadcast);
-						}
-
-						// Send the client "player data"
-						CommandSetPlayerData playerpos;
-						player_util::set_position_data(playerpos, player.number, server.getServerTime(), server.getUdpSeq(), player);
-						client.send(playerpos);
-
-						// Send the client player 's health
-						CommandSetHitPoints points;
-						points.data.time = server.getServerTime();
-						points.data.client_id = player.number;
-						points.data.hitpoints = player.hitpoints;
-						client.send(points);
-
-						// Send the client player's ammo
-						CommandSetPlayerAmmo ammo;
-						ammo.data.time = server.getServerTime();
-						ammo.data.client_id = player.number;
-						ammo.data.bombs = player.bombs;
-						client.send(ammo);
+						// And send others "add player" for this new client
+						otherplayer.data.client_id = newplayer->number;
+						otherplayer.data.character = newplayer->character;
+						otherplayer.data.x = newplayer->position->x;
+						otherplayer.data.y = newplayer->position->y;
+						otherplayer.data.current_sprite = newplayer->current_sprite;
+						server.getClientById(player.number).send(otherplayer);
 
 						// Welcome the player
 						CommandSetBroadcastText broadcast;
 						broadcast.data.time = server.getServerTime();
-						string welcome("WELCOME TO SERVER");
+						string welcome("WE WELCOME A NEW PLAYER");
 						strncpy(broadcast.data.text, welcome.c_str() , welcome.length());
 						broadcast.data.duration = 2000;
-						client.send(broadcast);
+						server.getClientById(player.number).send(broadcast);
 					}
 
-					client.setState(Client::State::ACTIVE);
-				}
-				break;
 
-			// For now the client is initialized (it knows the other players)
-			case Client::State::ACTIVE:
-				Player &player(player_util::get_player_by_id(client.getClientId()));
-				if (player.is_dead) {
 
-					// Do something fancy here
-					player.hitpoints = 100;
-					CommandSetHitPoints hp;
-					hp.data.time = server.getServerTime();
-					hp.data.client_id = client.getClientId();
-					hp.data.hitpoints = player.hitpoints;
-					server.sendAll(hp);
-
-					Level &level (server.getLevel());
-					level_util::set_player_start(player, level);
-
-					CommandSetPlayerData pd;
-					player_util::set_position_data(pd, client.getClientId(), server.getServerTime(), server.getUdpSeq(), player);
-					server.sendAll(pd);
-
-					player.is_dead = false;
-					player.bombs = 3;
+					// Send the client player 's health
+					CommandSetHitPoints points;
+					points.data.time = server.getServerTime();
+					points.data.client_id = player.number;
+					points.data.hitpoints = player.hitpoints;
+					client.send(points);
 
 					// Send the client player's ammo
 					CommandSetPlayerAmmo ammo;
 					ammo.data.time = server.getServerTime();
 					ammo.data.client_id = player.number;
-					ammo.data.bombs = 3;
-					server.sendAll(ammo);
+					ammo.data.bombs = player.bombs;
+					client.send(ammo);
+
+					// Welcome the player
+					CommandSetBroadcastText broadcast;
+					broadcast.data.time = server.getServerTime();
+					string welcome("WELCOME TO SERVER");
+					strncpy(broadcast.data.text, welcome.c_str() , welcome.length());
+					broadcast.data.duration = 2000;
+					client.send(broadcast);
 				}
-				/////////////////
-				break;
+				
+				
+				CommandSetServerReady cmdrdy;
+				client.send(cmdrdy);
+
+
+				client.setState(Client::State::SERVERSIDE_READY);
+			}
+			break;
+		case Client::State::SERVERSIDE_READY:
+			// Will go to client-side ready after receiving CommandSetClientReady
+			break;
+
+		case Client::State::READY_FOR_POSITIONAL_DATA:
+		{
+			// Send client all other player positions
+			auto &players = *(server.getGame().players);
+			for (auto i= players.begin(); i!=players.end(); i++)
+			{
+				auto &player = **i;
+
+				if (player.number != client.getClientId())
+				{
+					// Send the client "player data"
+					CommandSetPlayerData playerpos;
+					player_util::set_position_data(playerpos, player.number, server.getServerTime(), server.getUdpSeq(), player);
+					client.send(playerpos);
+				}
+			}
+			
+			client.setState(Client::State::ACTIVE);
+			
+			break;
+		}
+		// For now the client is initialized (it knows the other players)
+		case Client::State::ACTIVE:
+		{
+			Player &player(player_util::get_player_by_id(client.getClientId()));
+			if (player.is_dead) {
+
+				// Do something fancy here
+				player.hitpoints = 100;
+				CommandSetHitPoints hp;
+				hp.data.time = server.getServerTime();
+				hp.data.client_id = client.getClientId();
+				hp.data.hitpoints = player.hitpoints;
+				server.sendAll(hp);
+
+				Level &level (server.getLevel());
+				level_util::set_player_start(player, level);
+
+				CommandSetPlayerData pd;
+				player_util::set_position_data(pd, client.getClientId(), server.getServerTime(), server.getUdpSeq(), player);
+				server.sendAll(pd);
+
+				player.is_dead = false;
+				player.bombs = 3;
+
+				// Send the client player's ammo
+				CommandSetPlayerAmmo ammo;
+				ammo.data.time = server.getServerTime();
+				ammo.data.client_id = player.number;
+				ammo.data.bombs = 3;
+				server.sendAll(ammo);
+			}
+			/////////////////
+
+			// Lag test every 1s from now on
+			Uint32 lagdiff = servertime - client.getLastLagTime();
+			if (lagdiff >= 1000) {
+				CommandPing ping;
+				ping.data.time = servertime;
+				client.send(ping);
+				client.setLastLagTime(client.getLastLagTime() + 1000);
+			}
+
+
+			break;
 		}
 	}
 
