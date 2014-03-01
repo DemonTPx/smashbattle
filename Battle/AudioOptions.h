@@ -7,6 +7,5 @@ public:
 	AudioOptions();
 
 	void run();
-	void item_selected();
 	void selection_changed();
 };

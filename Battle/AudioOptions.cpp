@@ -30,25 +30,11 @@ AudioOptions::AudioOptions() : OptionsScreen("OPTIONS > SOUND AND MUSIC") {
 	item->selected = Main::instance->audio->options.music_volume / 20;
 	add_item(item);
 
-	item = new OptionItem();
-	item->name = (char*)"RETURN";
-	item->options = NULL;
-	item->selected = 0;
-	add_item(item);
-
 	OptionsScreen::align = LEFT;
 }
 
 void AudioOptions::run() {
 	OptionsScreen::run();
-}
-
-void AudioOptions::item_selected() {
-	switch(selected_item) {
-		case 2:
-			running = false;
-			break;
-	}
 }
 
 void AudioOptions::selection_changed() {

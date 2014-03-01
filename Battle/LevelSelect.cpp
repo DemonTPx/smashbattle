@@ -88,6 +88,12 @@ void LevelSelect::run() {
 void LevelSelect::process_cursors() {
 	int direction;
 
+	if (input->is_pressed(A_BACK)) {
+		ready = true;
+		cancel = true;
+		return;
+	}
+
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
 		input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB) ||
 		input->is_pressed(A_START)) {

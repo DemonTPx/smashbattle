@@ -38,12 +38,6 @@ Options::Options() : OptionsScreen("OPTIONS") {
 	item->selected = 0;
 	add_item(item);
 
-	item = new OptionItem();
-	item->name = (char*)"RETURN";
-	item->options = NULL;
-	item->selected = 0;
-	add_item(item);
-
 	OptionsScreen::align = LEFT;
 }
 
@@ -68,8 +62,5 @@ void Options::item_selected() {
 			audiooptions.run();
 			break;
 		}
-		case 5:
-			running = false;
-			break;
 	}
 }

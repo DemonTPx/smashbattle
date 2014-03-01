@@ -22,6 +22,8 @@ public:
 
 	void run();
 protected:
+	GameInput * input;
+
 	int selected_item;
 	bool running;
 
@@ -55,15 +57,12 @@ protected:
 	virtual bool process_event(SDL_Event &event);
 	virtual void process_cursor();
 
-private:	
-	GameInput * input;
-
+private:
 	SDL_Surface * surf_title;
 	std::vector<SDL_Surface *> * surf_items;
 	std::vector<SDL_Rect *> * surf_items_clip;
 
 	SDL_Surface * background;
-
 	int frame;
 
 	int screen_w, screen_h;

@@ -331,7 +331,6 @@ void Client::send(Command &command)
 		p->len = packetsize;
 
 		int numsent = SDLNet_UDP_Send(server_->getUdpSocket(), -1, p); // This sets the p->channel
-		printf("confirmed_udp_send = %d\n", numsent);
 		if(!numsent) {
 			printf("SDLNet_UDP_Send^1: %s\n", SDLNet_GetError());
 			// do something because we failed to send

@@ -194,6 +194,10 @@ void Menu::draw() {
 
 void Menu::process_cursor() {
 	if (started) {
+		if (input_master->is_pressed(A_BACK)) {
+			Main::running = false;
+			Main::is_reset = true;
+		}
 		if (input_master->is_pressed(A_RUN) || input_master->is_pressed(A_JUMP) ||
 			input_master->is_pressed(A_SHOOT) || input_master->is_pressed(A_BOMB) ||
 			input_master->is_pressed(A_START)) {
