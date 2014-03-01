@@ -124,8 +124,6 @@ void Server::listen() {
 	if (is_listening_)
 		return;
 
-	const char *host = NULL;
-
 	/* initialize SDL_net */
 	if (SDLNet_Init() == -1) {
 		log(format("SDLNet_Init: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
@@ -147,16 +145,6 @@ void Server::listen() {
 		(ipaddr >> 16)&0xff,
 		(ipaddr >> 8)&0xff,
 		ipaddr & 0xff), Logger::Priority::INFO);
-
-	/* resolve the hostname for the IPaddress */
-	host = SDLNet_ResolveIP(&ip);
-
-	/* print out the hostname we got */
-	if (host) {
-		log(format("Hostname   : %s\n", host), Logger::Priority::DEBUG);
-	} else {
-		log(format("Hostname   : N/A\n"), Logger::Priority::DEBUG);
-	}
 
 	/* output the port number */
 	log(format("Port       : %d\n", port_), Logger::Priority::DEBUG);
