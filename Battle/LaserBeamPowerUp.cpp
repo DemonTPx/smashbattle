@@ -31,12 +31,15 @@ void LaserBeamPowerUp::hit_player(Player * p) {
 void LaserBeamPowerUp::shoot_laserbeam(Player * p) {
 	LaserBeam * lb;
 
-	int targets[3];
-	int target_hp[3];
+	std::vector<int> targets;
+	std::vector<int> target_hp;
 	int num_targets;
 	int i, tmp;
 	bool swapped;
 
+	targets.reserve(Gameplay::instance->players->size());
+	target_hp.reserve(Gameplay::instance->players->size());
+	
 	// Get all target players
 	num_targets = 0;
 	for(i = 0; i < (int)Gameplay::instance->players->size(); i++) {
