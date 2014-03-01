@@ -1,0 +1,29 @@
+### Commented entries have reasonable defaults.
+### Uncomment to edit them.
+#Source: <source package name; defaults to package name>
+Section: misc
+Priority: optional
+Homepage: blog.cppse.nl/smashbattle
+Standards-Version: 3.9.2
+
+Package: smashbattle-dev
+Version: 1.0
+Maintainer: Ray Burgemeestre <no-reply@does-not-exist.com>
+# Pre-Depends: <comma-separated list of packages>
+Depends: libsdl-mixer1.2,libsdl-net1.2,libcurl3,cmake,libsdl-dev,libsdl-mixer1.2-dev,libsdl-net1.2-dev,libcurl3-dev
+# Recommends: <comma-separated list of packages>
+# Suggests: <comma-separated list of packages>
+# Provides: <comma-separated list of packages>
+# Replaces: <comma-separated list of packages>
+# Architecture: all
+# Copyright: <copyright file; defaults to GPL2>
+# Changelog: <changelog file; defaults to a generic changelog>
+# Readme: <README.Debian file; defaults to a generic one>
+# Extra-Files: <comma-separated list of additional files for the doc directory>
+# Files: <pair of space-separated paths; First is file to include, second is destination>
+
+# use:
+# echo "Files: /usr/local/bin/smashbattle /" && (find /usr/share/games/smashbattle/ -type f|egrep -v "smashbattle$"|xargs -I{} -n 1 echo " "{}" /")
+#  <more pairs, if there's more than one file to include. Notice the starting space>
+Description: smashbattle-dev
+ Virtual package that installs all dependencies for building source

@@ -1,0 +1,140 @@
+### Commented entries have reasonable defaults.
+### Uncomment to edit them.
+#Source: <source package name; defaults to package name>
+Section: misc
+Priority: optional
+Homepage: blog.cppse.nl/smashbattle
+Standards-Version: 3.9.2
+
+Package: smashbattle
+Version: 1.2.1
+Maintainer: Ray Burgemeestre <no-reply@does-not-exist.com>
+# Pre-Depends: <comma-separated list of packages>
+Depends: libsdl-mixer1.2,libsdl-net1.2,libcurl3
+# Recommends: <comma-separated list of packages>
+# Suggests: <comma-separated list of packages>
+# Provides: <comma-separated list of packages>
+# Replaces: <comma-separated list of packages>
+# Architecture: all
+# Copyright: <copyright file; defaults to GPL2>
+# Changelog: <changelog file; defaults to a generic changelog>
+# Readme: <README.Debian file; defaults to a generic one>
+# Extra-Files: <comma-separated list of additional files for the doc directory>
+# Files: <pair of space-separated paths; First is file to include, second is destination>
+
+# use:
+# echo "Files: /usr/local/bin/smashbattle /" && (find /usr/share/games/smashbattle/ -type f|egrep -v "smashbattle$"|xargs -I{} -n 1 echo " "{}" /")
+Files: /usr/local/bin/smashbattle /
+ /usr/share/games/smashbattle/sfx/item.wav /
+ /usr/share/games/smashbattle/sfx/youlose.wav /
+ /usr/share/games/smashbattle/sfx/pause.wav /
+ /usr/share/games/smashbattle/sfx/shield.wav /
+ /usr/share/games/smashbattle/sfx/jump.wav /
+ /usr/share/games/smashbattle/sfx/bounce.wav /
+ /usr/share/games/smashbattle/sfx/countdown.wav /
+ /usr/share/games/smashbattle/sfx/blip.wav /
+ /usr/share/games/smashbattle/sfx/laser.wav /
+ /usr/share/games/smashbattle/sfx/explode.wav /
+ /usr/share/games/smashbattle/sfx/hit.wav /
+ /usr/share/games/smashbattle/sfx/go.wav /
+ /usr/share/games/smashbattle/sfx/select.wav /
+ /usr/share/games/smashbattle/sfx/shoot.wav /
+ /usr/share/games/smashbattle/sfx/airstrike.wav /
+ /usr/share/games/smashbattle/sfx/select_character.wav /
+ /usr/share/games/smashbattle/music/hydro_dreams.ogg /
+ /usr/share/games/smashbattle/music/graveyard.ogg /
+ /usr/share/games/smashbattle/music/a_hero_rises.ogg /
+ /usr/share/games/smashbattle/music/victory.ogg /
+ /usr/share/games/smashbattle/music/space_farer.ogg /
+ /usr/share/games/smashbattle/gfx/gijs.bmp /
+ /usr/share/games/smashbattle/gfx/pmarkers.bmp /
+ /usr/share/games/smashbattle/gfx/player1hp.bmp /
+ /usr/share/games/smashbattle/gfx/font_m.bmp /
+ /usr/share/games/smashbattle/gfx/wilbert.bmp /
+ /usr/share/games/smashbattle/gfx/bomb.bmp /
+ /usr/share/games/smashbattle/gfx/tiles.bmp /
+ /usr/share/games/smashbattle/gfx/cups.bmp /
+ /usr/share/games/smashbattle/gfx/font_l.bmp /
+ /usr/share/games/smashbattle/gfx/powerups.bmp /
+ /usr/share/games/smashbattle/gfx/props.bmp /
+ /usr/share/games/smashbattle/gfx/gatling.bmp /
+ /usr/share/games/smashbattle/gfx/frederik.bmp /
+ /usr/share/games/smashbattle/gfx/bg_orange.bmp /
+ /usr/share/games/smashbattle/gfx/font_s.bmp /
+ /usr/share/games/smashbattle/gfx/tedje.bmp /
+ /usr/share/games/smashbattle/gfx/bert.bmp /
+ /usr/share/games/smashbattle/gfx/jur.bmp /
+ /usr/share/games/smashbattle/gfx/tobias.bmp /
+ /usr/share/games/smashbattle/gfx/joost.bmp /
+ /usr/share/games/smashbattle/gfx/steven.bmp /
+ /usr/share/games/smashbattle/gfx/jeremy.bmp /
+ /usr/share/games/smashbattle/gfx/tino.bmp /
+ /usr/share/games/smashbattle/gfx/ton.bmp /
+ /usr/share/games/smashbattle/gfx/common.bmp /
+ /usr/share/games/smashbattle/gfx/chick.bmp /
+ /usr/share/games/smashbattle/gfx/cannon.bmp /
+ /usr/share/games/smashbattle/gfx/maite.bmp /
+ /usr/share/games/smashbattle/gfx/mark.bmp /
+ /usr/share/games/smashbattle/gfx/jay.bmp /
+ /usr/share/games/smashbattle/gfx/weapons.bmp /
+ /usr/share/games/smashbattle/gfx/femme.bmp /
+ /usr/share/games/smashbattle/gfx/player2hp.bmp /
+ /usr/share/games/smashbattle/gfx/anton.bmp /
+ /usr/share/games/smashbattle/gfx/kim.bmp /
+ /usr/share/games/smashbattle/gfx/kees.bmp /
+ /usr/share/games/smashbattle/gfx/jeroen.bmp /
+ /usr/share/games/smashbattle/gfx/misha.bmp /
+ /usr/share/games/smashbattle/gfx/eva.bmp /
+ /usr/share/games/smashbattle/gfx/rob.bmp /
+ /usr/share/games/smashbattle/gfx/bg_white.bmp /
+ /usr/share/games/smashbattle/gfx/SB.png /
+ /usr/share/games/smashbattle/gfx/robert.bmp /
+ /usr/share/games/smashbattle/gfx/ray.bmp /
+ /usr/share/games/smashbattle/gfx/rutger.bmp /
+ /usr/share/games/smashbattle/gfx/bg_grey.bmp /
+ /usr/share/games/smashbattle/gfx/peter.bmp /
+ /usr/share/games/smashbattle/gfx/sim.bmp /
+ /usr/share/games/smashbattle/gfx/ruud.bmp /
+ /usr/share/games/smashbattle/gfx/arjan.bmp /
+ /usr/share/games/smashbattle/gfx/shield.bmp /
+ /usr/share/games/smashbattle/gfx/arjen.bmp /
+ /usr/share/games/smashbattle/gfx/marcel.bmp /
+ /usr/share/games/smashbattle/gfx/arnoud.bmp /
+ /usr/share/games/smashbattle/gfx/bryan.bmp /
+ /usr/share/games/smashbattle/gfx/okke.bmp /
+ /usr/share/games/smashbattle/gfx/anne_willemijn.bmp /
+ /usr/share/games/smashbattle/gfx/donja.bmp /
+ /usr/share/games/smashbattle/gfx/SB.ico /
+ /usr/share/games/smashbattle/gfx/SB.bmp /
+ /usr/share/games/smashbattle/gfx/bg_black.bmp /
+ /usr/share/games/smashbattle/gfx/berry.bmp /
+ /usr/share/games/smashbattle/gfx/bg_blue.bmp /
+ /usr/share/games/smashbattle/gfx/wout.bmp /
+ /usr/share/games/smashbattle/gfx/paul.bmp /
+ /usr/share/games/smashbattle/stage/piepit.lvl /
+ /usr/share/games/smashbattle/stage/boulderdash.lvl /
+ /usr/share/games/smashbattle/stage/chick_invasion_ii.lvl /
+ /usr/share/games/smashbattle/stage/blastbowl.lvl /
+ /usr/share/games/smashbattle/stage/pogostick.lvl /
+ /usr/share/games/smashbattle/stage/chicken_run.lvl /
+ /usr/share/games/smashbattle/stage/lamoustache.lvl /
+ /usr/share/games/smashbattle/stage/platformalley.lvl /
+ /usr/share/games/smashbattle/stage/commongrounds.lvl /
+ /usr/share/games/smashbattle/stage/trainingdojo.lvl /
+ /usr/share/games/smashbattle/stage/stayhigh.lvl /
+ /usr/share/games/smashbattle/stage/slipnslide.lvl /
+ /usr/share/games/smashbattle/stage/thefunnel.lvl /
+ /usr/share/games/smashbattle/stage/titlescreen.lvl /
+ /usr/share/games/smashbattle/stage/snowfight.lvl /
+ /usr/share/games/smashbattle/stage/pitofdeath.lvl /
+ /usr/share/games/smashbattle/stage/easy_does_it.lvl /
+ /usr/share/games/smashbattle/stage/rabbithole.lvl /
+ /usr/share/games/smashbattle/stage/tryout.lvl /
+ /usr/share/games/smashbattle/stage/pitfall.lvl /
+ /usr/share/games/smashbattle/stage/chick_invasion.lvl /
+ /usr/share/games/smashbattle/stage/ducknhunt.lvl /
+
+
+#  <more pairs, if there's more than one file to include. Notice the starting space>
+Description: smashbattle
+ source @ http://bitbucket.org/rayburgemeestre/smashbattle/
