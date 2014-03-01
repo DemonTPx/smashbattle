@@ -425,6 +425,9 @@ bool ServerClient::process(CommandSetLevel *command)
 
 	// Default a client gets player with number zero
 	player_->number = my_id_;
+	
+	player_->update_suit();
+	player_->set_sprites();
 
 	level_->load(level_util::get_filename_by_name(command->data.levelname).c_str());
 	level_->reset();

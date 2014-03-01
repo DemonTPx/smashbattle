@@ -155,6 +155,8 @@ Player::Player(int character, int number) {
 	name = CHARACTERS[character].name;
 	this->character = character;
 	this->number = number;
+	
+	this->update_suit();
 
 	speedclass = CHARACTERS[character].speedclass;
 	weightclass = CHARACTERS[character].weightclass;
@@ -175,8 +177,8 @@ Player::Player(int character, int number) {
 
 	sprites = NULL;
 	set_sprites();
-	marker_clip_above = Main::graphics->pmarker_clip_above[(number - 1)];
-	marker_clip_below = Main::graphics->pmarker_clip_below[(number - 1)];
+	marker_clip_above = Main::graphics->pmarker_clip_above[suit_number];
+	marker_clip_below = Main::graphics->pmarker_clip_below[suit_number];
 }
 
 Player::~Player() {
@@ -213,7 +215,7 @@ void Player::set_sprites() {
 
 	for (short i = 0; i < Player::SUIT_COLOR_COUNT; i++) {
 		c_old = Player::SUIT_ORIGINAL[i];
-		n_new = Player::SUIT_REPLACE[(this->number - 1)][i];
+		n_new = Player::SUIT_REPLACE[suit_number][i];
 		if (c_old != n_new) {
 			Main::graphics->replace_color(sprites, c_old, n_new);
 		}
@@ -221,6 +223,15 @@ void Player::set_sprites() {
 #else
 	sprites = Main::graphics->player->at(character);
 #endif
+}
+
+void Player::update_suit()
+{
+	suit_number = number;
+	if (Main::runmode != MainRunModes::ARCADE) {
+		suit_number++;
+	}
+	suit_number = suit_number % Player::COLORS_COUNT;
 }
 
 void Player::reset() {
@@ -348,7 +359,14 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 
 	// Show lag above player if server is active
 	if (Main::runmode == MainRunModes::SERVER) {
-		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f", server_util::get_lag_for(*this)).c_str());
+		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f #%d", server_util::get_lag_for(*this), this->suit_number).c_str());
+		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
+		rect.y = position->y - surf->h - 4;
+		SDL_BlitSurface(surf, NULL, screen, &rect);
+		SDL_FreeSurface(surf);
+	}
+	else if (Main::runmode == MainRunModes::CLIENT && Main::ingame_debug_visible) {
+		SDL_Surface *surf = Main::text->render_text_small_gray(format("[%d] lag %.2f #%d", this->number, server_util::get_lag_for(*this), this->suit_number).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);

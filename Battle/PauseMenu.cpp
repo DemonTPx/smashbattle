@@ -93,12 +93,7 @@ void PauseMenu::draw() {
 
 	width = draw_width;
 	
-	// There is a small inconsistency, in client/server we store the client id in Player's number.
-	//  It starts counting from zero, and may exceed number of colors in the COLORS array. In normal multiplayer, 1,2,3,4 is used.
-	int idx = player->number - 1; // this works for normal multiplayer
-	if (idx < 0 || idx >= Player::COLORS_COUNT)
-		idx = (player->number % Player::COLORS_COUNT); // this works for network multiplayer
-	color = Player::COLORS[idx];
+	color = Player::COLORS[player->suit_number];
 
 	height = (20 * (int)options->size()) + 44;
 
