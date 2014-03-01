@@ -67,6 +67,7 @@ int Main::fps_counter_last_frame = 0;
 int Main::fps_counter_this_frame = 0;
 Timer * Main::fps_counter_timer = NULL;
 bool Main::fps_counter_visible = false;
+bool Main::ingame_debug_visible = false;
 
 AudioController * Main::audio = NULL;
 Graphics * Main::graphics = NULL;
@@ -280,6 +281,9 @@ void Main::handle_event(SDL_Event * event) {
 		}
 		if(event->key.keysym.sym == SDLK_F11) {
 			fps_counter_visible = !fps_counter_visible;
+		}
+		if(event->key.keysym.sym == SDLK_F2) {
+			ingame_debug_visible = !ingame_debug_visible;
 		}
 		if(event->key.keysym.sym == SDLK_PRINT) {
 			screenshot_next_flip = true;

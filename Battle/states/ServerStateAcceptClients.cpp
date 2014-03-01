@@ -83,7 +83,7 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 
 				// First send level with the id so he knows which one he is
 				CommandSetLevel cmd;
-				cmd.data.your_id = client.getClientId();
+				cmd.data.your_id = client.getClientId(); // This is the first time the client learns about it's id on the server
 				strncpy(cmd.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
 				memcpy(&cmd.data.level, &level.level, sizeof(level.level));
 				memcpy(&cmd.data.level_hp, &level.level_hp, sizeof(level.level_hp));

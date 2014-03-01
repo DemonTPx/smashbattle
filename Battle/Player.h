@@ -84,10 +84,12 @@ public:
 	void set_character(int character);
 	void set_sprites();
 	void reset();
+	void update_suit();
 
 	char * name;
 	int character;
 	int number;
+	int suit_number;
 
 	SDL_Rect * position;
 	SDL_Rect * last_position;

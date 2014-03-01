@@ -250,13 +250,13 @@ void CharacterSelect::prerender_background() {
 				direction = -1;
 				break;
 		}
-		SDL_FillRect(background, &r_block, Player::COLORS[i]);
+		SDL_FillRect(background, &r_block, Player::COLORS[i % Player::COLORS_COUNT]);
 		r_block.x += 4; r_block.w -= 8;
 		r_block.y += 4; r_block.h -= 8;
 		SDL_FillRect(background, &r_block, 0);
 
 		// Player number
-		SDL_FillRect(background, &r_pnumber, Player::COLORS[i]);
+		SDL_FillRect(background, &r_pnumber, Player::COLORS[i % Player::COLORS_COUNT]);
 
 		sprintf_s(str, 3, "P%1d", (i + 1));
 		surface = Main::text->render_text_large(str);
@@ -438,9 +438,9 @@ void CharacterSelect::draw() {
 	for(int i = 0; i < possible_players_; i++) {
 		if(player_random[i]) {
 			if(color != 0)
-				color = Graphics::combine_colors(color, Player::COLORS[i]);
+				color = Graphics::combine_colors(color, Player::COLORS[i % Player::COLORS_COUNT]);
 			else
-				color = Player::COLORS[i];
+				color = Player::COLORS[i % Player::COLORS_COUNT];
 		}
 	}
 	
@@ -500,14 +500,14 @@ void CharacterSelect::draw() {
 			if(player_joined[i]) {
 				if(player_select[i] == idx) {
 					if(color != 0)
-						color = Graphics::combine_colors(color, Player::COLORS[i]);
+						color = Graphics::combine_colors(color, Player::COLORS[i % Player::COLORS_COUNT]);
 					else
-						color = Player::COLORS[i];
+						color = Player::COLORS[i % Player::COLORS_COUNT];
 					if(player_ready[i]) {
 						if(color_back != 0)
-							color_back = Graphics::combine_colors(color_back, Player::COLORS[i]);
+							color_back = Graphics::combine_colors(color_back, Player::COLORS[i % Player::COLORS_COUNT]);
 						else
-							color_back = Player::COLORS[i];
+							color_back = Player::COLORS[i % Player::COLORS_COUNT];
 						if(flicker[i]) {
 							if(flicker_frame[i] > 0x30)
 								flicker[i] = false;

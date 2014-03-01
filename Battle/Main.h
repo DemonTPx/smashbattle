@@ -59,6 +59,7 @@ public:
 	static int fps_counter_this_frame;
 	static Timer * fps_counter_timer;
 	static bool fps_counter_visible;
+	static bool ingame_debug_visible;
 
 	static AudioController * audio;
 	static Graphics * graphics;

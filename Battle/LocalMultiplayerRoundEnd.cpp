@@ -143,7 +143,7 @@ void LocalMultiplayerRoundEnd::init() {
 		r_block.x = 10;
 		r_block.y = 50 + (76 * i);
 
-		SDL_FillRect(background, &r_block, Player::COLORS[players->at(order[i])->number - 1]);
+		SDL_FillRect(background, &r_block, Player::COLORS[ players->at(order[i])->suit_number]);
 
 		rect.x = r_block.x + 4;
 		rect.y = r_block.y + 4;
