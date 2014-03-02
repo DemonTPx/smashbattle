@@ -59,6 +59,11 @@ struct GameInputJoystickEvent {
 	int hat_direction;
 };
 
+namespace network {
+	class Client;
+	class ClientNetworkMultiplayer;
+}
+
 class GameInput {
 public:
 	GameInput();
@@ -132,11 +137,10 @@ protected:
 
 	static const int JOYSTICK_AXIS_THRESHOLD;
 
-
 	// temporary for accessing pressed array :p
 	friend class Gameplay;
-	friend class Client;
-	friend class ClientNetworkMultiplayer;
+	friend class network::Client;
+	friend class network::ClientNetworkMultiplayer;
 };
 
 

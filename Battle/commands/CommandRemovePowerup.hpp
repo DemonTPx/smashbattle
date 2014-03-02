@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandRemovePowerup : public Command
 {
 public:
@@ -21,3 +23,5 @@ public:
 		short powerup_id;
 	} data;
 };
+
+}

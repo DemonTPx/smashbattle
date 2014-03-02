@@ -8,12 +8,22 @@
 #include "network/Client.h"
 #include "Level.h"
 
-class ServerState;
 class Gameplay;
-class NetworkMultiplayer;
 
 #include "util/ServerUtil.h"
 
+class NetworkMultiplayer;
+
+namespace network{
+
+class ServerState;
+
+/**
+ * \brief Server for smashbattle network games.
+ * 
+ * This is a singleton object that listens on a specific port on both TCP and UDP.
+ * A server can have different states, depending on the state it will accept certain commands.
+ */
 class Server {
 public:
 
@@ -117,7 +127,7 @@ private:
 	Uint16 port_;
 	std::string servername_;
 
-	Level level_;
+	::Level level_;
 	std::string levelName_;
 
 	NetworkMultiplayer *game_;
@@ -136,3 +146,5 @@ private:
 
 	friend class ClientNetworkMultiplayer;
 };
+
+}

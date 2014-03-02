@@ -44,10 +44,10 @@ void DoubleDamagePowerUp::move(Level * level) {
 
 void DoubleDamagePowerUp::process() {}
 
-void DoubleDamagePowerUp::copyTo(CommandGeneratePowerup &powerup)
+void DoubleDamagePowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeDoubleDamage;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeDoubleDamage;
 	powerup.data.param = this->ammo;
 }

@@ -3,6 +3,8 @@
 #include "network/Command.hpp"
 #include "Level.h"
 
+namespace network{
+
 class CommandSetLevel : public Command
 {
 public:
@@ -27,3 +29,5 @@ public:
 
 private:
 };
+
+}

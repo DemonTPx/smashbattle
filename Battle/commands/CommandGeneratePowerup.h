@@ -7,6 +7,8 @@
 
 struct SDL_Rect;
 
+namespace network {
+
 class CommandGeneratePowerup : public Command
 {
 public:
@@ -51,3 +53,5 @@ public:
 		int param;
 	} data;
 };
+
+}

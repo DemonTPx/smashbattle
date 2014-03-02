@@ -95,9 +95,9 @@ void LaserBeamPowerUp::move(Level * level) {
 
 void LaserBeamPowerUp::process() {}
 
-void LaserBeamPowerUp::copyTo(CommandGeneratePowerup &powerup)
+void LaserBeamPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeLaserBeam;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeLaserBeam;
 }

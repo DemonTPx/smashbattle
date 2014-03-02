@@ -44,10 +44,10 @@ void InstantKillBulletPowerUp::move(Level * level) {
 
 void InstantKillBulletPowerUp::process() {}
 
-void InstantKillBulletPowerUp::copyTo(CommandGeneratePowerup &powerup)
+void InstantKillBulletPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeInstantKillBullet;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeInstantKillBullet;
 	powerup.data.param = this->ammo;
 }

@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network {
+
 class CommandSetPlayerScore : public Command
 {
 public:
@@ -22,3 +24,5 @@ public:
 		int score;
 	} data;
 };
+
+}

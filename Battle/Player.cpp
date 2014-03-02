@@ -155,8 +155,9 @@ Player::Player(int character, int number) {
 	name = CHARACTERS[character].name;
 	this->character = character;
 	this->number = number;
+	is_spectating = false;
 	
-	this->update_suit();
+	update_suit();
 
 	speedclass = CHARACTERS[character].speedclass;
 	weightclass = CHARACTERS[character].weightclass;
@@ -179,6 +180,7 @@ Player::Player(int character, int number) {
 	set_sprites();
 	marker_clip_above = Main::graphics->pmarker_clip_above[suit_number];
 	marker_clip_below = Main::graphics->pmarker_clip_below[suit_number];
+
 }
 
 Player::~Player() {
@@ -257,7 +259,7 @@ void Player::reset() {
 	hit_delay = 30;
 	hit_flicker_frame = 0;
 
-	is_dead = false;
+	is_dead = is_spectating;
 	dead_start = 0;
 
 	is_frozen = false;
@@ -280,10 +282,10 @@ void Player::reset() {
 	bombs = 3;
 	mines = 0;
 	doubledamagebullets = 0;
-	instantkillbullets = 0;
+	instantkillbullets = 10;
 
 	score = 0;
-	hitpoints = 100;
+	hitpoints = is_spectating ? 0 : 100;
 
 	bullets_fired = 0;
 	bullets_hit = 0;
@@ -304,7 +306,7 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 	sprites = this->sprites;
 
 	// Dead players are not visible
-	if(is_dead && Gameplay::frame - dead_start > 120) {
+	if(is_dead) {
 		return;
 	}
 
@@ -359,14 +361,14 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 
 	// Show lag above player if server is active
 	if (Main::runmode == MainRunModes::SERVER) {
-		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f #%d", server_util::get_lag_for(*this), this->suit_number).c_str());
+		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f #%d [%d]", server_util::get_lag_for(*this), this->suit_number, (int)this->spectating()).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
 		SDL_FreeSurface(surf);
 	}
 	else if (Main::runmode == MainRunModes::CLIENT && Main::ingame_debug_visible) {
-		SDL_Surface *surf = Main::text->render_text_small_gray(format("[%d] lag %.2f #%d", this->number, server_util::get_lag_for(*this), this->suit_number).c_str());
+		SDL_Surface *surf = Main::text->render_text_small_gray(format("[%d] lag %.2f #%d [%d]", this->number, server_util::get_lag_for(*this), this->suit_number, (int)this->spectating()).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
@@ -819,12 +821,12 @@ bool Player::damage(int damage) {
 				if (hitpoints < 0)
 					hitpoints = 0;
 
-				CommandSetHitPoints points;
+				network::CommandSetHitPoints points;
 				points.data.time = SDL_GetTicks();
 				points.data.client_id = number;
 				points.data.hitpoints = hitpoints;
 
-				Server::getInstance().sendAll(points);
+				network::Server::getInstance().sendAll(points);
 			}
 			break;
 		case MainRunModes::CLIENT:
@@ -838,6 +840,9 @@ void Player::process() {
 	if(is_dead)
 		return;
 
+	if (spectating())
+		return;
+
 	if(input->is_pressed(A_SHOOT)) {
 		if(Gameplay::frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
 			(((bullets == BULLETS_UNLIMITED) ||  bullets > 0) ||
@@ -846,18 +851,18 @@ void Player::process() {
 		{
 			Projectile *proj = create_projectile_for_player(position->x, position->y);
 
-			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
+			if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
 			{
-				CommandShotFired fire;
+				network::CommandShotFired fire;
 				fire.data.time = SDL_GetTicks();
 				// this is discarded by server anyway, we cannot send for other clients
-				fire.data.client_id = ServerClient::getInstance().getClientId(); 
+				fire.data.client_id = network::ServerClient::getInstance().getClientId(); 
 				// current sprite determines direction of bullet
 				fire.data.current_sprite = current_sprite;
 				fire.data.x = position->x;
 				fire.data.y = position->y;
 				fire.data.distance_travelled = proj->distance_traveled;
-				ServerClient::getInstance().send(fire);
+				network::ServerClient::getInstance().send(fire);
 			}
 		}
 	}
@@ -867,17 +872,17 @@ void Player::process() {
 		{
 			Bomb *newbomb = create_bomb_for_player(position->x, position->y);
 			
-			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
+			if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
 			{
-				CommandBombDropped bomb;
+				network::CommandBombDropped bomb;
 				bomb.data.time = SDL_GetTicks();
 				// this is discarded by server anyway, we cannot send for other clients
-				bomb.data.client_id = ServerClient::getInstance().getClientId(); 
+				bomb.data.client_id = network::ServerClient::getInstance().getClientId(); 
 				// current sprite determines direction of bullet
 				bomb.data.current_sprite = current_sprite;
 				bomb.data.x = newbomb->position->x;
 				bomb.data.y = newbomb->position->y;
-				ServerClient::getInstance().send(bomb);
+				network::ServerClient::getInstance().send(bomb);
 			}
 		}
 	}
@@ -1036,4 +1041,14 @@ void Player::cycle_sprite_updown(int first, int last) {
 
 	if(cycle_direction == CYCLE_UP) current_sprite++;
 	if(cycle_direction == CYCLE_DN) current_sprite--;
+}
+
+void Player::spectate(bool set)
+{
+	is_spectating = set;
+}
+
+bool Player::spectating()
+{
+	return is_spectating;
 }

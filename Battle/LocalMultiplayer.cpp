@@ -94,14 +94,12 @@ void LocalMultiplayer::on_game_reset()
 		
 		p->position->x = x;
 		p->position->y = y;
-		p->hitpoints = 100;
 		p->shoot_start = 0;
 		p->bomb_start = 0;
 		p->is_duck_forced = false;
 		p->duck_force_start = 0;
 		p->is_hit = false;
 		p->hit_start = 0;
-		p->is_dead = false;
 		p->dead_start = 0;
 		p->is_frozen = false;
 		p->freeze_start = 0;
@@ -117,6 +115,8 @@ void LocalMultiplayer::on_game_reset()
 		p->momentumx = 0;
 		p->momentumy = 0;
 		p->set_sprite(sprite);
+		p->hitpoints = 100;
+		p->is_dead = false;
 	}
 
 	round++;

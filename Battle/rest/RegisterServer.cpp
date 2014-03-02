@@ -15,11 +15,11 @@ RegisterServer::RegisterServer(const std::string &serverToken)
 std::string RegisterServer::put()
 {
 	json::Object postData;
-	postData["servername"] = Server::getInstance().getName();
+	postData["servername"] = network::Server::getInstance().getName();
 	// Host will be determined by the API server for now
 	//  postData["host"] = Server::getInstance().getHost();
-	postData["port"] = Server::getInstance().getPort();
-	postData["level"] = Server::getInstance().getLevelName();
+	postData["port"] = network::Server::getInstance().getPort();
+	postData["level"] = network::Server::getInstance().getLevelName();
 	postData["required_players"] = 2;
 	
 	std::cout << "post data generated is; " << json::Serialize(postData) << std::endl;

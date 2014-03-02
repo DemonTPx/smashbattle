@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandSetCharacter : public Command
 {
 public:
@@ -22,3 +24,5 @@ public:
 		char nickname[80 + 1];
 	} data;
 };
+
+}

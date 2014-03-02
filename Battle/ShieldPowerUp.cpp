@@ -42,9 +42,9 @@ void ShieldPowerUp::move(Level * level) {
 
 void ShieldPowerUp::process() {}
 
-void ShieldPowerUp::copyTo(CommandGeneratePowerup &powerup)
+void ShieldPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeShield;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeShield;
 }

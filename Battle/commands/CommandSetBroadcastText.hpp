@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandSetBroadcastText : public Command
 {
 public:
@@ -24,3 +26,5 @@ public:
 
 	} data;
 };
+
+}

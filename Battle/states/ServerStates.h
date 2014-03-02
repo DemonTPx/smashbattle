@@ -7,5 +7,6 @@
 #include "states/ServerStateInactive.h"
 #include "states/ServerStateInitialize.h"
 #include "states/ServerStateAcceptClients.h"
+#include "states/ServerStateAcceptSpectatingClients.h"
 #include "states/ServerStateGameStarted.h"
 

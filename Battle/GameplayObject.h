@@ -4,7 +4,9 @@
 #include "Player.h"
 #include "NPC.h"
 
+namespace network {
 class CommandGeneratePowerup;
+}
 
 class GameplayObject {
 public:
@@ -19,7 +21,7 @@ public:
 
 	virtual void draw(SDL_Surface * screen, int frames_processed) = 0;
 
-	virtual void copyTo(CommandGeneratePowerup &powerup);
+	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 
 	bool done;
 	bool is_powerup;

@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network {
+
 class CommandAddPlayer : public Command
 {
 public:
@@ -25,7 +27,11 @@ public:
 		Sint16 y;
 		int current_sprite;
 
+		bool is_spectating;
+
 		// Health et.al.
 
 	} data;
 };
+
+}

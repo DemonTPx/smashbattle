@@ -2,6 +2,8 @@
 
 #include "ServerState.h"
 
+namespace network {
+
 class ServerStateInactive : public ServerState
 {
 
@@ -10,3 +12,5 @@ public:
 
 	const std::string type() const { return typeid(this).name(); }
 };
+
+}

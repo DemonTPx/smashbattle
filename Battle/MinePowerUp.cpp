@@ -44,10 +44,10 @@ void MinePowerUp::move(Level * level) {
 
 void MinePowerUp::process() {}
 
-void MinePowerUp::copyTo(CommandGeneratePowerup &powerup)
+void MinePowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeMine;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeMine;
 	powerup.data.param = this->ammount;
 }

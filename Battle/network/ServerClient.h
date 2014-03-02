@@ -21,11 +21,13 @@
 #include "network/CommandProcessor.h"
 #include "util/LagMeasure.hpp"
 
-
-class Gameplay;
-class ClientNetworkMultiplayer;
 class Level;
 class Player;
+class Gameplay;
+
+namespace network{
+
+class ClientNetworkMultiplayer;
 
 class Command;
 class CommandPing ;
@@ -51,6 +53,7 @@ class CommandApplyPowerup;
 class CommandRemovePowerup;
 class CommandSetCommunicationToken;
 class CommandSetServerReady;
+class CommandSetSpectating;
 
 class ServerClient : public CommandProcessor
 {
@@ -136,6 +139,7 @@ protected:
 	bool process(CommandRemovePowerup *command);
 	bool process(CommandSetCommunicationToken *command);
 	bool process(CommandSetServerReady *command);
+	bool process(CommandSetSpectating *command);
 
 	
 private:
@@ -187,3 +191,5 @@ private:
 	UDPpacket *p;
 
 };
+
+}

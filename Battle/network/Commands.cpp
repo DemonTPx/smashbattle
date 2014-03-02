@@ -3,6 +3,10 @@
 #include "network/Commands.hpp"
 #include <stdexcept>
 
+#include "util/Log.h"
+
+namespace network {
+
 std::unique_ptr<Command> Command::factory(Command::Types type)
 {
 	// implicit move
@@ -60,7 +64,11 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandSetServerReady());
 		case Command::Types::SetClientReady:
 			return std::unique_ptr<Command>(new CommandSetClientReady());
+		case Command::Types::SetSpectating:
+			return std::unique_ptr<Command>(new CommandSetSpectating());
 
 	}
-	throw std::runtime_error("failure");
+	throw std::runtime_error(format("failure at type=%d 0x%x", type, type));
+}
+
 }

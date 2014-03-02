@@ -25,6 +25,14 @@ using std::string;
 #include "NetworkMultiplayer.h"
 #include "states/ServerStateAcceptClients.h"
 #include "commands/CommandSetBroadcastText.hpp"
+#include "LevelSelect.h"
+#include "rest/ServerToken.h"
+#include "rest/RegisterServer.h"
+#include "util/stringutils.hpp"
+#include "util/sha256.h"
+#include "util/Log.h"
+
+namespace network {
 
 Server::Server()
 	: is_listening_(false),
@@ -54,7 +62,6 @@ void Server::setLevel(std::string level) {
 
 }
 
-#include "LevelSelect.h"
 
 void Server::initializeLevel() {
 	if (levelName_ == "") {
@@ -66,11 +73,6 @@ void Server::initializeLevel() {
 	}
 	level_.load(level_util::get_filename_by_name(levelName_).c_str());
 }
-#include "rest/ServerToken.h"
-#include "rest/RegisterServer.h"
-#include "util/stringutils.hpp"
-#include "util/sha256.h"
-#include "util/Log.h"
 
 void Server::registerServer() {
 	if (serverToken_.empty()) {
@@ -286,7 +288,7 @@ void Server::poll() {
 	bool anotherPlayerDisconnected = false;
 	for (vector<int>::iterator i = dead_clients.begin(); i != dead_clients.end(); i++) {
 		// Verify with a breakpoint if this is correct code...
-		if (clients_[*i]->getState() == Client::State::ACTIVE) {
+		if (clients_[*i]->getState() >= Client::State::ACTIVE) {
 			anotherPlayerDisconnected = true;
 		}
 		communicationTokens_.erase(clients_[*i]->getCommToken());
@@ -369,4 +371,6 @@ size_t Server::numActiveClients() {
 void Server::sendAll(Command &command) {
 	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
 		i->second->send(command);
+}
+
 }

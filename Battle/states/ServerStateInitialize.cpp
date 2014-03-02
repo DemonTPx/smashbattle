@@ -5,6 +5,8 @@
 
 using std::string;
 
+namespace network {
+
 ServerStateInitialize::ServerStateInitialize(string level, int port, std::string servername)
 	: level_(level), port_(port), servername_(servername)
 {
@@ -23,4 +25,6 @@ void ServerStateInitialize::initialize(Server &server) const
 
 void ServerStateInitialize::execute(Server &server, Client &client) const
 {
+}
+
 }

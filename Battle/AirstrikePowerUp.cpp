@@ -51,9 +51,9 @@ void AirstrikePowerUp::move(Level * level) {
 
 void AirstrikePowerUp::process() {}
 
-void AirstrikePowerUp::copyTo(CommandGeneratePowerup &powerup)
+void AirstrikePowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeAirstrike;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeAirstrike;
 }

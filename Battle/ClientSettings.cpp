@@ -50,7 +50,7 @@ void ClientSettings::item_selected()
 		}
 		case 1:
 		{
-			ServerClient::getInstance().setCharacter(character_);
+			network::ServerClient::getInstance().setCharacter(character_);
 			connect();
 			break;
 		}

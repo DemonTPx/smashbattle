@@ -4,6 +4,8 @@
 
 class LagMeasure;
 
+namespace network{
+
 class ClientNetworkMultiplayer : public LocalMultiplayer 
 {
 public:
@@ -36,3 +38,4 @@ private:
 	LagMeasure *lag_;
 
 };
+}

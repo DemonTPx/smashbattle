@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandSetGameEnd : public Command
 {
 public:
@@ -22,3 +24,5 @@ public:
 		bool is_draw;
 	} data;
 };
+
+}

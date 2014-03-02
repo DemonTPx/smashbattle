@@ -10,16 +10,21 @@
 
 using std::string;
 
+namespace network {
+
 ServerStateGameStarted::ServerStateGameStarted()
 {
 }
 
 void ServerStateGameStarted::initialize(Server &server) const
 {
+	once = true;
+
 	auto &players = *(server.getGame().players);
 	for (auto i = players.begin(); i!=players.end(); i++)
 	{
 		auto &player = **i;
+		auto client = server.getClientById(player.number);
 
 		server.ignoreClientInputFor(3000);
 
@@ -33,14 +38,24 @@ void ServerStateGameStarted::initialize(Server &server) const
 		ge.data.time = server.getServerTime();
 		ge.data.is_draw = false;
 		ge.data.winner_id = -1;
-		server.sendAll(ge);
+		client->send(ge);
+
+		// Reset level
+		Level &level (server.getLevel());
+		level.reset();
+		CommandSetLevel cmd;
+		cmd.data.your_id = player.number; // This is the first time the client learns about it's id on the server
+		strncpy(cmd.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
+		memcpy(&cmd.data.level, &level.level, sizeof(level.level));
+		memcpy(&cmd.data.level_hp, &level.level_hp, sizeof(level.level_hp));
+		client->send(cmd);
 
 		// Reset there health
 		CommandSetHitPoints hp;
 		hp.data.time = server.getServerTime();
 		hp.data.client_id = player.number;
 		hp.data.hitpoints = player.hitpoints;
-		server.sendAll(hp);
+		client->send(hp);
 
 		// Make them countdown
 		CommandSetGameStart gs;
@@ -82,14 +97,19 @@ void ServerStateGameStarted::execute(Server &server, Client &client) const
 		client.setLastLagTime(client.getLastLagTime() + 1000);
 	}
 
-	if (client.getState() != Client::State::ACTIVE)
-	{
-		return;// ignore for now
+
+	// If there were/are pending clients not yet fully initialized, they are too late,
+	//  the game is already started. 
+	// Though we continue processing them as in "AcceptClients", only we make sure
+	//  we accept them as spectators only.
+	if (client.getState() < Client::State::ACTIVE) {
+		ServerStateAcceptSpectatingClients temp;
+		temp.initialize(server);
+		temp.execute(server, client);
+		return;
 	}
 
-	static bool once = true;
-	if (once)
-	{
+	if (once) {
 		once = false;
 		CommandSetBroadcastText broadcast;
 		broadcast.data.time = server.getServerTime();
@@ -98,4 +118,6 @@ void ServerStateGameStarted::execute(Server &server, Client &client) const
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);
 	}
+}
+
 }

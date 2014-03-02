@@ -3,6 +3,8 @@
 #include <memory>
 #include <iostream>
 
+namespace network{
+
 class Command
 {
 public:
@@ -35,6 +37,7 @@ public:
 		CommunicationTokenAck = 0x18,
 		SetServerReady = 0x19,
 		SetClientReady = 0x1A,
+		SetSpectating = 0x1B,
 	};
 
 	Command::Types getType() const { return type_; }
@@ -56,3 +59,5 @@ protected:
 private:
 
 };
+
+}

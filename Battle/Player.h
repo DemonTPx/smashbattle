@@ -45,12 +45,15 @@ struct BombPowerClass {
 	int damage;
 };
 
+namespace network {
 class CommandSetPlayerData;
+}
+
 class Player;
 namespace player_util
 {
-	void set_position_data(CommandSetPlayerData &data, char client_id, Uint32 time, short udpseq, Player &player);
-	void set_player_data(Player &player, CommandSetPlayerData &data, bool skip_input = false);
+	void set_position_data(network::CommandSetPlayerData &data, char client_id, Uint32 time, short udpseq, Player &player);
+	void set_player_data(Player &player, network::CommandSetPlayerData &data, bool skip_input = false);
 	Player &get_player_by_id(char client_id);
 	void unset_input(Player &player);
 }
@@ -85,6 +88,9 @@ public:
 	void set_sprites();
 	void reset();
 	void update_suit();
+
+	void spectate(bool set = true);
+	bool spectating();
 
 	char * name;
 	int character;
@@ -161,6 +167,8 @@ public:
 	unsigned int headstomps;
 
 	static const int jump_height;
+
+	bool is_spectating;
 
 	void draw(SDL_Surface * screen, bool marker = false, int frames_processed = 0);
 

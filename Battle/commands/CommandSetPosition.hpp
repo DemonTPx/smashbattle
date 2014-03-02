@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network {
+
 class CommandSetPosition : public Command
 {
 public:
@@ -22,3 +24,5 @@ public:
 		Sint16 y;
 	} data;
 };
+
+}

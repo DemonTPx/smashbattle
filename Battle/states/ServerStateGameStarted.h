@@ -6,6 +6,8 @@
 
 #include <SDL/SDL_stdinc.h>
 
+namespace network {
+
 class ServerStateGameStarted : public ServerState
 {
 
@@ -21,4 +23,12 @@ public:
 private:
 
 	friend class Server;
+
+	/**
+	 * Flag used to send 'Welcome to the game' only once..
+	 * (flag is reset in initialize())
+	 */
+	mutable bool once;
 };
+
+}

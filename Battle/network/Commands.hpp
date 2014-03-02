@@ -26,3 +26,4 @@
 #include "commands/CommandCommunicationTokenAck.hpp"
 #include "commands/CommandSetServerReady.hpp"
 #include "commands/CommandSetClientReady.hpp"
+#include "commands/CommandSetSpectating.hpp"

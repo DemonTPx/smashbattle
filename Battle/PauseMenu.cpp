@@ -38,7 +38,7 @@ int PauseMenu::pause(Player * p) {
 	player->input->reset();
 
 	while(Main::running && paused) {
-		Server::getInstance().poll();
+		network::Server::getInstance().poll();
 		while(SDL_PollEvent(&event)) {
 			Main::instance->handle_event(&event);
 

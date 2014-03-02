@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandSetHitPoints : public Command
 {
 public:
@@ -22,3 +24,5 @@ public:
 		int hitpoints;
 	} data;
 };
+
+}

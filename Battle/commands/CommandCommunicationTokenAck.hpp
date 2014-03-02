@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network {
+
 class CommandCommunicationTokenAck : public Command
 {
 public:
@@ -20,3 +22,5 @@ public:
 		Uint32 time;
 	} data;
 };
+
+}

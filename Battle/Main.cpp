@@ -169,9 +169,9 @@ void Main::clean_up() {
 
 void Main::flip(bool no_cap) 
 {
-	Server::getInstance().poll();
+	network::Server::getInstance().poll();
 
-	ServerClient::getInstance().poll();
+	network::ServerClient::getInstance().poll();
 
 	fps_count();
 
@@ -212,8 +212,8 @@ void Main::fps_count() {
 		SDL_Surface * surf;
 		SDL_Rect rect;
 
-		if (ServerClient::getInstance().isConnected())
-			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, ServerClient::getInstance().getLag().avg());
+		if (network::ServerClient::getInstance().isConnected())
+			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, network::ServerClient::getInstance().getLag().avg());
 		else
 			sprintf(cap, "%d FPS", fps_counter_this_frame);
 
@@ -261,13 +261,13 @@ void Main::handle_event(SDL_Event * event) {
 		}
 		if(event->key.keysym.sym == SDLK_F1) {
 			// Toggle console in case we're in client mode
-			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
-				ServerClient::getInstance().toggleConsole();
+			if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
+				network::ServerClient::getInstance().toggleConsole();
 		}
 		if(event->key.keysym.sym == SDLK_F5) {
 			// Re-set server, accept client connects..
-			if (Main::runmode == MainRunModes::SERVER && Server::getInstance().active())
-				Server::getInstance().setState(new ServerStateAcceptClients());
+			if (Main::runmode == MainRunModes::SERVER && network::Server::getInstance().active())
+				network::Server::getInstance().setState(new network::ServerStateAcceptClients());
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
@@ -333,21 +333,21 @@ int Main::run(const MainRunModes &runmode)
 
 		case MainRunModes::SERVER:
 			running = true;
-			while (Server::active() && running)
+			while (network::Server::active() && running)
 			{
 
 				NetworkMultiplayer multiplayer;
-				Level &level(Server::getInstance().getLevel());
+				Level &level(network::Server::getInstance().getLevel());
 				multiplayer.set_level(&level);
 
 				// This is a little bit of a design flaw, need to refactor server a bit later.
-				Server::getInstance().initializeGame(multiplayer);
+				network::Server::getInstance().initializeGame(multiplayer);
 
-				Server::getInstance().initializeLevel();
+				network::Server::getInstance().initializeLevel();
 				
-				Server::getInstance().listen();
+				network::Server::getInstance().listen();
 
-				Server::getInstance().registerServer();
+				network::Server::getInstance().registerServer();
 
 				multiplayer.run();
 			}
@@ -355,7 +355,7 @@ int Main::run(const MainRunModes &runmode)
 		case MainRunModes::CLIENT:
 			fps_counter_visible = true;
 
-			ClientNetworkMultiplayer clientgame;
+			network::ClientNetworkMultiplayer clientgame;
 
 			clientgame.start();
 
@@ -378,7 +378,7 @@ int main(int argc, char* args[])
 {
 	/*
 	TCPsocket socket;
-	Client test(1, socket, 	&Server::getInstance());
+	Client test(1, socket, 	&network::Server::getInstance());
 	
 	char peer0_a[] = { 0x07 };
 	char peer0_a1[] = {
@@ -509,7 +509,7 @@ int main(int argc, char* args[])
 
 			log(format("program started with -s flag, parsed level %s and port %d", level.c_str(), stoi(strport)), Logger::Priority::INFO);
 			
-			Server::getInstance().setState(new ServerStateInitialize(level, stoi(strport), servername));
+			network::Server::getInstance().setState(new network::ServerStateInitialize(level, stoi(strport), servername));
 
 			return main.run(MainRunModes::SERVER);
 		}
@@ -523,8 +523,8 @@ int main(int argc, char* args[])
 			if (2 == sscanf(args[1], "smashbattle://%80[^:]:%5[0-9]/", host, port)) {
 				log(format("initialized as client, connect to: %s && %s", host, port), Logger::Priority::INFO);
 
-				ServerClient::getInstance().setHost(host);
-				ServerClient::getInstance().setPort(atoi(port));
+				network::ServerClient::getInstance().setHost(host);
+				network::ServerClient::getInstance().setPort(atoi(port));
 
 				return main.run(MainRunModes::CLIENT);
 			}

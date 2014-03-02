@@ -9,6 +9,8 @@
 #include "network/Commands.hpp"
 #include "util/Log.h"
 
+namespace network {
+
 void CommandProcessor::parse_udp(int bytes_received, const char * const buffer)
 {
 	if (bytes_received == 0) {
@@ -71,7 +73,6 @@ void CommandProcessor::receive(int bytes_received, const char * const buffer)
 	buffer_idx_ += bytes_received;
 }
 
-#include "util/Log.h"
 bool CommandProcessor::parse()
 {
 	size_t processed = 0;
@@ -133,5 +134,7 @@ bool CommandProcessor::parse()
 	buffer_idx_ -= processed;
 
 	return true;
+
+}
 
 }
