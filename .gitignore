@@ -18,3 +18,7 @@ Battle/Battle.vcxproj.user
 Battle/battle
 /smashbattle
 *.exe
+/CMakeFiles
+/docs
+/CMakeCache.txt
+/Doxyfile.old
