@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network {
+
 class CommandAddPlayer : public Command
 {
 public:
@@ -29,3 +31,5 @@ public:
 
 	} data;
 };
+
+}

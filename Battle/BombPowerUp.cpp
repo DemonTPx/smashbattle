@@ -44,10 +44,10 @@ void BombPowerUp::move(Level * level) {
 
 void BombPowerUp::process() {}
 
-void BombPowerUp::copyTo(CommandGeneratePowerup &powerup)
+void BombPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeBomb;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeBomb;
 	powerup.data.param = this->ammount;
 }

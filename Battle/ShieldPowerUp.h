@@ -1,6 +1,8 @@
 #pragma once
 
+namespace network {
 class CommandGeneratePowerup;
+}
 
 class ShieldPowerUp : public GameplayObject {
 public:
@@ -14,7 +16,7 @@ public:
 	virtual void hit_npc(NPC * npc);
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
-	virtual void copyTo(CommandGeneratePowerup &powerup);
+	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;

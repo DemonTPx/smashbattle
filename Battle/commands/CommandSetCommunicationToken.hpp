@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandSetCommunicationToken : public Command
 {
 public:
@@ -21,3 +23,5 @@ public:
 		Uint32 commToken;
 	} data_;
 };
+
+}

@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network {
+
 class CommandDelPlayer : public Command
 {
 public:
@@ -21,3 +23,5 @@ public:
 		char client_id;
 	} data;
 };
+
+}

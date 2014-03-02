@@ -27,14 +27,14 @@ void NetworkMultiplayer::on_game_reset()
 {
 	countdown = false;
 
-	if (Server::gameStarted())
+	if (network::Server::gameStarted())
 		LocalMultiplayer::on_game_reset();
 	else
 		round++;
 
 
 	// Synchronize level and positions across players
-	auto &server = Server::getInstance();
+	auto &server = network::Server::getInstance();
 	auto &vec = *players;
 	for (auto i = vec.begin(); i != vec.end(); i++) {
 		auto &player(**i);
@@ -42,31 +42,31 @@ void NetworkMultiplayer::on_game_reset()
 		player_util::unset_input(player);
 
 		// First send level with the id so he knows which one he is
-		CommandSetLevel lvl;
+		network::CommandSetLevel lvl;
 		lvl.data.your_id = player.number;
 		strncpy(lvl.data.levelname, server.getLevelName().c_str(), server.getLevelName().size());
 		memcpy(&lvl.data.level, &level->level, sizeof(level->level));
 		memcpy(&lvl.data.level_hp, &level->level_hp, sizeof(level->level_hp));
 		server.getClientById(player.number)->send(lvl);
 
-		CommandSetPlayerData pd;
+		network::CommandSetPlayerData pd;
 		level_util::set_player_start(player, *level);
 		player_util::set_position_data(pd, player.number, server.getServerTime(), server.getUdpSeq(), player);
 		server.sendAll(pd);
 
-		CommandSetHitPoints points;
+		network::CommandSetHitPoints points;
 		points.data.time = server.getServerTime();
 		points.data.client_id = player.number;
 		points.data.hitpoints = player.hitpoints;
 		server.sendAll(points);
 
-		CommandSetPlayerAmmo ammo;
+		network::CommandSetPlayerAmmo ammo;
 		ammo.data.time = server.getServerTime();
 		ammo.data.client_id = player.number;
 		ammo.data.bombs = player.bombs;
 		server.sendAll(ammo);
 
-		CommandSetPlayerDeath alive;
+		network::CommandSetPlayerDeath alive;
 		alive.data.time = server.getServerTime();
 		alive.data.client_id = player.number;
 		alive.data.is_dead = false;
@@ -78,13 +78,13 @@ void NetworkMultiplayer::on_game_reset()
 		game_running = true;
 		initialize();
 		round = 1;
-		server.setState(new ServerStateAcceptClients());
+		server.setState(new network::ServerStateAcceptClients());
 	}
 }
 
 void NetworkMultiplayer::on_post_processing()
 {
-	if (!Server::gameStarted()) {
+	if (!network::Server::gameStarted()) {
 		auto &vec = *players;
 		for (auto i = vec.begin(); i != vec.end(); i++) {
 			auto &player(**i);
@@ -95,7 +95,7 @@ void NetworkMultiplayer::on_post_processing()
 		}
 	}
 	else {
-		auto &server = Server::getInstance();
+		auto &server = network::Server::getInstance();
 
 		map<char, bool> playerWasDead;
 		auto &vec = *players;
@@ -112,7 +112,7 @@ void NetworkMultiplayer::on_post_processing()
 			auto &player(**i);
 			if (!playerWasDead[player.number] && player.is_dead) { 
 
-				CommandSetPlayerDeath died;
+				network::CommandSetPlayerDeath died;
 				died.data.time = server.getServerTime();
 				died.data.client_id = player.number;
 				died.data.is_dead = player.is_dead;
@@ -127,7 +127,7 @@ void NetworkMultiplayer::on_post_processing()
 
 				if (winner != NULL) {
 					// Send game end
-					CommandSetGameEnd end;
+					network::CommandSetGameEnd end;
 					end.data.time = server.getServerTime();
 					end.data.winner_id = winner->number;
 					end.data.is_draw = draw;
@@ -135,7 +135,7 @@ void NetworkMultiplayer::on_post_processing()
 
 					if (game_running) {
 						// Send game resume instruction
-						CommandSetGameStart start;
+						network::CommandSetGameStart start;
 						start.data.time = server.getServerTime();
 						start.data.delay = we_have_a_winner() ? 0 : 3000;
 						server.sendAll(start);
@@ -145,7 +145,7 @@ void NetworkMultiplayer::on_post_processing()
 				// Send player score, new player positions
 				for (auto i = vec.begin(); i != vec.end(); i++) {
 					auto &player(**i);
-					CommandSetPlayerScore score;
+					network::CommandSetPlayerScore score;
 					score.data.time = server.getServerTime();
 					score.data.client_id = player.number;
 					score.data.score = player.score;
@@ -153,7 +153,7 @@ void NetworkMultiplayer::on_post_processing()
 
 					// Unset input's for players, do not change location yet
 					player_util::unset_input(player);
-					CommandSetPlayerData pd;
+					network::CommandSetPlayerData pd;
 					player_util::set_position_data(pd, player.number, server.getServerTime(), server.getUdpSeq(), player);
 					server.sendAll(pd);
 				}
@@ -169,12 +169,12 @@ GameplayObject *NetworkMultiplayer::generate_powerup(bool force)
 	GameplayObject *powerup = LocalMultiplayer::generate_powerup(force);
 	if (powerup)
 	{
-		CommandGeneratePowerup genpow;
-		genpow.data.time = Server::getInstance().getServerTime();
+		network::CommandGeneratePowerup genpow;
+		genpow.data.time = network::Server::getInstance().getServerTime();
 		genpow.data.powerupid = powerup->id();
 		powerup->copyTo(genpow);
 
-		Server::getInstance().sendAll(genpow);
+		network::Server::getInstance().sendAll(genpow);
 	}
 	return powerup;
 }

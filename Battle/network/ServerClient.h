@@ -21,11 +21,13 @@
 #include "network/CommandProcessor.h"
 #include "util/LagMeasure.hpp"
 
-
-class Gameplay;
-class ClientNetworkMultiplayer;
 class Level;
 class Player;
+class Gameplay;
+
+namespace network{
+
+class ClientNetworkMultiplayer;
 
 class Command;
 class CommandPing ;
@@ -187,3 +189,5 @@ private:
 	UDPpacket *p;
 
 };
+
+}

@@ -10,19 +10,19 @@
 
 namespace player_util
 {
-	void set_position_data(CommandSetPlayerData &playerpos, char client_id, Uint32 time, short udpseq, Player &player)
+	void set_position_data(network::CommandSetPlayerData &playerpos, char client_id, Uint32 time, short udpseq, Player &player)
 	{
 		// todo: remove param client_id, it is always player.number (!)
 		short flags = 0;
-		if (player.input->is_pressed(A_LEFT))		flags |= ServerClient::FLAG_LEFT;
-		if (player.input->is_pressed(A_RIGHT))		flags |= ServerClient::FLAG_RIGHT;
-		if (player.input->is_pressed(A_UP))			flags |= ServerClient::FLAG_UP;
-		if (player.input->is_pressed(A_DOWN))		flags |= ServerClient::FLAG_DOWN;
-		if (player.input->is_pressed(A_JUMP))		flags |= ServerClient::FLAG_JUMP;
-		if (player.input->is_pressed(A_RUN))		flags |= ServerClient::FLAG_RUN;
-		if (player.input->is_pressed(A_SHOOT))		flags |= ServerClient::FLAG_SHOOT;
-		if (player.input->is_pressed(A_BOMB))		flags |= ServerClient::FLAG_BOMB;
-		if (player.input->is_pressed(A_START))		flags |= ServerClient::FLAG_START;
+		if (player.input->is_pressed(A_LEFT))		flags |= network::ServerClient::FLAG_LEFT;
+		if (player.input->is_pressed(A_RIGHT))		flags |= network::ServerClient::FLAG_RIGHT;
+		if (player.input->is_pressed(A_UP))			flags |= network::ServerClient::FLAG_UP;
+		if (player.input->is_pressed(A_DOWN))		flags |= network::ServerClient::FLAG_DOWN;
+		if (player.input->is_pressed(A_JUMP))		flags |= network::ServerClient::FLAG_JUMP;
+		if (player.input->is_pressed(A_RUN))		flags |= network::ServerClient::FLAG_RUN;
+		if (player.input->is_pressed(A_SHOOT))		flags |= network::ServerClient::FLAG_SHOOT;
+		if (player.input->is_pressed(A_BOMB))		flags |= network::ServerClient::FLAG_BOMB;
+		if (player.input->is_pressed(A_START))		flags |= network::ServerClient::FLAG_START;
 
 		playerpos.data.udp_sequence = udpseq;
 		playerpos.data.client_id = player.number;
@@ -46,21 +46,21 @@ namespace player_util
 		//playerpos.data.distance_walked = player.distance_walked;
 	}
 
-	void set_player_data(Player &player, CommandSetPlayerData &command, bool skip_input)
+	void set_player_data(Player &player, network::CommandSetPlayerData &command, bool skip_input)
 	{
 		//data for this client
 		if (!skip_input) {
 			memset(player.input->pressed, 0x00, sizeof(player.input->pressed));
 			short flags = command.data.flags;
-			if (flags & ServerClient::FLAG_LEFT)	player.input->pressed[A_LEFT] = true;
-			if (flags & ServerClient::FLAG_RIGHT) 	player.input->pressed[A_RIGHT] = true;
-			if (flags & ServerClient::FLAG_UP)		player.input->pressed[A_UP] = true;
-			if (flags & ServerClient::FLAG_DOWN)	player.input->pressed[A_DOWN] = true;
-			if (flags & ServerClient::FLAG_JUMP)	player.input->pressed[A_JUMP] = true;
-			if (flags & ServerClient::FLAG_RUN)		player.input->pressed[A_RUN] = true;
-			if (flags & ServerClient::FLAG_SHOOT)	player.input->pressed[A_SHOOT] = true;
-			if (flags & ServerClient::FLAG_BOMB)	player.input->pressed[A_BOMB] = true;
-			if (flags & ServerClient::FLAG_START)	player.input->pressed[A_START] = true;
+			if (flags & network::ServerClient::FLAG_LEFT)	player.input->pressed[A_LEFT] = true;
+			if (flags & network::ServerClient::FLAG_RIGHT) 	player.input->pressed[A_RIGHT] = true;
+			if (flags & network::ServerClient::FLAG_UP)		player.input->pressed[A_UP] = true;
+			if (flags & network::ServerClient::FLAG_DOWN)	player.input->pressed[A_DOWN] = true;
+			if (flags & network::ServerClient::FLAG_JUMP)	player.input->pressed[A_JUMP] = true;
+			if (flags & network::ServerClient::FLAG_RUN)		player.input->pressed[A_RUN] = true;
+			if (flags & network::ServerClient::FLAG_SHOOT)	player.input->pressed[A_SHOOT] = true;
+			if (flags & network::ServerClient::FLAG_BOMB)	player.input->pressed[A_BOMB] = true;
+			if (flags & network::ServerClient::FLAG_START)	player.input->pressed[A_START] = true;
 		}
 
 		player.position->x =command.data.x;
@@ -85,9 +85,9 @@ namespace player_util
 	{
 		Gameplay * game = NULL;
 		if (Main::runmode == MainRunModes::CLIENT)
-			game = &ServerClient::getInstance().getGame();
+			game = &network::ServerClient::getInstance().getGame();
 		else if (Main::runmode == MainRunModes::SERVER)
-			game = &Server::getInstance().getGame();
+			game = &network::Server::getInstance().getGame();
 		else
 			throw std::runtime_error("unsupported game type");
 

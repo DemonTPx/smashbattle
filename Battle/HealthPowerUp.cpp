@@ -44,10 +44,10 @@ void HealthPowerUp::move(Level * level) {
 
 void HealthPowerUp::process() {}
 
-void HealthPowerUp::copyTo(CommandGeneratePowerup &powerup)
+void HealthPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeHealth;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeHealth;
 	powerup.data.param = this->hp;
 }

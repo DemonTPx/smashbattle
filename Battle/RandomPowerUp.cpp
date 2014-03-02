@@ -114,9 +114,9 @@ void RandomPowerUp::process() {
 	}
 }
 
-void RandomPowerUp::copyTo(CommandGeneratePowerup &powerup)
+void RandomPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	GameplayObject::copyTo(powerup);
 
-	powerup.data.type = CommandGeneratePowerup::PowerUps::TypeRandom;
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeRandom;
 }

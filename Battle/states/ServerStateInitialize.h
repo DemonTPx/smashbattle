@@ -4,6 +4,8 @@
 
 #include <string>
 
+namespace network {
+
 class ServerStateInitialize : public ServerState
 {
 
@@ -23,3 +25,5 @@ private:
 
 	friend class Server;
 };
+
+}

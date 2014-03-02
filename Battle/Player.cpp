@@ -819,12 +819,12 @@ bool Player::damage(int damage) {
 				if (hitpoints < 0)
 					hitpoints = 0;
 
-				CommandSetHitPoints points;
+				network::CommandSetHitPoints points;
 				points.data.time = SDL_GetTicks();
 				points.data.client_id = number;
 				points.data.hitpoints = hitpoints;
 
-				Server::getInstance().sendAll(points);
+				network::Server::getInstance().sendAll(points);
 			}
 			break;
 		case MainRunModes::CLIENT:
@@ -846,18 +846,18 @@ void Player::process() {
 		{
 			Projectile *proj = create_projectile_for_player(position->x, position->y);
 
-			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
+			if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
 			{
-				CommandShotFired fire;
+				network::CommandShotFired fire;
 				fire.data.time = SDL_GetTicks();
 				// this is discarded by server anyway, we cannot send for other clients
-				fire.data.client_id = ServerClient::getInstance().getClientId(); 
+				fire.data.client_id = network::ServerClient::getInstance().getClientId(); 
 				// current sprite determines direction of bullet
 				fire.data.current_sprite = current_sprite;
 				fire.data.x = position->x;
 				fire.data.y = position->y;
 				fire.data.distance_travelled = proj->distance_traveled;
-				ServerClient::getInstance().send(fire);
+				network::ServerClient::getInstance().send(fire);
 			}
 		}
 	}
@@ -867,17 +867,17 @@ void Player::process() {
 		{
 			Bomb *newbomb = create_bomb_for_player(position->x, position->y);
 			
-			if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected())
+			if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
 			{
-				CommandBombDropped bomb;
+				network::CommandBombDropped bomb;
 				bomb.data.time = SDL_GetTicks();
 				// this is discarded by server anyway, we cannot send for other clients
-				bomb.data.client_id = ServerClient::getInstance().getClientId(); 
+				bomb.data.client_id = network::ServerClient::getInstance().getClientId(); 
 				// current sprite determines direction of bullet
 				bomb.data.current_sprite = current_sprite;
 				bomb.data.x = newbomb->position->x;
 				bomb.data.y = newbomb->position->y;
-				ServerClient::getInstance().send(bomb);
+				network::ServerClient::getInstance().send(bomb);
 			}
 		}
 	}

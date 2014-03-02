@@ -9,6 +9,8 @@
 
 #include "util/LagMeasure.hpp"
 
+namespace network{
+
 class CommandPing;
 class CommandPong;
 class CommandSetCharacter;
@@ -20,6 +22,12 @@ class CommandCommunicationTokenAck;
 class CommandSetClientReady;
 class Server;
 
+/**
+ * \brief Client from a server perspective. 
+ * 
+ * A server can have zero or more of these Client objects, they represent incoming players.
+ * Any client has states starting from CONNECTING to ACTIVE.
+ */
 class Client : public CommandProcessor
 {
 public:
@@ -104,3 +112,5 @@ private:
 	
 	UDPpacket *p;
 };
+
+}

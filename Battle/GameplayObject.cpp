@@ -15,15 +15,15 @@ GameplayObject::GameplayObject() {
 
 GameplayObject::~GameplayObject() 
 {
-	if (is_powerup && Server::getInstance().active()) {
-		CommandRemovePowerup remo;
-		remo.data.time = Server::getInstance().getServerTime();
+	if (is_powerup && network::Server::getInstance().active()) {
+		network::CommandRemovePowerup remo;
+		remo.data.time = network::Server::getInstance().getServerTime();
 		remo.data.powerup_id = id();
-		Server::getInstance().sendAll(remo);
+		network::Server::getInstance().sendAll(remo);
 	}
 }
 
-void GameplayObject::copyTo(CommandGeneratePowerup &powerup)
+void GameplayObject::copyTo(network::CommandGeneratePowerup &powerup)
 {
 	memcpy(&powerup.data.position, this->position, sizeof(SDL_Rect));
 	powerup.data.powerupid = id();

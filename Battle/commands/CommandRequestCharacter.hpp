@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandRequestCharacter : public Command
 {
 public:
@@ -17,3 +19,5 @@ public:
 		Uint32 time;
 	} data;
 };
+
+}

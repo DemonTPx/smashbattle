@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandPing : public Command
 {
 public:
@@ -19,3 +21,5 @@ public:
 
 private:
 };
+
+}

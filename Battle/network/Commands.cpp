@@ -3,6 +3,8 @@
 #include "network/Commands.hpp"
 #include <stdexcept>
 
+namespace network {
+
 std::unique_ptr<Command> Command::factory(Command::Types type)
 {
 	// implicit move
@@ -63,4 +65,6 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 
 	}
 	throw std::runtime_error("failure");
+}
+
 }

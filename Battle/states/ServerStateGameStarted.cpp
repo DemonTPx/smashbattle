@@ -10,6 +10,8 @@
 
 using std::string;
 
+namespace network {
+
 ServerStateGameStarted::ServerStateGameStarted()
 {
 }
@@ -98,4 +100,6 @@ void ServerStateGameStarted::execute(Server &server, Client &client) const
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);
 	}
+}
+
 }

@@ -2,6 +2,7 @@
 
 #include <string>
 
+namespace network {
 class Server;
 class Client;
 
@@ -17,3 +18,5 @@ public:
 	virtual void initialize(Server &server) const {};
 	virtual void execute(Server &server, Client &client) const {};
 };
+
+}

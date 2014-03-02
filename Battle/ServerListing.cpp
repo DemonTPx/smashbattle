@@ -44,12 +44,12 @@ void ServerListing::item_selected()
 	json::Object obj = servers_[(size_t)selected_item];
 	std::cout << " Selected item is: " << (std::string)obj["host"] << ":" << (int)obj["port"] << std::endl;
 	
-	ServerClient::getInstance().setHost((std::string)obj["host"]);
-	ServerClient::getInstance().setPort((int)obj["port"]);
+	network::ServerClient::getInstance().setHost((std::string)obj["host"]);
+	network::ServerClient::getInstance().setPort((int)obj["port"]);
 	
 	Main::instance->reset_inputs();
 	
-	ClientNetworkMultiplayer clientgame;
+	network::ClientNetworkMultiplayer clientgame;
 	clientgame.start();
 
 	Main::instance->reset_inputs();

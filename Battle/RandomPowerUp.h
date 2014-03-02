@@ -1,6 +1,8 @@
 #pragma once
 
+namespace network {
 class CommandGeneratePowerup;
+}
 
 class RandomPowerUp : public GameplayObject {
 public:
@@ -19,7 +21,7 @@ public:
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
 
-	virtual void copyTo(CommandGeneratePowerup &powerup);
+	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 
 	SDL_Surface * surface;
 	SDL_Rect * clip;

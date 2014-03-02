@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandSetGameStart : public Command
 {
 public:
@@ -21,3 +23,5 @@ public:
 		short delay;
 	} data;
 };
+
+}

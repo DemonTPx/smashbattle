@@ -13,8 +13,9 @@ using std::map;
 using std::for_each;
 using std::string;
 
-#include "network/ClientNetworkMultiplayer.h"
 #include "util/Log.h"
+
+namespace network{
 
 void ClientNetworkMultiplayer::start()
 {
@@ -173,4 +174,6 @@ GameplayObject *ClientNetworkMultiplayer::generate_powerup(bool force)
 {
 	/* all handled by the server */
 	return NULL;
+}
+
 }

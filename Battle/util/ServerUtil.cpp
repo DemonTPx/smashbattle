@@ -10,8 +10,8 @@ namespace server_util
 	float get_lag_for(Player &player)
 	{
 		try {
-			if (Server::getInstance().active())
-				return Server::getInstance().getClientById(player.number)->lag().avg();
+			if (network::Server::getInstance().active())
+				return network::Server::getInstance().getClientById(player.number)->lag().avg();
 		}
 		catch (std::runtime_error &)
 		{
@@ -25,14 +25,14 @@ namespace server_util
 	void update_tile(int tile_pos, int tile_hp)
 	{
 
-		if (Server::getInstance().active())
+		if (network::Server::getInstance().active())
 		{
-			CommandUpdateTile command;
-			command.data.time = Server::getInstance().getServerTime();
+			network::CommandUpdateTile command;
+			command.data.time = network::Server::getInstance().getServerTime();
 			command.data.tile = tile_pos;
 			command.data.tile_hp = tile_hp;
 
-			Server::getInstance().sendAll(command);
+			network::Server::getInstance().sendAll(command);
 		}
 	}
 }

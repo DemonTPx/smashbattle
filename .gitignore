@@ -16,5 +16,5 @@ Battle/Battle.vcxproj.user
 *~
 *.cmake
 Battle/battle
-smashbattle
+/smashbattle
 *.exe

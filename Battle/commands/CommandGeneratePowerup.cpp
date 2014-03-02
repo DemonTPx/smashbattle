@@ -13,6 +13,8 @@
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
 
+namespace network {
+
 std::unique_ptr<GameplayObject> CommandGeneratePowerup::factory(
 	CommandGeneratePowerup::PowerUps type,
 	short powerupid,
@@ -58,4 +60,6 @@ std::unique_ptr<GameplayObject> CommandGeneratePowerup::factory(
 
 	powerup->set_id(powerupid);
 	return powerup;
+}
+
 }

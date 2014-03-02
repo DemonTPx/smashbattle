@@ -1,7 +1,9 @@
 #pragma once
 
 #include "GameplayObject.h"
+namespace network {
 class CommandGeneratePowerup;
+}
 
 class LaserBeamPowerUp : public GameplayObject {
 public:
@@ -16,7 +18,7 @@ public:
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
 
-	virtual void copyTo(CommandGeneratePowerup &powerup);
+	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 
 	static void shoot_laserbeam(Player * player);
 	

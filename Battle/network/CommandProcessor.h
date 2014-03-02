@@ -4,6 +4,8 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_net.h"
 
+namespace network{
+
 class Command;
 
 class CommandProcessor
@@ -51,3 +53,5 @@ protected:
 	Uint32 communicationToken_;
 	short udpsequence_;
 };
+
+}

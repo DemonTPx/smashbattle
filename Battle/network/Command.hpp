@@ -3,6 +3,8 @@
 #include <memory>
 #include <iostream>
 
+namespace network{
+
 class Command
 {
 public:
@@ -56,3 +58,5 @@ protected:
 private:
 
 };
+
+}

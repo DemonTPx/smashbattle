@@ -114,7 +114,7 @@ void Gameplay::run() {
 						case MainRunModes::CLIENT:
 							// Client will only process and send it's own projectiles to server, 
 							//  for other player bullets we depend on the server for sending them.
-							if (p->number == ServerClient::getInstance().getClientId())
+							if (p->number == network::ServerClient::getInstance().getClientId())
 								p->process();
 							break;
 						default:
@@ -194,9 +194,9 @@ void Gameplay::run() {
 
 		if (Main::runmode == MainRunModes::CLIENT)
 		{
-			if (!ServerClient::getInstance().isConnected())
+			if (!network::ServerClient::getInstance().isConnected())
 				draw_disconnected();
-			else if (ServerClient::getInstance().showConsole())
+			else if (network::ServerClient::getInstance().showConsole())
 				draw_console();
 		}
 
@@ -241,11 +241,11 @@ void Gameplay::move_player(Player &player)
 				if (!obj->is_powerup || Main::runmode != MainRunModes::CLIENT) {
 					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
 					if (obj->is_powerup && Main::runmode == MainRunModes::SERVER) {
-						CommandApplyPowerup apply;
-						apply.data.time = Server::getInstance().getServerTime();
+						network::CommandApplyPowerup apply;
+						apply.data.time = network::Server::getInstance().getServerTime();
 						apply.data.player_id = p->number;
 						apply.data.powerup_id = obj->id();
-						Server::getInstance().sendAll(apply);
+						network::Server::getInstance().sendAll(apply);
 					}
 					obj->hit_player(p);
 				}
@@ -295,11 +295,11 @@ bool Gameplay::process_gameplayobj(GameplayObject *gameplayobj)
 				{
 					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
 					if (obj->is_powerup && Main::runmode == MainRunModes::SERVER) {
-						CommandApplyPowerup apply;
-						apply.data.time = Server::getInstance().getServerTime();
+						network::CommandApplyPowerup apply;
+						apply.data.time = network::Server::getInstance().getServerTime();
 						apply.data.player_id = p->number;
 						apply.data.powerup_id = obj->id();
-						Server::getInstance().sendAll(apply);
+						network::Server::getInstance().sendAll(apply);
 					}
 					obj->hit_player(p);
 				}
@@ -411,7 +411,7 @@ void Gameplay::reset_game() {
 	countdown_start = frame;
 	strcpy(countdown_pre_text, "GET READY");
 
-	// In ServerClient upon receiving the level from server, we reset already, and then initialize the tiles
+	// In network::ServerClient upon receiving the level from server, we reset already, and then initialize the tiles
 	if (Main::runmode != MainRunModes::CLIENT)
 	{
 		level->reset();
@@ -614,9 +614,9 @@ void Gameplay::process_player_collission() {
 				//  on the server (I learned this by actually implementing it wrong).
 				// Therefore (re)set a timer that will periodically send our data to server.
 				// But we cannot do this 
-				if (Main::runmode == MainRunModes::CLIENT && ServerClient::getInstance().isConnected()) {
-					if (ServerClient::getInstance().getClientId() == p1->number || ServerClient::getInstance().getClientId() == p2->number) {
-						ServerClient::getInstance().resetTimer();
+				if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected()) {
+					if (network::ServerClient::getInstance().getClientId() == p1->number || network::ServerClient::getInstance().getClientId() == p2->number) {
+						network::ServerClient::getInstance().resetTimer();
 					}
 				}
 			}

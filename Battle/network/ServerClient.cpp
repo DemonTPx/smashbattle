@@ -13,6 +13,11 @@
 
 #include "util/Log.h"
 
+#include "Projectile.h"
+#include "Bomb.h"
+
+namespace network {
+
 using std::for_each;
 using std::begin;
 using std::end;
@@ -236,8 +241,6 @@ void ServerClient::poll()
 }
 
 
-#include "network/Commands.hpp"
-#include "util/Log.h"
 void ServerClient::send(Command &command)
 {
 	if (!is_connected_)
@@ -517,7 +520,6 @@ bool ServerClient::process(CommandUpdateTile *command)
 	return true;
 }
 
-#include "Projectile.h"
 bool ServerClient::process(CommandShotFired *command)
 {
 	auto &otherplayer = player_util::get_player_by_id(command->data.client_id);
@@ -539,7 +541,6 @@ bool ServerClient::process(CommandShotFired *command)
 	return true;
 }
 
-#include "Bomb.h"
 bool ServerClient::process(CommandBombDropped *command)
 {
 	// I'm currently too lazy to create function for it, I will refactor! (Todo!!)
@@ -762,4 +763,6 @@ bool ServerClient::process(CommandSetServerReady *command)
 	}
 
 	return true;
+}
+
 }

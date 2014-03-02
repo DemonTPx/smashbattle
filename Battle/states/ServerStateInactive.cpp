@@ -2,7 +2,11 @@
 
 using std::string;
 
+namespace network {
+
 ServerStateInactive::ServerStateInactive()
 {
+
+}
 
 }

@@ -6,6 +6,8 @@
 
 #include <SDL/SDL_stdinc.h>
 
+namespace network {
+
 class ServerStateGameStarted : public ServerState
 {
 
@@ -22,3 +24,5 @@ private:
 
 	friend class Server;
 };
+
+}

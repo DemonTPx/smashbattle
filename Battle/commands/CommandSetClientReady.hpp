@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandSetClientReady : public Command
 {
 public:
@@ -18,3 +20,5 @@ public:
 
 private:
 };
+
+}

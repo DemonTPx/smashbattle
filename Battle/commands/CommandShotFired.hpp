@@ -2,6 +2,8 @@
 
 #include "network/Command.hpp"
 
+namespace network{
+
 class CommandShotFired : public Command
 {
 public:
@@ -25,3 +27,5 @@ public:
 		int distance_travelled;
 	} data;
 };
+
+}

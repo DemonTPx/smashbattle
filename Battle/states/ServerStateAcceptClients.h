@@ -6,6 +6,8 @@
 
 #include <SDL/SDL_stdinc.h>
 
+namespace network {
+
 class ServerStateAcceptClients : public ServerState
 {
 
@@ -26,3 +28,5 @@ private:
 	mutable Uint32 gameStartSendTime_;
 	mutable Uint32 gameStartForPlayers_;
 };
+
+}

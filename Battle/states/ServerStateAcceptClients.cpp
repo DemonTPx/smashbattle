@@ -10,6 +10,8 @@
 
 using std::string;
 
+namespace network {
+
 ServerStateAcceptClients::ServerStateAcceptClients()
 	: gameStart_(0), gameStartSendTime_(0), gameStartForPlayers_(0)
 {
@@ -289,4 +291,6 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 		gameStart_ = 0;
 		gameStartSendTime_ = 0;
 	}
+}
+
 }

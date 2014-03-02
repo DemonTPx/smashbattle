@@ -4,8 +4,12 @@
 #include "util/Log.h"
 #include "util/random.h"
 #include "NetworkMultiplayer.h"
+#include "Projectile.h"
+#include "Bomb.h"
 
 #include <sstream>
+
+namespace network {
 
 Client::Client(Client &&other) 
 	: CommandProcessor(NULL),
@@ -180,7 +184,6 @@ bool Client::process(CommandSetPlayerData *command)
 	return true;
 }
 
-#include "Projectile.h"
 bool Client::process(CommandShotFired *command)
 {
 	// I'm currently too lazy to create function for it, I will refactor! (Todo!!)
@@ -229,7 +232,6 @@ bool Client::process(CommandShotFired *command)
 	return true;
 }
 
-#include "Bomb.h"
 // TTL moet nog in bomb e.d.
 bool Client::process(CommandBombDropped *command)
 {
@@ -376,4 +378,6 @@ void Client::cleanup()
 
 		server_->getClientById(player.number)->send(cmd);
 	}
+}
+
 }
