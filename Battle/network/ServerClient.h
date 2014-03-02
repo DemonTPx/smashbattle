@@ -53,6 +53,7 @@ class CommandApplyPowerup;
 class CommandRemovePowerup;
 class CommandSetCommunicationToken;
 class CommandSetServerReady;
+class CommandSetSpectating;
 
 class ServerClient : public CommandProcessor
 {
@@ -138,6 +139,7 @@ protected:
 	bool process(CommandRemovePowerup *command);
 	bool process(CommandSetCommunicationToken *command);
 	bool process(CommandSetServerReady *command);
+	bool process(CommandSetSpectating *command);
 
 	
 private:

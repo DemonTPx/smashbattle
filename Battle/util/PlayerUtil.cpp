@@ -7,6 +7,7 @@
 #include "network/ServerClient.h" // todo refactor this
 #include "network/Server.h" // todo refactor this
 #include "Gameplay.h"
+#include "util/Log.h"
 
 namespace player_util
 {
@@ -97,7 +98,7 @@ namespace player_util
 			if (player.number == client_id)
 				return player;
 		}
-		throw std::runtime_error("player not found by id");
+		throw std::runtime_error(format("player not found by id (%d)", client_id));
 	}
 
 	void unset_input(Player &player)

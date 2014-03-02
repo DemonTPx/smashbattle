@@ -23,6 +23,12 @@ public:
 private:
 
 	friend class Server;
+
+	/**
+	 * Flag used to send 'Welcome to the game' only once..
+	 * (flag is reset in initialize())
+	 */
+	mutable bool once;
 };
 
 }

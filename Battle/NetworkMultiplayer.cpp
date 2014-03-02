@@ -69,7 +69,7 @@ void NetworkMultiplayer::on_game_reset()
 		network::CommandSetPlayerDeath alive;
 		alive.data.time = server.getServerTime();
 		alive.data.client_id = player.number;
-		alive.data.is_dead = false;
+		alive.data.is_dead = player.spectating();
 		server.sendAll(alive);
 	}
 

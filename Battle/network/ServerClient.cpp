@@ -15,6 +15,7 @@
 
 #include "Projectile.h"
 #include "Bomb.h"
+#include "Server.h"
 
 namespace network {
 
@@ -392,6 +393,9 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 		case Command::Types::SetServerReady:
 			process(dynamic_cast<CommandSetServerReady *>(command.get()));
 			break;
+		case Command::Types::SetSpectating:
+			process(dynamic_cast<CommandSetSpectating *>(command.get()));
+			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
 	}
@@ -472,15 +476,24 @@ bool ServerClient::process(CommandSetPlayerData *command)
 	}
 	else
 	{
-		// You do receive the SetPlayerData command for each other player change
-		auto &otherplayer = player_util::get_player_by_id(command->data.client_id);
+		try {
+			// You do receive the SetPlayerData command for each other player change
+			auto &otherplayer = player_util::get_player_by_id(command->data.client_id);
 
-		player_util::set_player_data(otherplayer, *command);
+			player_util::set_player_data(otherplayer, *command);
 
-		// Account for lag
-		int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
-		for (int i=0; i<processFrames; i++)
-			game_->move_player(otherplayer);
+			// Account for lag
+			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			for (int i=0; i<processFrames; i++)
+				game_->move_player(otherplayer);
+			}
+		catch (std::runtime_error &err) {
+			log(format("Received packet for player that isn't known yet.. "), Logger::Priority::DEBUG);
+			// Do not propagate this exception, it will mangle with processing
+			// Simply ignore if nothing happened :-)
+			return true;
+		}
+
 	}
 
 	return true;
@@ -494,6 +507,7 @@ bool ServerClient::process(CommandAddPlayer *command)
 
 	otherplayer->position->x = command->data.x;
 	otherplayer->position->y = command->data.y;
+	otherplayer->spectate(command->data.is_spectating);
 
 	// First reset, then set correct sprite (order is important)
 	otherplayer->reset();
@@ -760,6 +774,23 @@ bool ServerClient::process(CommandSetServerReady *command)
 	catch (std::runtime_error &err) 
 	{
 		log(format("failure in process(CommandSetServerReady): %s", err.what()), Logger::Priority::ERROR);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandSetSpectating *command)
+{
+	try {
+		log(format("We are now spectating"), Logger::Priority::CONSOLE);
+
+		player_->spectate(command->data.is_spectating);
+		player_->is_dead = command->data.is_spectating;
+		
+	}
+	catch (std::runtime_error &err) 
+	{
+		log(format("failure in process(CommandSetSpectating): %s", err.what()), Logger::Priority::ERROR);
 	}
 
 	return true;

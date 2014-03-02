@@ -27,6 +27,8 @@ public:
 		Sint16 y;
 		int current_sprite;
 
+		bool is_spectating;
+
 		// Health et.al.
 
 	} data;

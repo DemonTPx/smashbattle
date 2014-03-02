@@ -89,6 +89,9 @@ public:
 	void reset();
 	void update_suit();
 
+	void spectate(bool set = true);
+	bool spectating();
+
 	char * name;
 	int character;
 	int number;
@@ -164,6 +167,8 @@ public:
 	unsigned int headstomps;
 
 	static const int jump_height;
+
+	bool is_spectating;
 
 	void draw(SDL_Surface * screen, bool marker = false, int frames_processed = 0);
 

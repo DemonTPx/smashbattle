@@ -176,7 +176,7 @@ bool Client::process(CommandSetPlayerData *command)
 			player_util::set_position_data(data, updatedPlayer->number, server_->getServerTime(), server_->getUdpSeq(), *updatedPlayer);
 
 			auto client = server_->getClientById(player.number);
-			if (client->getState() == Client::State::ACTIVE) {
+			if (client->getState() >= Client::State::ACTIVE) {
 				client->send(data);
 			}
 		}
@@ -334,7 +334,7 @@ void Client::send(Command &command)
 
 		int numsent = SDLNet_UDP_Send(server_->getUdpSocket(), -1, p); // This sets the p->channel
 		if(!numsent) {
-			printf("SDLNet_UDP_Send^1: %s\n", SDLNet_GetError());
+			printf("SDLNet_UDP_Send^1: %s (delivery to: %d)\n", SDLNet_GetError());
 			// do something because we failed to send
 			// this may just be because no addresses are bound to the channel...
 			//exit(1);

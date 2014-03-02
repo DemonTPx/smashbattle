@@ -155,8 +155,9 @@ Player::Player(int character, int number) {
 	name = CHARACTERS[character].name;
 	this->character = character;
 	this->number = number;
+	is_spectating = false;
 	
-	this->update_suit();
+	update_suit();
 
 	speedclass = CHARACTERS[character].speedclass;
 	weightclass = CHARACTERS[character].weightclass;
@@ -179,6 +180,7 @@ Player::Player(int character, int number) {
 	set_sprites();
 	marker_clip_above = Main::graphics->pmarker_clip_above[suit_number];
 	marker_clip_below = Main::graphics->pmarker_clip_below[suit_number];
+
 }
 
 Player::~Player() {
@@ -257,7 +259,7 @@ void Player::reset() {
 	hit_delay = 30;
 	hit_flicker_frame = 0;
 
-	is_dead = false;
+	is_dead = is_spectating;
 	dead_start = 0;
 
 	is_frozen = false;
@@ -280,10 +282,10 @@ void Player::reset() {
 	bombs = 3;
 	mines = 0;
 	doubledamagebullets = 0;
-	instantkillbullets = 0;
+	instantkillbullets = 10;
 
 	score = 0;
-	hitpoints = 100;
+	hitpoints = is_spectating ? 0 : 100;
 
 	bullets_fired = 0;
 	bullets_hit = 0;
@@ -304,7 +306,7 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 	sprites = this->sprites;
 
 	// Dead players are not visible
-	if(is_dead && Gameplay::frame - dead_start > 120) {
+	if(is_dead) {
 		return;
 	}
 
@@ -359,14 +361,14 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 
 	// Show lag above player if server is active
 	if (Main::runmode == MainRunModes::SERVER) {
-		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f #%d", server_util::get_lag_for(*this), this->suit_number).c_str());
+		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f #%d [%d]", server_util::get_lag_for(*this), this->suit_number, (int)this->spectating()).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
 		SDL_FreeSurface(surf);
 	}
 	else if (Main::runmode == MainRunModes::CLIENT && Main::ingame_debug_visible) {
-		SDL_Surface *surf = Main::text->render_text_small_gray(format("[%d] lag %.2f #%d", this->number, server_util::get_lag_for(*this), this->suit_number).c_str());
+		SDL_Surface *surf = Main::text->render_text_small_gray(format("[%d] lag %.2f #%d [%d]", this->number, server_util::get_lag_for(*this), this->suit_number, (int)this->spectating()).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
@@ -838,6 +840,9 @@ void Player::process() {
 	if(is_dead)
 		return;
 
+	if (spectating())
+		return;
+
 	if(input->is_pressed(A_SHOOT)) {
 		if(Gameplay::frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
 			(((bullets == BULLETS_UNLIMITED) ||  bullets > 0) ||
@@ -1036,4 +1041,14 @@ void Player::cycle_sprite_updown(int first, int last) {
 
 	if(cycle_direction == CYCLE_UP) current_sprite++;
 	if(cycle_direction == CYCLE_DN) current_sprite--;
+}
+
+void Player::spectate(bool set)
+{
+	is_spectating = set;
+}
+
+bool Player::spectating()
+{
+	return is_spectating;
 }

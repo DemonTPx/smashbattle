@@ -1,7 +1,7 @@
 #include "util/Log.h"
 
 
-Logger::Priority Logger::currentprio = Logger::Priority::CONSOLE;
+Logger::Priority Logger::currentprio = Logger::Priority::INFO;
 
 std::vector<std::string> Logger::console;
 

@@ -288,7 +288,7 @@ void Server::poll() {
 	bool anotherPlayerDisconnected = false;
 	for (vector<int>::iterator i = dead_clients.begin(); i != dead_clients.end(); i++) {
 		// Verify with a breakpoint if this is correct code...
-		if (clients_[*i]->getState() == Client::State::ACTIVE) {
+		if (clients_[*i]->getState() >= Client::State::ACTIVE) {
 			anotherPlayerDisconnected = true;
 		}
 		communicationTokens_.erase(clients_[*i]->getCommToken());
