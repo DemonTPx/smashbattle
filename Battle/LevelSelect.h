@@ -2,7 +2,7 @@
 
 class LevelSelect {
 public:
-	LevelSelect();
+	LevelSelect(Main &main);
 	void run();
 
 	int level;
@@ -36,4 +36,6 @@ private:
 	std::vector<SDL_Surface*> * backgrounds;
 
 	int frame;
+
+	Main &main_;
 };

@@ -8,7 +8,7 @@
 
 const int Airstrike::DELAY = 120;
 
-Airstrike::Airstrike() {
+Airstrike::Airstrike(Main &main) : main_(main) {
 	start = Gameplay::instance->frame;
 
 	position = new SDL_Rect();
@@ -26,7 +26,7 @@ void Airstrike::move(Level * level) {}
 
 void Airstrike::process() {
 	if(Gameplay::instance->frame - start == 1) {
-		Main::audio->play(SND_AIRSTRIKE);
+		main_.audio->play(SND_AIRSTRIKE);
 	}
 	if(Gameplay::instance->frame - start == DELAY) {
 		// Generate bombs!
@@ -41,7 +41,7 @@ void Airstrike::process() {
 		x_correct = -(BOMB_W / 2);
 
 		for(int i = 0; i < bombs; i++) {
-			b = new Bomb(Main::graphics->bombs);
+			b = new Bomb(main_.graphics->bombs, main_);
 			b->position->x = (x_interval * (i + 1)) + x_correct;
 			b->position->y = -(rand() % 64);
 			b->speedy = 30;

@@ -41,7 +41,8 @@ Server::Server()
 	  serverTime_(SDL_GetTicks()),
 	  ignoreClientInputUntil_(0),
 	  game_(NULL),
-	  udpsequence_(0)
+	  udpsequence_(0),
+	  set(NULL)
 {
 }
 
@@ -66,12 +67,12 @@ void Server::setLevel(std::string level) {
 void Server::initializeLevel() {
 	if (levelName_ == "") {
 		// A bit dirty to do this here, but it works :)
-		LevelSelect ls;
+		LevelSelect ls(*main_);
 		ls.run();
 		levelName_.assign(Level::LEVELS[ls.level].name);
 
 	}
-	level_.load(level_util::get_filename_by_name(levelName_).c_str());
+	level_->load(level_util::get_filename_by_name(levelName_).c_str());
 }
 
 void Server::registerServer() {
@@ -122,9 +123,21 @@ Gameplay & Server::getGame() {
 	return *game_;
 }
 
+void Server::setMain(Main &main) 
+{
+	main_ = &main;
+	level_ = std::shared_ptr<::Level>(new Level(main));
+}
+
+Main & Server::getMain() {
+	return *main_;
+}
+
 void Server::listen() {
+
 	if (is_listening_)
 		return;
+
 
 	/* initialize SDL_net */
 	if (SDLNet_Init() == -1) {
@@ -232,10 +245,13 @@ void Server::poll() {
 	if (SDLNet_SocketReady(server)) {
 		sock = SDLNet_TCP_Accept(server);
 		if (sock) {
+
+			SDLNet_TCP_AddSocket(set, sock);
+
 			int nextId = 0;
 			for (; clients_.find(nextId) != clients_.end(); nextId++)
 				;
-			clients_[nextId] = std::shared_ptr<Client>(new Client(nextId, sock, this));
+			clients_[nextId] = std::shared_ptr<Client>(new Client(nextId, sock, this, *main_));
 
 			communicationTokens_[clients_[nextId]->getCommToken()] = nextId;
 
@@ -271,6 +287,9 @@ void Server::poll() {
 				while (client->parse())
 					;
 			} else {
+
+				SDLNet_TCP_DelSocket(set, client->socket());
+
 				// Close the old socket, even if it's dead... 
 				SDLNet_TCP_Close(client->socket());
 
@@ -308,7 +327,22 @@ void Server::poll() {
 
 /* create a socket set that has the server socket and all the client sockets */
 SDLNet_SocketSet Server::create_sockset() {
-	static SDLNet_SocketSet set = NULL;
+
+	if (set)
+		return set;
+
+	set = SDLNet_AllocSocketSet(32);
+	if (!set) {
+		printf("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
+		throw std::runtime_error("todo implement");
+	}
+
+	SDLNet_TCP_AddSocket(set, server);
+
+	return set;
+
+	/*
+	 Old approach weirdly enough, no longer works....?
 
 	if (set)
 		SDLNet_FreeSocketSet(set);
@@ -324,7 +358,8 @@ SDLNet_SocketSet Server::create_sockset() {
 	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
 		SDLNet_TCP_AddSocket(set, i->second->socket());
 
-	return (set);
+	return set;
+	*/
 }
 
 bool Server::active() {

@@ -3,7 +3,7 @@
 #include "Gameplay.h"
 #include "Mine.h"
 
-Mine::Mine(SDL_Surface * surface) : Bomb(surface) {
+Mine::Mine(SDL_Surface * surface, Main &main) : Bomb(surface, main), main_(main) {
 	flash_interval = 50;
 	flash_length = 10;
 	flash_start = Gameplay::frame;
@@ -20,7 +20,7 @@ void Mine::process() {
 		if(current_frame == FRAME_NORMAL) {
 			if(Gameplay::frame - flash_start >= flash_interval) {
 				current_frame = FRAME_FLASH;
-				Main::audio->play(SND_BLIP, position->x);
+				main_.audio->play(SND_BLIP, position->x);
 			}
 		} else {
 			if(Gameplay::frame - flash_start - flash_interval >= flash_length) {

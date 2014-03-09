@@ -10,7 +10,7 @@
 
 class Gameplay {
 public:
-	Gameplay();
+	Gameplay(Main &main);
 	virtual ~Gameplay();
 
 	static int frame;
@@ -101,4 +101,6 @@ protected:
 
 	std::string broadcast_msg;
 	int broadcast_duration;
+
+	Main &main_;
 };

@@ -8,8 +8,8 @@
 
 class Bomb : public GameplayObject {
 public:
-	Bomb();
-	Bomb(SDL_Surface * surface);
+	Bomb(Main &main);
+	Bomb(SDL_Surface * surface, Main &main);
 	~Bomb();
 
 	SDL_Surface * sprite;
@@ -54,4 +54,6 @@ public:
 	SDL_Rect * get_damage_rect();
 protected:
 	void set_clips();
+
+	Main &main_;
 };

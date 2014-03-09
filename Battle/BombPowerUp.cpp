@@ -4,7 +4,7 @@
 #include "BombPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 
-BombPowerUp::BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount) {
+BombPowerUp::BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main) : main_(main) {
 	clip->x = 16;
 	clip->y = 0;
 	this->surface = surface;
@@ -20,7 +20,7 @@ BombPowerUp::~BombPowerUp() {
 }
 
 void BombPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->bombs += ammount;
 

@@ -4,7 +4,7 @@
 #include "MinePowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 
-MinePowerUp::MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount) {
+MinePowerUp::MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main) : main_(main) {
 	clip->x = 128;
 	clip->y = 0;
 	this->surface = surface;
@@ -20,7 +20,7 @@ MinePowerUp::~MinePowerUp() {
 }
 
 void MinePowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->mines += ammount;
 

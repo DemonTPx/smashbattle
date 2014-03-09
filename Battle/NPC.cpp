@@ -11,7 +11,7 @@
 
 #define FRAME_CYCLE_DISTANCE 24
 
-NPC::NPC() {
+NPC::NPC(Main &main) : main_(main) {
 	done = false;
 
 	is_stationary = false;
@@ -230,7 +230,7 @@ void NPC::bounce(Player * other) {
 
 		other->bounce_direction_y = -1;
 		if(other->input->is_pressed(A_JUMP)) {
-			Main::audio->play(SND_JUMP, position->x);
+			main_.audio->play(SND_JUMP, position->x);
 			other->momentumy = 40;
 			other->is_falling = false;
 			other->is_jumping = true;

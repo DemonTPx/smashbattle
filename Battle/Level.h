@@ -156,9 +156,11 @@ namespace level_util
 	void set_player_start(Player &player, const Level & level);
 }
 
+class Main;
+
 class Level {
 public:
-	Level();
+	Level(Main &main);
 	~Level();
 
 	void draw(SDL_Surface * screen, int frames_processed = 0);
@@ -206,4 +208,6 @@ public:
 private:
 	SDL_Surface * tiles;
 	SDL_Surface * background;
+
+	Main &main_;
 };

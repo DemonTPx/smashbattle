@@ -11,7 +11,7 @@
 #define GATLING_R1	2
 #define GATLING_R2	3
 
-GatlingNPC::GatlingNPC() : NPC() {
+GatlingNPC::GatlingNPC(Main &main) : NPC(main) {
 	is_stationary = true;
 
 	frame_w = 64;
@@ -23,7 +23,7 @@ GatlingNPC::GatlingNPC() : NPC() {
 
 	frame_dead = 0;
 
-	sprites = Main::graphics->npc_gatling;
+	sprites = main_.graphics->npc_gatling;
 	
 	position->w = frame_w;
 	position->h = frame_h;
@@ -90,7 +90,7 @@ void GatlingNPC::shoot() {
 	clip_weapon->w = 8;
 	clip_weapon->h = 8;
 
-	pr = new Projectile(Main::graphics->weapons, clip_weapon);
+	pr = new Projectile(main_.graphics->weapons, clip_weapon);
 	pr->owner = NULL;
 
 	pr->damage = 10;
@@ -121,12 +121,12 @@ void GatlingNPC::shoot() {
 
 void GatlingNPC::hit_player_side(Player * p) {
 	if(p->damage(10)) {
-		Main::audio->play(SND_HIT, position->x);
+		main_.audio->play(SND_HIT, position->x);
 	}
 }
 
 void GatlingNPC::hit_player_top_bottom(Player * p) {
 	if(p->damage(10)) {
-		Main::audio->play(SND_HIT, position->x);
+		main_.audio->play(SND_HIT, position->x);
 	}
 }

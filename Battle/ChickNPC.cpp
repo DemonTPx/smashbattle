@@ -4,7 +4,7 @@
 
 #include "ChickNPC.h"
 
-ChickNPC::ChickNPC() : NPC() {
+ChickNPC::ChickNPC(Main &main) : NPC(main) {
 	is_stationary = false;
 
 	frame_w = 24;
@@ -25,7 +25,7 @@ ChickNPC::ChickNPC() : NPC() {
 
 	frame_dead = 7;
 
-	sprites = Main::graphics->npc_chick;
+	sprites = main_.graphics->npc_chick;
 	
 	position->w = frame_w;
 	position->h = frame_h;
@@ -80,7 +80,7 @@ void ChickNPC::reset() {
 
 void ChickNPC::hit_player_side(Player * p) {
 	if(p->damage(10)) {
-		Main::audio->play(SND_HIT, position->x);
+		main_.audio->play(SND_HIT, position->x);
 	}
 }
 

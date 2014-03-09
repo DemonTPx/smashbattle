@@ -6,7 +6,7 @@ class CommandGeneratePowerup;
 
 class BombPowerUp : public GameplayObject {
 public:
-	BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount);
+	BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main);
 	~BombPowerUp();
 
 	virtual void move(Level * level);
@@ -22,4 +22,6 @@ public:
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 	int ammount;
+	
+	Main &main_;
 };

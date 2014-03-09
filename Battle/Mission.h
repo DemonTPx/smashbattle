@@ -24,7 +24,7 @@ public:
 	static const int MISSION_COUNT;
 	static const MISSION_INFO MISSIONS[];
 
-	Mission();
+	Mission(Main &main);
 
 	int time;
 
@@ -43,4 +43,6 @@ protected:
 	
 	virtual void draw_score();
 	virtual void draw_game_ended();
+
+	Main &main_;
 };

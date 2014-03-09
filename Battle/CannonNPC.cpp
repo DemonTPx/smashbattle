@@ -17,7 +17,7 @@
 #define CANNON_NE_D	8
 #define CANNON_E_D	9
 
-CannonNPC::CannonNPC() : NPC() {
+CannonNPC::CannonNPC(Main &main) : NPC(main), main_(main) {
 	is_stationary = true;
 
 	frame_w = 52;
@@ -29,7 +29,7 @@ CannonNPC::CannonNPC() : NPC() {
 
 	frame_dead = 0;
 
-	sprites = Main::graphics->npc_cannon;
+	sprites = main_.graphics->npc_cannon;
 	
 	position->w = frame_w;
 	position->h = frame_h;
@@ -90,7 +90,7 @@ void CannonNPC::shoot() {
 	clip_weapon->w = 8;
 	clip_weapon->h = 8;
 
-	pr = new Projectile(Main::graphics->weapons, clip_weapon);
+	pr = new Projectile(main_.graphics->weapons, clip_weapon);
 	pr->owner = NULL;
 
 	pr->damage = 10;
@@ -140,12 +140,12 @@ void CannonNPC::shoot() {
 
 void CannonNPC::hit_player_side(Player * p) {
 	if(p->damage(10)) {
-		Main::audio->play(SND_HIT, position->x);
+		main_.audio->play(SND_HIT, position->x);
 	}
 }
 
 void CannonNPC::hit_player_top_bottom(Player * p) {
 	if(p->damage(10)) {
-		Main::audio->play(SND_HIT, position->x);
+		main_.audio->play(SND_HIT, position->x);
 	}
 }

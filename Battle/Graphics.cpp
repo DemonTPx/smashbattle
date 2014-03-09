@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "Graphics.h"
 
-Graphics::Graphics() {
+Graphics::Graphics(Main &main) : main_(main) {
 }
 
 Graphics::~Graphics() {
@@ -43,10 +43,10 @@ void Graphics::load_all() {
 	statsblock[2] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
 	SDL_FillRect(statsblock[2], NULL, 0x008800);
 
-	text_ready = Main::text->render_text_medium("READY");
-	text_random = Main::text->render_text_medium("RANDOM");
+	text_ready = main_.text->render_text_medium("READY");
+	text_random = main_.text->render_text_medium("RANDOM");
 	
-	text_pressstart = Main::text->render_text_medium("PRESS START");
+	text_pressstart = main_.text->render_text_medium("PRESS START");
 
 	load_players();
 	set_player_clips();
@@ -84,7 +84,7 @@ void Graphics::load_players() {
 		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey); 
 		player->push_back(surface);
 
-		playername->push_back(Main::text->render_text_medium(Player::CHARACTERS[i].name));
+		playername->push_back(main_.text->render_text_medium(Player::CHARACTERS[i].name));
 	}
 
 }

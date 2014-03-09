@@ -7,7 +7,7 @@ struct OptionItem;
 
 class ClientSettings : public OptionsScreen {
 public:
-	ClientSettings();
+	ClientSettings(Main &main);
 	virtual ~ClientSettings();
 
 	void initialize();
@@ -32,4 +32,6 @@ private:
 	void show_error(const std::string &error_msg);
 
 	std::string serverToken_;
+
+	Main &main_;
 };

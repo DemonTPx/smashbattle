@@ -4,7 +4,7 @@
 
 class GatlingNPC : public NPC {
 public:
-	GatlingNPC();
+	GatlingNPC(Main &main);
 	~GatlingNPC();
 
 	void shoot();

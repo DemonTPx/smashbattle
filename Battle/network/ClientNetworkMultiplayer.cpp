@@ -19,19 +19,19 @@ namespace network{
 
 void ClientNetworkMultiplayer::start()
 {
-	Level level;
+	Level level(main_);
 
-	Main::instance->running = true;
+	main_.running = true;
 
-	Player player(0, 0);				
+	Player player(0, 0, main_);
 
-	player.input = Main::instance->input[0];
+	player.input = main_.input[0];
 	player.input->set_delay();
 	player.set_character(ServerClient::getInstance().getCharacter());
 
 	add_player(&player);
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
 	Uint32 begin = SDL_GetTicks();
 	Uint32 calculatedLag = begin;
@@ -54,7 +54,7 @@ void ClientNetworkMultiplayer::start()
 				once = false;
 
 				try {
-					ServerClient::getInstance().connect(*this, level, player);
+					ServerClient::getInstance().connect(*this, level, player, main_);
 				}
 				catch (std::runtime_error &error) {
 					log(error.what(), Logger::Priority::CONSOLE);
@@ -93,7 +93,7 @@ void ClientNetworkMultiplayer::start()
 
 		ServerClient::getInstance().poll();
 
-		Main::instance->flip(true);
+		main_.flip(true);
 
 		if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED) {
 			lag_ = &(ServerClient::getInstance().getLag());
@@ -110,12 +110,15 @@ void ClientNetworkMultiplayer::start()
 	ServerClient::getInstance().setState(ServerClient::State::INITIALIZING);
 	ServerClient::getInstance().disconnect();
 	
-	Main::instance->input_master->set_delay(20);
+	main_.input_master->set_delay(20);
 }
 
 void ClientNetworkMultiplayer::draw_console()
 {
-	screen = Main::instance->screen;
+	if (main_.no_sdl)
+		return;
+
+	screen = main_.screen;
 
 	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
@@ -132,7 +135,7 @@ void ClientNetworkMultiplayer::draw_console()
 		textpos += 24;
 		string text = str;
 		to_upper<char>(text);
-		SDL_Surface* textSurface = Main::text->render_text_medium(text.c_str());
+		SDL_Surface* textSurface = main_.text->render_text_medium(text.c_str());
 		SDL_BlitSurface(textSurface, NULL, screen, &textLocation);
 		SDL_FreeSurface(textSurface);
 	});

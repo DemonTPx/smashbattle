@@ -2,7 +2,7 @@
 
 class PauseMenu {
 public:
-	PauseMenu(SDL_Surface * screen);
+	PauseMenu(SDL_Surface * screen, Main &main);
 	~PauseMenu();
 
 	int pause(Player * player);
@@ -21,4 +21,6 @@ private:
 
 	std::vector<char*> * options;
 	unsigned int selected_option;
+
+	Main &main_;
 };

@@ -32,6 +32,9 @@ public:
 		return instance;
 	}
 
+	void setMain(Main &main);
+	Main & getMain();
+
 	// Server listens
 	void listen();
 
@@ -44,7 +47,7 @@ public:
 	void setState(const ServerState * const state);
 
 	Level &getLevel() {
-		return level_;
+		return *level_.get();
 	}
 
 	std::string getLevelName() {
@@ -127,7 +130,7 @@ private:
 	Uint16 port_;
 	std::string servername_;
 
-	::Level level_;
+	std::shared_ptr<::Level> level_;
 	std::string levelName_;
 
 	NetworkMultiplayer *game_;
@@ -145,6 +148,8 @@ private:
 	short udpsequence_;
 
 	friend class ClientNetworkMultiplayer;
+
+	Main *main_;
 };
 
 }

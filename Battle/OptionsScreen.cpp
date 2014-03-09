@@ -10,11 +10,11 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-OptionsScreen::OptionsScreen() : OptionsScreen("") {
+OptionsScreen::OptionsScreen(Main &main) : OptionsScreen("", main) {
 	background = NULL;
 }
 
-OptionsScreen::OptionsScreen(std::string title) {
+OptionsScreen::OptionsScreen(std::string title, Main &main) : main_(main) {
 	this->title = title;
 	items = new std::vector<OptionItem*>(0);
 
@@ -40,15 +40,15 @@ void OptionsScreen::run() {
 
 	running = true;
 
-	input = Main::instance->input_master;
+	input = main_.input_master;
 	input->set_delay();
 	input->reset();
 
-	while (Main::running && running) {
+	while (main_.running && running) {
 		while(SDL_PollEvent(&event)) {
 			
 			if (process_event(event)) {
-				Main::instance->handle_event(&event);
+				main_.handle_event(&event);
 
 				if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
 					running = false;
@@ -62,7 +62,7 @@ void OptionsScreen::run() {
 		
 		draw();
 
-		Main::instance->flip();
+		main_.flip();
 		frame++;
 	}
 
@@ -82,7 +82,7 @@ void OptionsScreen::draw() {
 	SDL_Surface * screen;
 	OptionItem * item;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
 	SDL_BlitSurface(background, NULL, screen, NULL);
 
@@ -146,12 +146,12 @@ void OptionsScreen::select() {
 		return;
 	}
 
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 	item_selected();
 }
 
 void OptionsScreen::select_up() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 
 	selected_item--;
 
@@ -161,7 +161,7 @@ void OptionsScreen::select_up() {
 }
 
 void OptionsScreen::select_down() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 
 	selected_item++;
 
@@ -217,18 +217,18 @@ void OptionsScreen::init() {
 	
 	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
 
-	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
-		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
+	for(int y = 0; y < WINDOW_HEIGHT; y += main_.graphics->bg_grey->h) {
+		for(int x = 0; x < WINDOW_WIDTH; x += main_.graphics->bg_grey->w) {
 			rect_d.x = x;
 			rect_d.y = y;
-			SDL_BlitSurface(Main::graphics->bg_grey, NULL, background, &rect_d);
+			SDL_BlitSurface(main_.graphics->bg_grey, NULL, background, &rect_d);
 		}
 	}
 
 	rect_d.x = title_left_offset;
 	rect_d.y = title_top_offset;
 
-	surface = Main::text->render_text_medium_shadow(title.c_str());
+	surface = main_.text->render_text_medium_shadow(title.c_str());
 	SDL_BlitSurface(surface, NULL, background, &rect_d);
 	SDL_FreeSurface(surface);
 
@@ -258,13 +258,13 @@ void OptionsScreen::initialize_items()
 	if (selected_item < 0 || selected_item >= (int)items->size())
 		selected_item = 0;
 
-	screen_w = Main::instance->screen->w;
-	screen_h = Main::instance->screen->h;
+	screen_w = main_.screen->w;
+	screen_h = main_.screen->h;
 
 	for (unsigned int i = 0; i < items->size(); i++) {
 		item = items->at(i);
 
-		item->surf_name = Main::text->render_text_medium(item->name);
+		item->surf_name = main_.text->render_text_medium(item->name);
 
 		item->rect_name = new SDL_Rect();
 
@@ -285,7 +285,7 @@ void OptionsScreen::initialize_items()
 			item->surf_options = new std::vector<SDL_Surface *>(0);
 			item->rect_options = new std::vector<SDL_Rect *>(0);
 			for (unsigned int j = 0; j < item->options->size(); j++) {
-				surface = Main::text->render_text_medium(item->options->at(j));
+				surface = main_.text->render_text_medium(item->options->at(j));
 				item->surf_options->push_back(surface);
 
 				rect = new SDL_Rect();

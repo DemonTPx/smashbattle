@@ -4,7 +4,7 @@
 #include "DoubleDamagePowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 
-DoubleDamagePowerUp::DoubleDamagePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo) {
+DoubleDamagePowerUp::DoubleDamagePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : main_(main) {
 	clip->x = 48;
 	clip->y = 0;
 	this->surface = surface;
@@ -20,7 +20,7 @@ DoubleDamagePowerUp::~DoubleDamagePowerUp() {
 }
 
 void DoubleDamagePowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->doubledamagebullets += ammo;
 

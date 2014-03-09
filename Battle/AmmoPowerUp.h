@@ -6,7 +6,7 @@ class CommandGeneratePowerup;
 
 class AmmoPowerUp : public GameplayObject {
 public:
-	AmmoPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo);
+	AmmoPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main);
 	~AmmoPowerUp();
 
 	virtual void move(Level * level);
@@ -22,4 +22,6 @@ public:
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 	int ammo;
+
+	Main &main_;
 };

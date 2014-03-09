@@ -6,7 +6,7 @@ class CommandGeneratePowerup;
 
 class DoubleDamagePowerUp : public GameplayObject {
 public:
-	DoubleDamagePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo);
+	DoubleDamagePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main);
 	~DoubleDamagePowerUp();
 
 	virtual void move(Level * level);
@@ -22,4 +22,6 @@ public:
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 	int ammo;
+
+	Main &main_;
 };

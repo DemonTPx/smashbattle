@@ -16,6 +16,7 @@
 namespace network {
 
 std::unique_ptr<GameplayObject> CommandGeneratePowerup::factory(
+	Main &main,
 	CommandGeneratePowerup::PowerUps type,
 	short powerupid,
 	SDL_Rect *rect,
@@ -26,35 +27,35 @@ std::unique_ptr<GameplayObject> CommandGeneratePowerup::factory(
 
 	switch (type) {
 		case CommandGeneratePowerup::PowerUps::TypeHealth:
-			powerup = std::unique_ptr<GameplayObject>(new HealthPowerUp(Main::graphics->powerups, rect, pos, param));
+			powerup = std::unique_ptr<GameplayObject>(new HealthPowerUp(main.graphics->powerups, rect, pos, param, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeAmmo:
-			powerup = std::unique_ptr<GameplayObject>(new AmmoPowerUp(Main::graphics->powerups, rect, pos, param));
+			powerup = std::unique_ptr<GameplayObject>(new AmmoPowerUp(main.graphics->powerups, rect, pos, param, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeDoubleDamage:
-			powerup = std::unique_ptr<GameplayObject>(new DoubleDamagePowerUp(Main::graphics->powerups, rect, pos, param));
+			powerup = std::unique_ptr<GameplayObject>(new DoubleDamagePowerUp(main.graphics->powerups, rect, pos, param, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeInstantKillBullet:
-			powerup = std::unique_ptr<GameplayObject>(new InstantKillBulletPowerUp(Main::graphics->powerups, rect, pos, param));
+			powerup = std::unique_ptr<GameplayObject>(new InstantKillBulletPowerUp(main.graphics->powerups, rect, pos, param, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeBomb:
-			powerup = std::unique_ptr<GameplayObject>(new BombPowerUp(Main::graphics->powerups, rect, pos, param));
+			powerup = std::unique_ptr<GameplayObject>(new BombPowerUp(main.graphics->powerups, rect, pos, param, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeMine:
-			powerup = std::unique_ptr<GameplayObject>(new MinePowerUp(Main::graphics->powerups, rect, pos, param));
+			powerup = std::unique_ptr<GameplayObject>(new MinePowerUp(main.graphics->powerups, rect, pos, param, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeAirstrike:
-			powerup = std::unique_ptr<GameplayObject>(new AirstrikePowerUp(Main::graphics->powerups, rect, pos));
+			powerup = std::unique_ptr<GameplayObject>(new AirstrikePowerUp(main.graphics->powerups, rect, pos, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeLaserBeam:
-			powerup = std::unique_ptr<GameplayObject>(new LaserBeamPowerUp(Main::graphics->powerups, rect, pos));
+			powerup = std::unique_ptr<GameplayObject>(new LaserBeamPowerUp(main.graphics->powerups, rect, pos, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeShield:
-			powerup = std::unique_ptr<GameplayObject>(new ShieldPowerUp(Main::graphics->powerups, rect, pos));
+			powerup = std::unique_ptr<GameplayObject>(new ShieldPowerUp(main.graphics->powerups, rect, pos, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeRandom:
 		default:
-			powerup = std::unique_ptr<GameplayObject>(new RandomPowerUp(Main::graphics->powerups, pos));
+			powerup = std::unique_ptr<GameplayObject>(new RandomPowerUp(main.graphics->powerups, pos, main));
 			break;
 	}
 

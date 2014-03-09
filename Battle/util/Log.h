@@ -26,6 +26,7 @@ public:
 	static std::vector<std::string> console;
 
 	static void log(std::string filename, long line, std::string log, Logger::Priority priority) {
+		return /* not supported yet */;
 		if (priority >= Logger::currentprio)
 			std::cout << Logger::toString(priority) << " " << log << std::endl;
 

@@ -4,7 +4,7 @@
 
 class Airstrike : public GameplayObject {
 public:
-	Airstrike();
+	Airstrike(Main &main);
 	~Airstrike();
 
 	virtual void move(Level * level);
@@ -20,4 +20,6 @@ public:
 	int start;
 
 	Player * owner;
+
+	Main &main_;
 };

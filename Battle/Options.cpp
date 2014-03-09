@@ -5,7 +5,7 @@
 
 #include "Options.h"
 
-Options::Options() : OptionsScreen("OPTIONS") {
+Options::Options(Main &main) : OptionsScreen("OPTIONS", main), main_(main) {
 	OptionItem * item;
 
 	item = new OptionItem();
@@ -52,13 +52,13 @@ void Options::item_selected() {
 		case 2:
 		case 3:
 		{
-			ControlsOptions co(Main::instance->input[selected_item], selected_item + 1);
+			ControlsOptions co(main_.input[selected_item], selected_item + 1, main_);
 			co.run();
 			break;
 		}
 		case 4:
 		{
-			AudioOptions audiooptions;
+			AudioOptions audiooptions(main_);
 			audiooptions.run();
 			break;
 		}

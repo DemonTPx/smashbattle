@@ -36,9 +36,11 @@
 #define CUP_W 30
 #define CUP_H 28
 
+class Main;
+
 class Graphics {
 public:
-	Graphics();
+	Graphics(Main &main);
 	~Graphics();
 	
 	void load_all();
@@ -92,4 +94,6 @@ public:
 	SDL_Rect * pmarker_clip_below[4];
 private:
 	SDL_Surface * load_bmp(const char * filename);
+
+	Main &main_;
 };

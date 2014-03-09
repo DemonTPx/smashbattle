@@ -4,7 +4,7 @@
 
 class ControlsOptions : public OptionsScreen {
 public:
-	ControlsOptions(GameInput * input, int number);
+	ControlsOptions(GameInput * input, int number, Main &main);
 	~ControlsOptions();
 
 	void run();
@@ -28,7 +28,7 @@ private:
 
 class JoystickSelect : public OptionsScreen {
 public:
-	JoystickSelect(int index);
+	JoystickSelect(int index, Main &main);
 
 	void item_selected();
 

@@ -7,7 +7,7 @@
 #include "PauseMenu.h"
 #include "network/Server.h"
 
-PauseMenu::PauseMenu(SDL_Surface * s) {
+PauseMenu::PauseMenu(SDL_Surface * s, Main &main) : main_(main) {
 	screen = s;
 	options = new std::vector<char*>(0);
 	selected_option = 0;
@@ -26,8 +26,8 @@ void PauseMenu::add_option(char * name) {
 int PauseMenu::pause(Player * p) {
 	SDL_Event event;
 	
-	Main::audio->play(SND_PAUSE);
-	Main::audio->pause_music();
+	main_.audio->play(SND_PAUSE);
+	main_.audio->pause_music();
 
 	player = p;
 	paused = true;
@@ -37,10 +37,10 @@ int PauseMenu::pause(Player * p) {
 	player->input->set_delay();
 	player->input->reset();
 
-	while(Main::running && paused) {
+	while(main_.running && paused) {
 		network::Server::getInstance().poll();
 		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+			main_.handle_event(&event);
 
 			// Handle player input
 			for(unsigned int idx = 0; idx < Gameplay::instance->players->size(); idx++) {
@@ -53,23 +53,23 @@ int PauseMenu::pause(Player * p) {
 
 		draw();
 
-		Main::instance->flip();
+		main_.flip();
 	}
 
 	player->input->unset_delay();
 
-	Main::audio->unpause_music();
+	main_.audio->unpause_music();
 	return selected_option;
 }
 
 void PauseMenu::process() {
 	if(player->input->is_pressed(A_DOWN)) {
-		Main::audio->play(SND_SELECT);
+		main_.audio->play(SND_SELECT);
 		selected_option = (selected_option + 1) % (int)options->size();
 	}
 
 	if(player->input->is_pressed(A_UP)) {
-		Main::audio->play(SND_SELECT);
+		main_.audio->play(SND_SELECT);
 		if(selected_option == 0) selected_option += (int)options->size();
 		selected_option = selected_option - 1;
 	}
@@ -78,7 +78,7 @@ void PauseMenu::process() {
 		player->input->is_pressed(A_SHOOT) || player->input->is_pressed(A_BOMB) ||
 		player->input->is_pressed(A_START)) {
 		if(!(player->input->is_pressed(A_JUMP) && player->input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
-			Main::audio->play(selected_option == 0 ? SND_PAUSE : SND_SELECT);
+			main_.audio->play(selected_option == 0 ? SND_PAUSE : SND_SELECT);
 			paused = false;
 		}
 	}
@@ -111,7 +111,7 @@ void PauseMenu::draw() {
 
 	SDL_FillRect(screen, &rect, 0);
 
-	surface = Main::text->render_text_medium("PAUSE");
+	surface = main_.text->render_text_medium("PAUSE");
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y += 8;
 
@@ -135,7 +135,7 @@ void PauseMenu::draw() {
 			rect.y += 4;
 		}
 
-		surface = Main::text->render_text_medium(text);
+		surface = main_.text->render_text_medium(text);
 		rect.x = (screen->w - surface->w) / 2 ;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
 		SDL_FreeSurface(surface);

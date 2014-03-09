@@ -10,7 +10,7 @@ const int Bomb::FRAME_STRIKE_NORMAL = 2;
 const int Bomb::FRAME_STRIKE_FLASH = 3;
 const int Bomb::FRAME_EXPLOSION = 4;
 
-Bomb::Bomb() {
+Bomb::Bomb(Main &main) : main_(main) {
 	damage = 0;
 	speedy = 0;
 
@@ -22,7 +22,7 @@ Bomb::Bomb() {
 	position = new SDL_Rect();
 }
 
-Bomb::Bomb(SDL_Surface * surface) {
+Bomb::Bomb(SDL_Surface * surface, Main &main) : main_(main) {
 	damage = 0;
 	time = 180;
 	speedy = 0;
@@ -53,6 +53,10 @@ Bomb::~Bomb() {
 }
 
 void Bomb::draw(SDL_Surface * screen, int frames_processed) {
+
+	if (main_.no_sdl)
+		return;
+
 	SDL_Rect rect;
 
 	rect.x = position->x;
@@ -171,7 +175,7 @@ void Bomb::explode() {
 
 	exploded = true;
 
-	Main::audio->play(SND_EXPLODE, position->x);
+	main_.audio->play(SND_EXPLODE, position->x);
 
 	Player * p;
 	NPC * npc;

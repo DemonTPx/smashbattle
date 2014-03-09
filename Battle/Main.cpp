@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_mixer.h"
 
+#include <future>
 #include <cstdio>
 #include <iostream>
 #include <fstream>
@@ -32,85 +33,86 @@ using std::string;
 #include <unistd.h> // for chdir
 #endif
 
-/**
- * Used in 'main' gameloop where frame_delay is no longer used.
- * A value of 17 would force the game to run in (1s = 1000ms / 17 =) ~58.82 fps
- */
-const int Main::MILLISECS_PER_FRAME = 17;
-/**
- * Used in all other places, like in menu, character set, these 'cap' to 60 fps.
- */
-const int Main::FRAMES_PER_SECOND = 60;
-
-const int Main::FRAMES_UNTIL_RESET = 7200;
-
-const int Main::CONTROLS_REPEAT_DELAY = 30;
-const int Main::CONTROLS_REPEAT_SPEED = 10;
-
-const int Main::JOYSTICK_AXIS_THRESHOLD = 0x3fff;
-
-Main * Main::instance = NULL;
-
-SDL_Surface * Main::screen = NULL;
-int Main::flags = SDL_SWSURFACE;
-
-bool Main::running = false;
-int Main::frame_delay = 0;
-unsigned int Main::frame = 0;
-bool Main::fps_cap = false;
-
-bool Main::screenshot_next_flip = false;
-
-Timer * Main::fps = NULL;
-
-int Main::fps_counter_last_frame = 0;
-int Main::fps_counter_this_frame = 0;
-Timer * Main::fps_counter_timer = NULL;
-bool Main::fps_counter_visible = false;
-bool Main::ingame_debug_visible = false;
-
-AudioController * Main::audio = NULL;
-Graphics * Main::graphics = NULL;
-Text * Main::text = NULL;
-
-unsigned int Main::last_activity = 0;
-bool Main::autoreset = true;
-bool Main::is_reset = false;
-
-MainRunModes Main::runmode = MainRunModes::ARCADE;
-
 Main::Main()
+:
+	/**
+	 * Used in 'main' gameloop where frame_delay is no longer used.
+	 * A value of 17 would force the game to run in (1s = 1000ms / 17 =) ~58.82 fps
+	 */
+	MILLISECS_PER_FRAME(17),
+	/**
+	 * Used in all other places, like in menu, character set, these 'cap' to 60 fps.
+	 */
+	FRAMES_PER_SECOND(60),
+
+	FRAMES_UNTIL_RESET(7200),
+
+	CONTROLS_REPEAT_DELAY(30),
+	CONTROLS_REPEAT_SPEED(10),
+
+	JOYSTICK_AXIS_THRESHOLD(0x3fff)
+
 {
-	Main::instance = this;
+	screen = NULL;
+	flags = SDL_SWSURFACE;
+
+	running = false;
+	frame_delay = 0;
+	frame = 0;
+	fps_cap = false;
+
+	screenshot_next_flip = false;
+
+	fps = NULL;
+
+	fps_counter_last_frame = 0;
+	fps_counter_this_frame = 0;
+	fps_counter_timer = NULL;
+	fps_counter_visible = false;
+	ingame_debug_visible = false;
+
+	audio = NULL;
+	graphics = NULL;
+	text = NULL;
+
+	last_activity = 0;
+	autoreset = true;
+	is_reset = false;
+
+	runmode = MainRunModes::ARCADE;
+	no_sdl = false;
+
 }
 
 Main::~Main() {
-	if(Main::instance == this) {
-		Main::instance = NULL;
-	}
 }
 
 bool Main::init() {
 	//Start SDL
-	SDL_Init(SDL_INIT_EVERYTHING);
 
-	SDL_Surface * icon;
-	Uint8 * mask;
+	if (!no_sdl) {
+		SDL_Init(SDL_INIT_EVERYTHING);
 
-	icon = Graphics::load_icon("gfx/SB.bmp", &mask, 0x00ffff);
-	SDL_WM_SetIcon(icon, mask);
+		SDL_Surface * icon;
+		Uint8 * mask;
 
-	SDL_FreeSurface(icon);
-	delete[] mask;
-	
-	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
-	SDL_ShowCursor(0);
+		icon = Graphics::load_icon("gfx/SB.bmp", &mask, 0x00ffff);
+		//SDL_WM_SetIcon(icon, mask);
+
+		SDL_FreeSurface(icon);
+		delete[] mask;
+		
+		screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
+		SDL_ShowCursor(0);
+	}
 
 	fps_cap = true;
 
-	if(screen == NULL) return false;
+	if (!no_sdl) {
+		if(screen == NULL) return false;
 
-	SDL_WM_SetCaption("Battle", NULL);
+		SDL_WM_SetCaption("Battle", NULL);
+	}
 	
 	fps = new Timer();
 
@@ -121,22 +123,28 @@ bool Main::init() {
 	audio->load_files();
 
 	text = new Text();
-	text->load_all();
+	if (!no_sdl) {
+		text->load_all();
+	}
 
-	graphics = new Graphics();
-	graphics->load_all();
+	graphics = new Graphics(*this);
+	if (!no_sdl) {
+		graphics->load_all();
+	}
 
-	SDL_JoystickEventState(SDL_ENABLE);
+	if (!no_sdl) {
+		SDL_JoystickEventState(SDL_ENABLE);
+	}
 
 	for(int i = 0; i < 4; i++) {
-		input[i] = new GameInput();
+		input[i] = new GameInput(*this);
 	}
 	input_master = NULL;
 
-	if (Main::runmode == MainRunModes::SERVER) {
+	if (runmode == MainRunModes::SERVER) {
 		// In case we need to do a level select we need to have a master input already
-		Main::instance->input_master = input[0];
-		Main::instance->input_master->set_delay(20);
+		input_master = input[0];
+		input_master->set_delay(20);
 	}
 
 	return true;
@@ -180,7 +188,9 @@ void Main::flip(bool no_cap)
 		screenshot_next_flip = false;
 	}
 
-	SDL_Flip(screen);
+	if (!no_sdl) {
+		SDL_Flip(screen);
+	}
 	frame++;
 	if(!no_cap && (fps_cap == true) && (fps->get_ticks() < frame_delay)) {
 		SDL_Delay((frame_delay) - fps->get_ticks());
@@ -217,7 +227,7 @@ void Main::fps_count() {
 		else
 			sprintf(cap, "%d FPS", fps_counter_this_frame);
 
-		surf = Main::text->render_text_small(cap);
+		surf = text->render_text_small(cap);
 
 		rect.x = screen->w - surf->w - 2;
 		rect.y = 2;
@@ -244,29 +254,29 @@ void Main::handle_event(SDL_Event * event) {
 
 	/* A server can only be closed with ESCAPE */
 	if(event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
-		if (Main::runmode == MainRunModes::SERVER)
+		if (runmode == MainRunModes::SERVER)
 			running = false;
 	}
 
 	/* Catch quit event and ALT-F4 */
 	if(event->type == SDL_QUIT) {
-		if (Main::runmode != MainRunModes::SERVER)
+		if (runmode != MainRunModes::SERVER)
 			running = false;
 	}
 	if(event->type == SDL_KEYDOWN) {
 		if(event->key.keysym.mod & KMOD_ALT) {
-			if(event->key.keysym.sym == SDLK_F4 && Main::runmode != MainRunModes::SERVER) {
+			if(event->key.keysym.sym == SDLK_F4 && runmode != MainRunModes::SERVER) {
 				running = false;
 			}
 		}
 		if(event->key.keysym.sym == SDLK_F1) {
 			// Toggle console in case we're in client mode
-			if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
+			if (runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
 				network::ServerClient::getInstance().toggleConsole();
 		}
 		if(event->key.keysym.sym == SDLK_F5) {
 			// Re-set server, accept client connects..
-			if (Main::runmode == MainRunModes::SERVER && network::Server::getInstance().active())
+			if (runmode == MainRunModes::SERVER && network::Server::getInstance().active())
 				network::Server::getInstance().setState(new network::ServerStateAcceptClients());
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
@@ -307,8 +317,7 @@ void Main::reset_inputs()
 
 int Main::run(const MainRunModes &runmode) 
 {
-
-	Main::runmode = runmode;
+	this->runmode = runmode;
 
 	if(!init()) return 1;
 
@@ -324,7 +333,7 @@ int Main::run(const MainRunModes &runmode)
 	{
 		case MainRunModes::ARCADE:
 			{
-				Menu menu;
+				Menu menu(*this);
 
 				running = true;
 				menu.run();
@@ -333,10 +342,12 @@ int Main::run(const MainRunModes &runmode)
 
 		case MainRunModes::SERVER:
 			running = true;
+			network::Server::getInstance().setMain(*this);
+
 			while (network::Server::active() && running)
 			{
 
-				NetworkMultiplayer multiplayer;
+				NetworkMultiplayer multiplayer(*this);
 				Level &level(network::Server::getInstance().getLevel());
 				multiplayer.set_level(&level);
 
@@ -355,7 +366,7 @@ int Main::run(const MainRunModes &runmode)
 		case MainRunModes::CLIENT:
 			fps_counter_visible = true;
 
-			network::ClientNetworkMultiplayer clientgame;
+			network::ClientNetworkMultiplayer clientgame(*this);
 
 			clientgame.start();
 
@@ -468,9 +479,9 @@ int main(int argc, char* args[])
 	
 	
 	return 0;*/
-	
+
 	Main main;
-	
+
 	// In windows when clicking on a smashbattle:// link, the current working dir is not set.
 	// Therefore extract it from args[0] and change work dir.
 	string cwd(util::basedir(string(args[0])));
@@ -483,7 +494,7 @@ int main(int argc, char* args[])
 
 	if(argc > 1) {
 		if(strcmp(args[1], "-f") == 0) {
-			Main::flags |= SDL_FULLSCREEN;
+			main.flags |= SDL_FULLSCREEN;
 		}
 		
 		// Usage smashbattle -s "TRAINING DOJO" 1100 --> start server on port 1100 with level "TRAINING DOJO"
@@ -530,6 +541,17 @@ int main(int argc, char* args[])
 			}
 		}
 	}
+
+	// Launch server in separate thread
+	auto f1 = std::async( std::launch::async, []{
+		Main main;
+		main.no_sdl = true;
+		network::Server::getInstance().setState(new network::ServerStateInitialize("TRAINING DOJO", 1111, "RAY'S ASYNC SERV"));
+		return main.run(MainRunModes::SERVER);
+	});
+
+	// Launch client
+	main.no_sdl = false;
 	return main.run(MainRunModes::ARCADE);
 }
 

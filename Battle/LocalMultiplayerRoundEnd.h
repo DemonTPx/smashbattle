@@ -6,7 +6,7 @@
 
 class LocalMultiplayerRoundEnd {
 public:
-	LocalMultiplayerRoundEnd();
+	LocalMultiplayerRoundEnd(Main &main);
 	~LocalMultiplayerRoundEnd();
 
 	void run();
@@ -49,4 +49,6 @@ private:
 	GameInput * input;
 
 	int selected_item;
+
+	Main &main_;
 };

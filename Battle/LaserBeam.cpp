@@ -5,7 +5,7 @@
 
 #include "LaserBeam.h"
 
-LaserBeam::LaserBeam() {
+LaserBeam::LaserBeam(Main &main) : main_(main) {
 	start = Gameplay::instance->frame;
 
 	position = new SDL_Rect();
@@ -52,7 +52,7 @@ void LaserBeam::process() {
 			return;
 		}
 
-		Main::audio->play(SND_LASER);
+		main_.audio->play(SND_LASER);
 		position->x = target->position->x + (PLAYER_W / 2);
 
 		if(position->x > WINDOW_WIDTH)

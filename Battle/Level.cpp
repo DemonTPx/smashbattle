@@ -30,7 +30,7 @@ const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"SNOW FIGHT", (char*)"stage/snowfight.lvl"}
 };
 
-Level::Level() {
+Level::Level(Main &main) : main_(main) {
 	background = NULL;
 	tiles = NULL;
 
@@ -162,6 +162,11 @@ void Level::load(const char * filename) {
 
 	strncpy(tiles_file_full, "gfx/\0", 5);
 	strncat(tiles_file_full, meta.filename_tiles, 30);
+
+
+	if (main_.no_sdl) {
+		return;
+	}
 
 	surface = SDL_LoadBMP(tiles_file_full);
 	tiles = SDL_DisplayFormat(surface);
@@ -551,6 +556,10 @@ int Level::tile_pos(int x, int y) {
 }
 
 void Level::draw(SDL_Surface * screen, int frames_processed) {
+
+	if (main_.no_sdl)
+		return;
+
 	SDL_Rect rect;
 	SDL_Rect rect_s;
 
@@ -752,7 +761,7 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 			pos = tile_pos(wx, y);
 
 			if(!tile[pos].indestructible) {
-				switch (Main::runmode) {
+				switch (main_.runmode) {
 					case MainRunModes::CLIENT:
 						// Server handles this, we update level_hp and level through receiving
 						//  CommandUpdateTile's

@@ -24,7 +24,7 @@
 const int LocalMultiplayerRoundEnd::ITEMCOUNT = 3;
 const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE LEVEL", "CHANGE CHARACTER", "QUIT TO MENU"};
 
-LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd() {
+LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd(Main &main): main_(main) {
 	players = new std::vector<Player *>();
 }
 
@@ -37,18 +37,18 @@ void LocalMultiplayerRoundEnd::run() {
 
 	init();
 
-	Main::audio->play_music(MUSIC_END);
+	main_.audio->play_music(MUSIC_END);
 	
 	ready = false;
 	frame = 0;
 
-	input = Main::instance->input_master;
+	input = main_.input_master;
 	input->set_delay();
 	input->reset();
 	
-	while (Main::running && !ready) {
+	while (main_.running && !ready) {
 		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+			main_.handle_event(&event);
 			
 			input->handle_event(&event);
 		}
@@ -57,7 +57,7 @@ void LocalMultiplayerRoundEnd::run() {
 		frame++;
 		draw();
 
-		Main::instance->flip();
+		main_.flip();
 	}
 
 	cleanup();
@@ -83,7 +83,7 @@ void LocalMultiplayerRoundEnd::init() {
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
 	for(int i = 0; i < ITEMCOUNT; i++) {
-		surface = Main::text->render_text_medium(item[i]);
+		surface = main_.text->render_text_medium(item[i]);
 		surf_items->push_back(surface);
 
 		clip = new SDL_Rect();
@@ -94,10 +94,10 @@ void LocalMultiplayerRoundEnd::init() {
 
 	// Result
 	if(winner == NULL) {
-		surf_result = Main::text->render_text_large("DRAW");
+		surf_result = main_.text->render_text_large("DRAW");
 	} else {
 		sprintf_s(str, 30, "%s WINS", winner->name);
-		surf_result = Main::text->render_text_large(str);
+		surf_result = main_.text->render_text_large(str);
 	}
 
 	// Determine player positions
@@ -120,11 +120,11 @@ void LocalMultiplayerRoundEnd::init() {
 	
 	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
 
-	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
-		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
+	for(int y = 0; y < WINDOW_HEIGHT; y += main_.graphics->bg_grey->h) {
+		for(int x = 0; x < WINDOW_WIDTH; x += main_.graphics->bg_grey->w) {
 			rect.x = x;
 			rect.y = y;
-			SDL_BlitSurface(Main::graphics->bg_grey, NULL, background, &rect);
+			SDL_BlitSurface(main_.graphics->bg_grey, NULL, background, &rect);
 		}
 	}
 
@@ -155,14 +155,14 @@ void LocalMultiplayerRoundEnd::init() {
 		rect.x = r_block.x + 72;
 		rect.y = r_block.y + 10;
 		sprintf_s(str, 5, "P%d", players->at(order[i])->number);
-		text = Main::text->render_text_large(str);
+		text = main_.text->render_text_large(str);
 		SDL_BlitSurface(text, NULL, background, &rect);
 		SDL_FreeSurface(text);
 
 		// Player name
 		rect.x = r_block.x + 72;
 		rect.y = r_block.y + 48;
-		text = Main::text->render_text_medium(pl->name);
+		text = main_.text->render_text_medium(pl->name);
 		SDL_BlitSurface(text, NULL, background, &rect);
 		SDL_FreeSurface(text);
 
@@ -170,7 +170,7 @@ void LocalMultiplayerRoundEnd::init() {
 		rect.x = r_block.x + 14;
 		rect.y = r_block.y + 14;
 		if(players->at(order[i]) != winner)
-			SDL_BlitSurface(players->at(order[i])->sprites, Main::graphics->player_clip[SPR_AVATAR], background, &rect);
+			SDL_BlitSurface(players->at(order[i])->sprites, main_.graphics->player_clip[SPR_AVATAR], background, &rect);
 
 		// Cup
 		if(cup < 3) {
@@ -185,7 +185,7 @@ void LocalMultiplayerRoundEnd::init() {
 			rect_s.h = CUP_H;
 			rect.x = r_block.x + 130;
 			rect.y = r_block.y + 10;
-			SDL_BlitSurface(Main::graphics->cups, &rect_s, background, &rect);
+			SDL_BlitSurface(main_.graphics->cups, &rect_s, background, &rect);
 		}
 
 		// Bullets fired
@@ -195,10 +195,10 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.y = 0;
 		rect_s.w = 8;
 		rect_s.h = 8;
-		SDL_BlitSurface(Main::graphics->weapons, &rect_s, background, &rect);
+		SDL_BlitSurface(main_.graphics->weapons, &rect_s, background, &rect);
 
 		sprintf_s(str, 20, "%d", pl->bullets_fired);
-		text = Main::text->render_text_medium_gray(str);
+		text = main_.text->render_text_medium_gray(str);
 		rect.x = r_block.x + 240;
 		rect.y = r_block.y + 8;
 		SDL_BlitSurface(text, NULL, background, &rect);
@@ -211,14 +211,14 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.y = 16;
 		rect_s.w = 16;
 		rect_s.h = 16;
-		SDL_BlitSurface(Main::graphics->common, &rect_s, background, &rect);
+		SDL_BlitSurface(main_.graphics->common, &rect_s, background, &rect);
 
 		if(pl->bullets_fired == 0)
 			accuracy = 0;
 		else
 			accuracy = ((double)pl->bullets_hit / (double)pl->bullets_fired) * 100;
 		sprintf_s(str, 20, "%1.0f%%", accuracy);
-		text = Main::text->render_text_medium_gray(str);
+		text = main_.text->render_text_medium_gray(str);
 		rect.x = r_block.x + 352;
 		rect.y = r_block.y + 8;
 		SDL_BlitSurface(text, NULL, background, &rect);
@@ -231,10 +231,10 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.y = 0;
 		rect_s.w = 12;
 		rect_s.h = 16;
-		SDL_BlitSurface(Main::graphics->bombs, &rect_s, background, &rect);
+		SDL_BlitSurface(main_.graphics->bombs, &rect_s, background, &rect);
 
 		sprintf_s(str, 20, "%d", pl->bombs_fired);
-		text = Main::text->render_text_medium_gray(str);
+		text = main_.text->render_text_medium_gray(str);
 		rect.x = r_block.x + 240;
 		rect.y = r_block.y + 30;
 		SDL_BlitSurface(text, NULL, background, &rect);
@@ -247,14 +247,14 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.y = 16;
 		rect_s.w = 16;
 		rect_s.h = 16;
-		SDL_BlitSurface(Main::graphics->common, &rect_s, background, &rect);
+		SDL_BlitSurface(main_.graphics->common, &rect_s, background, &rect);
 
 		if(pl->bombs_fired == 0)
 			accuracy = 0;
 		else
 			accuracy = ((double)pl->bombs_hit / (double)pl->bombs_fired) * 100;
 		sprintf_s(str, 20, "%1.0f%%", accuracy);
-		text = Main::text->render_text_medium_gray(str);
+		text = main_.text->render_text_medium_gray(str);
 		rect.x = r_block.x + 352;
 		rect.y = r_block.y + 30;
 		SDL_BlitSurface(text, NULL, background, &rect);
@@ -267,10 +267,10 @@ void LocalMultiplayerRoundEnd::init() {
 		rect_s.y = 32;
 		rect_s.w = 16;
 		rect_s.h = 16;
-		SDL_BlitSurface(Main::graphics->common, &rect_s, background, &rect);
+		SDL_BlitSurface(main_.graphics->common, &rect_s, background, &rect);
 
 		sprintf_s(str, 20, "%d", pl->headstomps);
-		text = Main::text->render_text_medium_gray(str);
+		text = main_.text->render_text_medium_gray(str);
 		rect.x = r_block.x + 240;
 		rect.y = r_block.y + 52;
 		SDL_BlitSurface(text, NULL, background, &rect);
@@ -278,7 +278,7 @@ void LocalMultiplayerRoundEnd::init() {
 
 		// Score
 		sprintf_s(str, 4, "%d", pl->score);
-		text = Main::text->render_text_large(str);
+		text = main_.text->render_text_large(str);
 		rect.x = r_block.x + r_block.w - text->w - 22;
 		rect.y = r_block.y + 10;
 		SDL_BlitSurface(text, NULL, background, &rect);
@@ -286,7 +286,7 @@ void LocalMultiplayerRoundEnd::init() {
 
 		// Rounds won
 		sprintf_s(str, 20, "%d", pl->rounds_won);
-		text = Main::text->render_text_medium_gray(str);
+		text = main_.text->render_text_medium_gray(str);
 		rect.x = r_block.x + r_block.w - text->w - 22;
 		rect.y = r_block.y + r_block.h - text->h - 10;
 		SDL_BlitSurface(text, NULL, background, &rect);
@@ -316,7 +316,7 @@ void LocalMultiplayerRoundEnd::draw() {
 	SDL_Rect rect;
 	SDL_Surface * screen;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
 	SDL_BlitSurface(background, NULL, screen, NULL);
 	
@@ -352,9 +352,9 @@ void LocalMultiplayerRoundEnd::draw() {
 		// Avatar
 		if(players->at(order[i]) == winner) {
 			if(frame & 0x10)
-				SDL_BlitSurface(players->at(order[i])->sprites, Main::graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
+				SDL_BlitSurface(players->at(order[i])->sprites, main_.graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
 			else
-				SDL_BlitSurface(players->at(order[i])->sprites, Main::graphics->player_clip[SPR_AVATAR], screen, &rect);
+				SDL_BlitSurface(players->at(order[i])->sprites, main_.graphics->player_clip[SPR_AVATAR], screen, &rect);
 		}
 	}
 }
@@ -383,7 +383,7 @@ void LocalMultiplayerRoundEnd::process_cursor() {
 }
 
 void LocalMultiplayerRoundEnd::select() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 	switch(selected_item) {
 		case 0:
 			result = ROUNDEND_CHANGE_LEVEL;
@@ -398,11 +398,11 @@ void LocalMultiplayerRoundEnd::select() {
 			ready = true;
 			break;
 	}
-	Main::audio->play_music(MUSIC_TITLE);
+	main_.audio->play_music(MUSIC_TITLE);
 }
 
 void LocalMultiplayerRoundEnd::select_up() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 
 	selected_item--;
 
@@ -412,7 +412,7 @@ void LocalMultiplayerRoundEnd::select_up() {
 }
 
 void LocalMultiplayerRoundEnd::select_down() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 
 	selected_item++;
 

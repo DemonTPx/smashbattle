@@ -6,7 +6,7 @@ class CommandGeneratePowerup;
 
 class ShieldPowerUp : public GameplayObject {
 public:
-	ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position);
+	ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main);
 	~ShieldPowerUp();
 
 	virtual void move(Level * level);
@@ -20,4 +20,6 @@ public:
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;
+
+	Main &main_;
 };

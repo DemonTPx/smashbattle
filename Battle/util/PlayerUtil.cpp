@@ -82,12 +82,12 @@ namespace player_util
 		//player.distance_walked = command.data.distance_walked;
 	}
 
-	Player &get_player_by_id(char client_id)
+	Player &get_player_by_id(Main &main_, char client_id)
 	{
 		Gameplay * game = NULL;
-		if (Main::runmode == MainRunModes::CLIENT)
+		if (main_.runmode == MainRunModes::CLIENT)
 			game = &network::ServerClient::getInstance().getGame();
-		else if (Main::runmode == MainRunModes::SERVER)
+		else if (main_.runmode == MainRunModes::SERVER)
 			game = &network::Server::getInstance().getGame();
 		else
 			throw std::runtime_error("unsupported game type");

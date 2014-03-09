@@ -24,6 +24,7 @@
 class Level;
 class Player;
 class Gameplay;
+class Main;
 
 namespace network{
 
@@ -87,7 +88,7 @@ public:
 	void setHost(std::string host) { host_ = host; }
 	void setPort(int port) { port_ = (Uint16)port; }
 
-	void connect(ClientNetworkMultiplayer &game, Level &level, Player &player);
+	void connect(ClientNetworkMultiplayer &game, Level &level, Player &player, Main &main);
 	void disconnect();
 	void poll();
 
@@ -189,6 +190,8 @@ private:
 	
 	UDPsocket sd;
 	UDPpacket *p;
+
+	Main *main_;
 
 };
 

@@ -54,7 +54,7 @@ namespace player_util
 {
 	void set_position_data(network::CommandSetPlayerData &data, char client_id, Uint32 time, short udpseq, Player &player);
 	void set_player_data(Player &player, network::CommandSetPlayerData &data, bool skip_input = false);
-	Player &get_player_by_id(char client_id);
+	Player &get_player_by_id(Main &main, char client_id);
 	void unset_input(Player &player);
 }
 
@@ -63,7 +63,7 @@ class Bomb;
 
 class Player {
 public:
-	Player(int character, int number);
+	Player(int character, int number,  Main &main);
 	~Player();
 
 	static const int CHARACTER_COUNT;
@@ -188,5 +188,7 @@ public:
 	void cycle_sprite(int first, int last);
 	void cycle_sprite_updown(int first, int last);
 	SDL_Rect * get_rect();
+
+	Main &main_;
 private:
 };

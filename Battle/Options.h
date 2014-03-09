@@ -2,10 +2,14 @@
 
 #include "OptionsScreen.h"
 
+class Main;
+
 class Options : public OptionsScreen {
 public:
-	Options();
+	Options(Main &main);
 
 	void run();
 	void item_selected();
+
+	Main &main_;
 };
