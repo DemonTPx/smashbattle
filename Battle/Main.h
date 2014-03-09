@@ -26,6 +26,12 @@ enum class MainRunModes
 	CLIENT
 };
 
+class Gameplay;
+namespace network {
+class ServerClient;
+class Server;
+}
+
 class Main {
 public:
 
@@ -67,6 +73,8 @@ public:
 	Graphics * graphics;
 	Text * text;
 
+	Gameplay *gameplay_;
+
 	unsigned int last_activity;
 	bool autoreset;
 	bool is_reset;
@@ -78,6 +86,13 @@ public:
 
 	Main();
 	~Main();
+
+	network::ServerClient &getServerClient();
+	network::Server &getServer();
+
+	void setGameplay(Gameplay *gameplay);
+	Gameplay &gameplay();
+
 	int run(const MainRunModes &);
 	void flip(bool no_cap = false);
 	void handle_event(SDL_Event * event);
@@ -94,4 +109,7 @@ private:
 	void save_options();
 
 	void set_default_controlschemes();
+
+	network::ServerClient *serverClient_;
+	network::Server *server_;
 };

@@ -6,6 +6,7 @@
 #include "NetworkMultiplayer.h"
 #include "Projectile.h"
 #include "Bomb.h"
+#include "Main.h"
 
 #include <sstream>
 

@@ -22,6 +22,13 @@ using std::map;
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
+#include "Main.h"
+
+NetworkMultiplayer::NetworkMultiplayer (Main &main) 
+: LocalMultiplayer(main)
+{
+	main.setGameplay(this);
+}
 
 void NetworkMultiplayer::on_game_reset()
 {
@@ -170,11 +177,11 @@ GameplayObject *NetworkMultiplayer::generate_powerup(bool force)
 	if (powerup)
 	{
 		network::CommandGeneratePowerup genpow;
-		genpow.data.time = network::Server::getInstance().getServerTime();
+		genpow.data.time = main_.getServer().getServerTime();
 		genpow.data.powerupid = powerup->id();
 		powerup->copyTo(genpow);
 
-		network::Server::getInstance().sendAll(genpow);
+		main_.getServer().sendAll(genpow);
 	}
 	return powerup;
 }

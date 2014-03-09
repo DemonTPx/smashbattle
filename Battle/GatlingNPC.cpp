@@ -1,10 +1,9 @@
 #include "SDL/SDL.h"
 
 #include "Gameplay.h"
-
 #include "Projectile.h"
-
 #include "GatlingNPC.h"
+#include "Main.h"
 
 #define GATLING_L1	0
 #define GATLING_L2	1
@@ -44,9 +43,9 @@ GatlingNPC::~GatlingNPC()
 void GatlingNPC::process() {
 	if(!is_dead && hitpoints <= 0) {
 		is_dead = true;
-		dead_start = Gameplay::frame;
+		dead_start = main_.gameplay().frame;
 	}
-	if(is_dead && (Gameplay::frame - dead_start >= 30)) {
+	if(is_dead && (main_.gameplay().frame - dead_start >= 30)) {
 		done = true;
 	}
 
@@ -57,9 +56,9 @@ void GatlingNPC::process() {
 	range.h = 4;
 	range.w = 500;
 
-	player = Gameplay::instance->players->at(0)->position;
+	player = main_.gameplay().players->at(0)->position;
 
-	if(Gameplay::instance->is_intersecting(player, &range)) {
+	if(main_.gameplay().is_intersecting(player, &range)) {
 		shoot();
 	}
 }
@@ -77,12 +76,12 @@ void GatlingNPC::reset() {
 }
 
 void GatlingNPC::shoot() {
-	if(Gameplay::frame - shoot_start < 6) return;
+	if(main_.gameplay().frame - shoot_start < 6) return;
 
 	Projectile * pr;
 	SDL_Rect * clip_weapon;
 
-	shoot_start = Gameplay::frame;
+	shoot_start = main_.gameplay().frame;
 
 	clip_weapon = new SDL_Rect();
 	clip_weapon->x = 0;
@@ -114,7 +113,7 @@ void GatlingNPC::shoot() {
 			break;
 	}
 	
-	Gameplay::instance->add_object(pr);
+	main_.gameplay().add_object(pr);
 	
 	cycle_sprite_updown(frame_first, frame_last);
 }

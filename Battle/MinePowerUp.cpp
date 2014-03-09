@@ -3,6 +3,7 @@
 #include "GameplayObject.h"
 #include "MinePowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
 MinePowerUp::MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main) : main_(main) {
 	clip->x = 128;

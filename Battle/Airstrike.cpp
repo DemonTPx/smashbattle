@@ -3,13 +3,13 @@
 #include "Gameplay.h"
 #include "AudioController.h"
 #include "Bomb.h"
-
+#include "Main.h"
 #include "Airstrike.h"
 
 const int Airstrike::DELAY = 120;
 
 Airstrike::Airstrike(Main &main) : main_(main) {
-	start = Gameplay::instance->frame;
+	start = main_.gameplay().frame;
 
 	position = new SDL_Rect();
 	position->x = 0;
@@ -25,10 +25,10 @@ Airstrike::~Airstrike() {
 void Airstrike::move(Level * level) {}
 
 void Airstrike::process() {
-	if(Gameplay::instance->frame - start == 1) {
+	if(main_.gameplay().frame - start == 1) {
 		main_.audio->play(SND_AIRSTRIKE);
 	}
-	if(Gameplay::instance->frame - start == DELAY) {
+	if(main_.gameplay().frame - start == DELAY) {
 		// Generate bombs!
 
 		Bomb * b;
@@ -48,13 +48,13 @@ void Airstrike::process() {
 			b->time = 900;
 			b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
 			b->owner = owner;
-			b->frame_start = Gameplay::instance->frame;
-			b->frame_change_start = Gameplay::frame;
+			b->frame_start = main_.gameplay().frame;
+			b->frame_change_start = main_.gameplay().frame;
 			b->frame_change_count = 12;
 			b->hit_on_impact = true;
 			b->current_frame = Bomb::FRAME_STRIKE_NORMAL;
 
-			Gameplay::instance->add_object(b);
+			main_.gameplay().add_object(b);
 		}
 
 		done = true;

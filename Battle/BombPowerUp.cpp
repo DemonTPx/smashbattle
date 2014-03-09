@@ -3,6 +3,7 @@
 #include "GameplayObject.h"
 #include "BombPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
 BombPowerUp::BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main) : main_(main) {
 	clip->x = 16;

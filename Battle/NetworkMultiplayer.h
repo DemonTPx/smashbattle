@@ -5,7 +5,7 @@
 class NetworkMultiplayer : public LocalMultiplayer 
 {
 public:
-	NetworkMultiplayer (Main &main) : LocalMultiplayer(main) {}
+	NetworkMultiplayer (Main &main);
 	~NetworkMultiplayer() {}
 
 protected:

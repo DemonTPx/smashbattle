@@ -17,11 +17,9 @@
 #define sprintf_s snprintf
 #endif
 
-int Gameplay::frame = 0;
-Gameplay * Gameplay::instance = 0;
-
 Gameplay::Gameplay(Main &main) : main_(main) {
-	instance = this;
+
+	frame = 0;
 
 	ticks_start = SDL_GetTicks();
 	
@@ -38,7 +36,6 @@ Gameplay::Gameplay(Main &main) : main_(main) {
 }
 
 Gameplay::~Gameplay() {
-	instance = NULL;
 }
 
 #include "network/Server.h"
@@ -83,7 +80,6 @@ void Gameplay::run() {
 				}
 
 				handle_pause_input(&event);
-
 			}
 		}
 
@@ -116,7 +112,7 @@ void Gameplay::run() {
 						case MainRunModes::CLIENT:
 							// Client will only process and send it's own projectiles to server, 
 							//  for other player bullets we depend on the server for sending them.
-							if (p->number == network::ServerClient::getInstance().getClientId())
+							if (p->number == main_.getServerClient().getClientId())
 								p->process();
 							break;
 						default:
@@ -196,9 +192,9 @@ void Gameplay::run() {
 
 		if (main_.runmode == MainRunModes::CLIENT)
 		{
-			if (!network::ServerClient::getInstance().isConnected())
+			if (!main_.getServerClient().isConnected())
 				draw_disconnected();
-			else if (network::ServerClient::getInstance().showConsole())
+			else if (main_.getServerClient().showConsole())
 				draw_console();
 		}
 
@@ -244,10 +240,10 @@ void Gameplay::move_player(Player &player)
 					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
 					if (obj->is_powerup && main_.runmode == MainRunModes::SERVER) {
 						network::CommandApplyPowerup apply;
-						apply.data.time = network::Server::getInstance().getServerTime();
+						apply.data.time = main_.getServer().getServerTime();
 						apply.data.player_id = p->number;
 						apply.data.powerup_id = obj->id();
-						network::Server::getInstance().sendAll(apply);
+						main_.getServer().sendAll(apply);
 					}
 					obj->hit_player(p);
 				}
@@ -298,10 +294,10 @@ bool Gameplay::process_gameplayobj(GameplayObject *gameplayobj)
 					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
 					if (obj->is_powerup && main_.runmode == MainRunModes::SERVER) {
 						network::CommandApplyPowerup apply;
-						apply.data.time = network::Server::getInstance().getServerTime();
+						apply.data.time = main_.getServer().getServerTime();
 						apply.data.player_id = p->number;
 						apply.data.powerup_id = obj->id();
-						network::Server::getInstance().sendAll(apply);
+						main_.getServer().sendAll(apply);
 					}
 					obj->hit_player(p);
 				}
@@ -616,9 +612,9 @@ void Gameplay::process_player_collission() {
 				//  on the server (I learned this by actually implementing it wrong).
 				// Therefore (re)set a timer that will periodically send our data to server.
 				// But we cannot do this 
-				if (main_.runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected()) {
-					if (network::ServerClient::getInstance().getClientId() == p1->number || network::ServerClient::getInstance().getClientId() == p2->number) {
-						network::ServerClient::getInstance().resetTimer();
+				if (main_.runmode == MainRunModes::CLIENT && main_.getServerClient().isConnected()) {
+					if (main_.getServerClient().getClientId() == p1->number || main_.getServerClient().getClientId() == p2->number) {
+						main_.getServerClient().resetTimer();
 					}
 				}
 			}

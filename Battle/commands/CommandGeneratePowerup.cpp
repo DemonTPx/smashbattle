@@ -2,6 +2,7 @@
 
 #include "CommandGeneratePowerup.h"
 
+#include "Main.h"
 #include "HealthPowerUp.h"
 #include "AmmoPowerUp.h"
 #include "DoubleDamagePowerUp.h"

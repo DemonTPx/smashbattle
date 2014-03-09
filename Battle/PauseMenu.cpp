@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "PauseMenu.h"
 #include "network/Server.h"
+#include "Main.h"
 
 PauseMenu::PauseMenu(SDL_Surface * s, Main &main) : main_(main) {
 	screen = s;
@@ -38,13 +39,13 @@ int PauseMenu::pause(Player * p) {
 	player->input->reset();
 
 	while(main_.running && paused) {
-		network::Server::getInstance().poll();
+		main_.getServer().poll();
 		while(SDL_PollEvent(&event)) {
 			main_.handle_event(&event);
 
 			// Handle player input
-			for(unsigned int idx = 0; idx < Gameplay::instance->players->size(); idx++) {
-				Player * p = Gameplay::instance->players->at(idx);
+			for(unsigned int idx = 0; idx < main_.gameplay().players->size(); idx++) {
+				Player * p = main_.gameplay().players->at(idx);
 				p->input->handle_event(&event);
 			}
 		}

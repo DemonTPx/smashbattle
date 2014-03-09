@@ -13,6 +13,7 @@
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
 const int RandomPowerUp::CYCLE_COUNT = 7;
 const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 80, 64, 112, 16, 128, 96};
@@ -80,7 +81,7 @@ void RandomPowerUp::hit_player(Player * p) {
 			break;
 		case RPU_SHIELD:
 			p->is_shielded = true;
-			p->shield_start = Gameplay::frame;
+			p->shield_start = main_.gameplay().frame;
 			break;
 	}
 

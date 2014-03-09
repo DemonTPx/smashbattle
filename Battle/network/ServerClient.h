@@ -77,12 +77,10 @@ public:
 		INITIALIZED = 2
 	};
 
+	
+	ServerClient();
 
-	static ServerClient& getInstance()
-	{
-		static ServerClient instance;
-		return instance;
-	}
+	void setMain(Main &main) { main_ = &main; };
 
 	void setCharacter(int character) { character_ = character; }
 	void setHost(std::string host) { host_ = host; }
@@ -144,7 +142,6 @@ protected:
 
 	
 private:
-	ServerClient();
 	~ServerClient();
 	
 	ServerClient(ServerClient const&); // Don't implement
@@ -192,7 +189,6 @@ private:
 	UDPpacket *p;
 
 	Main *main_;
-
 };
 
 }

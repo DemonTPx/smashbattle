@@ -299,8 +299,6 @@ void Player::reset() {
 }
 
 void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
-	if (main_.no_sdl)
-		return;
 
 	SDL_Rect rect;
 	SDL_Surface * sprites;
@@ -324,7 +322,7 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 	}
 
 	if(is_shielded) {
-		if((shield_start + PLAYER_SHIELD_FRAMES) - Gameplay::frame > 60) {
+		if((shield_start + PLAYER_SHIELD_FRAMES) - main_.gameplay().frame > 60) {
 			sprites = main_.graphics->shield;
 		} else {
 			shield_frame = (shield_frame + frames_processed) % 10;
@@ -332,6 +330,9 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 				sprites = main_.graphics->shield;
 		}
 	}
+
+	if (main_.no_sdl)
+		return;
 
 	SDL_BlitSurface(sprites, main_.graphics->player_clip[current_sprite], screen, &rect);
 
@@ -417,22 +418,22 @@ void Player::move(Level * level) {
 	
 	if(is_hit) {
 		// The player has been hit long enough
-		if(Gameplay::frame > hit_start + hit_delay) {
+		if(main_.gameplay().frame > hit_start + hit_delay) {
 			is_hit = false;
 		}
 	}
 
 	if(is_frozen) {
-		if(Gameplay::frame > freeze_start + PLAYER_FREEZE_FRAMES) {
+		if(main_.gameplay().frame > freeze_start + PLAYER_FREEZE_FRAMES) {
 			is_frozen = false;
 		}
 	}
 
 	if(is_shielded) {
-		if(Gameplay::frame > shield_start + PLAYER_SHIELD_FRAMES) {
+		if(main_.gameplay().frame > shield_start + PLAYER_SHIELD_FRAMES) {
 			is_shielded = false;
 		}
-		if(Gameplay::frame == (shield_start + PLAYER_SHIELD_FRAMES - 60)) {
+		if(main_.gameplay().frame == (shield_start + PLAYER_SHIELD_FRAMES - 60)) {
 			main_.audio->play(SND_SHIELD, position->x + (position->w / 2));
 		}
 	}
@@ -460,7 +461,7 @@ void Player::move(Level * level) {
 	
 	// Are we forced to being ducked?
 	if(is_duck_forced) {
-		if(Gameplay::frame - duck_force_start > DUCK_FORCE_FRAMES) {
+		if(main_.gameplay().frame - duck_force_start > DUCK_FORCE_FRAMES) {
 			is_duck_forced = false;
 		} else {
 			is_duck = true;
@@ -759,7 +760,7 @@ void Player::bounce(Player * other) {
 	if(is_below) {
 		bounce_direction_y = 1;
 		is_duck_forced = true;
-		duck_force_start = Gameplay::frame;
+		duck_force_start = main_.gameplay().frame;
 		momentumy = -10;
 		if(damage(WEIGHTCLASSES[other->weightclass].headjump_damage)) {
 			other->headstomps++;
@@ -790,7 +791,7 @@ void Player::bounce(Player * other) {
 void Player::bounce_up(SDL_Rect * source) {
 	is_falling = true;
 	is_frozen = true;
-	freeze_start = Gameplay::frame;
+	freeze_start = main_.gameplay().frame;
 	momentumy = WEIGHTCLASSES[weightclass].bounce_momentum_x;
 	if(position->x < source->x) {
 		momentumx -= WEIGHTCLASSES[weightclass].bounce_momentum_y;
@@ -812,7 +813,7 @@ bool Player::damage(int damage) {
 		return false;
 
 	is_hit = true;
-	hit_start = Gameplay::frame;
+	hit_start = main_.gameplay().frame;
 
 	switch (main_.runmode) {
 		default:
@@ -831,7 +832,7 @@ bool Player::damage(int damage) {
 				points.data.client_id = number;
 				points.data.hitpoints = hitpoints;
 
-				network::Server::getInstance().sendAll(points);
+				main_.getServer().sendAll(points);
 			}
 			break;
 		case MainRunModes::CLIENT:
@@ -849,45 +850,45 @@ void Player::process() {
 		return;
 
 	if(input->is_pressed(A_SHOOT)) {
-		if(Gameplay::frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
+		if(main_.gameplay().frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
 			(((bullets == BULLETS_UNLIMITED) ||  bullets > 0) ||
 			((doubledamagebullets == BULLETS_UNLIMITED) ||  doubledamagebullets > 0) ||
 			((instantkillbullets == BULLETS_UNLIMITED) ||  instantkillbullets > 0))) 
 		{
 			Projectile *proj = create_projectile_for_player(position->x, position->y);
 
-			if (main_.runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
+			if (main_.runmode == MainRunModes::CLIENT && main_.getServerClient().isConnected())
 			{
 				network::CommandShotFired fire;
 				fire.data.time = SDL_GetTicks();
 				// this is discarded by server anyway, we cannot send for other clients
-				fire.data.client_id = network::ServerClient::getInstance().getClientId(); 
+				fire.data.client_id = main_.getServerClient().getClientId(); 
 				// current sprite determines direction of bullet
 				fire.data.current_sprite = current_sprite;
 				fire.data.x = position->x;
 				fire.data.y = position->y;
 				fire.data.distance_travelled = proj->distance_traveled;
-				network::ServerClient::getInstance().send(fire);
+				main_.getServerClient().send(fire);
 			}
 		}
 	}
 	if(input->is_pressed(A_BOMB)) {
-		if(Gameplay::frame > bomb_start + bomb_delay &&
+		if(main_.gameplay().frame > bomb_start + bomb_delay &&
 			(bombs > 0 || bombs == -1 || mines > 0 || mines == -1)) 
 		{
 			Bomb *newbomb = create_bomb_for_player(position->x, position->y);
 			
-			if (main_.runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
+			if (main_.runmode == MainRunModes::CLIENT && main_.getServerClient().isConnected())
 			{
 				network::CommandBombDropped bomb;
 				bomb.data.time = SDL_GetTicks();
 				// this is discarded by server anyway, we cannot send for other clients
-				bomb.data.client_id = network::ServerClient::getInstance().getClientId(); 
+				bomb.data.client_id = main_.getServerClient().getClientId(); 
 				// current sprite determines direction of bullet
 				bomb.data.current_sprite = current_sprite;
 				bomb.data.x = newbomb->position->x;
 				bomb.data.y = newbomb->position->y;
-				network::ServerClient::getInstance().send(bomb);
+				main_.getServerClient().send(bomb);
 			}
 		}
 	}
@@ -912,7 +913,7 @@ Projectile * Player::create_projectile_for_player(Sint16 x, Sint16 y)
 
 Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 {
-	shoot_start = Gameplay::frame;
+	shoot_start = main_.gameplay().frame;
 	Projectile * pr;
 	SDL_Rect * clip_weapon;
 	bool doubledamage;
@@ -952,7 +953,7 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 		pr->position->y = y;
 	else
 		pr->position->y = y;
-	Gameplay::instance->add_object(pr);
+	main_.gameplay().add_object(pr);
 
 	pr->max_distance = WEAPONCLASSES[weaponclass].distance;
 	
@@ -982,7 +983,7 @@ Bomb* Player::create_bomb_for_player(Sint16 x, Sint16 y)
 
 Bomb* Player::create_bomb(Sint16 x, Sint16 y)
 {
-	bomb_start = Gameplay::frame;
+	bomb_start = main_.gameplay().frame;
 
 	Bomb * b;
 
@@ -993,13 +994,13 @@ Bomb* Player::create_bomb(Sint16 x, Sint16 y)
 
 	b->damage = BOMBPOWERCLASSES[bombpowerclass].damage;
 	b->time = 60;
-	b->frame_start = Gameplay::frame;
-	b->frame_change_start = Gameplay::frame;
+	b->frame_start = main_.gameplay().frame;
+	b->frame_change_start = main_.gameplay().frame;
 	b->frame_change_count = 12;
 	b->owner = this;
 	b->position->x = x;
 	b->position->y = y;
-	Gameplay::instance->add_object(b);
+	main_.gameplay().add_object(b);
 	
 	if(mines > 0) {
 		mines -= 1;

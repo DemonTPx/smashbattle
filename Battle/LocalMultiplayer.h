@@ -5,7 +5,7 @@
 class LocalMultiplayer : public Gameplay {
 public:
 
-	LocalMultiplayer(Main &main) : Gameplay(main), winner(NULL), main_(main) {}
+	LocalMultiplayer(Main &main);
 
 
 	void set_ended(bool val) { this->ended = val; };

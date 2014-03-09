@@ -2,11 +2,12 @@
 
 #include "Gameplay.h"
 #include "Mine.h"
+#include "Main.h"
 
 Mine::Mine(SDL_Surface * surface, Main &main) : Bomb(surface, main), main_(main) {
 	flash_interval = 50;
 	flash_length = 10;
-	flash_start = Gameplay::frame;
+	flash_start = main_.gameplay().frame;
 
 	position->w = MINE_W;
 	position->h = MINE_H;
@@ -18,14 +19,14 @@ void Mine::process() {
 	if(!exploded) {
 		// Animate mine
 		if(current_frame == FRAME_NORMAL) {
-			if(Gameplay::frame - flash_start >= flash_interval) {
+			if(main_.gameplay().frame - flash_start >= flash_interval) {
 				current_frame = FRAME_FLASH;
 				main_.audio->play(SND_BLIP, position->x);
 			}
 		} else {
-			if(Gameplay::frame - flash_start - flash_interval >= flash_length) {
+			if(main_.gameplay().frame - flash_start - flash_interval >= flash_length) {
 				current_frame = FRAME_NORMAL;
-				flash_start = Gameplay::frame;
+				flash_start = main_.gameplay().frame;
 			}
 		}
 	}

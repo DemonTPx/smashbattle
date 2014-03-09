@@ -43,6 +43,8 @@ Mission::Mission(Main &main) : Gameplay(main), main_(main) {
 
 	player_won = false;
 	cup = 2;
+
+	main.setGameplay(this);
 }
 
 void Mission::initialize() {
@@ -195,7 +197,7 @@ void Mission::on_post_processing() {
 				main_.audio->play(SND_YOULOSE, p->position->x);
 
 				p->is_dead = true;
-				p->dead_start = Gameplay::frame;
+				p->dead_start = main_.gameplay().frame;
 				p->is_hit = true;
 
 				ended = true;

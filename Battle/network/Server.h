@@ -27,10 +27,7 @@ class ServerState;
 class Server {
 public:
 
-	static Server& getInstance() {
-		static Server instance;
-		return instance;
-	}
+	Server();
 
 	void setMain(Main &main);
 	Main & getMain();
@@ -106,7 +103,6 @@ public:
 	}
 	
 private:
-	Server();
 	~Server();
 
 	// Prevent copies of server

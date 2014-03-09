@@ -184,14 +184,6 @@ void ServerStateAcceptClients::execute_character_requested(Uint32 servertime, Se
 	CommandSetServerReady cmdrdy;
 	client.send(cmdrdy);
 
-	CommandSetBroadcastText broadcast;
-	broadcast.data.time = server.getServerTime();
-	string text("FUCK YOU");
-	strncpy(broadcast.data.text, text.c_str() , text.length());
-	broadcast.data.duration = 10000;
-	client.send(broadcast);
-
-
 	client.setState(Client::State::SERVERSIDE_READY);
 }
 void ServerStateAcceptClients::execute_character_initialized(Uint32 servertime, Server &server, Client &client) const

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Main.h"
 #include "Level.h"
+#include "GameInput.h"
 
 #define FACE_LEFT 0
 #define FACE_RIGHT 1

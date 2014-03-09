@@ -2,6 +2,7 @@
 
 #include "Player.h"
 #include "Graphics.h"
+#include "Main.h"
 
 Graphics::Graphics(Main &main) : main_(main) {
 }

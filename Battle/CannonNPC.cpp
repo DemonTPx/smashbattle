@@ -1,10 +1,9 @@
 #include "SDL/SDL.h"
 
 #include "Gameplay.h"
-
 #include "Projectile.h"
-
 #include "CannonNPC.h"
+#include "Main.h"
 
 #define CANNON_W	0
 #define CANNON_NW	1
@@ -50,9 +49,9 @@ CannonNPC::~CannonNPC()
 void CannonNPC::process() {
 	if(!is_dead && hitpoints <= 0) {
 		is_dead = true;
-		dead_start = Gameplay::frame;
+		dead_start = main_.gameplay().frame;
 	}
-	if(is_dead && (Gameplay::frame - dead_start >= 30)) {
+	if(is_dead && (main_.gameplay().frame - dead_start >= 30)) {
 		done = true;
 	}
 
@@ -62,11 +61,11 @@ void CannonNPC::process() {
 		frame_last = CANNON_E_D;
 	}
 
-	if(Gameplay::frame % 60 == 0) {
+	if(main_.gameplay().frame % 60 == 0) {
 		cycle_sprite_updown(frame_first, frame_last);
 	}
 
-	if(Gameplay::frame % 20 == 0) {
+	if(main_.gameplay().frame % 20 == 0) {
 		shoot();
 	}
 }
@@ -135,7 +134,7 @@ void CannonNPC::shoot() {
 			break;
 	}
 	
-	Gameplay::instance->add_object(pr);
+	main_.gameplay().add_object(pr);
 }
 
 void CannonNPC::hit_player_side(Player * p) {

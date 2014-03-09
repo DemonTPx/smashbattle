@@ -44,8 +44,8 @@ void ServerListing::item_selected()
 	json::Object obj = servers_[(size_t)selected_item];
 	std::cout << " Selected item is: " << (std::string)obj["host"] << ":" << (int)obj["port"] << std::endl;
 	
-	network::ServerClient::getInstance().setHost((std::string)obj["host"]);
-	network::ServerClient::getInstance().setPort((int)obj["port"]);
+	main_.getServerClient().setHost((std::string)obj["host"]);
+	main_.getServerClient().setPort((int)obj["port"]);
 	
 	main_.reset_inputs();
 	

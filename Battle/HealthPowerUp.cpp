@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 
 #include "GameplayObject.h"
+#include "Main.h"
 #include "HealthPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 

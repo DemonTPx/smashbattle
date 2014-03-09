@@ -3,6 +3,7 @@
 #include "GameplayObject.h"
 #include "AmmoPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
 AmmoPowerUp::AmmoPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : main_(main) {
 	clip->x = 32;

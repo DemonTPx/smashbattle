@@ -8,9 +8,11 @@ namespace network {
 class CommandGeneratePowerup;
 }
 
+class Main;
+
 class GameplayObject {
 public:
-	GameplayObject();
+	GameplayObject(Main &main);
 	virtual ~GameplayObject();
 	
 	virtual void move(Level * level) = 0;
@@ -34,4 +36,6 @@ public:
 private:
 
 	short id_;
+
+	Main &main_;
 };

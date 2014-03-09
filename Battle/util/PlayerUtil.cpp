@@ -8,6 +8,7 @@
 #include "network/Server.h" // todo refactor this
 #include "Gameplay.h"
 #include "util/Log.h"
+#include "Main.h"
 
 namespace player_util
 {
@@ -86,9 +87,9 @@ namespace player_util
 	{
 		Gameplay * game = NULL;
 		if (main_.runmode == MainRunModes::CLIENT)
-			game = &network::ServerClient::getInstance().getGame();
+			game = &main_.getServerClient().getGame();
 		else if (main_.runmode == MainRunModes::SERVER)
-			game = &network::Server::getInstance().getGame();
+			game = &main_.getServer().getGame();
 		else
 			throw std::runtime_error("unsupported game type");
 

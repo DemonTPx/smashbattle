@@ -2,11 +2,11 @@
 
 #include "Gameplay.h"
 #include "AudioController.h"
-
 #include "LaserBeam.h"
+#include "Main.h"
 
-LaserBeam::LaserBeam(Main &main) : main_(main) {
-	start = Gameplay::instance->frame;
+LaserBeam::LaserBeam(Main &main) : GameplayObject(main), main_(main) {
+	start = main_.gameplay().frame;
 
 	position = new SDL_Rect();
 	position->x = 0;
@@ -23,7 +23,7 @@ LaserBeam::~LaserBeam() {
 void LaserBeam::move(Level * level) {
 	int frame;
 
-	frame = Gameplay::instance->frame - start;
+	frame = main_.gameplay().frame - start;
 
 	if (frame == 10) {
 		SDL_Rect rect;
@@ -44,7 +44,7 @@ void LaserBeam::move(Level * level) {
 void LaserBeam::process() {
 	int frame;
 
-	frame = Gameplay::instance->frame - start;
+	frame = main_.gameplay().frame - start;
 
 	if(frame == 1) {
 		if(target->is_dead) {
@@ -67,7 +67,7 @@ void LaserBeam::process() {
 void LaserBeam::hit_player(Player * player) {
 	if(player == owner)
 		return;
-	if(Gameplay::frame - start < 10)
+	if(main_.gameplay().frame - start < 10)
 		return;
 	player->damage(25);
 }
@@ -81,7 +81,7 @@ void LaserBeam::draw(SDL_Surface * screen, int frames_processed) {
 	int frame;
 	Uint32 color;
 
-	frame = Gameplay::instance->frame - start;
+	frame = main_.gameplay().frame - start;
 
 	if(frame < 0) return;
 

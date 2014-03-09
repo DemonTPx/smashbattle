@@ -4,6 +4,7 @@
 #include "GameplayObject.h"
 #include "ShieldPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
 ShieldPowerUp::ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main) : main_(main) {
 	clip->x = 96;
@@ -23,7 +24,7 @@ void ShieldPowerUp::hit_player(Player * p) {
 	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->is_shielded = true;
-	p->shield_start = Gameplay::frame;
+	p->shield_start = main_.gameplay().frame;
 
 	done = true;
 }

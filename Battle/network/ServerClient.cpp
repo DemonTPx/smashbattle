@@ -136,6 +136,11 @@ void ServerClient::poll()
 	if (!is_connected_)
 		return;
 
+	// In a server we cannot expect this to do anything
+	if (main_->no_sdl) {
+		return;
+	}
+	
 	while (SDLNet_UDP_Recv(sd, p)) {
 		log(format("UDP Packet incoming\n"), Logger::Priority::DEBUG);
 		log(format("\tChan:    %d\n", p->channel), Logger::Priority::DEBUG);
@@ -159,24 +164,24 @@ void ServerClient::poll()
 		calculatedLag += 1000;
 		CommandPing command;
 		command.data.time = current;
-		ServerClient::getInstance().send(command);
+		main_->getServerClient().send(command);
 	}
 
 
 	// Send update if ResetTimer was not reset for 200 milliseconds
 	// To generally fix out of sync errors if they occur
-	if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED)
+	if (main_->getServerClient().getState() == ServerClient::State::INITIALIZED)
 	{
-		if ((SDL_GetTicks() - ServerClient::getInstance().getResetTimer()) > 200)
+		if ((SDL_GetTicks() - main_->getServerClient().getResetTimer()) > 200)
 		{
 			CommandSetPlayerData pos;
 			try {
-				player_util::set_position_data(pos, getClientId(), SDL_GetTicks(), ServerClient::getInstance().getUdpSeq(), player_util::get_player_by_id(*main_, getClientId()));
-				ServerClient::getInstance().resetTimer();
+				player_util::set_position_data(pos, getClientId(), SDL_GetTicks(), main_->getServerClient().getUdpSeq(), player_util::get_player_by_id(*main_, getClientId()));
+				main_->getServerClient().resetTimer();
 
 				// Do not send update to server if we're dead
-				if (!player_->is_dead && !ServerClient::getInstance().getGame().is_ended() && !ServerClient::getInstance().getGame().is_countdown())
-					ServerClient::getInstance().send(pos);
+				if (!player_->is_dead && !main_->getServerClient().getGame().is_ended() && !main_->getServerClient().getGame().is_countdown())
+					main_->getServerClient().send(pos);
 			}
 			catch (std::runtime_error &err) {
 				log(err.what(), Logger::Priority::ERROR);
@@ -668,7 +673,7 @@ bool ServerClient::process(CommandSetPlayerScore *command)
 
 bool ServerClient::process(CommandSetGameStart *command)
 {
-	ServerClient::getInstance().resumeGameIn(command->data.delay);
+	main_->getServerClient().resumeGameIn(command->data.delay);
 	return true;
 }
 

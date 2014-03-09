@@ -1,7 +1,7 @@
 #include "SDL/SDL.h"
 
 #include "Gameplay.h"
-
+#include "Main.h"
 #include "ChickNPC.h"
 
 ChickNPC::ChickNPC(Main &main) : NPC(main) {
@@ -64,7 +64,7 @@ void ChickNPC::process() {
 			rect.y = position->y;
 		}
 
-		if(!Gameplay::instance->level->is_on_bottom(&rect)) {
+		if(!main_.gameplay().level->is_on_bottom(&rect)) {
 			move_direction = -move_direction;
 		}
 	}

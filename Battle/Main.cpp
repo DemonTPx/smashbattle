@@ -33,6 +33,11 @@ using std::string;
 #include <unistd.h> // for chdir
 #endif
 
+#include "Gameplay.h"
+#include "Airstrike.h"
+#include "ServerClient.h"
+#include "Server.h"
+
 Main::Main()
 :
 	/**
@@ -50,9 +55,17 @@ Main::Main()
 	CONTROLS_REPEAT_DELAY(30),
 	CONTROLS_REPEAT_SPEED(10),
 
-	JOYSTICK_AXIS_THRESHOLD(0x3fff)
+	JOYSTICK_AXIS_THRESHOLD(0x3fff),
+
+	gameplay_(NULL),
+
+	serverClient_(NULL),
+	server_(NULL)
 
 {
+	serverClient_ = new network::ServerClient(*this);
+	server_ = new network::Server(*this);
+
 	screen = NULL;
 	flags = SDL_SWSURFACE;
 
@@ -81,10 +94,28 @@ Main::Main()
 
 	runmode = MainRunModes::ARCADE;
 	no_sdl = false;
+}
 
+network::ServerClient & Main::getServerClient()
+{
+	return *serverClient_;
+}
+
+network::Server & Main::getServer()
+{
+	return *server_;
+}
+
+void Main::setGameplay(Gameplay *gameplay) {
+	gameplay_ = gameplay;
+}
+
+Gameplay &Main::gameplay() {
+	return *gameplay_;
 }
 
 Main::~Main() {
+	delete(gameplay_);
 }
 
 bool Main::init() {
@@ -177,9 +208,9 @@ void Main::clean_up() {
 
 void Main::flip(bool no_cap) 
 {
-	network::Server::getInstance().poll();
+	main_.getServer().poll();
 
-	network::ServerClient::getInstance().poll();
+	getServerClient().poll();
 
 	fps_count();
 
@@ -222,8 +253,8 @@ void Main::fps_count() {
 		SDL_Surface * surf;
 		SDL_Rect rect;
 
-		if (network::ServerClient::getInstance().isConnected())
-			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, network::ServerClient::getInstance().getLag().avg());
+		if (getServerClient().isConnected())
+			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, getServerClient().getLag().avg());
 		else
 			sprintf(cap, "%d FPS", fps_counter_this_frame);
 
@@ -271,13 +302,13 @@ void Main::handle_event(SDL_Event * event) {
 		}
 		if(event->key.keysym.sym == SDLK_F1) {
 			// Toggle console in case we're in client mode
-			if (runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
-				network::ServerClient::getInstance().toggleConsole();
+			if (runmode == MainRunModes::CLIENT && getServerClient().isConnected())
+				getServerClient().toggleConsole();
 		}
 		if(event->key.keysym.sym == SDLK_F5) {
 			// Re-set server, accept client connects..
-			if (runmode == MainRunModes::SERVER && network::Server::getInstance().active())
-				network::Server::getInstance().setState(new network::ServerStateAcceptClients());
+			if (runmode == MainRunModes::SERVER && main_.getServer().active())
+				main_.getServer().setState(new network::ServerStateAcceptClients());
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
@@ -342,29 +373,31 @@ int Main::run(const MainRunModes &runmode)
 
 		case MainRunModes::SERVER:
 			running = true;
-			network::Server::getInstance().setMain(*this);
+			main_.getServer().setMain(*this);
 
 			while (network::Server::active() && running)
 			{
 
 				NetworkMultiplayer multiplayer(*this);
-				Level &level(network::Server::getInstance().getLevel());
+				Level &level(main_.getServer().getLevel());
 				multiplayer.set_level(&level);
 
 				// This is a little bit of a design flaw, need to refactor server a bit later.
-				network::Server::getInstance().initializeGame(multiplayer);
+				main_.getServer().initializeGame(multiplayer);
 
-				network::Server::getInstance().initializeLevel();
+				main_.getServer().initializeLevel();
 				
-				network::Server::getInstance().listen();
+				main_.getServer().listen();
 
-				network::Server::getInstance().registerServer();
+				main_.getServer().registerServer();
 
 				multiplayer.run();
 			}
 			break;
 		case MainRunModes::CLIENT:
 			fps_counter_visible = true;
+
+			main_.getServer().setMain(*this);
 
 			network::ClientNetworkMultiplayer clientgame(*this);
 
@@ -520,7 +553,7 @@ int main(int argc, char* args[])
 
 			log(format("program started with -s flag, parsed level %s and port %d", level.c_str(), stoi(strport)), Logger::Priority::INFO);
 			
-			network::Server::getInstance().setState(new network::ServerStateInitialize(level, stoi(strport), servername));
+			main_.getServer().setState(new network::ServerStateInitialize(level, stoi(strport), servername));
 
 			return main.run(MainRunModes::SERVER);
 		}
@@ -534,8 +567,8 @@ int main(int argc, char* args[])
 			if (2 == sscanf(args[1], "smashbattle://%80[^:]:%5[0-9]/", host, port)) {
 				log(format("initialized as client, connect to: %s && %s", host, port), Logger::Priority::INFO);
 
-				network::ServerClient::getInstance().setHost(host);
-				network::ServerClient::getInstance().setPort(atoi(port));
+				getServerClient().setHost(host);
+				getServerClient().setPort(atoi(port));
 
 				return main.run(MainRunModes::CLIENT);
 			}
@@ -546,7 +579,7 @@ int main(int argc, char* args[])
 	auto f1 = std::async( std::launch::async, []{
 		Main main;
 		main.no_sdl = true;
-		network::Server::getInstance().setState(new network::ServerStateInitialize("TRAINING DOJO", 1111, "RAY'S ASYNC SERV"));
+		main_.getServer().setState(new network::ServerStateInitialize("TRAINING DOJO", 1111, "RAY'S ASYNC SERV"));
 		return main.run(MainRunModes::SERVER);
 	});
 

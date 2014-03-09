@@ -21,6 +21,12 @@
 #define sprintf_s snprintf
 #endif
 
+LocalMultiplayer::LocalMultiplayer(Main &main) 
+: Gameplay(main), winner(NULL), main_(main)
+{
+	main_.setGameplay(this);
+}
+
 void LocalMultiplayer::set_countdown(bool countdown, int seconds)
 {
 	this->countdown = countdown;
@@ -151,7 +157,7 @@ void LocalMultiplayer::on_post_processing() {
 				main_.audio->play(SND_YOULOSE, p->position->x);
 
 				p->is_dead = true;
-				p->dead_start = Gameplay::frame;
+				p->dead_start = main_.gameplay().frame;
 				p->is_hit = true;
 
 				for(unsigned int i2 = 0; i2 < players->size(); i2++) {
@@ -329,7 +335,7 @@ void LocalMultiplayer::draw_score() {
 	rect.h = 32;
 	SDL_FillRect(screen, &rect, 0x222222);
 
-	if(Gameplay::instance->players->size() == 2)
+	if(main_.gameplay().players->size() == 2)
 		draw_score_duel();
 	else
 		draw_score_multi();

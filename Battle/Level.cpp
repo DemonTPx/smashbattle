@@ -557,16 +557,14 @@ int Level::tile_pos(int x, int y) {
 
 void Level::draw(SDL_Surface * screen, int frames_processed) {
 
-	if (main_.no_sdl)
-		return;
-
 	SDL_Rect rect;
 	SDL_Rect rect_s;
 
 	rect.w = TILE_W;
 	rect.h = TILE_H;
 
-	SDL_BlitSurface(background, NULL, screen, NULL);
+	if (!main_.no_sdl)
+		SDL_BlitSurface(background, NULL, screen, NULL);
 
 	// Draw each sprite, one by one
 
@@ -596,7 +594,7 @@ void Level::draw(SDL_Surface * screen, int frames_processed) {
 		// Show bouncing tiles
 		if(level_bounce[i] != 0) {
 			level_bounce[i] += frames_processed;
-			level_bounce_start[i] = Gameplay::frame;
+			level_bounce_start[i] = main_.gameplay().frame;
 			if(level_bounce[i] >= BOUNCE_LAST_FRAME) {
 				level_bounce[i] = 0;
 			}
@@ -607,7 +605,8 @@ void Level::draw(SDL_Surface * screen, int frames_processed) {
 			}
 		}
 
-		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
+		if (!main_.no_sdl)
+			SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}
 }
 
@@ -811,7 +810,7 @@ void Level::bounce_tile(SDL_Rect * rect) {
 
 	// Start bouncing
 	level_bounce[pos] = 1;
-	level_bounce_start[pos] = Gameplay::frame;
+	level_bounce_start[pos] = main_.gameplay().frame;
 
 	// Check if a player is standing on the tile
 	SDL_Rect rect_hit;
@@ -820,6 +819,6 @@ void Level::bounce_tile(SDL_Rect * rect) {
 	rect_hit.w = TILE_W;
 	rect_hit.h = BOUNCE_HIT_HEIGHT;
 
-	Gameplay::instance->bounce_up_players_and_npcs(&rect_hit, rect);
+	main_.gameplay().bounce_up_players_and_npcs(&rect_hit, rect);
 }
 
