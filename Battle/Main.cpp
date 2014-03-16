@@ -397,6 +397,7 @@ int Main::run(const MainRunModes &runmode)
 			fps_counter_visible = true;
 
 			getServer().setMain(*this);
+			getServerClient().setCharacter((int)online_character);
 
 			network::ClientNetworkMultiplayer clientgame(*this);
 
@@ -605,9 +606,7 @@ void Main::load_options() {
 	file.open(filename, std::ifstream::in | std::ifstream::binary);
 
 	if(file.eof() || !file.is_open()) {
-		audio->options.sound_volume = 100;
-		audio->options.music_volume = 100;
-		set_default_controlschemes();
+		load_default_options();
 		file.close();
 		return;
 	}
@@ -615,9 +614,7 @@ void Main::load_options() {
 	file.read((char*)&hdr, sizeof(SaveHeader));
 	
 	if(hdr.signature != SAVE_SIGNATURE || hdr.version != SAVE_VERSION) {
-		audio->options.sound_volume = 100;
-		audio->options.music_volume = 100;
-		set_default_controlschemes();
+		load_default_options();
 		file.close();
 		return;
 	}
@@ -628,7 +625,24 @@ void Main::load_options() {
 		input[i]->load_options(&file);
 	}
 
+	if (!file.eof()) {
+		file.read((char*)&online_character, sizeof(online_character));
+	}
+	else {
+		srand(SDL_GetTicks());
+		online_character = (Uint8)(rand() % Player::CHARACTER_COUNT);
+	}
+
 	file.close();
+}
+
+void Main::load_default_options()
+{
+	audio->options.sound_volume = 100;
+	audio->options.music_volume = 100;
+	set_default_controlschemes();
+	srand(SDL_GetTicks());
+	online_character = (Uint8)(rand() % Player::CHARACTER_COUNT);
 }
 
 void Main::save_options() {
@@ -659,6 +673,8 @@ void Main::save_options() {
 	for(int i = 0; i < 4; i++) {
 		input[i]->save_options(&file);
 	}
+
+	file.write((char *)&online_character, sizeof(online_character));
 
 	file.close();
 }

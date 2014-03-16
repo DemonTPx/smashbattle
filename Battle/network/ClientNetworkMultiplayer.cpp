@@ -117,7 +117,9 @@ void ClientNetworkMultiplayer::start()
 	main_.getServerClient().setState(ServerClient::State::INITIALIZING);
 	main_.getServerClient().disconnect();
 	
-	main_.input_master->set_delay(20);
+	if (main_.input_master) {
+		main_.input_master->set_delay(20);
+	}
 }
 
 void ClientNetworkMultiplayer::draw_console()

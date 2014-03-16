@@ -84,6 +84,8 @@ public:
 	GameInput * input[4];
 	GameInput * input_master;
 
+	Uint8 online_character;
+
 	Main();
 	~Main();
 
@@ -106,6 +108,7 @@ private:
 	void take_screenshot();
 
 	void load_options();
+	void load_default_options();
 	void save_options();
 
 	void set_default_controlschemes();

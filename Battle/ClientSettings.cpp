@@ -6,8 +6,7 @@
 ClientSettings::ClientSettings(Main &main)
 : OptionsScreen("SET UP YOUR CHARACTER", main), main_(main)
 {
-	srand(SDL_GetTicks());
-	character_ = (int) (rand() % Player::CHARACTER_COUNT);
+	character_ = (int) main.online_character;
 	anim = new PlayerAnimation(character_, main);
 	selectServerText_ = "SELECT SERVER";
 	initialize();
@@ -50,6 +49,7 @@ void ClientSettings::item_selected()
 				std::cout << anim->character << std::endl;
 
 				character_ = cs.player_select[0];
+				main_.online_character = (Uint8)character_;
 			}
 			break;
 		}
