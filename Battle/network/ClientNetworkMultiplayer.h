@@ -42,6 +42,6 @@ private:
 	bool start_pressed_ = false;
 	int start_pressed_start = 0;
 
-	virtual void ClientNetworkMultiplayer::handle_pause_input(SDL_Event * event);
+	virtual void handle_pause_input(SDL_Event * event);
 };
 }
