@@ -84,15 +84,15 @@ Or use the shortcut (can be convenient when debugging):
     ./smashbattle -s "TRAINING DOJO" 1100 "RAY'S TRAINING SERVER" &
     sleep 3
     
-    ./smashbattle smashbattle://localhost:1100 2>&1 >>/dev/null &
+    ./smashbattle -c localhost:1100 2>&1 >>/dev/null &
     sleep 0.3
-    ./smashbattle smashbattle://localhost:1100 2>&1 >>/dev/null &
+    ./smashbattle -c localhost:1100 2>&1 >>/dev/null &
     sleep 0.3
-    ./smashbattle smashbattle://localhost:1100 2>&1 >>/dev/null &
+    ./smashbattle -c localhost:1100 2>&1 >>/dev/null &
     sleep 0.3
-    ./smashbattle smashbattle://localhost:1100 2>&1 >>/dev/null &
+    ./smashbattle -c localhost:1100 2>&1 >>/dev/null &
     sleep 0.3
-    ./smashbattle smashbattle://localhost:1100 2>&1 >>/dev/null &
+    ./smashbattle -c localhost:1100 2>&1 >>/dev/null &
     # etc....
 
     # You have one hour to kill everything with ctrl+c. :)
