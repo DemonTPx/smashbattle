@@ -5,7 +5,7 @@
 #include "HealthPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 
-HealthPowerUp::HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp, Main &main) : main_(main) {
+HealthPowerUp::HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 0;
 	clip->y = 0;
 	this->surface = surface;

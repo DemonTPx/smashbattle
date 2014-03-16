@@ -367,14 +367,14 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 
 	// Show lag above player if server is active
 	if (main_.runmode == MainRunModes::SERVER) {
-		SDL_Surface *surf = main_.text->render_text_small_gray(format("lag %.2f #%d [%d]", server_util::get_lag_for(*this), this->suit_number, (int)this->spectating()).c_str());
+		SDL_Surface *surf = main_.text->render_text_small_gray(format("lag %.2f #%d [%d]", server_util::get_lag_for(main_, *this), this->suit_number, (int)this->spectating()).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
 		SDL_FreeSurface(surf);
 	}
 	else if (main_.runmode == MainRunModes::CLIENT && main_.ingame_debug_visible) {
-		SDL_Surface *surf = main_.text->render_text_small_gray(format("[%d] lag %.2f #%d [%d]", this->number, server_util::get_lag_for(*this), this->suit_number, (int)this->spectating()).c_str());
+		SDL_Surface *surf = main_.text->render_text_small_gray(format("[%d] lag %.2f #%d [%d]", this->number, server_util::get_lag_for(main_, *this), this->suit_number, (int)this->spectating()).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
@@ -933,7 +933,7 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 	clip_weapon->w = 8;
 	clip_weapon->h = 8;
 
-	pr = new Projectile(main_.graphics->weapons, clip_weapon);
+	pr = new Projectile(main_.graphics->weapons, clip_weapon, main_);
 	pr->owner = this;
 	if(instantkill)
 		pr->damage = 100;

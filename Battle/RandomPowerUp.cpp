@@ -27,7 +27,7 @@ const int RandomPowerUp::CYCLE_DELAY = 20;
 #define RPU_MINE 5
 #define RPU_SHIELD 6
 
-RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position, Main &main) : main_(main) {
+RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
 	this->surface = surface;
 	this->position = position;
 

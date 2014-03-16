@@ -8,7 +8,7 @@
 
 const int Airstrike::DELAY = 120;
 
-Airstrike::Airstrike(Main &main) : main_(main) {
+Airstrike::Airstrike(Main &main) : GameplayObject(main), main_(main) {
 	start = main_.gameplay().frame;
 
 	position = new SDL_Rect();

@@ -38,6 +38,8 @@ using std::string;
 #include "ServerClient.h"
 #include "Server.h"
 
+// #define ENABLE_EMBEDDED_SERVER
+
 Main::Main()
 :
 	/**
@@ -63,8 +65,8 @@ Main::Main()
 	server_(NULL)
 
 {
-	serverClient_ = new network::ServerClient(*this);
-	server_ = new network::Server(*this);
+	serverClient_ = new network::ServerClient();
+	server_ = new network::Server();
 
 	screen = NULL;
 	flags = SDL_SWSURFACE;
@@ -208,7 +210,7 @@ void Main::clean_up() {
 
 void Main::flip(bool no_cap) 
 {
-	main_.getServer().poll();
+	getServer().poll();
 
 	getServerClient().poll();
 
@@ -307,8 +309,8 @@ void Main::handle_event(SDL_Event * event) {
 		}
 		if(event->key.keysym.sym == SDLK_F5) {
 			// Re-set server, accept client connects..
-			if (runmode == MainRunModes::SERVER && main_.getServer().active())
-				main_.getServer().setState(new network::ServerStateAcceptClients());
+			if (runmode == MainRunModes::SERVER && getServer().active())
+				getServer().setState(new network::ServerStateAcceptClients());
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
@@ -373,23 +375,23 @@ int Main::run(const MainRunModes &runmode)
 
 		case MainRunModes::SERVER:
 			running = true;
-			main_.getServer().setMain(*this);
+			getServer().setMain(*this);
 
-			while (network::Server::active() && running)
+			while (getServer().active() && running)
 			{
 
 				NetworkMultiplayer multiplayer(*this);
-				Level &level(main_.getServer().getLevel());
+				Level &level(getServer().getLevel());
 				multiplayer.set_level(&level);
 
 				// This is a little bit of a design flaw, need to refactor server a bit later.
-				main_.getServer().initializeGame(multiplayer);
+				getServer().initializeGame(multiplayer);
 
-				main_.getServer().initializeLevel();
+				getServer().initializeLevel();
 				
-				main_.getServer().listen();
+				getServer().listen();
 
-				main_.getServer().registerServer();
+				getServer().registerServer();
 
 				multiplayer.run();
 			}
@@ -397,7 +399,7 @@ int Main::run(const MainRunModes &runmode)
 		case MainRunModes::CLIENT:
 			fps_counter_visible = true;
 
-			main_.getServer().setMain(*this);
+			getServer().setMain(*this);
 
 			network::ClientNetworkMultiplayer clientgame(*this);
 
@@ -553,7 +555,11 @@ int main(int argc, char* args[])
 
 			log(format("program started with -s flag, parsed level %s and port %d", level.c_str(), stoi(strport)), Logger::Priority::INFO);
 			
-			main_.getServer().setState(new network::ServerStateInitialize(level, stoi(strport), servername));
+			main.getServer().setState(new network::ServerStateInitialize(level, stoi(strport), servername));
+
+#ifndef ENABLE_EMBEDDED_SERVER
+			main.no_sdl = true;
+#endif
 
 			return main.run(MainRunModes::SERVER);
 		}
@@ -567,8 +573,8 @@ int main(int argc, char* args[])
 			if (2 == sscanf(args[1], "smashbattle://%80[^:]:%5[0-9]/", host, port)) {
 				log(format("initialized as client, connect to: %s && %s", host, port), Logger::Priority::INFO);
 
-				getServerClient().setHost(host);
-				getServerClient().setPort(atoi(port));
+				main.getServerClient().setHost(host);
+				main.getServerClient().setPort(atoi(port));
 
 				return main.run(MainRunModes::CLIENT);
 			}
@@ -576,6 +582,7 @@ int main(int argc, char* args[])
 	}
 
 	// Launch server in separate thread
+#ifdef ENABLE_EMBEDDED_SERVER
 	auto f1 = std::async( std::launch::async, []{
 		Main main;
 		main.no_sdl = true;
@@ -585,6 +592,8 @@ int main(int argc, char* args[])
 
 	// Launch client
 	main.no_sdl = false;
+#endif
+
 	return main.run(MainRunModes::ARCADE);
 }
 

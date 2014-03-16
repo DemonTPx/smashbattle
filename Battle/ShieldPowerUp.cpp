@@ -6,7 +6,7 @@
 #include "commands/CommandGeneratePowerup.h"
 #include "Main.h"
 
-ShieldPowerUp::ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main) : main_(main) {
+ShieldPowerUp::ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 96;
 	clip->y = 0;
 	this->surface = surface;

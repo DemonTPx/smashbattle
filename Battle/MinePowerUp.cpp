@@ -5,7 +5,7 @@
 #include "commands/CommandGeneratePowerup.h"
 #include "Main.h"
 
-MinePowerUp::MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main) : main_(main) {
+MinePowerUp::MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 128;
 	clip->y = 0;
 	this->surface = surface;

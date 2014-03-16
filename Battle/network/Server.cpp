@@ -112,7 +112,7 @@ void Server::registerServer() {
 	serverToken_ = sha256randomhash;
 
 	rest::RegisterServer regsrv(serverToken_);
-	regsrv.put();
+	regsrv.put(*main_);
 }
 
 void Server::initializeGame(NetworkMultiplayer &game) {
@@ -363,17 +363,17 @@ SDLNet_SocketSet Server::create_sockset() {
 }
 
 bool Server::active() {
-	if (!Server::getInstance().currentState_)
+	if (!currentState_)
 		return false;
 
-	return Server::getInstance().currentState_->type().find("ServerStateInactive") == std::string::npos;
+	return currentState_->type().find("ServerStateInactive") == std::string::npos;
 }
 
 bool Server::gameStarted() {
-	if (!Server::getInstance().currentState_)
+	if (!currentState_)
 		return false;
 
-	return Server::getInstance().currentState_->type().find("ServerStateGameStarted") != std::string::npos;
+	return currentState_->type().find("ServerStateGameStarted") != std::string::npos;
 }
 
 void Server::setState(const ServerState * const state) {

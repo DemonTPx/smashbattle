@@ -38,8 +38,8 @@ public:
 	// Server polls clients
 	void poll();
 
-	static bool active();
-	static bool gameStarted();
+	bool active();
+	bool gameStarted();
 
 	void setState(const ServerState * const state);
 

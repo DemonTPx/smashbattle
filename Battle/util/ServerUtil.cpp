@@ -4,14 +4,15 @@
 
 #include "network/Server.h"
 #include "network/Commands.hpp"
+#include "Main.h"
 
 namespace server_util
 {
-	float get_lag_for(Player &player)
+	float get_lag_for(Main &main, Player &player)
 	{
 		try {
-			if (main_.getServer().active())
-				return main_.getServer().getClientById(player.number)->lag().avg();
+			if (main.getServer().active())
+				return main.getServer().getClientById(player.number)->lag().avg();
 		}
 		catch (std::runtime_error &)
 		{
@@ -22,17 +23,17 @@ namespace server_util
 		return 0.0;
 	}
 
-	void update_tile(int tile_pos, int tile_hp)
+	void update_tile(Main &main, int tile_pos, int tile_hp)
 	{
 
-		if (main_.getServer().active())
+		if (main.getServer().active())
 		{
 			network::CommandUpdateTile command;
-			command.data.time = main_.getServer().getServerTime();
+			command.data.time = main.getServer().getServerTime();
 			command.data.tile = tile_pos;
 			command.data.tile_hp = tile_hp;
 
-			main_.getServer().sendAll(command);
+			main.getServer().sendAll(command);
 		}
 	}
 }

@@ -772,7 +772,7 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 							level[pos] = -1;
 
 						// Server will send all clients an update regarding this block
-						server_util::update_tile(pos, level_hp[pos]);
+						server_util::update_tile(main_, pos, level_hp[pos]);
 
 						break;
 					default:

@@ -89,7 +89,7 @@ void GatlingNPC::shoot() {
 	clip_weapon->w = 8;
 	clip_weapon->h = 8;
 
-	pr = new Projectile(main_.graphics->weapons, clip_weapon);
+	pr = new Projectile(main_.graphics->weapons, clip_weapon, main_);
 	pr->owner = NULL;
 
 	pr->damage = 10;

@@ -5,7 +5,7 @@
 #include "commands/CommandGeneratePowerup.h"
 #include "Main.h"
 
-InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : main_(main) {
+InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 64;
 	clip->y = 0;
 	this->surface = surface;

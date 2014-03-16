@@ -6,7 +6,7 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
-Projectile::Projectile() {
+Projectile::Projectile(Main &main) : GameplayObject(main), main_(main) {
 	speedx = 0;
 	speedy = 0;
 	distance_traveled = 0;
@@ -17,7 +17,7 @@ Projectile::Projectile() {
 	position = new SDL_Rect();
 }
 
-Projectile::Projectile(SDL_Surface * surface, SDL_Rect * clip) {
+Projectile::Projectile(SDL_Surface * surface, SDL_Rect * clip, Main &main) : GameplayObject(main), main_(main) {
 	speedx = 0;
 	speedy = 0;
 	distance_traveled = 0;
