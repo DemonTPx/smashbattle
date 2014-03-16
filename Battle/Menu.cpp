@@ -179,17 +179,11 @@ void Menu::draw() {
 	}
 
 	// Credits
-	rect.x = (WINDOW_WIDTH - credits->at(0)->w) / 2;
-	rect.y = WINDOW_HEIGHT - 35;
-	SDL_BlitSurface(credits->at(0), NULL, screen, &rect);
-
-	rect.x = (WINDOW_WIDTH - credits->at(1)->w) / 2;
-	rect.y = WINDOW_HEIGHT - 25;
-	SDL_BlitSurface(credits->at(1), NULL, screen, &rect);
-
-	rect.x = (WINDOW_WIDTH - credits->at(2)->w) / 2;
-	rect.y = WINDOW_HEIGHT - 15;
-	SDL_BlitSurface(credits->at(2), NULL, screen, &rect);
+	for (unsigned int i = 0; i < credits->size(); i++) {
+		rect.x = (WINDOW_WIDTH - credits->at(i)->w) / 2;
+		rect.y = WINDOW_HEIGHT - ((credits->size() - i) * 10);
+		SDL_BlitSurface(credits->at(i), NULL, screen, &rect);
+	}
 }
 
 void Menu::process_cursor() {
@@ -512,6 +506,8 @@ void Menu::init() {
 	surface = main_.text->render_text_small("CONCEPT & GRAPHICS BY JEROEN GROENEWEG");
 	credits->push_back(surface);
 	surface = main_.text->render_text_small("MUSIC BY NICK PERRIN");
+	credits->push_back(surface);
+	surface = main_.text->render_text_small("HOSTING SPONSORED BY TRUE");
 	credits->push_back(surface);
 
 	playeranimation = new PlayerAnimation(0, main_);
