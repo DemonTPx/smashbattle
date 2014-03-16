@@ -6,6 +6,7 @@
 ClientSettings::ClientSettings(Main &main)
 : OptionsScreen("SET UP YOUR CHARACTER", main), main_(main)
 {
+	srand(SDL_GetTicks());
 	character_ = (int) (rand() % Player::CHARACTER_COUNT);
 	anim = new PlayerAnimation(character_, main);
 	selectServerText_ = "SELECT SERVER";
