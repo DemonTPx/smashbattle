@@ -4,8 +4,10 @@
 #include "PlayerAnimation.h"
 
 ClientSettings::ClientSettings()
-: OptionsScreen("SET UP YOUR CHARACTER"), character_(0), anim(new PlayerAnimation(0))
+: OptionsScreen("SET UP YOUR CHARACTER")
 {
+	character_ = (int) (rand() % Player::CHARACTER_COUNT);
+	anim = new PlayerAnimation(character_);
 	initialize();
 }
 
@@ -38,6 +40,7 @@ void ClientSettings::item_selected()
 		case 0:
 		{
 			CharacterSelect cs(1, 1);
+			cs.player_select_first = character_;
 			cs.run();
 
 			if (!cs.cancel) {
