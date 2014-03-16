@@ -7,6 +7,7 @@
 #include "network/Commands.hpp"
 #include "Player.h"
 #include "NetworkMultiplayer.h"
+#include "network/Server.h"
 
 using std::string;
 
@@ -88,6 +89,10 @@ void ServerStateGameStarted::execute(Server &server, Client &client) const
 {
 	Uint32 servertime = server.getServerTime();
 
+	size_t numActiveClients = server.numActiveClients();
+	if (numActiveClients == 0)
+		return;
+	
 	// Lag test every 1s
 	Uint32 lagdiff = servertime - client.getLastLagTime();
 	if (lagdiff >= 1000) {
@@ -118,6 +123,26 @@ void ServerStateGameStarted::execute(Server &server, Client &client) const
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);
 	}
+}
+
+ServerState * ServerStateGameStarted::check_self(Server &server) const
+{
+	ServerState *newstate = NULL;
+	if (server.numActiveClients() == 0) {
+		newstate = new ServerStateAcceptClients();
+	}
+	else if (server.numActiveClients() == 1) {
+		newstate = new ServerStateAcceptClients();
+
+		CommandSetBroadcastText broadcast;
+		broadcast.data.time = server.getServerTime();
+		string text("YOU WIN");
+		strncpy(broadcast.data.text, text.c_str() , text.length());
+		broadcast.data.duration = 2000;
+		server.sendAll(broadcast);
+	}
+
+	return newstate;
 }
 
 }

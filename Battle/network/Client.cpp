@@ -184,9 +184,14 @@ bool Client::process(CommandSetPlayerData *command)
 
 			player_util::set_position_data(data, updatedPlayer->number, server_->getServerTime(), server_->getUdpSeq(), *updatedPlayer);
 
-			auto client = server_->getClientById(player.number);
-			if (client->getState() >= Client::State::ACTIVE) {
-				client->send(data);
+			try {
+				auto client = server_->getClientById(player.number);
+				if (client->getState() >= Client::State::ACTIVE) {
+					client->send(data);
+				}
+			}
+			catch (std::runtime_error &err) {
+				// probably an udp packet received from a client that's already disconnected or something..
 			}
 		}
 	}
@@ -378,19 +383,12 @@ void Client::send(Command &command)
 
 void Client::cleanup()
 {
+	CommandDelPlayer cmd;
+	cmd.data.time = server_->getServerTime();
+	cmd.data.client_id = client_id_;
+	server_->sendAll(cmd);
+
 	server_->getGame().del_player_by_id(client_id_);
-
-	auto playersvec = *(server_->getGame().players);
-	for (auto i = playersvec.begin(); i != playersvec.end(); i++)
-	{
-		auto &player = **i;
-		
-		CommandDelPlayer cmd;
-		cmd.data.time = server_->getServerTime();
-		cmd.data.client_id = client_id_;
-
-		server_->getClientById(player.number)->send(cmd);
-	}
 }
 
 }

@@ -76,8 +76,6 @@ void ServerStateAcceptSpectatingClients::server_add_player(Server &server, Clien
 	newplayer->is_dead = true;
 	newplayer->hitpoints = 0;
 
-	server.getGame().add_player(newplayer);
-
 	// Send client all other player positions
 	auto &players = *(server.getGame().players);
 	for (auto i= players.begin(); i!=players.end(); i++)

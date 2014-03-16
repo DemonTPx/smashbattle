@@ -296,9 +296,7 @@ void Server::poll() {
 				// Mark for deletion
 				dead_clients.push_back(client->id());
 
-				log(format("Cleaned up client: %d\n", client->id()), Logger::Priority::INFO);
-
-				client->cleanup();
+				log(format("Cleaning up client: %d\n", client->id()), Logger::Priority::INFO);
 			}
 		}
 	}
@@ -310,6 +308,7 @@ void Server::poll() {
 		if (clients_[*i]->getState() >= Client::State::ACTIVE) {
 			anotherPlayerDisconnected = true;
 		}
+		clients_[*i]->cleanup();
 		communicationTokens_.erase(clients_[*i]->getCommToken());
 		clients_.erase(*i);
 	}
@@ -321,6 +320,11 @@ void Server::poll() {
 		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		sendAll(broadcast);
+	}
+
+	ServerState *newstate = getState()->check_self(*this);
+	if (newstate) {
+		setState(newstate);
 	}
 
 }
@@ -366,6 +370,11 @@ void Server::setState(const ServerState * const state) {
 	state->initialize(*this);
 
 	active();
+}
+
+const ServerState *Server::getState()
+{
+	return currentState_;
 }
 
 std::shared_ptr<Client> Server::getClientById(int client_id) {

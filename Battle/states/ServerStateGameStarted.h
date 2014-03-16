@@ -20,6 +20,8 @@ public:
 
 	virtual void execute(Server &server, Client &client) const;
 
+	virtual ServerState * check_self(Server &server) const;
+
 private:
 
 	friend class Server;

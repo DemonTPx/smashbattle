@@ -254,6 +254,8 @@ void Main::fps_count() {
 
 		if (getServerClient().isConnected())
 			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, getServerClient().getLag().avg());
+		else if (getServer().active())
+			sprintf(cap, "%d FPS %s STATE", fps_counter_this_frame, getServer().getState()->type().c_str());
 		else
 			sprintf(cap, "%d FPS", fps_counter_this_frame);
 
