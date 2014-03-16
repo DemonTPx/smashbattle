@@ -38,6 +38,8 @@ public:
 		SetServerReady = 0x19,
 		SetClientReady = 0x1A,
 		SetSpectating = 0x1B,
+		ApiPing = 0x1C,
+		ApiPong = 0x1D,
 	};
 
 	Command::Types getType() const { return type_; }

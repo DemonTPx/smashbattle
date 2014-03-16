@@ -2,28 +2,38 @@
 #include "ServerListing.h"
 #include "Options.h"
 #include "util/stringutils.hpp"
+#include "util/Log.h"
 #include "network/ClientNetworkMultiplayer.h"
 #include "network/ServerClient.h"
-#include <sstream>
 
 ServerListing::ServerListing(json::Array &servers, Main &main)
     : OptionsScreen(main), servers_(servers), main_(main)
 {
 	main_.runmode = MainRunModes::CLIENT;
 
-	std::stringstream ss;
-	ss << "SERVERS FOUND: " << servers.size();
-	title = ss.str();
+	title = format("SERVERS FOUND: %-22d #PLAYERS/MAX", servers.size());
 
 	OptionItem * item;
-	for (int i = 0, n = servers.size(); i < n; i++) {
-		json::Object obj = servers[(size_t) i];
-		std::string str = (std::string) obj["servername"];
-		item = new OptionItem();
-		item->name = strdup(const_cast<char *> (str.c_str()));
-		item->options = NULL;
-		item->selected = 0;
-		add_item(item);
+	// This is a bit stupid, but it's faster than making std::sort work on the json::Array
+	for (int j = 0; j <= 9; j++) {
+		for (int i = 0, n = servers.size(); i < n; i++) {
+			json::Object obj = servers[(size_t) i];
+			std::string str = (std::string) obj["servername"];
+			std::string activePlayers = (std::string) obj["activePlayers"];
+			if (activePlayers.length() == 0 || activePlayers.length() > 1) {
+				activePlayers.assign("0");
+			}
+
+			if (std::string(format("%d", j)) != activePlayers)
+				continue;
+
+			str.assign(format("%-45s #%s/4", str.c_str(), activePlayers.c_str()));
+			item = new OptionItem();
+			item->name = strdup(const_cast<char *> (str.c_str()));
+			item->options = NULL;
+			item->selected = 0;
+			add_item(item);
+		}
 	}
 
 	OptionsScreen::align = LEFT;

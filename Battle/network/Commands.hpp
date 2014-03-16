@@ -27,3 +27,5 @@
 #include "commands/CommandSetServerReady.hpp"
 #include "commands/CommandSetClientReady.hpp"
 #include "commands/CommandSetSpectating.hpp"
+#include "commands/CommandApiPing.hpp"
+#include "commands/CommandApiPong.hpp"

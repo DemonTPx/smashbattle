@@ -98,6 +98,8 @@ bool Client::process(std::unique_ptr<Command> command)
 			return process(dynamic_cast<CommandCommunicationTokenAck *>(cmd));
 		case Command::Types::SetClientReady:
 			return process(dynamic_cast<CommandSetClientReady *>(cmd));
+		case Command::Types::ApiPing:
+			return process(dynamic_cast<CommandApiPing *>(cmd));
 	}
 
 	return true;
@@ -310,6 +312,18 @@ bool Client::process(CommandSetClientReady *command)
 	// i.e. It's now safe to assume we can send UDP packets for other player's data
 	
 	setState(Client::State::READY_FOR_POSITIONAL_DATA);
+
+	return true;
+}
+
+bool Client::process(CommandApiPing *command)
+{
+	CommandApiPong pong;
+	pong.data.time = command->data.time;
+	pong.data.num_joined_players = '0' + server_->numJoinedClients();
+	pong.data.num_active_players = '0' + server_->numActiveClients();
+
+	send(pong);
 
 	return true;
 }

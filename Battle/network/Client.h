@@ -22,6 +22,7 @@ class CommandShotFired;
 class CommandBombDropped;
 class CommandCommunicationTokenAck;
 class CommandSetClientReady;
+class CommandApiPing;
 class Server;
 
 /**
@@ -64,6 +65,7 @@ public:
 	bool process(CommandBombDropped *command);
 	bool process(CommandCommunicationTokenAck *command);
 	bool process(CommandSetClientReady *command);
+	bool process(CommandApiPing *command);
 
 	// accessors
 	TCPsocket socket() { return socket_; }

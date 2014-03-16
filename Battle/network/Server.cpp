@@ -384,6 +384,15 @@ std::shared_ptr<Client> Server::getClientById(int client_id) {
 	throw std::runtime_error("client not found by id");
 }
 
+size_t Server::numJoinedClients() {
+	size_t num = 0;
+	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
+		if (i->second->getState() == Client::State::ACTIVE || i->second->getState() == Client::State::SPECTATING)
+			num++;
+
+	return num;
+}
+
 size_t Server::numActiveClients() {
 	size_t num = 0;
 	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
