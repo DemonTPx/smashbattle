@@ -28,6 +28,7 @@ public:
 	};
 
 	static std::unique_ptr<GameplayObject> factory(
+		Main &main,
 		CommandGeneratePowerup::PowerUps type,
 		short powerupid,
 		SDL_Rect *rect,

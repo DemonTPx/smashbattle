@@ -4,6 +4,8 @@
 
 #include "AbstractRestBase.h"
 
+class Main;
+
 namespace rest {
 
 class RegisterServer : public AbstractRestBase {
@@ -11,7 +13,7 @@ public:
 
 	RegisterServer(const std::string &token);
 
-	std::string put();
+	std::string put(Main &main);
 	
 private:
 	

@@ -6,7 +6,9 @@
 #include "LaserBeamPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 
-LaserBeamPowerUp::LaserBeamPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position) {
+#include "Main.h"
+
+LaserBeamPowerUp::LaserBeamPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 112;
 	clip->y = 0;
 	this->surface = surface;
@@ -21,14 +23,14 @@ LaserBeamPowerUp::~LaserBeamPowerUp() {
 }
 
 void LaserBeamPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
-	shoot_laserbeam(p);
+	shoot_laserbeam(p, main_);
 
 	done = true;
 }
 
-void LaserBeamPowerUp::shoot_laserbeam(Player * p) {
+void LaserBeamPowerUp::shoot_laserbeam(Player * p, Main &main) {
 	LaserBeam * lb;
 
 	std::vector<int> targets;
@@ -37,18 +39,18 @@ void LaserBeamPowerUp::shoot_laserbeam(Player * p) {
 	int i, tmp;
 	bool swapped;
 
-	targets.reserve(Gameplay::instance->players->size());
-	target_hp.reserve(Gameplay::instance->players->size());
+	targets.reserve(main.gameplay().players->size());
+	target_hp.reserve(main.gameplay().players->size());
 	
 	// Get all target players
 	num_targets = 0;
-	for(i = 0; i < (int)Gameplay::instance->players->size(); i++) {
-		if(Gameplay::instance->players->at(i) == p)
+	for(i = 0; i < (int)main.gameplay().players->size(); i++) {
+		if(main.gameplay().players->at(i) == p)
 			continue;
-		if(Gameplay::instance->players->at(i)->is_dead)
+		if(main.gameplay().players->at(i)->is_dead)
 			continue;
 		targets[num_targets] = i;
-		target_hp[num_targets] = Gameplay::instance->players->at(i)->hitpoints;
+		target_hp[num_targets] = main.gameplay().players->at(i)->hitpoints;
 		num_targets++;
 	}
 
@@ -72,12 +74,12 @@ void LaserBeamPowerUp::shoot_laserbeam(Player * p) {
 
 	// Create the laserbeams
 	for(i = 0; i < num_targets; i++) {
-		lb = new LaserBeam();
+		lb = new LaserBeam(main);
 		lb->owner = p;
-		lb->target = Gameplay::instance->players->at(targets[i]);
+		lb->target = main.gameplay().players->at(targets[i]);
 		lb->start += (30 * i);
 
-		Gameplay::instance->add_object(lb);
+		main.gameplay().add_object(lb);
 	}
 }
 

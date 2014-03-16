@@ -10,7 +10,7 @@
 const int GameInput::JOYSTICK_AXIS_THRESHOLD = 0x3fff;
 
 // Input handling for keyboard and joystick
-GameInput::GameInput() {
+GameInput::GameInput(Main &main) : main_(main) {
 	joystick = NULL;
 
 	reset();
@@ -38,7 +38,7 @@ GameInput::~GameInput() {
 }
 
 GameInput * GameInput::clone(bool clone_binds) {
-	GameInput * gi = new GameInput();
+	GameInput * gi = new GameInput(main_);
 	
 	gi->enable_keyboard(keyboard_enabled);
 	gi->enable_joystick(joystick_enabled);
@@ -186,7 +186,7 @@ bool GameInput::is_pressed(int action) {
 
 	int frames;
 
-	frames = Main::frame - press_start[action];
+	frames = main_.frame - press_start[action];
 
 	if(frames == 0)
 		return true;
@@ -232,7 +232,7 @@ void GameInput::handle_event(SDL_Event *event) {
 				if(bind.key == event->key.keysym.sym) {
 					if(event->type == SDL_KEYDOWN && !pressed[bind.action]) {
 						pressed[bind.action] = true;
-						press_start[bind.action] = Main::frame;
+						press_start[bind.action] = main_.frame;
 					}
 					if(event->type == SDL_KEYUP && pressed[bind.action]) {
 						pressed[bind.action] = false;
@@ -256,7 +256,7 @@ void GameInput::handle_event(SDL_Event *event) {
 				if(bind.button == event->jbutton.button) {
 					if(event->type == SDL_JOYBUTTONDOWN && !pressed[bind.action]) {
 						pressed[bind.action] = true;
-						press_start[bind.action] = Main::frame;
+						press_start[bind.action] = main_.frame;
 					}
 					if(event->type == SDL_JOYBUTTONUP && pressed[bind.action]) {
 						pressed[bind.action] = false;
@@ -279,11 +279,11 @@ void GameInput::handle_event(SDL_Event *event) {
 					if(!pressed[bind.action]) {
 						if(bind.threshold < 0 && bind.threshold > event->jaxis.value) {
 							pressed[bind.action] = true;
-							press_start[bind.action] = Main::frame;
+							press_start[bind.action] = main_.frame;
 						}
 						else if(bind.threshold >= 0 && bind.threshold < event->jaxis.value) {
 							pressed[bind.action] = true;
-							press_start[bind.action] = Main::frame;
+							press_start[bind.action] = main_.frame;
 						}
 					}
 					else {
@@ -313,7 +313,7 @@ void GameInput::handle_event(SDL_Event *event) {
 				if(bind.hat == event->jhat.hat) {
 					if((event->jhat.value & bind.direction) == bind.direction && !pressed[bind.action]) {
 						pressed[bind.action] = true;
-						press_start[bind.action] = Main::frame;
+						press_start[bind.action] = main_.frame;
 					}
 					if((event->jhat.value & bind.direction) == 0 && pressed[bind.action]) {
 						pressed[bind.action] = false;
@@ -342,10 +342,10 @@ int GameInput::keyboard_wait_event() {
 	int retval;
 	
 	retval = 0;
-	while(Main::instance->running) {
+	while(main_.running) {
 		SDL_WaitEvent(&event);
 		
-		Main::instance->handle_event(&event);
+		main_.handle_event(&event);
 
 		if(event.type == SDL_KEYDOWN) {
 			retval = event.key.keysym.sym;
@@ -379,10 +379,10 @@ void GameInput::joystick_wait_event(GameInputJoystickEvent * event) {
 
 	jindex = SDL_JoystickIndex(joystick);
 
-	while(Main::instance->running) {
+	while(main_.running) {
 		SDL_WaitEvent(&sdlevent);
 		
-		Main::instance->handle_event(&sdlevent);
+		main_.handle_event(&sdlevent);
 
 		if(sdlevent.type == SDL_JOYBUTTONDOWN && sdlevent.jbutton.which == jindex) {
 			event->type = event->BUTTON;

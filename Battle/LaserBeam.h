@@ -4,7 +4,7 @@
 
 class LaserBeam : public GameplayObject {
 public:
-	LaserBeam();
+	LaserBeam(Main &main);
 	~LaserBeam();
 
 	virtual void move(Level * level);
@@ -19,4 +19,6 @@ public:
 
 	Player * owner;
 	Player * target;
+
+	Main &main_;
 };

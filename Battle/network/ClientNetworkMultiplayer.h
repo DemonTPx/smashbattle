@@ -9,7 +9,7 @@ namespace network{
 class ClientNetworkMultiplayer : public LocalMultiplayer 
 {
 public:
-	ClientNetworkMultiplayer() : lag_(NULL), LocalMultiplayer() {}
+	ClientNetworkMultiplayer(Main &main);
 	~ClientNetworkMultiplayer() {}
 
 	/**
@@ -36,6 +36,8 @@ protected:
 
 private:
 	LagMeasure *lag_;
+
+	Main &main_;
 
 };
 }

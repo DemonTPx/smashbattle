@@ -13,6 +13,7 @@
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
 const int RandomPowerUp::CYCLE_COUNT = 7;
 const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 80, 64, 112, 16, 128, 96};
@@ -26,7 +27,7 @@ const int RandomPowerUp::CYCLE_DELAY = 20;
 #define RPU_MINE 5
 #define RPU_SHIELD 6
 
-RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position) {
+RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
 	this->surface = surface;
 	this->position = position;
 
@@ -49,7 +50,7 @@ RandomPowerUp::~RandomPowerUp() {
 }
 
 void RandomPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	switch(cycle) {
 		case RPU_DOUBLEDAMAGE:
@@ -73,14 +74,14 @@ void RandomPowerUp::hit_player(Player * p) {
 				p->mines = 9;
 			break;
 		case RPU_AIRSTRIKE:
-			AirstrikePowerUp::shoot_airstrike(p);
+			AirstrikePowerUp::shoot_airstrike(p, main_);
 			break;
 		case RPU_LASER:
-			LaserBeamPowerUp::shoot_laserbeam(p);
+			LaserBeamPowerUp::shoot_laserbeam(p, main_);
 			break;
 		case RPU_SHIELD:
 			p->is_shielded = true;
-			p->shield_start = Gameplay::frame;
+			p->shield_start = main_.gameplay().frame;
 			break;
 	}
 

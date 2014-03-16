@@ -22,19 +22,26 @@ using std::map;
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
+#include "Main.h"
+
+NetworkMultiplayer::NetworkMultiplayer (Main &main) 
+: LocalMultiplayer(main)
+{
+	main.setGameplay(this);
+}
 
 void NetworkMultiplayer::on_game_reset()
 {
 	countdown = false;
 
-	if (network::Server::gameStarted())
+	if (main_.getServer().gameStarted())
 		LocalMultiplayer::on_game_reset();
 	else
 		round++;
 
 
 	// Synchronize level and positions across players
-	auto &server = network::Server::getInstance();
+	auto &server = main_.getServer();
 	auto &vec = *players;
 	for (auto i = vec.begin(); i != vec.end(); i++) {
 		auto &player(**i);
@@ -84,7 +91,7 @@ void NetworkMultiplayer::on_game_reset()
 
 void NetworkMultiplayer::on_post_processing()
 {
-	if (!network::Server::gameStarted()) {
+	if (!main_.getServer().gameStarted()) {
 		auto &vec = *players;
 		for (auto i = vec.begin(); i != vec.end(); i++) {
 			auto &player(**i);
@@ -95,7 +102,7 @@ void NetworkMultiplayer::on_post_processing()
 		}
 	}
 	else {
-		auto &server = network::Server::getInstance();
+		auto &server = main_.getServer();
 
 		map<char, bool> playerWasDead;
 		auto &vec = *players;
@@ -170,11 +177,11 @@ GameplayObject *NetworkMultiplayer::generate_powerup(bool force)
 	if (powerup)
 	{
 		network::CommandGeneratePowerup genpow;
-		genpow.data.time = network::Server::getInstance().getServerTime();
+		genpow.data.time = main_.getServer().getServerTime();
 		genpow.data.powerupid = powerup->id();
 		powerup->copyTo(genpow);
 
-		network::Server::getInstance().sendAll(genpow);
+		main_.getServer().sendAll(genpow);
 	}
 	return powerup;
 }

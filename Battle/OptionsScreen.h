@@ -16,8 +16,8 @@ struct OptionItem {
 
 class OptionsScreen {
 public:
-	OptionsScreen();
-	OptionsScreen(std::string title);
+	OptionsScreen(Main &main);
+	OptionsScreen(std::string title, Main &main);
 	virtual ~OptionsScreen() {}
 
 	void run();
@@ -56,6 +56,8 @@ protected:
 	
 	virtual bool process_event(SDL_Event &event);
 	virtual void process_cursor();
+
+	Main &main_;
 
 private:
 	SDL_Surface * surf_title;

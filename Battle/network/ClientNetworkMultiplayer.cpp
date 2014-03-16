@@ -5,6 +5,7 @@
 #include "network/ServerClient.h"
 #include "network/Server.h"
 #include "network/Commands.hpp"
+#include "Main.h"
 #include <map>
 #include <algorithm>
 #include <string>
@@ -17,21 +18,27 @@ using std::string;
 
 namespace network{
 
+ClientNetworkMultiplayer::ClientNetworkMultiplayer(Main &main)
+: lag_(NULL), LocalMultiplayer(main), main_(main)
+{
+	main.setGameplay(this);
+}
+
 void ClientNetworkMultiplayer::start()
 {
-	Level level;
+	Level level(main_);
 
-	Main::instance->running = true;
+	main_.running = true;
 
-	Player player(0, 0);				
+	Player player(0, 0, main_);
 
-	player.input = Main::instance->input[0];
+	player.input = main_.input[0];
 	player.input->set_delay();
-	player.set_character(ServerClient::getInstance().getCharacter());
+	player.set_character(main_.getServerClient().getCharacter());
 
 	add_player(&player);
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
 	Uint32 begin = SDL_GetTicks();
 	Uint32 calculatedLag = begin;
@@ -47,14 +54,14 @@ void ClientNetworkMultiplayer::start()
 		if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
 			break;
 
-		if (!ServerClient::getInstance().isConnected()) {
+		if (!main_.getServerClient().isConnected()) {
 			begin = SDL_GetTicks();
 			
 			if (once) {
 				once = false;
 
 				try {
-					ServerClient::getInstance().connect(*this, level, player);
+					main_.getServerClient().connect(*this, level, player, main_);
 				}
 				catch (std::runtime_error &error) {
 					log(error.what(), Logger::Priority::CONSOLE);
@@ -69,13 +76,13 @@ void ClientNetworkMultiplayer::start()
 			}
 
 		}
-		else if (ServerClient::getInstance().isCommTokenAvailable()) {
+		else if (main_.getServerClient().isCommTokenAvailable()) {
 			Uint32 current = SDL_GetTicks();
 
 			if (initialLagTests > 0) {
 				if (calculatedLag - current > 200) {
 					calculatedLag += 200;
-					ServerClient::getInstance().test();
+					main_.getServerClient().test();
 					initialLagTests--;
 				}
 			}
@@ -84,21 +91,21 @@ void ClientNetworkMultiplayer::start()
 				if (calculatedLag - current > 1000)
 				{
 					calculatedLag += 1000;
-					ServerClient::getInstance().test();
+					main_.getServerClient().test();
 				}
 			}
 		}
 
 		draw_console();
 
-		ServerClient::getInstance().poll();
+		main_.getServerClient().poll();
 
-		Main::instance->flip(true);
+		main_.flip(true);
 
-		if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED) {
-			lag_ = &(ServerClient::getInstance().getLag());
+		if (main_.getServerClient().getState() == ServerClient::State::INITIALIZED) {
+			lag_ = &(main_.getServerClient().getLag());
 
-			ServerClient::getInstance().resetTimer();
+			main_.getServerClient().resetTimer();
 
 			run();
 			stop = true;
@@ -107,15 +114,20 @@ void ClientNetworkMultiplayer::start()
 	
 	std::cout << " Disconnecting etc. " << std::endl;
 	
-	ServerClient::getInstance().setState(ServerClient::State::INITIALIZING);
-	ServerClient::getInstance().disconnect();
+	main_.getServerClient().setState(ServerClient::State::INITIALIZING);
+	main_.getServerClient().disconnect();
 	
-	Main::instance->input_master->set_delay(20);
+	main_.input_master->set_delay(20);
 }
 
 void ClientNetworkMultiplayer::draw_console()
 {
-	screen = Main::instance->screen;
+	if (main_.no_sdl)
+		return;
+
+	return /* not yet supported */;
+
+	screen = main_.screen;
 
 	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
@@ -132,7 +144,7 @@ void ClientNetworkMultiplayer::draw_console()
 		textpos += 24;
 		string text = str;
 		to_upper<char>(text);
-		SDL_Surface* textSurface = Main::text->render_text_medium(text.c_str());
+		SDL_Surface* textSurface = main_.text->render_text_medium(text.c_str());
 		SDL_BlitSurface(textSurface, NULL, screen, &textLocation);
 		SDL_FreeSurface(textSurface);
 	});
@@ -151,9 +163,9 @@ void ClientNetworkMultiplayer::on_input_handled()
 		flags = 0;
 		return;
 	}
-	if (ServerClient::getInstance().isConnected())
+	if (main_.getServerClient().isConnected())
 	{
-		if (ServerClient::getInstance().getGame().is_ended() || ServerClient::getInstance().getGame().is_countdown())
+		if (main_.getServerClient().getGame().is_ended() || main_.getServerClient().getGame().is_countdown())
 		{
 			flags = 0;
 			return;
@@ -162,12 +174,12 @@ void ClientNetworkMultiplayer::on_input_handled()
 	short previous_flags = flags;
 		
 	CommandSetPlayerData req;
-	player_util::set_position_data(req, ServerClient::getInstance().getClientId(), SDL_GetTicks(), ServerClient::getInstance().getUdpSeq(), player);
+	player_util::set_position_data(req, main_.getServerClient().getClientId(), SDL_GetTicks(), main_.getServerClient().getUdpSeq(), player);
 
 	flags = req.data.flags;
 
 	if (flags != previous_flags)
-		ServerClient::getInstance().send(req);
+		main_.getServerClient().send(req);
 };
 
 GameplayObject *ClientNetworkMultiplayer::generate_powerup(bool force)

@@ -16,6 +16,7 @@
 #include "Projectile.h"
 #include "Bomb.h"
 #include "Server.h"
+#include "Main.h"
 
 namespace network {
 
@@ -46,10 +47,12 @@ ServerClient::~ServerClient()
 	SDLNet_Quit();
 }
 
-void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player &player)
+void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player &player, Main &main)
 {
 	if (is_connected_)
 		return;
+
+	main_ = &main;
 
 	game_ = &game;
 	level_ = &level;
@@ -57,11 +60,11 @@ void ServerClient::connect(ClientNetworkMultiplayer &game, Level &level, Player 
 
 	log(format("CONNECTING TO %s:%d...",host_.c_str(),port_), Logger::Priority::CONSOLE);
 
-	/* initialize SDL */
+	/* initialize SDL *
 	if(SDL_Init(0)==-1)
 	{
 		throw std::runtime_error(format("SDL_Init: %s\n",SDL_GetError()));
-	}
+	}*/
 
 	/* initialize SDL_net */
 	if(SDLNet_Init()==-1)
@@ -130,6 +133,14 @@ void ServerClient::disconnect()
 
 void ServerClient::poll()
 {
+	if (!is_connected_)
+		return;
+
+	// In a server we cannot expect this to do anything
+	if (main_->no_sdl) {
+		return;
+	}
+	
 	while (SDLNet_UDP_Recv(sd, p)) {
 		log(format("UDP Packet incoming\n"), Logger::Priority::DEBUG);
 		log(format("\tChan:    %d\n", p->channel), Logger::Priority::DEBUG);
@@ -144,10 +155,6 @@ void ServerClient::poll()
 		
 		parse_udp(p->len, temp);
 	}
-	
-	
-	if (!is_connected_)
-		return;
 
 	// Ping every second
 	static Uint32 calculatedLag = SDL_GetTicks();
@@ -157,24 +164,24 @@ void ServerClient::poll()
 		calculatedLag += 1000;
 		CommandPing command;
 		command.data.time = current;
-		ServerClient::getInstance().send(command);
+		main_->getServerClient().send(command);
 	}
 
 
 	// Send update if ResetTimer was not reset for 200 milliseconds
 	// To generally fix out of sync errors if they occur
-	if (ServerClient::getInstance().getState() == ServerClient::State::INITIALIZED)
+	if (main_->getServerClient().getState() == ServerClient::State::INITIALIZED)
 	{
-		if ((SDL_GetTicks() - ServerClient::getInstance().getResetTimer()) > 200)
+		if ((SDL_GetTicks() - main_->getServerClient().getResetTimer()) > 200)
 		{
 			CommandSetPlayerData pos;
 			try {
-				player_util::set_position_data(pos, getClientId(), SDL_GetTicks(), ServerClient::getInstance().getUdpSeq(), player_util::get_player_by_id(getClientId()));
-				ServerClient::getInstance().resetTimer();
+				player_util::set_position_data(pos, getClientId(), SDL_GetTicks(), main_->getServerClient().getUdpSeq(), player_util::get_player_by_id(*main_, getClientId()));
+				main_->getServerClient().resetTimer();
 
 				// Do not send update to server if we're dead
-				if (!player_->is_dead && !ServerClient::getInstance().getGame().is_ended() && !ServerClient::getInstance().getGame().is_countdown())
-					ServerClient::getInstance().send(pos);
+				if (!player_->is_dead && !main_->getServerClient().getGame().is_ended() && !main_->getServerClient().getGame().is_countdown())
+					main_->getServerClient().send(pos);
 			}
 			catch (std::runtime_error &err) {
 				log(err.what(), Logger::Priority::ERROR);
@@ -478,12 +485,12 @@ bool ServerClient::process(CommandSetPlayerData *command)
 	{
 		try {
 			// You do receive the SetPlayerData command for each other player change
-			auto &otherplayer = player_util::get_player_by_id(command->data.client_id);
+			auto &otherplayer = player_util::get_player_by_id(*main_, command->data.client_id);
 
 			player_util::set_player_data(otherplayer, *command);
 
 			// Account for lag
-			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(main_->MILLISECS_PER_FRAME));
 			for (int i=0; i<processFrames; i++)
 				game_->move_player(otherplayer);
 			}
@@ -501,8 +508,8 @@ bool ServerClient::process(CommandSetPlayerData *command)
 
 bool ServerClient::process(CommandAddPlayer *command)
 {
-	Player *otherplayer = new Player(command->data.character, command->data.client_id);
-	GameInputStub *playerinput = new GameInputStub();
+	Player *otherplayer = new Player(command->data.character, command->data.client_id, *main_);
+	GameInputStub *playerinput = new GameInputStub(*main_);
 	otherplayer->input = playerinput;
 
 	otherplayer->position->x = command->data.x;
@@ -536,7 +543,7 @@ bool ServerClient::process(CommandUpdateTile *command)
 
 bool ServerClient::process(CommandShotFired *command)
 {
-	auto &otherplayer = player_util::get_player_by_id(command->data.client_id);
+	auto &otherplayer = player_util::get_player_by_id(*main_, command->data.client_id);
 
 	if (otherplayer.number == command->data.client_id) {
 		// Make sure the correct sprite is set, so the bullet will go the correct direction
@@ -547,7 +554,7 @@ bool ServerClient::process(CommandShotFired *command)
 		proj->distance_traveled = command->data.distance_travelled;
 
 		// Account for lag
-		int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+		int processFrames = static_cast<int>(lag.avg() / static_cast<float>(main_->MILLISECS_PER_FRAME));
 		for (int i=0; i<processFrames; i++)
 			game_->process_gameplayobj(proj);
 	}
@@ -571,7 +578,7 @@ bool ServerClient::process(CommandBombDropped *command)
 			GameplayObject *obj = otherplayer.create_bomb(command->data.x, command->data.y);
 
 			// Account for lag
-			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(main_->MILLISECS_PER_FRAME));
 			for (int i=0; i<processFrames; i++)
 				game_->process_gameplayobj(obj);
 
@@ -584,7 +591,7 @@ bool ServerClient::process(CommandBombDropped *command)
 bool ServerClient::process(CommandSetHitPoints *command)
 {
 	try {
-		Player &player(player_util::get_player_by_id(command->data.client_id));
+		Player &player(player_util::get_player_by_id(*main_, command->data.client_id));
 
 		log("Procesing hit point!", Logger::Priority::CONSOLE);
 		player.hitpoints = command->data.hitpoints;
@@ -599,7 +606,7 @@ bool ServerClient::process(CommandSetHitPoints *command)
 bool ServerClient::process(CommandSetPlayerAmmo *command)
 {
 	try {
-		Player &player(player_util::get_player_by_id(command->data.client_id));
+		Player &player(player_util::get_player_by_id(*main_, command->data.client_id));
 
 		player.bombs = command->data.bombs;
 	}
@@ -619,7 +626,7 @@ bool ServerClient::process(CommandSetBroadcastText *command)
 bool ServerClient::process(CommandSetPlayerDeath *command)
 {
 	try {
-		Player &player(player_util::get_player_by_id(command->data.client_id));
+		Player &player(player_util::get_player_by_id(*main_, command->data.client_id));
 
 		player.is_dead = command->data.is_dead;
 	}
@@ -633,7 +640,7 @@ bool ServerClient::process(CommandSetPlayerDeath *command)
 bool ServerClient::process(CommandSetGameEnd *command)
 {
 	try {
-		Player &winner(player_util::get_player_by_id(command->data.winner_id));
+		Player &winner(player_util::get_player_by_id(*main_, command->data.winner_id));
 
 		game_->set_ended(true);
 		game_->set_draw(command->data.is_draw);
@@ -653,7 +660,7 @@ bool ServerClient::process(CommandSetGameEnd *command)
 bool ServerClient::process(CommandSetPlayerScore *command)
 {
 	try {
-		Player &player(player_util::get_player_by_id(command->data.client_id));
+		Player &player(player_util::get_player_by_id(*main_, command->data.client_id));
 
 		player.score = command->data.score;
 	}
@@ -666,7 +673,7 @@ bool ServerClient::process(CommandSetPlayerScore *command)
 
 bool ServerClient::process(CommandSetGameStart *command)
 {
-	ServerClient::getInstance().resumeGameIn(command->data.delay);
+	main_->getServerClient().resumeGameIn(command->data.delay);
 	return true;
 }
 
@@ -677,7 +684,7 @@ bool ServerClient::process(CommandGeneratePowerup *command)
 	rect->w = 16;
 	rect->h = 16;
 	memcpy(pos, &command->data.position, sizeof(SDL_Rect));
-	std::unique_ptr<GameplayObject> powerup = CommandGeneratePowerup::factory(command->data.type, command->data.powerupid, rect, pos, command->data.param);
+	std::unique_ptr<GameplayObject> powerup = CommandGeneratePowerup::factory(*main_, command->data.type, command->data.powerupid, rect, pos, command->data.param);
 
 	auto *newpowerup = powerup.release();
 
@@ -687,7 +694,7 @@ bool ServerClient::process(CommandGeneratePowerup *command)
 		return true;
 
 	// Account for lag
-	int processFrames = static_cast<int>(lag.avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+	int processFrames = static_cast<int>(lag.avg() / static_cast<float>(main_->MILLISECS_PER_FRAME));
 	for (int i=0; i<processFrames; i++)
 		game_->process_gameplayobj(newpowerup);
 
@@ -701,7 +708,7 @@ bool ServerClient::process(CommandApplyPowerup *command)
 		for (auto i=objs.begin(); i!=objs.end(); i++) {
 			auto &obj = **i;
 			if (obj.is_powerup && obj.id() == command->data.powerup_id) {
-				obj.hit_player(&player_util::get_player_by_id(command->data.player_id));
+				obj.hit_player(&player_util::get_player_by_id(*main_, command->data.player_id));
 				obj.done = true;
 				return true;
 			}

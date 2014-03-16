@@ -2,7 +2,7 @@
 
 class MissionSelect {
 public:
-	MissionSelect();
+	MissionSelect(Main &main);
 	void run();
 
 	bool cancel;
@@ -34,4 +34,6 @@ private:
 	std::vector<SDL_Surface*> * thumbs;
 
 	int frame;
+
+	Main &main_;
 };

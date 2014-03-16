@@ -24,6 +24,7 @@
 class Level;
 class Player;
 class Gameplay;
+class Main;
 
 namespace network{
 
@@ -76,18 +77,16 @@ public:
 		INITIALIZED = 2
 	};
 
+	
+	ServerClient();
 
-	static ServerClient& getInstance()
-	{
-		static ServerClient instance;
-		return instance;
-	}
+	void setMain(Main &main) { main_ = &main; };
 
 	void setCharacter(int character) { character_ = character; }
 	void setHost(std::string host) { host_ = host; }
 	void setPort(int port) { port_ = (Uint16)port; }
 
-	void connect(ClientNetworkMultiplayer &game, Level &level, Player &player);
+	void connect(ClientNetworkMultiplayer &game, Level &level, Player &player, Main &main);
 	void disconnect();
 	void poll();
 
@@ -143,7 +142,6 @@ protected:
 
 	
 private:
-	ServerClient();
 	~ServerClient();
 	
 	ServerClient(ServerClient const&); // Don't implement
@@ -190,6 +188,7 @@ private:
 	UDPsocket sd;
 	UDPpacket *p;
 
+	Main *main_;
 };
 
 }

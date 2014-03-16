@@ -66,7 +66,7 @@ namespace network {
 
 class GameInput {
 public:
-	GameInput();
+	GameInput(Main &main);
 	virtual ~GameInput();
 
 	GameInput * clone(bool clone_binds = true);
@@ -141,13 +141,15 @@ protected:
 	friend class Gameplay;
 	friend class network::Client;
 	friend class network::ClientNetworkMultiplayer;
+
+	Main &main_;
 };
 
 
 class GameInputStub : public GameInput
 {
 public:
-	GameInputStub() : GameInput() { }
+	GameInputStub(Main &main) : GameInput(main) { }
 
 	virtual void handle_event(SDL_Event * event) { /* handle nothing */ }
 };

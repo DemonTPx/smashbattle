@@ -40,7 +40,7 @@
 const int Menu::ITEMCOUNT = /*5*/ 4;
 const char * Menu::item[ITEMCOUNT] = {/*"MISSIONS", */"PLAY LOCAL", "PLAY ONLINE", "OPTIONS", "QUIT"};
 
-Menu::Menu() {
+Menu::Menu(Main &main) : main_(main) {
 }
 
 Menu::~Menu() {
@@ -52,22 +52,22 @@ void Menu::run() {
 	init();
 
 	for (int i = 0; i < 4; i++) {
-		input[i] = Main::instance->input[i];
+		input[i] = main_.input[i];
 		input[i]->set_delay();
 	}
 
-	Main::audio->play_music(MUSIC_TITLE);
+	main_.audio->play_music(MUSIC_TITLE);
 
 	frame = 0;
 
 	started = false;
-	input_master = Main::instance->input_master;
+	input_master = main_.input_master;
 
-	Main::autoreset = true;
+	main_.autoreset = true;
 
-	while (Main::running) {
+	while (main_.running) {
 		while (SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+			main_.handle_event(&event);
 			for (int i = 0; i < 4; i++) {
 				input[i]->handle_event(&event);
 			}
@@ -79,12 +79,12 @@ void Menu::run() {
 
 		draw();
 
-		Main::instance->flip();
+		main_.flip();
 		frame++;
 
-		if (!Main::running && Main::is_reset) {
-			Main::running = true;
-			Main::is_reset = false;
+		if (!main_.running && main_.is_reset) {
+			main_.running = true;
+			main_.is_reset = false;
 
 			if (input_master != NULL) {
 				input_master->reset();
@@ -94,7 +94,7 @@ void Menu::run() {
 			started = false;
 		}
 	}
-	Main::audio->stop_music();
+	main_.audio->stop_music();
 
 	cleanup();
 }
@@ -105,9 +105,9 @@ void Menu::draw() {
 	SDL_Rect rect, rect_s;
 	SDL_Surface * screen;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
-	SDL_BlitSurface(Main::graphics->bg_menu, NULL, screen, NULL);
+	SDL_BlitSurface(main_.graphics->bg_menu, NULL, screen, NULL);
 
 	rect.x = (WINDOW_WIDTH - title->w) / 2;
 	rect.y = 40;
@@ -126,22 +126,22 @@ void Menu::draw() {
 	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
 	rect.y = MENU_TOP_OFFSET - TILE_H;
 	for (i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
 
 	for (i = 0; i < ITEMCOUNT; i++) {
 		rect.x = surf_items_clip->at(i)->x - (TILE_W * 2);
 		rect.y = surf_items_clip->at(i)->y - 8;
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 		rect.x = surf_items_clip->at(i)->x + MENU_ITEM_WIDTH + TILE_W;
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 	}
 
 	rect.x = ((WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2) - (TILE_W * 2);
 	rect.y = MENU_TOP_OFFSET + (ITEMCOUNT * MENU_ITEM_HEIGHT);
 	for (i = 0; i < (MENU_ITEM_WIDTH / TILE_W) + 4; i++) {
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
 
@@ -164,9 +164,9 @@ void Menu::draw() {
 	} else {
 		// Press start
 		if (!(frame & 0x20) || !(frame & 0x8)) {
-			rect.x = (WINDOW_WIDTH - Main::graphics->text_pressstart->w) / 2;
-			rect.y = ((WINDOW_HEIGHT - Main::graphics->text_pressstart->h) / 2) - 16;
-			SDL_BlitSurface(Main::graphics->text_pressstart, NULL, screen, &rect);
+			rect.x = (WINDOW_WIDTH - main_.graphics->text_pressstart->w) / 2;
+			rect.y = ((WINDOW_HEIGHT - main_.graphics->text_pressstart->h) / 2) - 16;
+			SDL_BlitSurface(main_.graphics->text_pressstart, NULL, screen, &rect);
 		}
 	}
 
@@ -175,7 +175,7 @@ void Menu::draw() {
 
 	// Player name
 	if (draw_playername) {
-		SDL_BlitSurface(Main::graphics->playername->at(playeranimation->character), 0, screen, &pos_playername);
+		SDL_BlitSurface(main_.graphics->playername->at(playeranimation->character), 0, screen, &pos_playername);
 	}
 
 	// Credits
@@ -195,8 +195,8 @@ void Menu::draw() {
 void Menu::process_cursor() {
 	if (started) {
 		if (input_master->is_pressed(A_BACK)) {
-			Main::running = false;
-			Main::is_reset = true;
+			main_.running = false;
+			main_.is_reset = true;
 		}
 		if (input_master->is_pressed(A_RUN) || input_master->is_pressed(A_JUMP) ||
 			input_master->is_pressed(A_SHOOT) || input_master->is_pressed(A_BOMB) ||
@@ -214,10 +214,10 @@ void Menu::process_cursor() {
 			if (input[i]->is_pressed(A_RUN) || input[i]->is_pressed(A_JUMP) ||
 				input[i]->is_pressed(A_SHOOT) || input[i]->is_pressed(A_BOMB) ||
 				input[i]->is_pressed(A_START)) {
-				Main::audio->play(SND_SELECT);
+				main_.audio->play(SND_SELECT);
 				started = true;
 
-				Main::instance->input_master = input[i];
+				main_.input_master = input[i];
 				input_master = input[i];
 			}
 		}
@@ -225,7 +225,7 @@ void Menu::process_cursor() {
 }
 
 void Menu::select() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 	switch (selected_item + 1) {
 		case 0:
 			start_missions();
@@ -235,19 +235,19 @@ void Menu::select() {
 			break;
 		case 2:
 		{
-			ClientSettings clset;
+			ClientSettings clset(main_);
 			clset.run();
 			break;
 		}
 		case 3:
 			Options * options;
-			options = new Options();
+			options = new Options(main_);
 			options->run();
 			delete options;
 			break;
 		case 4:
 			SDL_Delay(500);
-			Main::running = false;
+			main_.running = false;
 			break;
 	}
 }
@@ -262,21 +262,21 @@ void Menu::start_missions() {
 
 	running = true;
 
-	player = new Player(0, 1);
+	player = new Player(0, 1, main_);
 	player->input = input_master;
 	player->bullets = 0;
 	player->bombs = 0;
 
-	ms = new MissionSelect();
+	ms = new MissionSelect(main_);
 
-	while (Main::running && running && !ms->cancel) {
+	while (main_.running && running && !ms->cancel) {
 		ms->run();
 
-		if (Main::running && running && !ms->cancel) {
-			level = new Level();
+		if (main_.running && running && !ms->cancel) {
+			level = new Level(main_);
 			level->load(Mission::MISSIONS[ms->mission].filename);
 
-			m = new Mission();
+			m = new Mission(main_);
 			m->add_player(player);
 			m->set_level(level);
 			m->run();
@@ -289,7 +289,7 @@ void Menu::start_missions() {
 	delete ms;
 	delete player;
 
-	Main::audio->play_music(MUSIC_TITLE);
+	main_.audio->play_music(MUSIC_TITLE);
 }
 
 void Menu::start_local_multiplayer() {
@@ -314,20 +314,20 @@ void Menu::start_local_multiplayer() {
 
 	level = NULL;
 	for (int i = 0; i < 4; i++) {
-		player[i] = new Player(0, (i + 1));
+		player[i] = new Player(0, (i + 1), main_);
 		player[i]->input = input[i];
 	}
 
 	running = true;
 	round = 0;
 
-	cs = new CharacterSelect();
-	ls = new LevelSelect();
+	cs = new CharacterSelect(main_);
+	ls = new LevelSelect(main_);
 
 	change_level = true;
 	change_character = true;
 
-	while (Main::running && running) {
+	while (main_.running && running) {
 		round++;
 
 		if (change_character) {
@@ -352,11 +352,11 @@ void Menu::start_local_multiplayer() {
 			if (level != NULL)
 				delete level;
 
-			level = new Level();
+			level = new Level(main_);
 			level->load(Level::LEVELS[ls->level].filename);
 		}
 
-		lmp = new LocalMultiplayer();
+		lmp = new LocalMultiplayer(main_);
 		lmp->set_level(level);
 
 		for (int i = 0; i < 4; i++) {
@@ -383,7 +383,7 @@ void Menu::start_local_multiplayer() {
 			player[winner]->rounds_won++;
 		}
 
-		end = new LocalMultiplayerRoundEnd();
+		end = new LocalMultiplayerRoundEnd(main_);
 		for (int i = 0; i < 4; i++) {
 			if (cs->player_joined[i]) {
 				end->add_player(player[i]);
@@ -420,7 +420,7 @@ void Menu::start_local_multiplayer() {
 	}
 	delete player;
 
-	Main::audio->play_music(MUSIC_TITLE);
+	main_.audio->play_music(MUSIC_TITLE);
 }
 
 void Menu::process_playeranimation() {
@@ -448,7 +448,7 @@ void Menu::process_playeranimation() {
 	}
 	if (!draw_playername && playeranimation->momentumx == 0) {
 		draw_playername = true;
-		pos_playername.x = (playeranimation->position->x + (playeranimation->position->w / 2)) - (Main::graphics->playername->at(playeranimation->character)->w / 2);
+		pos_playername.x = (playeranimation->position->x + (playeranimation->position->w / 2)) - (main_.graphics->playername->at(playeranimation->character)->w / 2);
 		pos_playername.y = playeranimation->position->y - 20;
 	}
 	if (draw_playername && playeranimation->momentumx != 0) {
@@ -461,12 +461,12 @@ void Menu::next_playeranimation() {
 	character = playeranimation->character;
 	delete playeranimation;
 
-	playeranimation = new PlayerAnimation((character + 1) % Player::CHARACTER_COUNT);
+	playeranimation = new PlayerAnimation((character + 1) % Player::CHARACTER_COUNT, main_);
 	animation_start = frame;
 }
 
 void Menu::select_up() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 
 	selected_item--;
 
@@ -476,7 +476,7 @@ void Menu::select_up() {
 }
 
 void Menu::select_down() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 
 	selected_item++;
 
@@ -491,13 +491,13 @@ void Menu::init() {
 
 	selected_item = 0;
 
-	title = Main::text->render_text_large("TWEAK   BATTLE");
-       	subtitle = Main::text->render_text_small("PICK UP YOUR NERFGUNS AND FIGHT");
+	title = main_.text->render_text_large("TWEAK   BATTLE");
+       	subtitle = main_.text->render_text_small("PICK UP YOUR NERFGUNS AND FIGHT");
 
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
 	for (int i = 0; i < ITEMCOUNT; i++) {
-		surface = Main::text->render_text_medium(item[i]);
+		surface = main_.text->render_text_medium(item[i]);
 		surf_items->push_back(surface);
 
 		rect = new SDL_Rect();
@@ -507,14 +507,14 @@ void Menu::init() {
 	}
 
 	credits = new std::vector<SDL_Surface*>(0);
-	surface = Main::text->render_text_small("PROGRAMMING BY BERT HEKMAN & RAY BURGEMEESTRE");
+	surface = main_.text->render_text_small("PROGRAMMING BY BERT HEKMAN & RAY BURGEMEESTRE");
 	credits->push_back(surface);
-	surface = Main::text->render_text_small("CONCEPT & GRAPHICS BY JEROEN GROENEWEG");
+	surface = main_.text->render_text_small("CONCEPT & GRAPHICS BY JEROEN GROENEWEG");
 	credits->push_back(surface);
-	surface = Main::text->render_text_small("MUSIC BY NICK PERRIN");
+	surface = main_.text->render_text_small("MUSIC BY NICK PERRIN");
 	credits->push_back(surface);
 
-	playeranimation = new PlayerAnimation(0);
+	playeranimation = new PlayerAnimation(0, main_);
 	animation_start = 0;
 }
 

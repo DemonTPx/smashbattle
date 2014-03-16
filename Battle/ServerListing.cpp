@@ -6,10 +6,10 @@
 #include "network/ServerClient.h"
 #include <sstream>
 
-ServerListing::ServerListing(json::Array &servers)
-    : OptionsScreen(), servers_(servers)
+ServerListing::ServerListing(json::Array &servers, Main &main)
+    : OptionsScreen(main), servers_(servers), main_(main)
 {
-	Main::runmode = MainRunModes::CLIENT;
+	main_.runmode = MainRunModes::CLIENT;
 
 	std::stringstream ss;
 	ss << "SERVERS FOUND: " << servers.size();
@@ -31,7 +31,7 @@ ServerListing::ServerListing(json::Array &servers)
 
 ServerListing::~ServerListing()
 {
-	Main::runmode = MainRunModes::ARCADE;
+	main_.runmode = MainRunModes::ARCADE;
 }
 
 void ServerListing::run()
@@ -44,13 +44,13 @@ void ServerListing::item_selected()
 	json::Object obj = servers_[(size_t)selected_item];
 	std::cout << " Selected item is: " << (std::string)obj["host"] << ":" << (int)obj["port"] << std::endl;
 	
-	network::ServerClient::getInstance().setHost((std::string)obj["host"]);
-	network::ServerClient::getInstance().setPort((int)obj["port"]);
+	main_.getServerClient().setHost((std::string)obj["host"]);
+	main_.getServerClient().setPort((int)obj["port"]);
 	
-	Main::instance->reset_inputs();
+	main_.reset_inputs();
 	
-	network::ClientNetworkMultiplayer clientgame;
+	network::ClientNetworkMultiplayer clientgame(main_);
 	clientgame.start();
 
-	Main::instance->reset_inputs();
+	main_.reset_inputs();
 }

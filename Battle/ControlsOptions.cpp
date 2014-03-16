@@ -7,7 +7,7 @@
 #define sprintf_s snprintf
 #endif
 
-ControlsOptions::ControlsOptions(GameInput * input, int number) {
+ControlsOptions::ControlsOptions(GameInput * input, int number, Main &main) : OptionsScreen(main) {
 	OptionItem * item;
 
 	std::stringstream ss;
@@ -84,7 +84,7 @@ void ControlsOptions::item_selected() {
 				return;
 			}
 			JoystickSelect * joystickselect;
-			joystickselect = new JoystickSelect(new_input->get_joystick_idx());
+			joystickselect = new JoystickSelect(new_input->get_joystick_idx(), main_);
 			joystickselect->run();
 			if(joystickselect->index > -1) {
 				new_input->open_joystick(joystickselect->index);
@@ -103,7 +103,7 @@ void ControlsOptions::item_selected() {
 	}
 
 	for(int i = 0; i < 4; i++) {
-		Main::instance->input[i]->reset();
+		main_.input[i]->reset();
 	}
 }
 
@@ -162,7 +162,7 @@ void ControlsOptions::show_notification(const char * text) {
 	SDL_Surface * surface;
 	SDL_Rect rect;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
 	surface = SDL_CreateRGBSurface(0, screen->w / 2, 50, 32, 0, 0, 0, 0);
 	rect.x = 100;
@@ -176,13 +176,13 @@ void ControlsOptions::show_notification(const char * text) {
 	rect.h -= 4;
 	SDL_FillRect(screen, &rect, 0);
 
-	surface = Main::text->render_text_medium(text);
+	surface = main_.text->render_text_medium(text);
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = (screen->h - surface->h) / 2;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	Main::instance->flip();
+	main_.flip();
 }
 
 void ControlsOptions::save_input() {
@@ -214,7 +214,7 @@ bool ControlsOptions::save_permitted() {
 }
 
 // Joystick select
-JoystickSelect::JoystickSelect(int index) {
+JoystickSelect::JoystickSelect(int index, Main &main) : OptionsScreen(main) {
 	OptionItem * item;
 
 	this->index = index;

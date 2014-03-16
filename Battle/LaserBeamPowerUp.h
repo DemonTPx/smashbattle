@@ -7,7 +7,7 @@ class CommandGeneratePowerup;
 
 class LaserBeamPowerUp : public GameplayObject {
 public:
-	LaserBeamPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position);
+	LaserBeamPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main);
 	~LaserBeamPowerUp();
 
 	virtual void move(Level * level);
@@ -20,8 +20,10 @@ public:
 
 	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 
-	static void shoot_laserbeam(Player * player);
+	static void shoot_laserbeam(Player * player, Main &main);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;
+
+	Main &main_;
 };

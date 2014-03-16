@@ -17,11 +17,9 @@
 #define sprintf_s snprintf
 #endif
 
-int Gameplay::frame = 0;
-Gameplay * Gameplay::instance = 0;
+Gameplay::Gameplay(Main &main) : main_(main) {
 
-Gameplay::Gameplay() {
-	instance = this;
+	frame = 0;
 
 	ticks_start = SDL_GetTicks();
 	
@@ -38,7 +36,6 @@ Gameplay::Gameplay() {
 }
 
 Gameplay::~Gameplay() {
-	instance = NULL;
 }
 
 #include "network/Server.h"
@@ -49,16 +46,16 @@ using std::map;
 void Gameplay::run() {
 	SDL_Event event;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
-	Main::autoreset = false;
+	main_.autoreset = false;
 
 	initialize();
 
 	reset_game();
 
 	game_running = true;
-	Main::instance->audio->stop_music();
+	main_.audio->stop_music();
 	music_playing = false;
 	
 	// Set the input defaults
@@ -70,19 +67,20 @@ void Gameplay::run() {
 	// Get ticks (milliseconds since SDL started)
 	ticks_start = SDL_GetTicks();
 
-	while(Main::running && game_running) {
-		// Event handling
-		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+	while(main_.running && game_running) {
+		if (!main_.no_sdl) {
+			// Event handling
+			while(SDL_PollEvent(&event)) {
+				main_.handle_event(&event);
 
-			// Handle player input
-			for(unsigned int idx = 0; idx < players->size(); idx++) {
-				Player * p = players->at(idx);
-				p->input->handle_event(&event);
+				// Handle player input
+				for(unsigned int idx = 0; idx < players->size(); idx++) {
+					Player * p = players->at(idx);
+					p->input->handle_event(&event);
+				}
+
+				handle_pause_input(&event);
 			}
-
-			handle_pause_input(&event);
-
 		}
 
 		on_input_handled();
@@ -93,11 +91,11 @@ void Gameplay::run() {
 		Sint32 ticks_diff = SDL_GetTicks() - ticks_start;
 
 		// If enough time has passed skip frame(s)
-		while (ticks_diff >= Main::MILLISECS_PER_FRAME)
+		while (ticks_diff >= main_.MILLISECS_PER_FRAME)
 		{
 			// Update our 'previous'/start measure and diff
-			ticks_start += Main::MILLISECS_PER_FRAME;
-			ticks_diff -= Main::MILLISECS_PER_FRAME;
+			ticks_start += main_.MILLISECS_PER_FRAME;
+			ticks_diff -= main_.MILLISECS_PER_FRAME;
 
 			// Gameplay processing
 			on_pre_processing();
@@ -106,7 +104,7 @@ void Gameplay::run() {
 				for(unsigned int idx = 0; idx < players->size(); idx++) {
 					Player * p = players->at(idx);
 					p->move(level);
-					switch (Main::runmode)
+					switch (main_.runmode)
 					{
 						case MainRunModes::SERVER:
 							// Server gets projectiles from client through commands
@@ -114,7 +112,7 @@ void Gameplay::run() {
 						case MainRunModes::CLIENT:
 							// Client will only process and send it's own projectiles to server, 
 							//  for other player bullets we depend on the server for sending them.
-							if (p->number == network::ServerClient::getInstance().getClientId())
+							if (p->number == main_.getServerClient().getClientId())
 								p->process();
 							break;
 						default:
@@ -181,7 +179,7 @@ void Gameplay::run() {
 		if(ended) {
 			draw_game_ended();
 
-			if (Main::runmode == MainRunModes::CLIENT) {
+			if (main_.runmode == MainRunModes::CLIENT) {
 				// reset games are handled by server
 			}
 			else if(frame - end_start > 120) {
@@ -192,29 +190,29 @@ void Gameplay::run() {
 			draw_countdown();
 		}
 
-		if (Main::runmode == MainRunModes::CLIENT)
+		if (main_.runmode == MainRunModes::CLIENT)
 		{
-			if (!network::ServerClient::getInstance().isConnected())
+			if (!main_.getServerClient().isConnected())
 				draw_disconnected();
-			else if (network::ServerClient::getInstance().showConsole())
+			else if (main_.getServerClient().showConsole())
 				draw_console();
 		}
 
 		draw_broadcast();
 		if (broadcast_duration > 0) {
 			for (int i=0; i<frames_processed; i++) {
-				broadcast_duration -= Main::MILLISECS_PER_FRAME;
+				broadcast_duration -= main_.MILLISECS_PER_FRAME;
 				if (broadcast_duration < 0)
 					broadcast_duration = 0;
 			}
 		}
 
-		Main::instance->flip(true);
+		main_.flip(true);
 	}
 
 	deinitialize();
 
-	Main::autoreset = true;
+	main_.autoreset = true;
 }
 
 void Gameplay::move_player(Player &player)
@@ -238,14 +236,14 @@ void Gameplay::move_player(Player &player)
 			std::unique_ptr<SDL_Rect> rect(p->get_rect());
 			if(is_intersecting(rect.get(), obj->position)) {
  				// In case the runmode is client, and it is a powerup, skip hit_player() call, we receive these commands from the server
-				if (!obj->is_powerup || Main::runmode != MainRunModes::CLIENT) {
+				if (!obj->is_powerup || main_.runmode != MainRunModes::CLIENT) {
 					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
-					if (obj->is_powerup && Main::runmode == MainRunModes::SERVER) {
+					if (obj->is_powerup && main_.runmode == MainRunModes::SERVER) {
 						network::CommandApplyPowerup apply;
-						apply.data.time = network::Server::getInstance().getServerTime();
+						apply.data.time = main_.getServer().getServerTime();
 						apply.data.player_id = p->number;
 						apply.data.powerup_id = obj->id();
-						network::Server::getInstance().sendAll(apply);
+						main_.getServer().sendAll(apply);
 					}
 					obj->hit_player(p);
 				}
@@ -291,15 +289,15 @@ bool Gameplay::process_gameplayobj(GameplayObject *gameplayobj)
 			rect = p->get_rect();
 			if(is_intersecting(rect, obj->position)) {
  				// In case the runmode is client, and it is a powerup, skip hit_player() call, we receive these commands from the server
-				if (!obj->is_powerup || Main::runmode != MainRunModes::CLIENT)
+				if (!obj->is_powerup || main_.runmode != MainRunModes::CLIENT)
 				{
 					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
-					if (obj->is_powerup && Main::runmode == MainRunModes::SERVER) {
+					if (obj->is_powerup && main_.runmode == MainRunModes::SERVER) {
 						network::CommandApplyPowerup apply;
-						apply.data.time = network::Server::getInstance().getServerTime();
+						apply.data.time = main_.getServer().getServerTime();
 						apply.data.player_id = p->number;
 						apply.data.powerup_id = obj->id();
-						network::Server::getInstance().sendAll(apply);
+						main_.getServer().sendAll(apply);
 					}
 					obj->hit_player(p);
 				}
@@ -344,7 +342,7 @@ void Gameplay::pause(Player * p) {
 	if(ret == 1) game_running = false;
 	
 	// In Arcade mode time does not elapse in pause menu
-	if (Main::runmode == MainRunModes::ARCADE) {
+	if (main_.runmode == MainRunModes::ARCADE) {
 		ticks_start = SDL_GetTicks();
 	}
 }
@@ -412,7 +410,7 @@ void Gameplay::reset_game() {
 	strcpy(countdown_pre_text, "GET READY");
 
 	// In network::ServerClient upon receiving the level from server, we reset already, and then initialize the tiles
-	if (Main::runmode != MainRunModes::CLIENT)
+	if (main_.runmode != MainRunModes::CLIENT)
 	{
 		level->reset();
 	}
@@ -427,13 +425,13 @@ void Gameplay::reset_game() {
 
 	on_game_reset();
 
-	//Main::audio->stop_music();
+	//main_.audio->stop_music();
 
 	srand(SDL_GetTicks());
 }
 
 void Gameplay::initialize() {
-	pause_menu = new PauseMenu(screen);
+	pause_menu = new PauseMenu(screen, main_);
 	pause_menu->add_option((char*)"RESUME\0");
 	pause_menu->add_option((char*)"QUIT\0");
 }
@@ -441,7 +439,7 @@ void Gameplay::initialize() {
 void Gameplay::deinitialize() {
 	// Stop the music
 	if(!countdown)
-		Main::audio->stop_music();
+		main_.audio->stop_music();
 
 	// Clear players (we don't delete the players, because they are not created in this class)
 	players->clear();
@@ -474,10 +472,10 @@ void Gameplay::draw_countdown() {
 	SDL_Surface * surf;
 
 	if(countdown_sec_left > 3) {
-		surf = Main::text->render_text_medium_shadow(countdown_pre_text);
+		surf = main_.text->render_text_medium_shadow(countdown_pre_text);
 	} else {
 		sprintf_s(text, 5, "%d", countdown_sec_left);
-		surf = Main::text->render_text_large_shadow(text);
+		surf = main_.text->render_text_large_shadow(text);
 	}
 
 	SDL_Rect rect;
@@ -492,7 +490,7 @@ void Gameplay::draw_disconnected()
 {
 	SDL_Surface * surf;
 
-	surf = Main::text->render_text_medium("DISCONNECTED FROM SERVER");
+	surf = main_.text->render_text_medium("DISCONNECTED FROM SERVER");
 
 	SDL_Rect rect;
 	rect.x = (screen->w - surf->w) / 2;
@@ -509,7 +507,7 @@ void Gameplay::draw_broadcast()
 
 	SDL_Surface * surf;
 
-	surf = Main::text->render_text_medium_shadow(broadcast_msg.c_str());
+	surf = main_.text->render_text_medium_shadow(broadcast_msg.c_str());
 
 	SDL_Rect rect;
 	rect.x = (screen->w - surf->w) / 2;
@@ -601,7 +599,7 @@ void Gameplay::process_player_collission() {
 			std::unique_ptr<SDL_Rect> r2 (p2->get_rect());
 
 			if(is_intersecting(r1.get(), r2.get())) {
-				Main::audio->play(SND_BOUNCE, (p1->position->x + p2->position->x) / 2);
+				main_.audio->play(SND_BOUNCE, (p1->position->x + p2->position->x) / 2);
 
 				p1->bounce(p2);
 				p2->bounce(p1);
@@ -614,9 +612,9 @@ void Gameplay::process_player_collission() {
 				//  on the server (I learned this by actually implementing it wrong).
 				// Therefore (re)set a timer that will periodically send our data to server.
 				// But we cannot do this 
-				if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected()) {
-					if (network::ServerClient::getInstance().getClientId() == p1->number || network::ServerClient::getInstance().getClientId() == p2->number) {
-						network::ServerClient::getInstance().resetTimer();
+				if (main_.runmode == MainRunModes::CLIENT && main_.getServerClient().isConnected()) {
+					if (main_.getServerClient().getClientId() == p1->number || main_.getServerClient().getClientId() == p2->number) {
+						main_.getServerClient().resetTimer();
 					}
 				}
 			}
@@ -694,9 +692,9 @@ void Gameplay::process_countdown() {
 	if(frame - countdown_start >= 60) {
 		if(countdown_sec_left == 1) {
 			countdown = false;
-			Main::audio->play(SND_GO);
+			main_.audio->play(SND_GO);
 			if(!music_playing) {
-				Main::audio->play_music(level->music);
+				main_.audio->play_music(level->music);
 				music_playing = true;
 			}
 			return;
@@ -705,7 +703,7 @@ void Gameplay::process_countdown() {
 		countdown_start = frame;
 
 		if(countdown_sec_left <= 3)
-			Main::audio->play(SND_COUNTDOWN);
+			main_.audio->play(SND_COUNTDOWN);
 	}
 }
 

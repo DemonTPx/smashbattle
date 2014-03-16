@@ -4,7 +4,7 @@
 
 class AudioOptions : public OptionsScreen {
 public:
-	AudioOptions();
+	AudioOptions(Main &main);
 
 	void run();
 	void selection_changed();

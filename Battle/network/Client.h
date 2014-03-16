@@ -9,6 +9,8 @@
 
 #include "util/LagMeasure.hpp"
 
+class Main;
+
 namespace network{
 
 class CommandPing;
@@ -47,7 +49,7 @@ public:
 	};
 
 
-	Client(int client_id, TCPsocket socket, Server * const server);
+	Client(int client_id, TCPsocket socket, Server * const server, Main &main);
 	Client(Client &&other);
 	Client & operator=(Client&& other);
 	
@@ -112,6 +114,8 @@ private:
 	IPaddress address_;
 	
 	UDPpacket *p;
+	
+	Main &main_;
 };
 
 }

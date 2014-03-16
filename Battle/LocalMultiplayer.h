@@ -5,7 +5,7 @@
 class LocalMultiplayer : public Gameplay {
 public:
 
-	LocalMultiplayer() : Gameplay(), winner(NULL) {}
+	LocalMultiplayer(Main &main);
 
 
 	void set_ended(bool val) { this->ended = val; };
@@ -53,4 +53,6 @@ protected:
 	int powerup_laserbeam_rate;
 	int powerup_shield_rate;
 	int powerup_random_rate;
+
+	Main &main_;
 };

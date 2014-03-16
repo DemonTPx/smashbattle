@@ -19,55 +19,65 @@ struct SaveHeader {
 	short version;
 };
 
-enum MainRunModes
+enum class MainRunModes
 { 
 	ARCADE,
 	SERVER,
 	CLIENT
 };
 
+class Gameplay;
+namespace network {
+class ServerClient;
+class Server;
+}
 
 class Main {
 public:
-	static Main * instance;
 
-	static SDL_Surface * screen;
-	static int flags;
+	bool no_sdl;
 
-	static bool running;
-	static int frame_delay;
-	static unsigned int frame;
-	static bool fps_cap;
+	//static Main * instance;
 
-	static bool screenshot_next_flip;
+	SDL_Surface * screen;
+	int flags;
 
-	static const int FRAMES_PER_SECOND;
-	static const int MILLISECS_PER_FRAME;
+	bool running;
+	int frame_delay;
+	unsigned int frame;
+	bool fps_cap;
 
-	static const int FRAMES_UNTIL_RESET;
+	bool screenshot_next_flip;
 
-	static const int CONTROLS_REPEAT_DELAY;
-	static const int CONTROLS_REPEAT_SPEED;
+	const int FRAMES_PER_SECOND;
+	const int MILLISECS_PER_FRAME;
 
-	static const int JOYSTICK_AXIS_THRESHOLD;
+	const int FRAMES_UNTIL_RESET;
 
-	static MainRunModes runmode;
+	const int CONTROLS_REPEAT_DELAY;
+	const int CONTROLS_REPEAT_SPEED;
 
-	static Timer * fps;
+	const int JOYSTICK_AXIS_THRESHOLD;
 
-	static int fps_counter_last_frame;
-	static int fps_counter_this_frame;
-	static Timer * fps_counter_timer;
-	static bool fps_counter_visible;
-	static bool ingame_debug_visible;
+	MainRunModes runmode;
 
-	static AudioController * audio;
-	static Graphics * graphics;
-	static Text * text;
+	Timer * fps;
 
-	static unsigned int last_activity;
-	static bool autoreset;
-	static bool is_reset;
+	int fps_counter_last_frame;
+	int fps_counter_this_frame;
+	Timer * fps_counter_timer;
+	bool fps_counter_visible;
+	bool ingame_debug_visible;
+
+	AudioController * audio;
+	Graphics * graphics;
+	Text * text;
+
+	Gameplay *gameplay_;
+
+	unsigned int last_activity;
+	bool autoreset;
+	bool is_reset;
 
 	SDL_Joystick * joystick[10];
 
@@ -76,6 +86,13 @@ public:
 
 	Main();
 	~Main();
+
+	network::ServerClient &getServerClient();
+	network::Server &getServer();
+
+	void setGameplay(Gameplay *gameplay);
+	Gameplay &gameplay();
+
 	int run(const MainRunModes &);
 	void flip(bool no_cap = false);
 	void handle_event(SDL_Event * event);
@@ -92,4 +109,7 @@ private:
 	void save_options();
 
 	void set_default_controlschemes();
+
+	network::ServerClient *serverClient_;
+	network::Server *server_;
 };

@@ -6,6 +6,7 @@
 #include "NetworkMultiplayer.h"
 #include "Projectile.h"
 #include "Bomb.h"
+#include "Main.h"
 
 #include <sstream>
 
@@ -22,7 +23,8 @@ Client::Client(Client &&other)
 
 	  currentState_(Client::State::CONNECTING),
 	  commToken_(other.getCommToken()),
-	  lastUdpSeq_(0)
+	  lastUdpSeq_(0),
+	  main_(other.main_)
 {
 	// UDP initialize
 	if (!(p = SDLNet_AllocPacket(4096))) {
@@ -47,7 +49,7 @@ Client & Client::operator=(Client&& other)
 /**
  * Our intended constructor :P
  */
-Client::Client(int client_id, TCPsocket socket, Server * const server)
+Client::Client(int client_id, TCPsocket socket, Server * const server, Main &main)
 	: CommandProcessor(socket),
 	  
 	  client_id_(client_id),
@@ -61,7 +63,8 @@ Client::Client(int client_id, TCPsocket socket, Server * const server)
 
 	  currentState_(Client::State::CONNECTING),
 	  commToken_(rand_get()),
-	  lastUdpSeq_(0)
+	  lastUdpSeq_(0),
+	  main_(main)
 {
 	if (!(p = SDLNet_AllocPacket(4096))) {
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
@@ -154,7 +157,7 @@ bool Client::process(CommandSetPlayerData *command)
 			player_util::set_player_data(player, *command);
 
 			// Account for lag
-			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(main_.MILLISECS_PER_FRAME));
 			for (int i=0; i<processFrames; i++)
 				server_->getGame().move_player(player);
 
@@ -201,7 +204,7 @@ bool Client::process(CommandShotFired *command)
 			proj->distance_traveled = command->data.distance_travelled;
 
 			// Account for lag
-			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(main_.MILLISECS_PER_FRAME));
 			for (int i=0; i<processFrames; i++)
 			{
 				if (!server_->getGame().process_gameplayobj(proj))
@@ -248,7 +251,7 @@ bool Client::process(CommandBombDropped *command)
 			GameplayObject *obj = player.create_bomb(command->data.x, command->data.y);
 
 			// Account for lag
-			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(Main::MILLISECS_PER_FRAME));
+			int processFrames = static_cast<int>(lag().avg() / static_cast<float>(main_.MILLISECS_PER_FRAME));
 			for (int i=0; i<processFrames; i++)
 			{
 				if (!server_->getGame().process_gameplayobj(obj))
@@ -338,7 +341,7 @@ void Client::send(Command &command)
 
 		int numsent = SDLNet_UDP_Send(server_->getUdpSocket(), -1, p); // This sets the p->channel
 		if(!numsent) {
-			printf("SDLNet_UDP_Send^1: %s (delivery to: %d)\n", SDLNet_GetError());
+			printf("SDLNet_UDP_Send^1: %s (delivery to: %d)\n", SDLNet_GetError(), -1);
 			// do something because we failed to send
 			// this may just be because no addresses are bound to the channel...
 			//exit(1);

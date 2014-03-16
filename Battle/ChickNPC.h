@@ -4,7 +4,7 @@
 
 class ChickNPC : public NPC {
 public:
-	ChickNPC();
+	ChickNPC(Main &main);
 	~ChickNPC();
 protected:
 	virtual void process();

@@ -8,7 +8,7 @@
 
 class Mine : public Bomb {
 public:
-	Mine(SDL_Surface * surface);
+	Mine(SDL_Surface * surface, Main &main);
 
 	int flash_interval;
 	int flash_length;
@@ -17,4 +17,6 @@ public:
 	void process();
 protected:
 	void set_clips();
+
+	Main &main_;
 };

@@ -4,7 +4,7 @@
 
 class CannonNPC : public NPC {
 public:
-	CannonNPC();
+	CannonNPC(Main &main);
 	~CannonNPC();
 
 	void shoot();
@@ -18,4 +18,6 @@ protected:
 
 	int frame_first;
 	int frame_last;
+	
+	Main &main_;
 };

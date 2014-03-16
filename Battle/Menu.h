@@ -6,7 +6,7 @@
 
 class Menu {
 public:
-	Menu();
+	Menu(Main &main);
 	~Menu();
 	void run();
 	void draw();
@@ -51,4 +51,6 @@ private:
 
 	void init();
 	void cleanup();
+
+	Main &main_;
 };

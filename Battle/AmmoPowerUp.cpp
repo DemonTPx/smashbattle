@@ -3,8 +3,9 @@
 #include "GameplayObject.h"
 #include "AmmoPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
-AmmoPowerUp::AmmoPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo) {
+AmmoPowerUp::AmmoPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 32;
 	clip->y = 0;
 	this->surface = surface;
@@ -20,7 +21,7 @@ AmmoPowerUp::~AmmoPowerUp() {
 }
 
 void AmmoPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->bullets += ammo;
 

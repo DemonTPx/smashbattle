@@ -1,10 +1,11 @@
 #include "SDL/SDL.h"
 
 #include "GameplayObject.h"
+#include "Main.h"
 #include "HealthPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 
-HealthPowerUp::HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp) {
+HealthPowerUp::HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 0;
 	clip->y = 0;
 	this->surface = surface;
@@ -20,7 +21,7 @@ HealthPowerUp::~HealthPowerUp() {
 }
 
 void HealthPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->hitpoints += hp;
 

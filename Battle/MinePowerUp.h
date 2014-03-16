@@ -6,7 +6,7 @@ class CommandGeneratePowerup;
 
 class MinePowerUp : public GameplayObject {
 public:
-	MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount);
+	MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main);
 	~MinePowerUp();
 
 	virtual void move(Level * level);
@@ -22,4 +22,6 @@ public:
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 	int ammount;
+
+	Main &main_;
 };

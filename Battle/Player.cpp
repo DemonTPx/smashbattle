@@ -151,7 +151,7 @@ const int Player::jump_height = 144;
 // Replace player suits with player color
 #define PLAYER_REPLACE_SUIT_COLOR
 
-Player::Player(int character, int number) {
+Player::Player(int character, int number, Main &main) : main_(main) {
 	name = CHARACTERS[character].name;
 	this->character = character;
 	this->number = number;
@@ -178,8 +178,8 @@ Player::Player(int character, int number) {
 
 	sprites = NULL;
 	set_sprites();
-	marker_clip_above = Main::graphics->pmarker_clip_above[suit_number];
-	marker_clip_below = Main::graphics->pmarker_clip_below[suit_number];
+	marker_clip_above = main_.graphics->pmarker_clip_above[suit_number];
+	marker_clip_below = main_.graphics->pmarker_clip_below[suit_number];
 
 }
 
@@ -204,6 +204,8 @@ void Player::set_character(int character) {
 }
 
 void Player::set_sprites() {
+	if (main_.no_sdl)
+		return;
 #ifdef PLAYER_REPLACE_SUIT_COLOR
 	SDL_Surface * original;
 	Uint32 c_old, n_new;
@@ -212,25 +214,25 @@ void Player::set_sprites() {
 		SDL_FreeSurface(sprites);
 	}
 
-	original = Main::graphics->player->at(character);
+	original = main_.graphics->player->at(character);
 	sprites = SDL_ConvertSurface(original, original->format, original->flags);
 
 	for (short i = 0; i < Player::SUIT_COLOR_COUNT; i++) {
 		c_old = Player::SUIT_ORIGINAL[i];
 		n_new = Player::SUIT_REPLACE[suit_number][i];
 		if (c_old != n_new) {
-			Main::graphics->replace_color(sprites, c_old, n_new);
+			main_.graphics->replace_color(sprites, c_old, n_new);
 		}
 	}
 #else
-	sprites = Main::graphics->player->at(character);
+	sprites = main_.graphics->player->at(character);
 #endif
 }
 
 void Player::update_suit()
 {
 	suit_number = number;
-	if (Main::runmode != MainRunModes::ARCADE) {
+	if (main_.runmode != MainRunModes::ARCADE) {
 		suit_number++;
 	}
 	suit_number = suit_number % Player::COLORS_COUNT;
@@ -297,6 +299,7 @@ void Player::reset() {
 }
 
 void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
+
 	SDL_Rect rect;
 	SDL_Surface * sprites;
 
@@ -319,16 +322,19 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 	}
 
 	if(is_shielded) {
-		if((shield_start + PLAYER_SHIELD_FRAMES) - Gameplay::frame > 60) {
-			sprites = Main::graphics->shield;
+		if((shield_start + PLAYER_SHIELD_FRAMES) - main_.gameplay().frame > 60) {
+			sprites = main_.graphics->shield;
 		} else {
 			shield_frame = (shield_frame + frames_processed) % 10;
 			if(shield_frame >= 5)
-				sprites = Main::graphics->shield;
+				sprites = main_.graphics->shield;
 		}
 	}
 
-	SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
+	if (main_.no_sdl)
+		return;
+
+	SDL_BlitSurface(sprites, main_.graphics->player_clip[current_sprite], screen, &rect);
 
 	// If the player is going out the side of the screen, we want it to
 	// appear on the other side.
@@ -336,39 +342,39 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 		rect.x = position->x - WINDOW_WIDTH;
 		rect.y = position->y;
 
-		SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
+		SDL_BlitSurface(sprites, main_.graphics->player_clip[current_sprite], screen, &rect);
 	}
 	if(position->x <= 0) {
 		rect.x = position->x + WINDOW_WIDTH;
 		rect.y = position->y;
 
-		SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
+		SDL_BlitSurface(sprites, main_.graphics->player_clip[current_sprite], screen, &rect);
 	}
 
 	// Show marker if the player is above the screen
 	if(position->y + position->h <= 0) {
 		rect.x = position->x + ((PLAYER_W - marker_clip_below->w) / 2);
 		rect.y = 0;
-		SDL_BlitSurface(Main::graphics->pmarker, marker_clip_below, screen, &rect);
+		SDL_BlitSurface(main_.graphics->pmarker, marker_clip_below, screen, &rect);
 	}
 
 	// Show marker above the player
 	if(marker) {
 		rect.x = position->x + ((PLAYER_W - marker_clip_above->w) / 2);
 		rect.y = position->y - marker_clip_above->h - 4;
-		SDL_BlitSurface(Main::graphics->pmarker, marker_clip_above, screen, &rect);
+		SDL_BlitSurface(main_.graphics->pmarker, marker_clip_above, screen, &rect);
 	}
 
 	// Show lag above player if server is active
-	if (Main::runmode == MainRunModes::SERVER) {
-		SDL_Surface *surf = Main::text->render_text_small_gray(format("lag %.2f #%d [%d]", server_util::get_lag_for(*this), this->suit_number, (int)this->spectating()).c_str());
+	if (main_.runmode == MainRunModes::SERVER) {
+		SDL_Surface *surf = main_.text->render_text_small_gray(format("lag %.2f #%d [%d]", server_util::get_lag_for(main_, *this), this->suit_number, (int)this->spectating()).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
 		SDL_FreeSurface(surf);
 	}
-	else if (Main::runmode == MainRunModes::CLIENT && Main::ingame_debug_visible) {
-		SDL_Surface *surf = Main::text->render_text_small_gray(format("[%d] lag %.2f #%d [%d]", this->number, server_util::get_lag_for(*this), this->suit_number, (int)this->spectating()).c_str());
+	else if (main_.runmode == MainRunModes::CLIENT && main_.ingame_debug_visible) {
+		SDL_Surface *surf = main_.text->render_text_small_gray(format("[%d] lag %.2f #%d [%d]", this->number, server_util::get_lag_for(main_, *this), this->suit_number, (int)this->spectating()).c_str());
 		rect.x = position->x + ((PLAYER_W - surf->w) / 2);
 		rect.y = position->y - surf->h - 4;
 		SDL_BlitSurface(surf, NULL, screen, &rect);
@@ -412,23 +418,23 @@ void Player::move(Level * level) {
 	
 	if(is_hit) {
 		// The player has been hit long enough
-		if(Gameplay::frame > hit_start + hit_delay) {
+		if(main_.gameplay().frame > hit_start + hit_delay) {
 			is_hit = false;
 		}
 	}
 
 	if(is_frozen) {
-		if(Gameplay::frame > freeze_start + PLAYER_FREEZE_FRAMES) {
+		if(main_.gameplay().frame > freeze_start + PLAYER_FREEZE_FRAMES) {
 			is_frozen = false;
 		}
 	}
 
 	if(is_shielded) {
-		if(Gameplay::frame > shield_start + PLAYER_SHIELD_FRAMES) {
+		if(main_.gameplay().frame > shield_start + PLAYER_SHIELD_FRAMES) {
 			is_shielded = false;
 		}
-		if(Gameplay::frame == (shield_start + PLAYER_SHIELD_FRAMES - 60)) {
-			Main::audio->play(SND_SHIELD, position->x + (position->w / 2));
+		if(main_.gameplay().frame == (shield_start + PLAYER_SHIELD_FRAMES - 60)) {
+			main_.audio->play(SND_SHIELD, position->x + (position->w / 2));
 		}
 	}
 
@@ -455,7 +461,7 @@ void Player::move(Level * level) {
 	
 	// Are we forced to being ducked?
 	if(is_duck_forced) {
-		if(Gameplay::frame - duck_force_start > DUCK_FORCE_FRAMES) {
+		if(main_.gameplay().frame - duck_force_start > DUCK_FORCE_FRAMES) {
 			is_duck_forced = false;
 		} else {
 			is_duck = true;
@@ -630,7 +636,7 @@ void Player::move(Level * level) {
 		momentumy = MAX_MOMENTUM_JUMP;
 		is_jumping = true;
 
-		Main::instance->audio->play(SND_JUMP, position->x);
+		main_.audio->play(SND_JUMP, position->x);
 	}
 	if(!input->is_pressed(A_JUMP) && is_jumping) {
 		// The up key is released, so fall faster
@@ -743,7 +749,7 @@ void Player::bounce(Player * other) {
 	if(is_above) {
 		bounce_direction_y = -1;
 		if(input->is_pressed(A_JUMP)) {
-			Main::audio->play(SND_JUMP, position->x);
+			main_.audio->play(SND_JUMP, position->x);
 			momentumy = MAX_MOMENTUM_JUMP;
 			is_falling = false;
 			is_jumping = true;
@@ -754,7 +760,7 @@ void Player::bounce(Player * other) {
 	if(is_below) {
 		bounce_direction_y = 1;
 		is_duck_forced = true;
-		duck_force_start = Gameplay::frame;
+		duck_force_start = main_.gameplay().frame;
 		momentumy = -10;
 		if(damage(WEIGHTCLASSES[other->weightclass].headjump_damage)) {
 			other->headstomps++;
@@ -785,7 +791,7 @@ void Player::bounce(Player * other) {
 void Player::bounce_up(SDL_Rect * source) {
 	is_falling = true;
 	is_frozen = true;
-	freeze_start = Gameplay::frame;
+	freeze_start = main_.gameplay().frame;
 	momentumy = WEIGHTCLASSES[weightclass].bounce_momentum_x;
 	if(position->x < source->x) {
 		momentumx -= WEIGHTCLASSES[weightclass].bounce_momentum_y;
@@ -807,9 +813,9 @@ bool Player::damage(int damage) {
 		return false;
 
 	is_hit = true;
-	hit_start = Gameplay::frame;
+	hit_start = main_.gameplay().frame;
 
-	switch (Main::runmode) {
+	switch (main_.runmode) {
 		default:
 			hitpoints -= damage;
 			if (hitpoints < 0)
@@ -826,7 +832,7 @@ bool Player::damage(int damage) {
 				points.data.client_id = number;
 				points.data.hitpoints = hitpoints;
 
-				network::Server::getInstance().sendAll(points);
+				main_.getServer().sendAll(points);
 			}
 			break;
 		case MainRunModes::CLIENT:
@@ -844,45 +850,45 @@ void Player::process() {
 		return;
 
 	if(input->is_pressed(A_SHOOT)) {
-		if(Gameplay::frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
+		if(main_.gameplay().frame > shoot_start + WEAPONCLASSES[weaponclass].rate &&
 			(((bullets == BULLETS_UNLIMITED) ||  bullets > 0) ||
 			((doubledamagebullets == BULLETS_UNLIMITED) ||  doubledamagebullets > 0) ||
 			((instantkillbullets == BULLETS_UNLIMITED) ||  instantkillbullets > 0))) 
 		{
 			Projectile *proj = create_projectile_for_player(position->x, position->y);
 
-			if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
+			if (main_.runmode == MainRunModes::CLIENT && main_.getServerClient().isConnected())
 			{
 				network::CommandShotFired fire;
 				fire.data.time = SDL_GetTicks();
 				// this is discarded by server anyway, we cannot send for other clients
-				fire.data.client_id = network::ServerClient::getInstance().getClientId(); 
+				fire.data.client_id = main_.getServerClient().getClientId(); 
 				// current sprite determines direction of bullet
 				fire.data.current_sprite = current_sprite;
 				fire.data.x = position->x;
 				fire.data.y = position->y;
 				fire.data.distance_travelled = proj->distance_traveled;
-				network::ServerClient::getInstance().send(fire);
+				main_.getServerClient().send(fire);
 			}
 		}
 	}
 	if(input->is_pressed(A_BOMB)) {
-		if(Gameplay::frame > bomb_start + bomb_delay &&
+		if(main_.gameplay().frame > bomb_start + bomb_delay &&
 			(bombs > 0 || bombs == -1 || mines > 0 || mines == -1)) 
 		{
 			Bomb *newbomb = create_bomb_for_player(position->x, position->y);
 			
-			if (Main::runmode == MainRunModes::CLIENT && network::ServerClient::getInstance().isConnected())
+			if (main_.runmode == MainRunModes::CLIENT && main_.getServerClient().isConnected())
 			{
 				network::CommandBombDropped bomb;
 				bomb.data.time = SDL_GetTicks();
 				// this is discarded by server anyway, we cannot send for other clients
-				bomb.data.client_id = network::ServerClient::getInstance().getClientId(); 
+				bomb.data.client_id = main_.getServerClient().getClientId(); 
 				// current sprite determines direction of bullet
 				bomb.data.current_sprite = current_sprite;
 				bomb.data.x = newbomb->position->x;
 				bomb.data.y = newbomb->position->y;
-				network::ServerClient::getInstance().send(bomb);
+				main_.getServerClient().send(bomb);
 			}
 		}
 	}
@@ -907,7 +913,7 @@ Projectile * Player::create_projectile_for_player(Sint16 x, Sint16 y)
 
 Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 {
-	shoot_start = Gameplay::frame;
+	shoot_start = main_.gameplay().frame;
 	Projectile * pr;
 	SDL_Rect * clip_weapon;
 	bool doubledamage;
@@ -927,7 +933,7 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 	clip_weapon->w = 8;
 	clip_weapon->h = 8;
 
-	pr = new Projectile(Main::graphics->weapons, clip_weapon);
+	pr = new Projectile(main_.graphics->weapons, clip_weapon, main_);
 	pr->owner = this;
 	if(instantkill)
 		pr->damage = 100;
@@ -947,7 +953,7 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 		pr->position->y = y;
 	else
 		pr->position->y = y;
-	Gameplay::instance->add_object(pr);
+	main_.gameplay().add_object(pr);
 
 	pr->max_distance = WEAPONCLASSES[weaponclass].distance;
 	
@@ -960,7 +966,7 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 	
 	bullets_fired++;
 
-	Main::instance->audio->play(SND_SHOOT, pr->position->x);
+	main_.audio->play(SND_SHOOT, pr->position->x);
 
 	return pr;
 }
@@ -977,24 +983,24 @@ Bomb* Player::create_bomb_for_player(Sint16 x, Sint16 y)
 
 Bomb* Player::create_bomb(Sint16 x, Sint16 y)
 {
-	bomb_start = Gameplay::frame;
+	bomb_start = main_.gameplay().frame;
 
 	Bomb * b;
 
 	if(mines > 0 || mines == -1)
-		b = new Mine(Main::graphics->bombs);
+		b = new Mine(main_.graphics->bombs, main_);
 	else
-		b = new Bomb(Main::graphics->bombs);
+		b = new Bomb(main_.graphics->bombs, main_);
 
 	b->damage = BOMBPOWERCLASSES[bombpowerclass].damage;
 	b->time = 60;
-	b->frame_start = Gameplay::frame;
-	b->frame_change_start = Gameplay::frame;
+	b->frame_start = main_.gameplay().frame;
+	b->frame_change_start = main_.gameplay().frame;
 	b->frame_change_count = 12;
 	b->owner = this;
 	b->position->x = x;
 	b->position->y = y;
-	Gameplay::instance->add_object(b);
+	main_.gameplay().add_object(b);
 	
 	if(mines > 0) {
 		mines -= 1;
@@ -1005,7 +1011,7 @@ Bomb* Player::create_bomb(Sint16 x, Sint16 y)
 
 	bombs_fired++;
 
-	Main::instance->audio->play(SND_SHOOT, b->position->x);
+	main_.audio->play(SND_SHOOT, b->position->x);
 
 	return b;
 }

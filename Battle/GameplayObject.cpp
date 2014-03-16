@@ -6,8 +6,9 @@
 #include "GameplayObject.h"
 #include "commands/CommandGeneratePowerup.h"
 #include "commands/CommandRemovePowerup.hpp"
+#include "Main.h"
 
-GameplayObject::GameplayObject() {
+GameplayObject::GameplayObject(Main &main) : main_(main) {
 	done = false;
 	is_powerup = false;
 	id_ = 0;
@@ -15,11 +16,11 @@ GameplayObject::GameplayObject() {
 
 GameplayObject::~GameplayObject() 
 {
-	if (is_powerup && network::Server::getInstance().active()) {
+	if (is_powerup && main_.getServer().active()) {
 		network::CommandRemovePowerup remo;
-		remo.data.time = network::Server::getInstance().getServerTime();
+		remo.data.time = main_.getServer().getServerTime();
 		remo.data.powerup_id = id();
-		network::Server::getInstance().sendAll(remo);
+		main_.getServer().sendAll(remo);
 	}
 }
 

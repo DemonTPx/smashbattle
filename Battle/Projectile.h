@@ -4,8 +4,8 @@
 
 class Projectile : public GameplayObject {
 public:
-	Projectile();
-	Projectile(SDL_Surface * surface, SDL_Rect * clip);
+	Projectile(Main &main);
+	Projectile(SDL_Surface * surface, SDL_Rect * clip, Main &main);
 	~Projectile();
 
 	SDL_Surface * sprite;
@@ -30,4 +30,6 @@ public:
 
 	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
 private:
+
+	Main &main_;
 };

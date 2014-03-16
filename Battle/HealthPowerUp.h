@@ -2,7 +2,7 @@
 
 class HealthPowerUp : public GameplayObject {
 public:
-	HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp);
+	HealthPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int hp, Main &main);
 	~HealthPowerUp();
 
 	virtual void move(Level * level);
@@ -18,4 +18,6 @@ public:
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 	int hp;
+
+	Main &main_;
 };

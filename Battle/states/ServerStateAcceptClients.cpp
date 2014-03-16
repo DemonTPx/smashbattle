@@ -171,8 +171,8 @@ void ServerStateAcceptClients::execute_character_requested(Uint32 servertime, Se
 
 
 	// Create player object for client, determine starting position from level
-	Player *newplayer = new Player (client.getCharacter(), client.getClientId());
-	GameInputStub *playerinput = new GameInputStub();
+	Player *newplayer = new Player (client.getCharacter(), client.getClientId(), server.getMain());
+	GameInputStub *playerinput = new GameInputStub(server.getMain());
 	newplayer->input = playerinput;
 	level_util::set_player_start(*newplayer, level);
 	newplayer->reset();
@@ -183,14 +183,6 @@ void ServerStateAcceptClients::execute_character_requested(Uint32 servertime, Se
 	std::cout << " Sending server ready command to client: " << client.getClientId() << std::endl;
 	CommandSetServerReady cmdrdy;
 	client.send(cmdrdy);
-
-	CommandSetBroadcastText broadcast;
-	broadcast.data.time = server.getServerTime();
-	string text("FUCK YOU");
-	strncpy(broadcast.data.text, text.c_str() , text.length());
-	broadcast.data.duration = 10000;
-	client.send(broadcast);
-
 
 	client.setState(Client::State::SERVERSIDE_READY);
 }
@@ -223,7 +215,7 @@ void ServerStateAcceptClients::execute_ready_for_positional_data(Uint32 serverti
 void ServerStateAcceptClients::execute_active(Uint32 servertime, Server &server, Client &client) const
 {
 	// For now the client is initialized (it knows the other players)
-	Player &player(player_util::get_player_by_id(client.getClientId()));
+	Player &player(player_util::get_player_by_id(server.getMain(), client.getClientId()));
 	if (player.is_dead) {
 
 		// Do something fancy here

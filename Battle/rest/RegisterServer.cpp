@@ -4,6 +4,7 @@
 #include <cstring>
 #include "util/json.h"
 #include "network/Server.h"
+#include "Main.h"
 
 namespace rest {
 
@@ -12,14 +13,14 @@ RegisterServer::RegisterServer(const std::string &serverToken)
 {
 }
 
-std::string RegisterServer::put()
+std::string RegisterServer::put(Main &main)
 {
 	json::Object postData;
-	postData["servername"] = network::Server::getInstance().getName();
+	postData["servername"] = main.getServer().getName();
 	// Host will be determined by the API server for now
 	//  postData["host"] = Server::getInstance().getHost();
-	postData["port"] = network::Server::getInstance().getPort();
-	postData["level"] = network::Server::getInstance().getLevelName();
+	postData["port"] = main.getServer().getPort();
+	postData["level"] = main.getServer().getLevelName();
 	postData["required_players"] = 2;
 	
 	std::cout << "post data generated is; " << json::Serialize(postData) << std::endl;

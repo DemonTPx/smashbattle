@@ -1,12 +1,13 @@
 #include <SDL/SDL.h>
 
+#include "Main.h"
 #include "Gameplay.h"
 #include "Airstrike.h"
 
 #include "AirstrikePowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 
-AirstrikePowerUp::AirstrikePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position) {
+AirstrikePowerUp::AirstrikePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 80;
 	clip->y = 0;
 	this->surface = surface;
@@ -21,20 +22,20 @@ AirstrikePowerUp::~AirstrikePowerUp() {
 }
 
 void AirstrikePowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
-	shoot_airstrike(p);
+	shoot_airstrike(p, main_);
 
 	done = true;
 }
 
-void AirstrikePowerUp::shoot_airstrike(Player * p) {
+void AirstrikePowerUp::shoot_airstrike(Player * p, Main &main) {
 	Airstrike * as;
 
-	as = new Airstrike();
+	as = new Airstrike(main);
 	as->owner = p;
 
-	Gameplay::instance->add_object(as);
+	main.gameplay().add_object(as);
 }
 
 void AirstrikePowerUp::hit_npc(NPC * npc) {}

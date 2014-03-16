@@ -6,7 +6,7 @@ class CommandGeneratePowerup;
 
 class RandomPowerUp : public GameplayObject {
 public:
-	RandomPowerUp(SDL_Surface * surface, SDL_Rect * position);
+	RandomPowerUp(SDL_Surface * surface, SDL_Rect * position, Main &main);
 	~RandomPowerUp();
 
 	static const int CYCLE_COUNT;
@@ -31,4 +31,6 @@ public:
 	int frame_cycle;
 
 	int frame_counter;
+
+	Main &main_;
 };

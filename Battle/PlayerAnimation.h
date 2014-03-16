@@ -4,7 +4,7 @@
 
 class PlayerAnimation {
 public:
-	PlayerAnimation(int character);
+	PlayerAnimation(int character, Main &main);
 	~PlayerAnimation();
 
 	void set_character(int character);
@@ -34,4 +34,6 @@ public:
 	int cycle_direction;
 	int distance_walked;
 	int total_distance_walked;
+
+	Main &main_;
 };

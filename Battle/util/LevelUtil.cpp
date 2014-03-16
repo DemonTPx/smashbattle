@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "Player.h"
 #include "Level.h"
+#include "Graphics.h"
 
 
 namespace level_util

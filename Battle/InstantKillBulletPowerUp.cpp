@@ -3,8 +3,9 @@
 #include "GameplayObject.h"
 #include "InstantKillBulletPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
-InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo) {
+InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : GameplayObject(main), main_(main) {
 	clip->x = 64;
 	clip->y = 0;
 	this->surface = surface;
@@ -20,7 +21,7 @@ InstantKillBulletPowerUp::~InstantKillBulletPowerUp() {
 }
 
 void InstantKillBulletPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->instantkillbullets += ammo;
 

@@ -8,7 +8,7 @@
 
 class NPC {
 public:
-	NPC();
+	NPC(Main &main);
 	virtual ~NPC();
 
 	SDL_Rect * position;
@@ -94,4 +94,6 @@ protected:
 	int jump_cycle_start;
 
 	int bounce_direction_x, bounce_direction_y;
+	
+	Main &main_;
 };

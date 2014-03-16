@@ -30,7 +30,7 @@ const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"SNOW FIGHT", (char*)"stage/snowfight.lvl"}
 };
 
-Level::Level() {
+Level::Level(Main &main) : main_(main) {
 	background = NULL;
 	tiles = NULL;
 
@@ -162,6 +162,11 @@ void Level::load(const char * filename) {
 
 	strncpy(tiles_file_full, "gfx/\0", 5);
 	strncat(tiles_file_full, meta.filename_tiles, 30);
+
+
+	if (main_.no_sdl) {
+		return;
+	}
 
 	surface = SDL_LoadBMP(tiles_file_full);
 	tiles = SDL_DisplayFormat(surface);
@@ -551,13 +556,15 @@ int Level::tile_pos(int x, int y) {
 }
 
 void Level::draw(SDL_Surface * screen, int frames_processed) {
+
 	SDL_Rect rect;
 	SDL_Rect rect_s;
 
 	rect.w = TILE_W;
 	rect.h = TILE_H;
 
-	SDL_BlitSurface(background, NULL, screen, NULL);
+	if (!main_.no_sdl)
+		SDL_BlitSurface(background, NULL, screen, NULL);
 
 	// Draw each sprite, one by one
 
@@ -587,7 +594,7 @@ void Level::draw(SDL_Surface * screen, int frames_processed) {
 		// Show bouncing tiles
 		if(level_bounce[i] != 0) {
 			level_bounce[i] += frames_processed;
-			level_bounce_start[i] = Gameplay::frame;
+			level_bounce_start[i] = main_.gameplay().frame;
 			if(level_bounce[i] >= BOUNCE_LAST_FRAME) {
 				level_bounce[i] = 0;
 			}
@@ -598,7 +605,8 @@ void Level::draw(SDL_Surface * screen, int frames_processed) {
 			}
 		}
 
-		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
+		if (!main_.no_sdl)
+			SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}
 }
 
@@ -752,7 +760,7 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 			pos = tile_pos(wx, y);
 
 			if(!tile[pos].indestructible) {
-				switch (Main::runmode) {
+				switch (main_.runmode) {
 					case MainRunModes::CLIENT:
 						// Server handles this, we update level_hp and level through receiving
 						//  CommandUpdateTile's
@@ -764,7 +772,7 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 							level[pos] = -1;
 
 						// Server will send all clients an update regarding this block
-						server_util::update_tile(pos, level_hp[pos]);
+						server_util::update_tile(main_, pos, level_hp[pos]);
 
 						break;
 					default:
@@ -802,7 +810,7 @@ void Level::bounce_tile(SDL_Rect * rect) {
 
 	// Start bouncing
 	level_bounce[pos] = 1;
-	level_bounce_start[pos] = Gameplay::frame;
+	level_bounce_start[pos] = main_.gameplay().frame;
 
 	// Check if a player is standing on the tile
 	SDL_Rect rect_hit;
@@ -811,6 +819,6 @@ void Level::bounce_tile(SDL_Rect * rect) {
 	rect_hit.w = TILE_W;
 	rect_hit.h = BOUNCE_HIT_HEIGHT;
 
-	Gameplay::instance->bounce_up_players_and_npcs(&rect_hit, rect);
+	main_.gameplay().bounce_up_players_and_npcs(&rect_hit, rect);
 }
 
