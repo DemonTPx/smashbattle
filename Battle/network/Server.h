@@ -73,6 +73,7 @@ public:
 
 	Gameplay &getGame();
 	std::shared_ptr<Client> getClientById(int client_id);
+	size_t numJoinedClients();
 	size_t numActiveClients();
 
 	void sendAll(Command &command);

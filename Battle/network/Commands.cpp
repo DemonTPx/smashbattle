@@ -66,6 +66,10 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandSetClientReady());
 		case Command::Types::SetSpectating:
 			return std::unique_ptr<Command>(new CommandSetSpectating());
+		case Command::Types::ApiPing:
+			return std::unique_ptr<Command>(new CommandApiPing());
+		case Command::Types::ApiPong:
+			return std::unique_ptr<Command>(new CommandApiPong());
 
 	}
 	throw std::runtime_error(format("failure at type=%d 0x%x", type, type));
