@@ -4,6 +4,7 @@
 
 class PlayerAnimation;
 struct OptionItem;
+class Main;
 
 class ClientSettings : public OptionsScreen {
 public:

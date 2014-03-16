@@ -4,8 +4,11 @@
 #include "PlayerAnimation.h"
 
 ClientSettings::ClientSettings(Main &main)
-: OptionsScreen("SET UP YOUR CHARACTER", main), character_(0), anim(new PlayerAnimation(0, main)), main_(main), selectServerText_("SELECT SERVER")
+: OptionsScreen("SET UP YOUR CHARACTER", main), main_(main)
 {
+	character_ = (int) (rand() % Player::CHARACTER_COUNT);
+	anim = new PlayerAnimation(character_, main);
+	selectServerText_ = "SELECT SERVER";
 	initialize();
 }
 
@@ -38,6 +41,7 @@ void ClientSettings::item_selected()
 		case 0:
 		{
 			CharacterSelect cs(1, 1, main_);
+			cs.player_select_first = character_;
 			cs.run();
 
 			if (!cs.cancel) {

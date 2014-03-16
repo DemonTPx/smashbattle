@@ -99,39 +99,33 @@ void CharacterSelect::run() {
 
 void CharacterSelect::init() {
 	// Cursor
+	for (int i = 0; i < possible_players_; i++) {
+		if (possible_players_ != 1) {
+			input[i] = main_.input[i];
+			input[i]->set_delay();
+			input[i]->reset();
+		}
+
+		player_joined[i] = false;
+		if (input[i] == main_.input_master) {
+			player_joined[i] = true;
+		}
+		player_ready[i] = false;
+
+		player_random[i] = false;
+		player_random_start[i] = 0;
+
+		flicker[i] = false;
+	}
 	if (possible_players_ == 1) {
 		input[0] = main_.input_master;
 		input[0]->set_delay();
 		input[0]->reset();
 		player_joined[0] = true;
-		player_ready[0] = false;
-
-		player_random[0] = false;
-		player_random_start[0] = 0;
-
-		flicker[0] = false;
-	}
-	else {
-		for (int i = 0; i < possible_players_; i++) {
-			input[i] = main_.input[i];
-			input[i]->set_delay();
-			input[i]->reset();
-
-			player_joined[i] = false;
-			if (input[i] == main_.input_master) {
-				player_joined[i] = true;
-			}
-			player_ready[i] = false;
-
-			player_random[i] = false;
-			player_random_start[i] = 0;
-
-			flicker[i] = false;
-		}
 	}
 
 	// Set inital cursor positions
-	player_select[0] = 0;
+	player_select[0] = player_select_first;
 	if(Player::CHARACTER_COUNT <= CHARACTERS_PER_LINE) {
 		player_select[1] = 1;
 		player_select[2] = Player::CHARACTER_COUNT - 2;

@@ -288,6 +288,8 @@ bool Client::process(CommandCommunicationTokenAck *command)
 	log(format("Client confirmation received for token"), Logger::Priority::CONSOLE);
 
 	setState(Client::State::CALCULATING_LAG);
+
+	return true;
 }
 
 bool Client::process(CommandSetClientReady *command)
@@ -297,6 +299,8 @@ bool Client::process(CommandSetClientReady *command)
 	// i.e. It's now safe to assume we can send UDP packets for other player's data
 	
 	setState(Client::State::READY_FOR_POSITIONAL_DATA);
+
+	return true;
 }
 
 void Client::send(Command &command)
