@@ -55,6 +55,7 @@ class CommandRemovePowerup;
 class CommandSetCommunicationToken;
 class CommandSetServerReady;
 class CommandSetSpectating;
+class CommandServerFull;
 
 class ServerClient : public CommandProcessor
 {
@@ -140,6 +141,7 @@ protected:
 	bool process(CommandSetCommunicationToken *command);
 	bool process(CommandSetServerReady *command);
 	bool process(CommandSetSpectating *command);
+	bool process(CommandServerFull *command);
 
 	
 private:

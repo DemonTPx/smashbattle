@@ -7,6 +7,7 @@
 #include "Projectile.h"
 #include "Bomb.h"
 #include "Main.h"
+#include "Client.h"
 
 #include <sstream>
 
@@ -188,7 +189,9 @@ bool Client::process(CommandSetPlayerData *command)
 
 			try {
 				auto client = server_->getClientById(player.number);
-				if (client->getState() >= Client::State::ACTIVE) {
+				if (client->getState() == Client::State::ACTIVE ||
+					client->getState() == Client::State::SPECTATING
+				) {
 					client->send(data);
 				}
 			}

@@ -29,6 +29,8 @@ public:
 	void set_level(Level * level);
 	void add_player(Player * player);
 	void del_player_by_id(char number);
+	void del_players();
+	void del_other_players();
 	void add_npc(NPC * npc);
 
 	void add_object(GameplayObject * obj);
@@ -99,6 +101,8 @@ protected:
 
 	std::string broadcast_msg;
 	int broadcast_duration;
+
+	Uint32 disconnected_time_;
 
 	Main &main_;
 };

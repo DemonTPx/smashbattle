@@ -405,6 +405,9 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 		case Command::Types::SetSpectating:
 			process(dynamic_cast<CommandSetSpectating *>(command.get()));
 			break;
+		case Command::Types::ServerFull:
+			process(dynamic_cast<CommandServerFull *>(command.get()));
+			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
 	}
@@ -798,6 +801,24 @@ bool ServerClient::process(CommandSetSpectating *command)
 		player_->spectate(command->data.is_spectating);
 		player_->is_dead = command->data.is_spectating;
 		
+	}
+	catch (std::runtime_error &err) 
+	{
+		log(format("failure in process(CommandSetSpectating): %s", err.what()), Logger::Priority::ERROR);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandServerFull *command)
+{
+	try {
+		game_->del_other_players();
+
+		disconnect();
+
+		return false;
+
 	}
 	catch (std::runtime_error &err) 
 	{
