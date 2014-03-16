@@ -34,7 +34,7 @@ void ServerListing::initialize()
 			if (std::string(format("%d", j)) != activePlayers)
 				continue;
 
-			str.assign(format("%-45s #%s/4", str.c_str(), activePlayers.c_str()));
+			str.assign(format("%-45.45s #%s/4", str.c_str(), activePlayers.c_str()));
 			item = new OptionItem();
 			item->name = strdup(const_cast<char *> (str.c_str()));
 			item->options = NULL;
