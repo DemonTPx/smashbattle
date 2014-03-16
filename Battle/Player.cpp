@@ -284,7 +284,7 @@ void Player::reset() {
 	bombs = 3;
 	mines = 0;
 	doubledamagebullets = 0;
-	instantkillbullets = 10;
+	instantkillbullets = 0;
 
 	score = 0;
 	hitpoints = is_spectating ? 0 : 100;

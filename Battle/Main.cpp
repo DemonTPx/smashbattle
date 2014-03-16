@@ -115,7 +115,6 @@ Gameplay &Main::gameplay() {
 }
 
 Main::~Main() {
-	delete(gameplay_);
 }
 
 bool Main::init() {
@@ -562,13 +561,11 @@ int main(int argc, char* args[])
 			return main.run(MainRunModes::SERVER);
 		}
 
-		// Usage smashbattle smashbattle://localhost:1100/ --> connect to server at host localhost port 1100
-		//  note that if you register the smashbattle:// protocol you can open the game by clicking/opening the link
-		else {
+		else if(strcmp(args[1], "-c") == 0 && argc >= 3) {
 			char host[80+1] = {0x00};
 			char port[5+1] = {0x00};
 
-			if (2 == sscanf(args[1], "smashbattle://%80[^:]:%5[0-9]/", host, port)) {
+			if (2 == sscanf(args[2], "%80[^:]:%5[0-9]/", host, port)) {
 				log(format("initialized as client, connect to: %s && %s", host, port), Logger::Priority::INFO);
 
 				main.getServerClient().setHost(host);

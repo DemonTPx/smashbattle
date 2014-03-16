@@ -125,8 +125,6 @@ void ClientNetworkMultiplayer::draw_console()
 	if (main_.no_sdl)
 		return;
 
-	return /* not yet supported */;
-
 	screen = main_.screen;
 
 	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
