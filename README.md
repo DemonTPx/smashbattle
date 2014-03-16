@@ -64,7 +64,9 @@ Currently there are two projects:
 
 Simply launch a server:
 
-    smashbattle -s "BOULDERDASH" 1100 "Some server name here"
+    smashbattle -s "BOULDERDASH" 1100 "Some server name here" [ {true|false} ]
+
+Optional parameter is no\_sdl flag
 
 ## Running client
 
@@ -72,7 +74,7 @@ Simply launch a server:
 
 Or use the shortcut (can be convenient when debugging):
 
-    smashbattle -c host:port
+    smashbattle -c host:port [ character_name ]
 
 ## Simply ksh script to debug server with multiple clients
 

@@ -533,6 +533,7 @@ int main(int argc, char* args[])
 		// Usage smashbattle -s "TRAINING DOJO" 1100 --> start server on port 1100 with level "TRAINING DOJO"
 		else if(strcmp(args[1], "-s") == 0 && argc >= 2) {
 			string level, strport, servername;
+			bool hideSdlWindow = true;
 			if (argc == 2) {
 				strport = "1100";
 			}
@@ -544,20 +545,21 @@ int main(int argc, char* args[])
 				level = string(args[2]).substr(0, 80);
 				strport = string(args[3]).substr(0, 5);
 			}
-			else if (argc == 5) {
+			else if (argc >= 5) {
 				// Get level from param
 				level = string(args[2]).substr(0, 80);
 				strport = string(args[3]).substr(0, 5);
 				servername = string(args[4]).substr(0, 80);
+				if (argc == 6) {
+					hideSdlWindow = string(args[5]) == "true";
+				}
 			}
 
 			log(format("program started with -s flag, parsed level %s and port %d", level.c_str(), stoi(strport)), Logger::Priority::INFO);
 			
 			main.getServer().setState(new network::ServerStateInitialize(level, stoi(strport), servername));
 
-#ifndef ENABLE_EMBEDDED_SERVER
-			main.no_sdl = true;
-#endif
+			main.no_sdl = hideSdlWindow;
 
 			return main.run(MainRunModes::SERVER);
 		}
@@ -565,12 +567,17 @@ int main(int argc, char* args[])
 		else if(strcmp(args[1], "-c") == 0 && argc >= 3) {
 			char host[80+1] = {0x00};
 			char port[5+1] = {0x00};
+			std::string character = "INSPECTOR";
+			if (argc >= 4) {
+				character = args[3];
+			}
 
 			if (2 == sscanf(args[2], "%80[^:]:%5[0-9]/", host, port)) {
 				log(format("initialized as client, connect to: %s && %s", host, port), Logger::Priority::INFO);
 
 				main.getServerClient().setHost(host);
 				main.getServerClient().setPort(atoi(port));
+				main.getServerClient().setCharacter(main.getServerClient().characterByName(character));
 
 				return main.run(MainRunModes::CLIENT);
 			}

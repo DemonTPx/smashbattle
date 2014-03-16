@@ -168,6 +168,8 @@ Player::Player(int character, int number, Main &main) : main_(main) {
 
 	input = NULL;
 
+	current_sprite = SPR_R;
+
 	reset();
 
 	position = new SDL_Rect();
@@ -242,7 +244,6 @@ void Player::reset() {
 	momentumx = 0;
 	momentumy = 0;
 
-	current_sprite = SPR_R;
 	distance_walked = 0;
 
 	is_running = false;

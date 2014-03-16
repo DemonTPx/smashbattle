@@ -96,6 +96,9 @@ void LaserBeam::draw(SDL_Surface * screen, int frames_processed) {
 	rect_b.h = rect.h;
 
 	color = 0xffffffff;
+
+	if (main_.no_sdl)
+		return;
 	
 	// Preloading beam
 	if(frame < 10) {
