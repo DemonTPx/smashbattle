@@ -29,3 +29,4 @@
 #include "commands/CommandSetSpectating.hpp"
 #include "commands/CommandApiPing.hpp"
 #include "commands/CommandApiPong.hpp"
+#include "commands/CommandServerFull.hpp"

@@ -9,6 +9,7 @@ public:
 	ServerListing(json::Array &array, Main &main);
 	~ServerListing();
 
+	void initialize();
 	void run();
 	void item_selected();
 

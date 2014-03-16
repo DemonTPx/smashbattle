@@ -40,6 +40,7 @@ public:
 		SetSpectating = 0x1B,
 		ApiPing = 0x1C,
 		ApiPong = 0x1D,
+		ServerFull = 0x1E,
 	};
 
 	Command::Types getType() const { return type_; }

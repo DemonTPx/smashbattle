@@ -190,6 +190,10 @@ void Server::listen() {
 
 void Server::poll() {
 
+
+	// Update servertime
+	serverTime_ = SDL_GetTicks();
+
 	if (!is_listening_)
 		return;
 
@@ -222,9 +226,6 @@ void Server::poll() {
 		*temp = p->data[0];
 		client->parse_udp(p->len - sizeof (Uint32), temp);
 	}
-
-	// Update servertime
-	serverTime_ = SDL_GetTicks();
 
 	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++) {
 		auto & client = i->second;
@@ -305,7 +306,9 @@ void Server::poll() {
 	bool anotherPlayerDisconnected = false;
 	for (vector<int>::iterator i = dead_clients.begin(); i != dead_clients.end(); i++) {
 		// Verify with a breakpoint if this is correct code...
-		if (clients_[*i]->getState() >= Client::State::ACTIVE) {
+		if (clients_[*i]->getState() == Client::State::ACTIVE || 
+			clients_[*i]->getState() == Client::State::ACTIVE) 
+		{
 			anotherPlayerDisconnected = true;
 		}
 		clients_[*i]->cleanup();

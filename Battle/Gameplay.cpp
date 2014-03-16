@@ -12,6 +12,7 @@
 
 #include "network/ServerClient.h"
 #include "commands/CommandApplyPowerup.hpp"
+#include "util/Log.h"
 
 #ifndef WIN32
 #define sprintf_s snprintf
@@ -33,6 +34,8 @@ Gameplay::Gameplay(Main &main) : main_(main) {
 	players_npcs_collide = true;
 
 	broadcast_duration = 0;
+
+	disconnected_time_ = 0;
 }
 
 Gameplay::~Gameplay() {
@@ -42,6 +45,7 @@ Gameplay::~Gameplay() {
 #include <map>
 using std::map;
 #include "network/Client.h"
+#include "Server.h"
 
 void Gameplay::run() {
 	SDL_Event event;
@@ -192,8 +196,18 @@ void Gameplay::run() {
 
 		if (main_.runmode == MainRunModes::CLIENT)
 		{
-			if (!main_.getServerClient().isConnected())
+			if (!main_.getServerClient().isConnected()) {
 				draw_disconnected();
+				if (disconnected_time_ == 0) {
+					disconnected_time_ = main_.getServer().getServerTime();
+				}
+				else {
+					if ((main_.getServer().getServerTime() - disconnected_time_) >= 3000) {
+						disconnected_time_ = 0;
+						break;
+					}
+				}
+			}
 			else if (main_.getServerClient().showConsole())
 				draw_console();
 		}
@@ -372,6 +386,17 @@ void Gameplay::del_player_by_id(char number)
 			return;
 		}
 	}
+}
+
+void Gameplay::del_players()
+{
+	players->clear();
+}
+
+void Gameplay::del_other_players()
+{
+	while (players->size() > 1)
+		players->erase(players->begin()++);
 }
 
 void Gameplay::add_npc(NPC * npc) {
