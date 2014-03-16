@@ -18,6 +18,8 @@
 #include "Server.h"
 #include "Main.h"
 
+#include "Player.h"
+
 namespace network {
 
 using std::for_each;
@@ -508,6 +510,8 @@ bool ServerClient::process(CommandSetPlayerData *command)
 
 bool ServerClient::process(CommandAddPlayer *command)
 {
+	game_->del_player_by_id(command->data.client_id);
+	
 	Player *otherplayer = new Player(command->data.character, command->data.client_id, *main_);
 	GameInputStub *playerinput = new GameInputStub(*main_);
 	otherplayer->input = playerinput;
@@ -801,6 +805,17 @@ bool ServerClient::process(CommandSetSpectating *command)
 	}
 
 	return true;
+}
+
+int ServerClient::characterByName(std::string characterName)
+{
+	for (size_t index = 0; index < Player::CHARACTER_COUNT; index++) {
+		if (std::string(Player::CHARACTERS[index].name) == characterName) {
+			return index;
+		}
+	}
+
+	throw std::runtime_error("Invalid character name given");
 }
 
 }

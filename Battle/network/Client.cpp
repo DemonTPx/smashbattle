@@ -127,6 +127,12 @@ bool Client::process(CommandSetCharacter *command)
 	char character = command->data.character;
 	character_ = character;
 
+	auto &myplayer = player_util::get_player_by_id(main_, client_id_);
+
+	myplayer.character = character;
+
+	myplayer.set_sprites();
+
 	setState(Client::State::CHARACTER_INITIALIZED);
 
 	return true;

@@ -83,6 +83,7 @@ public:
 	void setMain(Main &main) { main_ = &main; };
 
 	void setCharacter(int character) { character_ = character; }
+	int characterByName(std::string characterName);
 	void setHost(std::string host) { host_ = host; }
 	void setPort(int port) { port_ = (Uint16)port; }
 
