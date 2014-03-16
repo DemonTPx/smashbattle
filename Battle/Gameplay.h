@@ -70,7 +70,7 @@ protected:
 	void process_npc_collission();
 	void process_player_npc_collission();
 
-	void handle_pause_input(SDL_Event * event);
+	virtual void handle_pause_input(SDL_Event * event);
 	
 	Uint32 ticks_start;
 	

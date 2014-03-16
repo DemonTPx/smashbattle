@@ -35,8 +35,8 @@ using std::string;
 
 #include "Gameplay.h"
 #include "Airstrike.h"
-#include "ServerClient.h"
-#include "Server.h"
+#include "network/ServerClient.h"
+#include "network/Server.h"
 
 Main::Main()
 :

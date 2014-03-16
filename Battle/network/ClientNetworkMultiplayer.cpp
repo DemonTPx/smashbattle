@@ -186,4 +186,29 @@ GameplayObject *ClientNetworkMultiplayer::generate_powerup(bool force)
 	return NULL;
 }
 
+void ClientNetworkMultiplayer::handle_pause_input(SDL_Event * event)
+{
+	if (start_pressed_ && frame - start_pressed_start >= 60) {
+		start_pressed_ = false;
+	}
+
+	Player * player;
+	for (unsigned int i = 0; i < players->size(); i++) {
+		player = players->at(i);
+
+		if (player->input->is_pressed(A_START)) {
+
+			if (start_pressed_) {
+				game_running = false;
+			}
+			else {
+				start_pressed_ = true;
+				start_pressed_start = frame;
+				broadcast_duration = frame + 1000;
+				broadcast_msg = "PRESS START AGAIN TO LEAVE THIS GAME";
+			}
+		}
+	}
+}
+
 }
