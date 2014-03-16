@@ -93,7 +93,7 @@ Section "MainSection" SEC01
   File "Battle\gfx\jur.bmp"
   File "Battle\gfx\kees.bmp"
   File "Battle\gfx\kim.bmp"
-  File "Battle\gfx\maite.bmp"
+  File "Battle\gfx\koen.bmp"
   File "Battle\gfx\mark.bmp"
   File "Battle\gfx\misha.bmp"
   File "Battle\gfx\paul.bmp"
@@ -310,3 +310,4 @@ Section Uninstall
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
   SetAutoClose true
 SectionEnd
+
