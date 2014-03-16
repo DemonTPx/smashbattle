@@ -44,6 +44,7 @@ public:
 	bool gameStarted();
 
 	void setState(const ServerState * const state);
+	const ServerState *getState();
 
 	Level &getLevel() {
 		return *level_.get();

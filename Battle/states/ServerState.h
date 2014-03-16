@@ -17,6 +17,7 @@ public:
 
 	virtual void initialize(Server &server) const {};
 	virtual void execute(Server &server, Client &client) const {};
+	virtual ServerState * check_self(Server &server) const { return NULL; };
 };
 
 }

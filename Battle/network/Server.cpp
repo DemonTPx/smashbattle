@@ -322,6 +322,11 @@ void Server::poll() {
 		sendAll(broadcast);
 	}
 
+	ServerState *newstate = getState()->check_self(*this);
+	if (newstate) {
+		setState(newstate);
+	}
+
 }
 
 /* create a socket set that has the server socket and all the client sockets */
@@ -365,6 +370,11 @@ void Server::setState(const ServerState * const state) {
 	state->initialize(*this);
 
 	active();
+}
+
+const ServerState *Server::getState()
+{
+	return currentState_;
 }
 
 std::shared_ptr<Client> Server::getClientById(int client_id) {
