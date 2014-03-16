@@ -327,23 +327,7 @@ void Server::poll() {
 
 /* create a socket set that has the server socket and all the client sockets */
 SDLNet_SocketSet Server::create_sockset() {
-
-	if (set)
-		return set;
-
-	set = SDLNet_AllocSocketSet(32);
-	if (!set) {
-		printf("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
-		throw std::runtime_error("todo implement");
-	}
-
-	SDLNet_TCP_AddSocket(set, server);
-
-	return set;
-
-	/*
-	 Old approach weirdly enough, no longer works....?
-
+#ifndef ENABLE_EMBEDDED_SERVER
 	if (set)
 		SDLNet_FreeSocketSet(set);
 
@@ -359,7 +343,22 @@ SDLNet_SocketSet Server::create_sockset() {
 		SDLNet_TCP_AddSocket(set, i->second->socket());
 
 	return set;
-	*/
+#else
+	// Somehow the approach where the set is constantly re-created appears to be
+	// not very thread-safe.
+	if (set)
+		return set;
+
+	set = SDLNet_AllocSocketSet(32);
+	if (!set) {
+		printf("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
+		throw std::runtime_error("todo implement");
+	}
+
+	SDLNet_TCP_AddSocket(set, server);
+
+	return set;
+#endif
 }
 
 bool Server::active() {
