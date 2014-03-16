@@ -344,6 +344,7 @@ void LocalMultiplayer::draw_score() {
 void LocalMultiplayer::draw_score_duel() {
 	if (main_.no_sdl)
 		return;
+
 	SDL_Surface * surface;
 	SDL_Rect rect;
 	SDL_Rect rect_s;
@@ -352,8 +353,15 @@ void LocalMultiplayer::draw_score_duel() {
 
 	Player * player1, * player2;
 	
+	// This occurs when the server gets rage quits
+	if (players->size() < 2)
+		return;
+
 	player1 = players->at(0);
 	player2 = players->at(1);
+
+	if (player1->is_spectating || player2->is_spectating) 
+		return;
 	
 	// Show player avatars
 	rect.x = 274 - PLAYER_W;

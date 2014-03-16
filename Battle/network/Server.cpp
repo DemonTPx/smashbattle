@@ -296,9 +296,7 @@ void Server::poll() {
 				// Mark for deletion
 				dead_clients.push_back(client->id());
 
-				log(format("Cleaned up client: %d\n", client->id()), Logger::Priority::INFO);
-
-				client->cleanup();
+				log(format("Cleaning up client: %d\n", client->id()), Logger::Priority::INFO);
 			}
 		}
 	}
@@ -310,6 +308,7 @@ void Server::poll() {
 		if (clients_[*i]->getState() >= Client::State::ACTIVE) {
 			anotherPlayerDisconnected = true;
 		}
+		clients_[*i]->cleanup();
 		communicationTokens_.erase(clients_[*i]->getCommToken());
 		clients_.erase(*i);
 	}
