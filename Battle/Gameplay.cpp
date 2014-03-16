@@ -12,7 +12,6 @@
 
 #include "network/ServerClient.h"
 #include "commands/CommandApplyPowerup.hpp"
-#include "util/Log.h"
 
 #ifndef WIN32
 #define sprintf_s snprintf
