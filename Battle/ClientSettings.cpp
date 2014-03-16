@@ -4,7 +4,7 @@
 #include "PlayerAnimation.h"
 
 ClientSettings::ClientSettings(Main &main)
-: OptionsScreen("SET UP YOUR CHARACTER", main), character_(0), anim(new PlayerAnimation(0, main)), main_(main)
+: OptionsScreen("SET UP YOUR CHARACTER", main), character_(0), anim(new PlayerAnimation(0, main)), main_(main), selectServerText_("SELECT SERVER")
 {
 	initialize();
 }
@@ -94,7 +94,7 @@ void ClientSettings::create_items()
 	add_item(item);
 
 	item = new OptionItem();
-	item->name = "SELECT SERVER";
+	item->name = const_cast<char *>(selectServerText_.c_str());
 	item->options = NULL;
 	item->selected = 0;
 	add_item(item);

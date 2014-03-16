@@ -1,5 +1,7 @@
 #pragma once
 
+// #define ENABLE_EMBEDDED_SERVER
+
 #include <map>
 #include <memory>
 

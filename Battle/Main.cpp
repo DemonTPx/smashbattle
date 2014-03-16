@@ -38,8 +38,6 @@ using std::string;
 #include "ServerClient.h"
 #include "Server.h"
 
-// #define ENABLE_EMBEDDED_SERVER
-
 Main::Main()
 :
 	/**

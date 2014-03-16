@@ -32,6 +32,7 @@ private:
 	void show_error(const std::string &error_msg);
 
 	std::string serverToken_;
+	std::string selectServerText_;
 
 	Main &main_;
 };

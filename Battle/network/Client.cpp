@@ -337,7 +337,7 @@ void Client::send(Command &command)
 
 		int numsent = SDLNet_UDP_Send(server_->getUdpSocket(), -1, p); // This sets the p->channel
 		if(!numsent) {
-			printf("SDLNet_UDP_Send^1: %s (delivery to: %d)\n", SDLNet_GetError());
+			printf("SDLNet_UDP_Send^1: %s (delivery to: %d)\n", SDLNet_GetError(), -1);
 			// do something because we failed to send
 			// this may just be because no addresses are bound to the channel...
 			//exit(1);

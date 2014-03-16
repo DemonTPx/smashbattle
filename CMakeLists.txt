@@ -15,7 +15,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 include_directories("./Battle/")
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -Wno-narrowing)
 
 find_package(SDL)
 find_package(SDL_mixer)
