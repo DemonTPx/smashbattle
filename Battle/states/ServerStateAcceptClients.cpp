@@ -91,9 +91,6 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 		case Client::State::CHARACTER_INITIALIZED:
 			execute_character_initialized(servertime, server, client);
 			break;
-		case Client::State::CHARACTER_INITIALIZED2:
-			
-			break;
 		case Client::State::SERVERSIDE_READY:
 			execute_serverside_ready(servertime, server, client);
 			break;
