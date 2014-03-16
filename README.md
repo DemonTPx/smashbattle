@@ -66,23 +66,13 @@ Simply launch a server:
 
     smashbattle -s "BOULDERDASH" 1100 "Some server name here"
 
-If you want to run it on a box without X, you can use Xvfb, f.i.:
-
-    #!/bin/ksh93
-    Xvfb :5 -screen 5 1024x768x24 &
-    sleep 2
-    DISPLAY=:5 ./smashbattle -s "BOULDERDASH" 1600 "SNOW LEVEL - JENKINS BUILD RAY #$1"
-
-Currently the SDL stuff hasn't been refactored out of the server yet, so that's
-why we have to send the visuals to Xvfb.
-
 ## Running client
 
     smashbattle --> choose "play online"
 
 Or use the shortcut (can be convenient when debugging):
 
-    smashbattle smashbattle://host:port
+    smashbattle -c host:port
 
 ## Simply ksh script to debug server with multiple clients
 
