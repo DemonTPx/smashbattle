@@ -190,7 +190,6 @@ void Server::listen() {
 
 void Server::poll() {
 
-
 	// Update servertime
 	serverTime_ = SDL_GetTicks();
 
@@ -265,6 +264,7 @@ void Server::poll() {
 				printf("This may be a server socket.\n");
 			} else {
 				// Bind address to the first free channel
+				SDLNet_UDP_Unbind(sd, nextId);
 				int channel = SDLNet_UDP_Bind(sd, nextId, remote_ip);
 				if (channel == -1) {
 					printf("SDLNet_UDP_Bind: %s\n", SDLNet_GetError());
