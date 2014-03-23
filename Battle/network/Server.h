@@ -68,6 +68,7 @@ public:
 	void initializeGame(NetworkMultiplayer &);
 
 	Uint32 getServerTime() {
+		serverTime_ = SDL_GetTicks();
 		return serverTime_;
 	}
 

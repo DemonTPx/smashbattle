@@ -23,9 +23,10 @@ using std::map;
 #include "ShieldPowerUp.h"
 #include "RandomPowerUp.h"
 #include "Main.h"
+#include "commands/CommandSetBroadcastText.hpp"
 
 NetworkMultiplayer::NetworkMultiplayer (Main &main) 
-: LocalMultiplayer(main)
+: LocalMultiplayer(main), currentState_(State::DONE), currentStateBeginTime_(main.getServer().getServerTime())
 {
 	main.setGameplay(this);
 }
@@ -39,6 +40,7 @@ void NetworkMultiplayer::on_game_reset()
 	else
 		round++;
 
+	server_game_running = true;
 
 	// Synchronize level and positions across players
 	auto &server = main_.getServer();
@@ -80,9 +82,10 @@ void NetworkMultiplayer::on_game_reset()
 		server.sendAll(alive);
 	}
 
-	if (!game_running) {
+	if (!game_running && !server_game_running) {
 		// dirty restart
 		game_running = true;
+		server_game_running = true;
 		initialize();
 		round = 1;
 		server.setState(new network::ServerStateAcceptClients());
@@ -127,28 +130,75 @@ void NetworkMultiplayer::on_post_processing()
 			}
 		}
 
-		static bool once = true;
-		if (ended) {
-			if (once) {
-				once = false;
+		if (ended && currentState_ == State::DONE) {
+			currentStateBeginTime_ = server.getServerTime();
+			currentState_ = State::DISPLAYING_DEATH;
+			currentStateBeginTimeDelay_ = 3000;
 
-				if (winner != NULL) {
-					// Send game end
-					network::CommandSetGameEnd end;
-					end.data.time = server.getServerTime();
-					end.data.winner_id = winner->number;
-					end.data.is_draw = draw;
-					server.sendAll(end);
+			// Display winner for 3 seconds
 
-					if (game_running) {
-						// Send game resume instruction
-						network::CommandSetGameStart start;
-						start.data.time = server.getServerTime();
-						start.data.delay = we_have_a_winner() ? 0 : 3000;
-						server.sendAll(start);
-					}
+			if (winner != NULL) {
+				// Send game end
+				network::CommandSetGameEnd end;
+				end.data.time = server.getServerTime();
+				end.data.winner_id = winner->number;
+				end.data.is_draw = draw;
+				server.sendAll(end);
+			}
+
+			if (we_have_a_winner()) {
+				currentState_ = State::DISPLAYING_DEATH;
+			}
+		}
+		else if (currentState_ == State::DISPLAYING_DEATH) {
+			if (server.getServerTime() - currentStateBeginTime_ >= currentStateBeginTimeDelay_) {
+				currentStateBeginTime_ = server.getServerTime();
+				currentState_ = State::DISPLAYING_WINNER;
+
+				// Send game end
+				network::CommandSetGameEnd end;
+				end.data.time = server.getServerTime();
+				end.data.winner_id = -1;
+				end.data.is_draw = false;
+				server.sendAll(end);
+
+				if (game_running) {
+					network::CommandSetBroadcastText broadcast;
+					broadcast.data.time = server.getServerTime();
+					string text("NEXT ROUND");
+					strncpy(broadcast.data.text, text.c_str() , text.length());
+					broadcast.data.duration = 2000;
+					server.sendAll(broadcast);
+					currentStateBeginTimeDelay_ = 2000;
 				}
+				else {
+					network::CommandSetBroadcastText broadcast;
+					broadcast.data.time = server.getServerTime();
+					string text("PLACEHOLDER FOR VICTORY SCREEN 10 SECS");
+					strncpy(broadcast.data.text, text.c_str() , text.length());
+					broadcast.data.duration = 10000;
+					server.sendAll(broadcast);
+					currentStateBeginTimeDelay_ = 10000;
+				}
+			}
+		}
+		else if (currentState_ == State::DISPLAYING_WINNER) {
 
+			if (server.getServerTime() - currentStateBeginTime_ >= currentStateBeginTimeDelay_) {
+				currentStateBeginTime_ = server.getServerTime();
+				currentState_ = State::DONE;
+
+				if (game_running) {
+					// Send game resume instruction
+					network::CommandSetGameStart start;
+					start.data.time = server.getServerTime();
+					start.data.delay = 100;
+					server.sendAll(start);
+				} else {
+					currentState_ = State::DISPLAYING_SCREEN;
+					currentStateBeginTimeDelay_ = 10000;
+				}
+				
 				// Send player score, new player positions
 				for (auto i = vec.begin(); i != vec.end(); i++) {
 					auto &player(**i);
@@ -165,14 +215,34 @@ void NetworkMultiplayer::on_post_processing()
 					server.sendAll(pd);
 				}
 			}
-		} else {
-			once = true;
 		}
+		else if (currentState_ == State::DISPLAYING_SCREEN) {
+			if (server.getServerTime() - currentStateBeginTime_ >= currentStateBeginTimeDelay_) {
+				currentStateBeginTime_ = server.getServerTime();
+				currentState_ = State::DONE;
+				game_running = false;
+				server_game_running = false;
+
+				// Unlock game
+				// Send game resume instruction
+				network::CommandSetGameStart start;
+				start.data.time = server.getServerTime();
+				start.data.delay = 3000;
+				server.sendAll(start);
+			}
+		}
+
 	}
 }
 
 GameplayObject *NetworkMultiplayer::generate_powerup(bool force)
 {
+	auto &server = main_.getServer();
+	if (currentState_ != State::DONE && 
+	    (server.getServerTime() - currentStateBeginTime_ <= 5000)) {
+		return NULL;
+	}
+
 	GameplayObject *powerup = LocalMultiplayer::generate_powerup(force);
 	if (powerup)
 	{

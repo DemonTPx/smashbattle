@@ -77,6 +77,7 @@ protected:
 	Uint32 ticks_start;
 	
 	bool game_running;
+	bool server_game_running;
 
 	PauseMenu * pause_menu;
 

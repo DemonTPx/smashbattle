@@ -1,5 +1,8 @@
 #pragma once
 
+class SDL_Surface;
+class SDL_Rect;
+
 class Text {
 public:
 	void load_all();
