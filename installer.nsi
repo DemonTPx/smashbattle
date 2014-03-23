@@ -2,12 +2,18 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Tweak Battle"
-!define PRODUCT_VERSION $%SMASHBATTLE_VERSION%
+!ifndef PRODUCT_VERSION
+!define PRODUCT_VERSION "0.1alpha"
+!endif
 !define PRODUCT_PUBLISHER "Tweakers.net"
 !define PRODUCT_WEB_SITE "https://github.com/DemonTPx/smashbattle"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\Battle.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
+
+!ifndef OUT_FILENAME
+!define OUT_FILENAME "tweakbattle-setup.exe"
+!endif
 
 ; MUI 1.67 compatible ------
 !include "MUI.nsh"
@@ -39,7 +45,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "tweakbattle-setup.exe"
+OutFile "${OUT_FILENAME}"
 InstallDir "$PROGRAMFILES\Tweak Battle"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
