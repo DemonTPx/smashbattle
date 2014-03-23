@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Tweak Battle"
-!define PRODUCT_VERSION "0.1-alpha"
+!define PRODUCT_VERSION $%SMASHBATTLE_VERSION%
 !define PRODUCT_PUBLISHER "Tweakers.net"
 !define PRODUCT_WEB_SITE "https://github.com/DemonTPx/smashbattle"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\Battle.exe"
