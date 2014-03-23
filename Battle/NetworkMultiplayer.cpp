@@ -83,7 +83,7 @@ void NetworkMultiplayer::on_game_reset()
 	}
 
 	if (!game_running && !server_game_running) {
-		// dirty restart
+		// dirty restart, this code is probably no longer used..
 		game_running = true;
 		server_game_running = true;
 		initialize();
@@ -196,7 +196,7 @@ void NetworkMultiplayer::on_post_processing()
 					server.sendAll(start);
 				} else {
 					currentState_ = State::DISPLAYING_SCREEN;
-					currentStateBeginTimeDelay_ = 10000;
+					currentStateBeginTimeDelay_ = 1;
 				}
 				
 				// Send player score, new player positions
@@ -218,17 +218,18 @@ void NetworkMultiplayer::on_post_processing()
 		}
 		else if (currentState_ == State::DISPLAYING_SCREEN) {
 			if (server.getServerTime() - currentStateBeginTime_ >= currentStateBeginTimeDelay_) {
-				currentStateBeginTime_ = server.getServerTime();
-				currentState_ = State::DONE;
-				game_running = false;
-				server_game_running = false;
-
 				// Unlock game
 				// Send game resume instruction
 				network::CommandSetGameStart start;
 				start.data.time = server.getServerTime();
-				start.data.delay = 3000;
+				start.data.delay = 0;
 				server.sendAll(start);
+
+				currentStateBeginTime_ = server.getServerTime();
+				currentState_ = State::DONE;
+				game_running = true;
+				//server_game_running = false;
+				server.setState(new network::ServerStateAcceptClients());
 			}
 		}
 
