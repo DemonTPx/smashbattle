@@ -10,9 +10,32 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
+#ifdef __GNUC__
+#  include <features.h>
+#  if __GNUC_PREREQ(4,7)
 OptionsScreen::OptionsScreen(Main &main) : OptionsScreen("", main) {
 	background = NULL;
 }
+#  else
+OptionsScreen::OptionsScreen(Main &main) : SimpleDrawable(main), main_(main) {
+// duplicate
+	this->title = title;
+	items = new std::vector<OptionItem*>(0);
+
+	background = NULL;
+	
+	align = LEFT;
+	
+	title_left_offset = 20;
+	title_top_offset = 20;
+
+	menu_item_height = 26;
+	menu_left_offset = 20;
+	menu_top_offset = 70;
+	menu_options_left_offset = 250;
+}
+#  endif
+#endif
 
 OptionsScreen::OptionsScreen(std::string title, Main &main) : SimpleDrawable(main), main_(main) {
 	this->title = title;

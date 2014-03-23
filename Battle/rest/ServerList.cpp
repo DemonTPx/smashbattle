@@ -3,6 +3,7 @@
 #include <iostream>
 #include <curl/curl.h>
 #include <cstring>
+#include <stdexcept>
 #include "util/json.h"
 
 

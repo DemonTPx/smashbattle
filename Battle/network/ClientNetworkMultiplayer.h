@@ -39,8 +39,8 @@ private:
 
 	Main &main_;
 
-	bool start_pressed_ = false;
-	int start_pressed_start = 0;
+	bool start_pressed_;
+	int start_pressed_start;
 
 	virtual void handle_pause_input(SDL_Event * event);
 };
