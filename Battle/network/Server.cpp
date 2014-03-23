@@ -43,7 +43,8 @@ Server::Server()
 	  game_(NULL),
 	  udpsequence_(0),
 	  set(NULL),
-	  lastUpdateInApiTime_(serverTime_)
+	  lastUpdateInApiTime_(serverTime_),
+	  lastNumActivePlayers_(0)
 {
 }
 
@@ -196,11 +197,12 @@ void Server::poll() {
 	if (!is_listening_)
 		return;
 
-	// Every 2 seconds send update to API
-	if (!lastUpdateInApiTime_ || serverTime_ - lastUpdateInApiTime_ >= 2000) {
+	// Every 10 seconds send update to API, or earlier if num active players changed
+	if (!lastUpdateInApiTime_ || serverTime_ - lastUpdateInApiTime_ >= 10000 || lastNumActivePlayers_ != numActiveClients()) {
 		rest::RegisterServer regsrv(serverToken_);
 		regsrv.update(*main_);
 		lastUpdateInApiTime_ = serverTime_;
+		lastNumActivePlayers_ = numActiveClients();
 	}
 	
 	set = create_sockset();

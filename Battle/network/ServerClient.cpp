@@ -261,7 +261,9 @@ void ServerClient::send(Command &command)
 	char type = command.getType();
 	if (type == Command::Types::SetPlayerData ||
 		type == Command::Types::Ping ||
-		type == Command::Types::Pong
+		type == Command::Types::Pong ||
+		type == Command::Types::ShotFired ||
+		type == Command::Types::BombDropped
 	){
 		log(format("Send packet of type %d through UDP with seq %d", type, getUdpSeq()), Logger::Priority::CONSOLE);
 
@@ -289,7 +291,7 @@ void ServerClient::send(Command &command)
 
 		if (result < sizeof (char)) {
 			if (SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-				printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+				printf("SDLNet_TCP_Send^3: %s\n", SDLNet_GetError());
 			return;
 		}
 
@@ -297,7 +299,7 @@ void ServerClient::send(Command &command)
 
 		if (result < sizeof (char)) {
 			if (SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-				printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+				printf("SDLNet_TCP_Send^4: %s\n", SDLNet_GetError());
 			return;
 		}
 	}

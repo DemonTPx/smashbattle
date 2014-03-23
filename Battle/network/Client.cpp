@@ -337,7 +337,9 @@ void Client::send(Command &command)
 	
 	if (type == Command::Types::SetPlayerData ||
 		type == Command::Types::Ping ||
-		type == Command::Types::Pong
+		type == Command::Types::Pong ||
+		type == Command::Types::ShotFired ||
+		type == Command::Types::BombDropped
 	){
 		log(format("Sending to client %d packet of type 0x%x over UDP with seq %d", client_id_, type, getUdpSeq()), Logger::Priority::DEBUG);
 		size_t packetsize = command.getDataLen() + 1;
@@ -384,7 +386,7 @@ void Client::send(Command &command)
 
 		if(result < sizeof(char)) {
 			if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-				log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
+				log(format("SDLNet_TCP_Send^1: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 			return;
 		}
 
@@ -392,7 +394,7 @@ void Client::send(Command &command)
 
 		if(result < sizeof(socket_)) {
 			if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-				log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
+				log(format("SDLNet_TCP_Send^2: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 			return;
 		}
 	}
