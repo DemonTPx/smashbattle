@@ -246,11 +246,18 @@ void Server::poll() {
 		sock = SDLNet_TCP_Accept(server);
 		if (sock) {
 
-			SDLNet_TCP_AddSocket(set, sock);
-
 			int nextId = 0;
 			for (; clients_.find(nextId) != clients_.end(); nextId++)
 				;
+
+			if (nextId >= 4) {
+				log(format("New client connected with id: %d [DENIED >= 4]\n", nextId), Logger::Priority::INFO);
+				SDLNet_TCP_Close(sock);
+				return;
+			}
+
+			SDLNet_TCP_AddSocket(set, sock);
+
 			clients_[nextId] = std::shared_ptr<Client>(new Client(nextId, sock, this, *main_));
 
 			communicationTokens_[clients_[nextId]->getCommToken()] = nextId;
