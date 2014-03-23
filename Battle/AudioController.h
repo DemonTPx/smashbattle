@@ -38,9 +38,11 @@ struct SoundOptions {
 	int music_volume;
 };
 
+class Main;
+
 class AudioController {
 public:
-	AudioController();
+	AudioController(Main &main);
 	~AudioController();
 	bool open_audio();
 	void close_audio();
@@ -66,4 +68,6 @@ private:
 	static const char * music_files[];
 	static const char * sound_files[];
 	static const int soundvolume[];
+
+	Main &main_;
 };
