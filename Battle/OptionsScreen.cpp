@@ -14,7 +14,7 @@ OptionsScreen::OptionsScreen(Main &main) : OptionsScreen("", main) {
 	background = NULL;
 }
 
-OptionsScreen::OptionsScreen(std::string title, Main &main) : main_(main) {
+OptionsScreen::OptionsScreen(std::string title, Main &main) : SimpleDrawable(main), main_(main) {
 	this->title = title;
 	items = new std::vector<OptionItem*>(0);
 
@@ -74,7 +74,7 @@ bool OptionsScreen::process_event(SDL_Event &event)
 	return true;
 }
 
-void OptionsScreen::draw() {
+void OptionsScreen::draw_impl() {
 	on_pre_draw();
 	unsigned int i, j;
 	SDL_Surface * text;

@@ -8,7 +8,7 @@
 #include "network/Server.h"
 #include "Main.h"
 
-PauseMenu::PauseMenu(SDL_Surface * s, Main &main) : main_(main) {
+PauseMenu::PauseMenu(SDL_Surface * s, Main &main) : SimpleDrawable(main), main_(main) {
 	screen = s;
 	options = new std::vector<char*>(0);
 	selected_option = 0;
@@ -85,7 +85,7 @@ void PauseMenu::process() {
 	}
 }
 
-void PauseMenu::draw() {
+void PauseMenu::draw_impl() {
 	SDL_Surface * surface;
 	SDL_Rect rect;
 	Uint32 color;

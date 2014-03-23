@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "Main.h"
+#include "SimpleDrawable.h"
 
 struct OptionItem {
 	char * name;
@@ -14,7 +15,7 @@ struct OptionItem {
 	std::vector<SDL_Rect *> * rect_options;
 };
 
-class OptionsScreen {
+class OptionsScreen : public SimpleDrawable {
 public:
 	OptionsScreen(Main &main);
 	OptionsScreen(std::string title, Main &main);
@@ -69,7 +70,7 @@ private:
 
 	int screen_w, screen_h;
 
-	void draw();
+	virtual void draw_impl();
 	
 	virtual void on_pre_draw() {};
 	virtual void on_post_draw() {};

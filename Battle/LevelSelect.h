@@ -1,14 +1,21 @@
+
+#include "SimpleDrawable.h"
+
 #pragma once
 
-class LevelSelect {
+class LevelSelect : public SimpleDrawable {
 public:
 	LevelSelect(Main &main);
 	void run();
 
 	int level;
 	bool cancel;
+
+protected:
+
+	virtual void draw_impl();
+
 private:
-	void draw();
 
 	void load_sprites();
 	void free_sprites();

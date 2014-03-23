@@ -24,7 +24,7 @@
 const int LocalMultiplayerRoundEnd::ITEMCOUNT = 3;
 const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE LEVEL", "CHANGE CHARACTER", "QUIT TO MENU"};
 
-LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd(Main &main): main_(main) {
+LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd(Main &main): SimpleDrawable(main), main_(main) {
 	players = new std::vector<Player *>();
 }
 
@@ -310,7 +310,7 @@ void LocalMultiplayerRoundEnd::cleanup() {
 	SDL_FreeSurface(background);
 }
 
-void LocalMultiplayerRoundEnd::draw() {
+void LocalMultiplayerRoundEnd::draw_impl() {
 	int i;
 	SDL_Surface * text;
 	SDL_Rect rect;

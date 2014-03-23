@@ -3,17 +3,22 @@
 #include <vector>
 #include "Main.h"
 #include "PlayerAnimation.h"
+#include "SimpleDrawable.h"
 
-class Menu {
+class Menu : public SimpleDrawable {
 public:
 	Menu(Main &main);
 	~Menu();
 	void run();
-	void draw();
 
 	void select_up();
 	void select_down();
 	void select();
+
+protected:
+
+	virtual void draw_impl();
+
 private:
 	SDL_Surface * title;
     SDL_Surface * subtitle;

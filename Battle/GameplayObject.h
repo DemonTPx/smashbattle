@@ -3,6 +3,7 @@
 #include "Level.h"
 #include "Player.h"
 #include "NPC.h"
+#include "Drawable.h"
 
 namespace network {
 class CommandGeneratePowerup;
@@ -10,7 +11,7 @@ class CommandGeneratePowerup;
 
 class Main;
 
-class GameplayObject {
+class GameplayObject : public Drawable {
 public:
 	GameplayObject(Main &main);
 	virtual ~GameplayObject();
@@ -20,8 +21,6 @@ public:
 
 	virtual void hit_player(Player * player) = 0;
 	virtual void hit_npc(NPC * npc) = 0;
-
-	virtual void draw(SDL_Surface * screen, int frames_processed) = 0;
 
 	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 

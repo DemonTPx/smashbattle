@@ -49,10 +49,11 @@ public:
 
 	void explode();
 
-	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
-
 	SDL_Rect * get_damage_rect();
 protected:
+
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
 	void set_clips();
 
 	Main &main_;

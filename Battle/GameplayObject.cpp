@@ -8,7 +8,7 @@
 #include "commands/CommandRemovePowerup.hpp"
 #include "Main.h"
 
-GameplayObject::GameplayObject(Main &main) : main_(main) {
+GameplayObject::GameplayObject(Main &main) : Drawable(main), main_(main) {
 	done = false;
 	is_powerup = false;
 	id_ = 0;

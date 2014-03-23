@@ -33,7 +33,7 @@ void BombPowerUp::hit_player(Player * p) {
 
 void BombPowerUp::hit_npc(NPC * npc) {}
 
-void BombPowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void BombPowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 

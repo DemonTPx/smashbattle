@@ -33,7 +33,7 @@ void InstantKillBulletPowerUp::hit_player(Player * p) {
 
 void InstantKillBulletPowerUp::hit_npc(NPC * npc) {}
 
-void InstantKillBulletPowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void InstantKillBulletPowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 

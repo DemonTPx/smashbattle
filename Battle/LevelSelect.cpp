@@ -26,7 +26,7 @@
 #define TILES_COLS		10
 #define TILES_ROWS		9
 
-LevelSelect::LevelSelect(Main &main) : main_(main) {
+LevelSelect::LevelSelect(Main &main) : SimpleDrawable(main), main_(main) {
 }
 
 void LevelSelect::run() {
@@ -192,7 +192,7 @@ void LevelSelect::select(int direction) {
 	if(level >= Level::LEVEL_COUNT) level -= Level::LEVEL_COUNT;
 }
 
-void LevelSelect::draw() {
+void LevelSelect::draw_impl() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
 	SDL_Rect rect, rect_b, rect_s;

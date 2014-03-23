@@ -12,7 +12,7 @@
 
 #define FRAME_CYCLE_DISTANCE 24
 
-NPC::NPC(Main &main) : main_(main) {
+NPC::NPC(Main &main) : Drawable(main), main_(main) {
 	done = false;
 
 	is_stationary = false;
@@ -90,7 +90,7 @@ SDL_Rect * NPC::get_rect() {
 	return rect;
 }
 
-void NPC::draw(SDL_Surface * screen, int frames_processed) {
+void NPC::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect, rect_s;
 
 	if(sprites == NULL)

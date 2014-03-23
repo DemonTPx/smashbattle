@@ -22,7 +22,7 @@
 #define MISSIONSELECT_HEIGHT 50
 #define MISSIONSELECT_COUNT 6
 
-MissionSelect::MissionSelect(Main &main) : main_(main) {
+MissionSelect::MissionSelect(Main &main) : SimpleDrawable(main), main_(main) {
 	cancel = false;
 
 	mission = 0;
@@ -152,7 +152,7 @@ void MissionSelect::select(int direction) {
 	}
 }
 
-void MissionSelect::draw() {
+void MissionSelect::draw_impl() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
 	SDL_Rect r_block, rect, rect_b, rect_s;

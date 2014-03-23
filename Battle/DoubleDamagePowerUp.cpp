@@ -34,7 +34,7 @@ void DoubleDamagePowerUp::hit_player(Player * p) {
 
 void DoubleDamagePowerUp::hit_npc(NPC * npc) {}
 
-void DoubleDamagePowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void DoubleDamagePowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 

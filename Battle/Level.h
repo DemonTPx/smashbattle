@@ -158,12 +158,12 @@ namespace level_util
 
 class Main;
 
-class Level {
+#include "Drawable.h"
+
+class Level : public Drawable {
 public:
 	Level(Main &main);
 	~Level();
-
-	void draw(SDL_Surface * screen, int frames_processed = 0);
 
 	void load(const char * filename);
 
@@ -205,6 +205,11 @@ public:
 
 	std::vector<LEVEL_NPC *> * npcs;
 	std::vector<LEVEL_NPC_DISPENSER *> * npc_dispensers;
+
+protected:
+
+	void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
 private:
 	SDL_Surface * tiles;
 	SDL_Surface * background;
