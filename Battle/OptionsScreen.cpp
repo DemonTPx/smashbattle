@@ -13,10 +13,19 @@
 #ifdef __GNUC__
 #  include <features.h>
 #  if __GNUC_PREREQ(4,7)
+#define USE_SHORT_CONSTRUCTOR
+#  endif
+#endif
+
+#ifdef _WIN32
+#define USE_SHORT_CONSTRUCTOR
+#endif
+
+#ifdef USE_SHORT_CONSTRUCTOR
 OptionsScreen::OptionsScreen(Main &main) : OptionsScreen("", main) {
 	background = NULL;
 }
-#  else
+#else
 OptionsScreen::OptionsScreen(Main &main) : SimpleDrawable(main), main_(main) {
 // duplicate
 	this->title = title;
@@ -34,7 +43,6 @@ OptionsScreen::OptionsScreen(Main &main) : SimpleDrawable(main), main_(main) {
 	menu_top_offset = 70;
 	menu_options_left_offset = 250;
 }
-#  endif
 #endif
 
 OptionsScreen::OptionsScreen(std::string title, Main &main) : SimpleDrawable(main), main_(main) {
