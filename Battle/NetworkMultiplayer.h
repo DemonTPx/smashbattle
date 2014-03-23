@@ -8,6 +8,14 @@ public:
 	NetworkMultiplayer (Main &main);
 	~NetworkMultiplayer() {}
 
+	enum class State {
+		DISPLAYING_DEATH,
+		DISPLAYING_WINNER,
+		DISPLAYING_COUNTDOWN,
+		DISPLAYING_SCREEN,
+		DONE
+	};
+	
 protected:
 
 	virtual void on_game_reset();
@@ -16,4 +24,8 @@ protected:
 	virtual void on_post_processing();
 
 	virtual GameplayObject *generate_powerup(bool force = false);
+
+	State currentState_;
+	Uint32 currentStateBeginTime_;
+	Uint32 currentStateBeginTimeDelay_;
 };

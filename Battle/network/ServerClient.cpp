@@ -195,16 +195,13 @@ void ServerClient::poll()
 	{
 		resumeGameTime_ = 0;
 
-		game_->set_ended(false);
-		if (resumeGameWithCountdown_)
-			game_->set_countdown(true, 3 + 1);
-
 		// Clear gameplay objects, powerups excluded, these are destroyed by command on the server
 		std::vector<GameplayObject *> deleteObjs;
 		for_each(begin(*game_->objects), end(*game_->objects), [&] (GameplayObject *obj) { 
 			if (!obj->is_powerup)
 				deleteObjs.push_back(obj); 
 		});
+		
 		for_each(begin(deleteObjs), end(deleteObjs), [&] (GameplayObject *obj) { 
 			auto &objects = (*game_->objects);
 			auto iter = std::find(begin(objects), end(objects), obj);
@@ -212,6 +209,11 @@ void ServerClient::poll()
 			if (iter != end(objects))
 				objects.erase(iter);
 		});
+
+		game_->set_ended(false);
+		if (resumeGameWithCountdown_)
+			game_->set_countdown(true, 3 + 1);
+
 	}
 
 
@@ -626,6 +628,7 @@ bool ServerClient::process(CommandSetPlayerAmmo *command)
 
 bool ServerClient::process(CommandSetBroadcastText *command)
 {
+	std::cout << "BROADCAST TEXT: " << command->data.text << std::endl;
 	getGame().set_broadcast(command->data.text, command->data.duration);
 	return true;
 }

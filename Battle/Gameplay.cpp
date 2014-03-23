@@ -24,6 +24,7 @@ Gameplay::Gameplay(Main &main) : main_(main) {
 	ticks_start = SDL_GetTicks();
 	
 	game_running = false;
+	server_game_running = false;
 	players = new std::vector<Player*>();
 	npcs = new std::vector<NPC*>();
 	objects = new std::vector<GameplayObject*>();
@@ -70,7 +71,7 @@ void Gameplay::run() {
 	// Get ticks (milliseconds since SDL started)
 	ticks_start = SDL_GetTicks();
 
-	while(main_.running && game_running) {
+	while(main_.running && (game_running || server_game_running)) {
 		if (!main_.no_sdl) {
 			// Event handling
 			while(SDL_PollEvent(&event)) {
