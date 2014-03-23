@@ -261,7 +261,9 @@ void ServerClient::send(Command &command)
 	char type = command.getType();
 	if (type == Command::Types::SetPlayerData ||
 		type == Command::Types::Ping ||
-		type == Command::Types::Pong
+		type == Command::Types::Pong ||
+		type == Command::Types::ShotFired ||
+		type == Command::Types::BombDropped
 	){
 		log(format("Send packet of type %d through UDP with seq %d", type, getUdpSeq()), Logger::Priority::CONSOLE);
 
