@@ -148,7 +148,7 @@ bool Main::init() {
 
 	fps_counter_timer = new Timer();
 
-	audio = new AudioController();
+	audio = new AudioController(*this);
 	audio->open_audio();
 	audio->load_files();
 

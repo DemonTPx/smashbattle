@@ -51,7 +51,7 @@ const int AudioController::soundvolume[SOUNDFILES] = {
 	75 //blip
 };
 
-AudioController::AudioController() {
+AudioController::AudioController(Main &main) : main_(main) {
 	options.sound_volume = 100;
 	options.music_volume = 100;
 }
@@ -60,6 +60,9 @@ AudioController::~AudioController() {
 }
 
 bool AudioController::open_audio() {
+	if (main_.no_sdl)
+		return false;
+
 	int audio_rate = 22050;
 	Uint16 audio_format = AUDIO_S16SYS;
 	int audio_channels = 2;
@@ -74,10 +77,14 @@ bool AudioController::open_audio() {
 }
 
 void AudioController::close_audio() {
+	if (main_.no_sdl)
+		return;
 	Mix_CloseAudio();
 }
 
 void AudioController::load_files() {
+	if (main_.no_sdl)
+		return;
 	for(int i = 0; i < MUSICFILES; i++) {
 		music[i] = Mix_LoadMUS(music_files[i]);
 	}
@@ -88,6 +95,8 @@ void AudioController::load_files() {
 }
 
 void AudioController::close_files() {
+	if (main_.no_sdl)
+		return;
 	for(int i = 0; i < MUSICFILES; i++) {
 		Mix_FreeMusic(music[i]);
 	}
@@ -98,6 +107,8 @@ void AudioController::close_files() {
 }
 
 void AudioController::play_music(int music) {
+	if (main_.no_sdl)
+		return;
 	if(options.music_volume == 0)
 		return;
 
@@ -113,6 +124,8 @@ void AudioController::play_music(int music) {
 }
 
 void AudioController::play_music(Mix_Music * m) {
+	if (main_.no_sdl)
+		return;
 	if(options.music_volume == 0)
 		return;
 
@@ -125,14 +138,20 @@ void AudioController::play_music(Mix_Music * m) {
 }
 
 void AudioController::stop_music() {
+	if (main_.no_sdl)
+		return;
 	Mix_HaltMusic();
 }
 
 void AudioController::pause_music() {
+	if (main_.no_sdl)
+		return;
 	Mix_PauseMusic();
 }
 
 void AudioController::unpause_music() {
+	if (main_.no_sdl)
+		return;
 	Mix_ResumeMusic();
 }
 
@@ -140,6 +159,8 @@ void AudioController::unpause_music() {
 // play_sound(SND_JUMP);
 
 void AudioController::play(int sound, int x) {
+	if (main_.no_sdl)
+		return;
 	if(options.sound_volume == 0)
 		return;
 
@@ -188,9 +209,13 @@ void AudioController::play(int sound, int x) {
 }
 
 void AudioController::save_options(std::ostream * stream) {
+	if (main_.no_sdl)
+		return;
 	stream->write((char*)&options, sizeof(SoundOptions));
 }
 
 void AudioController::load_options(std::istream * stream) {
+	if (main_.no_sdl)
+		return;
 	stream->read((char*)&options, sizeof(SoundOptions));
 }
