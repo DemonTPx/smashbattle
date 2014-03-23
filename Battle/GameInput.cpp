@@ -18,7 +18,7 @@ GameInput::GameInput(Main &main) : main_(main) {
 	delay = 0;
 	interval = 0;
 
-	keyboard_enabled = true;
+	keyboard_enabled = main.no_sdl;
 	joystick_enabled = false;
 
 	keybinds = new std::vector<GameInputKeyBind>();
@@ -94,16 +94,25 @@ void GameInput::copy_from(GameInput * gi) {
 
 // Enable keyboard
 void GameInput::enable_keyboard(bool enable) {
+	if (main_.no_sdl)
+		return;
+	
 	keyboard_enabled = enable;
 }
 
 // Enable joystick
 void GameInput::enable_joystick(bool enable) {
+	if (main_.no_sdl)
+		return;
+
 	joystick_enabled = enable;
 }
 
 // Open a joystick
 bool GameInput::open_joystick(int index) {
+	if (main_.no_sdl)
+		return false;
+
 	if(joystick != NULL) {
 		SDL_JoystickClose(joystick);
 	}
