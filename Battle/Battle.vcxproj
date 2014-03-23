@@ -180,6 +180,8 @@
     <ClInclude Include="ChickNPC.h" />
     <ClInclude Include="ClientSettings.h" />
     <ClInclude Include="commands\CommandAddPlayer.hpp" />
+    <ClInclude Include="commands\CommandApiPing.hpp" />
+    <ClInclude Include="commands\CommandApiPong.hpp" />
     <ClInclude Include="commands\CommandApplyPowerup.hpp" />
     <ClInclude Include="commands\CommandBombDropped.hpp" />
     <ClInclude Include="commands\CommandCommunicationTokenAck.hpp" />
@@ -189,6 +191,7 @@
     <ClInclude Include="commands\CommandPong.hpp" />
     <ClInclude Include="commands\CommandRemovePowerup.hpp" />
     <ClInclude Include="commands\CommandRequestCharacter.hpp" />
+    <ClInclude Include="commands\CommandServerFull.hpp" />
     <ClInclude Include="commands\CommandSetBroadcastText.hpp" />
     <ClInclude Include="commands\CommandSetCharacter.hpp" />
     <ClInclude Include="commands\CommandSetClientReady.hpp" />

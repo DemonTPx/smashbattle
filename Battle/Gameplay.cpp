@@ -44,7 +44,7 @@ Gameplay::~Gameplay() {
 #include <map>
 using std::map;
 #include "network/Client.h"
-#include "Server.h"
+#include "network/Server.h"
 
 void Gameplay::run() {
 	SDL_Event event;
