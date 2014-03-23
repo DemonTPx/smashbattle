@@ -18,7 +18,7 @@ GameInput::GameInput(Main &main) : main_(main) {
 	delay = 0;
 	interval = 0;
 
-	keyboard_enabled = main.no_sdl;
+	keyboard_enabled = true;
 	joystick_enabled = false;
 
 	keybinds = new std::vector<GameInputKeyBind>();
