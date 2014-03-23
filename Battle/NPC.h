@@ -6,7 +6,7 @@
 #define CYCLE_UP 0
 #define CYCLE_DN 1
 
-class NPC {
+class NPC : public Drawable {
 public:
 	NPC(Main &main);
 	virtual ~NPC();
@@ -15,8 +15,6 @@ public:
 	SDL_Rect * last_position;
 	SDL_Surface * sprites;
 	
-	void draw(SDL_Surface * screen, int frames_processed = 0);
-
 	virtual void move(Level * level);
 	virtual void process();
 	
@@ -65,6 +63,9 @@ public:
 
 	int move_direction;
 protected:
+
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
 	int frame_w;
 	int frame_h;
 

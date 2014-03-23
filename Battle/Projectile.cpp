@@ -97,7 +97,7 @@ void Projectile::hit_npc(NPC * npc) {
 	}
 }
 
-void Projectile::draw(SDL_Surface * screen, int frames_processed) {
+void Projectile::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect;
 
 	rect.x = position->x;

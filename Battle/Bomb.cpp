@@ -53,7 +53,7 @@ Bomb::~Bomb() {
 	}
 }
 
-void Bomb::draw(SDL_Surface * screen, int frames_processed) {
+void Bomb::draw_impl(SDL_Surface * screen, int frames_processed) {
 
 	SDL_Rect rect;
 

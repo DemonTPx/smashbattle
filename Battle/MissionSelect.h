@@ -1,6 +1,8 @@
 #pragma once
 
-class MissionSelect {
+#include "SimpleDrawable.h"
+
+class MissionSelect : public SimpleDrawable {
 public:
 	MissionSelect(Main &main);
 	void run();
@@ -8,8 +10,12 @@ public:
 	bool cancel;
 
 	int mission;
+
+protected:
+
+	virtual void draw_impl();
+
 private:
-	void draw();
 
 	void load_sprites();
 	void free_sprites();

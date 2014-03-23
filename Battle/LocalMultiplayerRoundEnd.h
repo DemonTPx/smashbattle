@@ -4,7 +4,9 @@
 #define ROUNDEND_CHANGE_LEVEL 2
 #define ROUNDEND_QUIT 0
 
-class LocalMultiplayerRoundEnd {
+#include "SimpleDrawable.h"
+
+class LocalMultiplayerRoundEnd : public SimpleDrawable {
 public:
 	LocalMultiplayerRoundEnd(Main &main);
 	~LocalMultiplayerRoundEnd();
@@ -16,11 +18,14 @@ public:
 	int round;
 
 	void add_player(Player * p);
+
+protected:
+
+	virtual void draw_impl();
+
 private:
 	void init();
 	void cleanup();
-
-	void draw();
 
 	void process_cursor();
 

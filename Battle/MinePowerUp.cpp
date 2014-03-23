@@ -33,7 +33,7 @@ void MinePowerUp::hit_player(Player * p) {
 
 void MinePowerUp::hit_npc(NPC * npc) {}
 
-void MinePowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void MinePowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 

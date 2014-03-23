@@ -65,5 +65,5 @@ void Airstrike::hit_player(Player * player) {}
 
 void Airstrike::hit_npc(NPC * npc) {}
 
-void Airstrike::draw(SDL_Surface * screen, int frames_processed) {}
+void Airstrike::draw_impl(SDL_Surface * screen, int frames_processed) {}
 

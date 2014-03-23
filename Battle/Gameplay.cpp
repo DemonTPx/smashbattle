@@ -159,29 +159,33 @@ void Gameplay::run() {
 		}
 
 		// Drawing
-		level->draw(screen, frames_processed);
+		if (!main_.no_sdl) {
+			level->draw(screen, frames_processed);
 
-		for(unsigned int idx = 0; idx < players->size(); idx++) {
-			Player * p = players->at(idx);
-			if(countdown)
-				p->draw(screen, true, frames_processed);
-			else
-				p->draw(screen, false, frames_processed);
-		}
-		for(unsigned int idx = 0; idx < npcs->size(); idx++) {
-			NPC * npc = npcs->at(idx);
-			npc->draw(screen, frames_processed);
-		}
+			for(unsigned int idx = 0; idx < players->size(); idx++) {
+				Player * p = players->at(idx);
+				if(countdown)
+					p->draw(screen, true, frames_processed);
+				else
+					p->draw(screen, false, frames_processed);
+			}
+			for(unsigned int idx = 0; idx < npcs->size(); idx++) {
+				NPC * npc = npcs->at(idx);
+				npc->draw(screen, frames_processed);
+			}
 
-		for(unsigned int idx = 0; idx < objects->size(); idx++) {
-			GameplayObject * obj = objects->at(idx);
-			obj->draw(screen, frames_processed);
-		}
+			for(unsigned int idx = 0; idx < objects->size(); idx++) {
+				GameplayObject * obj = objects->at(idx);
+				obj->draw(screen, frames_processed);
+			}
 
-		draw_score();
+			draw_score();
+		}
 		
 		if(ended) {
-			draw_game_ended();
+			if (!main_.no_sdl) {
+				draw_game_ended();
+			}
 
 			if (main_.runmode == MainRunModes::CLIENT) {
 				// reset games are handled by server
@@ -191,7 +195,9 @@ void Gameplay::run() {
 			}
 		}
 		if(countdown) {
-			draw_countdown();
+			if (!main_.no_sdl) {
+				draw_countdown();
+			}
 		}
 
 		if (main_.runmode == MainRunModes::CLIENT)
@@ -212,7 +218,9 @@ void Gameplay::run() {
 				draw_console();
 		}
 
-		draw_broadcast();
+		if (!main_.no_sdl) {
+			draw_broadcast();
+		}
 		if (broadcast_duration > 0) {
 			for (int i=0; i<frames_processed; i++) {
 				broadcast_duration -= main_.MILLISECS_PER_FRAME;

@@ -76,7 +76,7 @@ void LaserBeam::hit_npc(NPC * npc) {
 	npc->damage(25);
 }
 
-void LaserBeam::draw(SDL_Surface * screen, int frames_processed) {
+void LaserBeam::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect, rect_b;
 	int frame;
 	Uint32 color;

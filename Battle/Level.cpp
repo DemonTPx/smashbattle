@@ -30,7 +30,7 @@ const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"SNOW FIGHT", (char*)"stage/snowfight.lvl"}
 };
 
-Level::Level(Main &main) : main_(main) {
+Level::Level(Main &main) : Drawable(main), main_(main) {
 	background = NULL;
 	tiles = NULL;
 
@@ -555,7 +555,7 @@ int Level::tile_pos(int x, int y) {
 	return ((int)(y / TILE_H) * TILE_COLS) + (int)(x / TILE_W);
 }
 
-void Level::draw(SDL_Surface * screen, int frames_processed) {
+void Level::draw_impl(SDL_Surface * screen, int frames_processed) {
 
 	SDL_Rect rect;
 	SDL_Rect rect_s;

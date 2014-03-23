@@ -85,7 +85,7 @@ void LaserBeamPowerUp::shoot_laserbeam(Player * p, Main &main) {
 
 void LaserBeamPowerUp::hit_npc(NPC * npc) {}
 
-void LaserBeamPowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void LaserBeamPowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 

@@ -20,7 +20,7 @@
 #define MOMENTUM_INTERV_HORIZ 1
 #define MOMENTUM_INTERV_VERT 1
 
-PlayerAnimation::PlayerAnimation(int character, Main &main) : main_(main) {
+PlayerAnimation::PlayerAnimation(int character, Main &main) : Drawable(main), main_(main) {
 	this->character = character;
 
 	position = new SDL_Rect();
@@ -264,7 +264,7 @@ void PlayerAnimation::move() {
 	}*/
 }
 
-void PlayerAnimation::draw(SDL_Surface * screen, int frames_processed) {
+void PlayerAnimation::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect;
 	rect.x = position->x;
 	rect.y = position->y;

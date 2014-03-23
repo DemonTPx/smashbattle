@@ -40,7 +40,7 @@
 const int Menu::ITEMCOUNT = /*5*/ 4;
 const char * Menu::item[ITEMCOUNT] = {/*"MISSIONS", */"PLAY LOCAL", "PLAY ONLINE", "OPTIONS", "QUIT"};
 
-Menu::Menu(Main &main) : main_(main) {
+Menu::Menu(Main &main) : SimpleDrawable(main), main_(main) {
 }
 
 Menu::~Menu() {
@@ -99,7 +99,7 @@ void Menu::run() {
 	cleanup();
 }
 
-void Menu::draw() {
+void Menu::draw_impl() {
 	int i;
 	SDL_Surface * text;
 	SDL_Rect rect, rect_s;

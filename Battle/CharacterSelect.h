@@ -1,8 +1,9 @@
 #pragma once
 
 #include "PlayerAnimation.h"
+#include "SimpleDrawable.h"
 
-class CharacterSelect {
+class CharacterSelect : public SimpleDrawable {
 public:
 	CharacterSelect(Main &main);
 
@@ -19,8 +20,11 @@ public:
 	int player_select_first = 0;
 
 	bool cancel;
+protected:
+
+	virtual void draw_impl();
+
 private:
-	void draw();
 
 	void init();
 	void clean_up();

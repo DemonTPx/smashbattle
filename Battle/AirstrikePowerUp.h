@@ -17,8 +17,6 @@ public:
 	virtual void hit_player(Player * player);
 	virtual void hit_npc(NPC * npc);
 
-	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
-
 	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 
 	static void shoot_airstrike(Player * p, Main &main);
@@ -28,4 +26,9 @@ public:
 	SDL_Rect * clip;
 
 	Main &main_;
+
+protected:
+
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
 };

@@ -40,7 +40,7 @@ void AirstrikePowerUp::shoot_airstrike(Player * p, Main &main) {
 
 void AirstrikePowerUp::hit_npc(NPC * npc) {}
 
-void AirstrikePowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void AirstrikePowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 
