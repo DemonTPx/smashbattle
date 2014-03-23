@@ -109,6 +109,7 @@
     <ClCompile Include="commands\CommandGeneratePowerup.cpp" />
     <ClCompile Include="ControlsOptions.cpp" />
     <ClCompile Include="DoubleDamagePowerUp.cpp" />
+    <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="GameInput.cpp" />
     <ClCompile Include="Gameplay.cpp" />
     <ClCompile Include="GameplayObject.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="rest\ServerToken.cpp" />
     <ClCompile Include="ServerListing.cpp" />
     <ClCompile Include="ShieldPowerUp.cpp" />
+    <ClCompile Include="SimpleDrawable.cpp" />
     <ClCompile Include="states\ServerState.cpp" />
     <ClCompile Include="states\ServerStateAcceptClients.cpp" />
     <ClCompile Include="states\ServerStateAcceptSpectatingClients.cpp" />
@@ -211,6 +213,7 @@
     <ClInclude Include="commands\CommandUpdateTile.hpp" />
     <ClInclude Include="ControlsOptions.h" />
     <ClInclude Include="DoubleDamagePowerUp.h" />
+    <ClInclude Include="Drawable.h" />
     <ClInclude Include="GameInput.h" />
     <ClInclude Include="Gameplay.h" />
     <ClInclude Include="GameplayObject.h" />
@@ -254,6 +257,7 @@
     <ClInclude Include="rest\ServerToken.h" />
     <ClInclude Include="ServerListing.h" />
     <ClInclude Include="ShieldPowerUp.h" />
+    <ClInclude Include="SimpleDrawable.h" />
     <ClInclude Include="states\ServerState.h" />
     <ClInclude Include="states\ServerStateAcceptClients.h" />
     <ClInclude Include="states\ServerStateAcceptSpectatingClients.h" />
