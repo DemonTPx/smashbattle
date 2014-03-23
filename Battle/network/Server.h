@@ -141,6 +141,8 @@ private:
 	Uint32 serverTime_;
 	Uint32 ignoreClientInputUntil_;
 
+	Uint32 lastUpdateInApiTime_;
+
 	std::string serverToken_;
 
 	// UDP

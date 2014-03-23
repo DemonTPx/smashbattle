@@ -42,7 +42,8 @@ Server::Server()
 	  ignoreClientInputUntil_(0),
 	  game_(NULL),
 	  udpsequence_(0),
-	  set(NULL)
+	  set(NULL),
+	  lastUpdateInApiTime_(serverTime_)
 {
 }
 
@@ -138,7 +139,6 @@ void Server::listen() {
 	if (is_listening_)
 		return;
 
-
 	/* initialize SDL_net */
 	if (SDLNet_Init() == -1) {
 		log(format("SDLNet_Init: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
@@ -196,6 +196,13 @@ void Server::poll() {
 	if (!is_listening_)
 		return;
 
+	// Every 2 seconds send update to API
+	if (!lastUpdateInApiTime_ || serverTime_ - lastUpdateInApiTime_ >= 2000) {
+		rest::RegisterServer regsrv(serverToken_);
+		regsrv.update(*main_);
+		lastUpdateInApiTime_ = serverTime_;
+	}
+	
 	set = create_sockset();
 
 	while (SDLNet_UDP_Recv(sd, p)) {
