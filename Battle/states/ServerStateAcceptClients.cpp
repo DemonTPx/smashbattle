@@ -66,10 +66,6 @@ void ServerStateAcceptClients::execute(Server &server, Client &client) const
 		return;
 	}
 
-	if (client.getClientId() == 3) {
-		std::cout << " client: " << client.getClientId() << " state " << client.getState() << std::endl;
-	}
-
 	switch(client.getState())
 	{
 		// Request character from client

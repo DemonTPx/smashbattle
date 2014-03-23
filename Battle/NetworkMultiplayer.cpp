@@ -228,7 +228,7 @@ void NetworkMultiplayer::on_post_processing()
 				currentStateBeginTime_ = server.getServerTime();
 				currentState_ = State::DONE;
 				game_running = true;
-				//server_game_running = false;
+				round = 1;
 				server.setState(new network::ServerStateAcceptClients());
 			}
 		}
