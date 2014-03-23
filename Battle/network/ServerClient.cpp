@@ -289,7 +289,7 @@ void ServerClient::send(Command &command)
 
 		if (result < sizeof (char)) {
 			if (SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-				printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+				printf("SDLNet_TCP_Send^3: %s\n", SDLNet_GetError());
 			return;
 		}
 
@@ -297,7 +297,7 @@ void ServerClient::send(Command &command)
 
 		if (result < sizeof (char)) {
 			if (SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-				printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
+				printf("SDLNet_TCP_Send^4: %s\n", SDLNet_GetError());
 			return;
 		}
 	}

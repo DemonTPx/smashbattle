@@ -142,6 +142,7 @@ private:
 	Uint32 ignoreClientInputUntil_;
 
 	Uint32 lastUpdateInApiTime_;
+	size_t lastNumActivePlayers_;
 
 	std::string serverToken_;
 

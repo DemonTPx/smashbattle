@@ -384,7 +384,7 @@ void Client::send(Command &command)
 
 		if(result < sizeof(char)) {
 			if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-				log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
+				log(format("SDLNet_TCP_Send^1: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 			return;
 		}
 
@@ -392,7 +392,7 @@ void Client::send(Command &command)
 
 		if(result < sizeof(socket_)) {
 			if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
-				log(format("SDLNet_TCP_Send: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
+				log(format("SDLNet_TCP_Send^2: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 			return;
 		}
 	}

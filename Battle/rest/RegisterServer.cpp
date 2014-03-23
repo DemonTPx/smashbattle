@@ -32,6 +32,9 @@ std::string RegisterServer::put(Main &main)
 
 void RegisterServer::update(Main &main)
 {
+	if (future_.valid())
+		return;
+
 	future_ = std::async(std::launch::async, [&]{ 
 		json::Object postData;
 		postData["servername"] = main.getServer().getName();
