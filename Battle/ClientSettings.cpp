@@ -106,6 +106,7 @@ void ClientSettings::create_items()
 }
 
 #include <algorithm>
+#include <stdexcept>
 #include "ServerListing.h"
 #include "rest/ClientToken.h"
 #include "rest/ServerList.h"

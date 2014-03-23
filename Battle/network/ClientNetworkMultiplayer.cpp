@@ -19,7 +19,7 @@ using std::string;
 namespace network{
 
 ClientNetworkMultiplayer::ClientNetworkMultiplayer(Main &main)
-: lag_(NULL), LocalMultiplayer(main), main_(main)
+: lag_(NULL), LocalMultiplayer(main), main_(main), start_pressed_(false), start_pressed_start(0)
 {
 	main.setGameplay(this);
 }

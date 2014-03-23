@@ -17,7 +17,7 @@ public:
 	bool player_joined[4];
 	int player_select[4];
 
-	int player_select_first = 0;
+	int player_select_first;
 
 	bool cancel;
 protected:
