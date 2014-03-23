@@ -17,7 +17,7 @@ OptionsScreen::OptionsScreen(Main &main) : OptionsScreen("", main) {
 	background = NULL;
 }
 #  else
-OptionsScreen::OptionsScreen(Main &main) {
+OptionsScreen::OptionsScreen(Main &main) : SimpleDrawable(main), main_(main) {
 // duplicate
 	this->title = title;
 	items = new std::vector<OptionItem*>(0);

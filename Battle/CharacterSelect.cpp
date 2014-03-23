@@ -25,7 +25,7 @@ CharacterSelect::CharacterSelect(Main &main)
 	: possible_players_(4),
 	  required_num_players_(2),
 	  main_(main),
-	  SimpleDrawable(main)
+	  SimpleDrawable(main),
 	  player_select_first(0)
 {
 	
@@ -35,7 +35,7 @@ CharacterSelect::CharacterSelect(int max_possible_players, int required_num_play
 	: possible_players_(max_possible_players),
 	  required_num_players_(required_num_players),
 	  main_(main),
-	  SimpleDrawable(main)
+	  SimpleDrawable(main),
 	  player_select_first(0)
 {
 }
