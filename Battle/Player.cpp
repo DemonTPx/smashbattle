@@ -180,8 +180,6 @@ Player::Player(int character, int number, Main &main) : main_(main) {
 
 	sprites = NULL;
 	set_sprites();
-	marker_clip_above = main_.graphics->pmarker_clip_above[suit_number];
-	marker_clip_below = main_.graphics->pmarker_clip_below[suit_number];
 
 }
 
@@ -229,15 +227,14 @@ void Player::set_sprites() {
 #else
 	sprites = main_.graphics->player->at(character);
 #endif
+	
+	marker_clip_above = main_.graphics->pmarker_clip_above[suit_number];
+	marker_clip_below = main_.graphics->pmarker_clip_below[suit_number];
 }
 
 void Player::update_suit()
 {
-	suit_number = number;
-	if (main_.runmode != MainRunModes::ARCADE) {
-		suit_number++;
-	}
-	suit_number = suit_number % Player::COLORS_COUNT;
+	suit_number = number % Player::COLORS_COUNT;
 }
 
 void Player::reset() {
