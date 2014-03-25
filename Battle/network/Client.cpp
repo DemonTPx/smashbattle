@@ -158,10 +158,11 @@ bool Client::process(CommandSetPlayerData *command)
 			// A following sequence is valid if it's bigger than the lastSeq.
 			// But it's also valid if it's smaller, (i.e. wrapped, short is overflown). That's where 
 			//  the check if the difference is in that case > sizeof(short) / 2)..
-			if ( ! ((currSeq > lastSeq || (currSeq < lastSeq && (lastSeq-currSeq)) > (sizeof(short)/2)))) {
+			if (((currSeq < lastSeq && (lastSeq-currSeq)) > (sizeof(short)/2))) {
 				log(format("sequence, discarding because of more recent package existant. %d < %d\n", currSeq, lastSeq), Logger::Priority::INFO);
 				continue;
 			}
+			server_->getClientById(player.number)->setLastUdpSeq(currSeq);
 
 			player_util::set_player_data(player, *command);
 
