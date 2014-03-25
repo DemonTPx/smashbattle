@@ -87,6 +87,7 @@ public:
 	
 	Uint32 getCommToken() { return commToken_; }
 	short getLastUdpSeq() { return lastUdpSeq_; }
+	void setLastUdpSeq(short seq) { lastUdpSeq_ = seq; }
 
 	// lag
 	Uint32 getLastLagTime() { return lastLagTime_; }
