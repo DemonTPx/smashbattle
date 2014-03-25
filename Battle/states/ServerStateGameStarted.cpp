@@ -99,7 +99,7 @@ void ServerStateGameStarted::execute(Server &server, Client &client) const
 		CommandPing ping;
 		ping.data.time = servertime;
 		client.send(ping);
-		client.setLastLagTime(servertime + 1000);
+		client.setLastLagTime(servertime);
 	}
 
 

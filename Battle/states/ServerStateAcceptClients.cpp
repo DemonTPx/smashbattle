@@ -138,7 +138,7 @@ void ServerStateAcceptClients::execute_calculating_lag(Uint32 servertime, Server
 			CommandPing ping;
 			ping.data.time = servertime;
 			client.send(ping);
-			client.setLastLagTime(servertime + 200);
+			client.setLastLagTime(client.getLastLagTime() + 200);
 			client.setInitialLagTests(client.getInitialLagTests() - 1);
 		}
 	} else {
@@ -264,7 +264,7 @@ void ServerStateAcceptClients::execute_active(Uint32 servertime, Server &server,
 		CommandPing ping;
 		ping.data.time = servertime;
 		client.send(ping);
-		client.setLastLagTime(servertime + 1000);
+		client.setLastLagTime(client.getLastLagTime() + 1000);
 	}
 }
 
