@@ -31,6 +31,7 @@ using std::string;
 #include "util/stringutils.hpp"
 #include "util/sha256.h"
 #include "util/Log.h"
+#include "Client.h"
 
 namespace network {
 
@@ -265,7 +266,8 @@ void Server::poll() {
 				return;
 			}
 
-			SDLNet_TCP_AddSocket(set, sock);
+			// We now re-create the socket set every iteration
+			//SDLNet_TCP_AddSocket(set, sock);
 
 			clients_[nextId] = std::shared_ptr<Client>(new Client(nextId, sock, this, *main_));
 
@@ -305,7 +307,8 @@ void Server::poll() {
 					;
 			} else {
 
-				SDLNet_TCP_DelSocket(set, client->socket());
+				// We now re-create the socket set every iteration
+				// SDLNet_TCP_DelSocket(set, client->socket());
 
 				// Close the old socket, even if it's dead... 
 				SDLNet_TCP_Close(client->socket());
@@ -350,18 +353,26 @@ void Server::poll() {
 
 /* create a socket set that has the server socket and all the client sockets */
 SDLNet_SocketSet Server::create_sockset() {
-	// Somehow the approach where the set is constantly re-created appears to be
-	// not very thread-safe.
-	if (set)
-		return set;
 
-	set = SDLNet_AllocSocketSet(32);
-	if (!set) {
-		printf("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
-		throw std::runtime_error("todo implement");
-	}
+
+	if (set)
+		SDLNet_FreeSocketSet(set);
+
+	set = SDLNet_AllocSocketSet(clients_.size() + 1);
 
 	SDLNet_TCP_AddSocket(set, server);
+
+	std::map<int, std::shared_ptr<Client>>::iterator i;
+	for (i=std::begin(clients_); i!=std::end(clients_); i++) {
+		std::shared_ptr<Client> &client = (*i).second;
+
+		SDLNet_TCP_AddSocket(set, client->socket());
+	}
+
+	if (!set) {
+		printf("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
+		throw std::runtime_error("problem");
+	}
 
 	return set;
 }

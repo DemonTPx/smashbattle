@@ -392,7 +392,7 @@ void Client::send(Command &command)
 
 		result = SDLNet_TCP_Send(socket_, command.getData(), command.getDataLen());
 
-		if(result < sizeof(socket_)) {
+		if(result < sizeof(command.getDataLen())) {
 			if(SDLNet_GetError() && strlen(SDLNet_GetError())) /* sometimes blank! */
 				log(format("SDLNet_TCP_Send^2: %s\n", SDLNet_GetError()), Logger::Priority::FATAL);
 			return;

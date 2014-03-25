@@ -554,20 +554,26 @@ bool ServerClient::process(CommandUpdateTile *command)
 
 bool ServerClient::process(CommandShotFired *command)
 {
-	auto &otherplayer = player_util::get_player_by_id(*main_, command->data.client_id);
+	try {
+		auto &otherplayer = player_util::get_player_by_id(*main_, command->data.client_id);
 
-	if (otherplayer.number == command->data.client_id) {
-		// Make sure the correct sprite is set, so the bullet will go the correct direction
-		otherplayer.current_sprite = command->data.current_sprite;
+		if (otherplayer.number == command->data.client_id) {
+			// Make sure the correct sprite is set, so the bullet will go the correct direction
+			otherplayer.current_sprite = command->data.current_sprite;
 
-		Projectile *proj = otherplayer.create_projectile(command->data.x, command->data.y);
+			Projectile *proj = otherplayer.create_projectile(command->data.x, command->data.y);
 
-		proj->distance_traveled = command->data.distance_travelled;
+			proj->distance_traveled = command->data.distance_travelled;
 
-		// Account for lag
-		int processFrames = static_cast<int>(lag.avg() / static_cast<float>(main_->MILLISECS_PER_FRAME));
-		for (int i=0; i<processFrames; i++)
-			game_->process_gameplayobj(proj);
+			// Account for lag
+			int processFrames = static_cast<int>(lag.avg() / static_cast<float>(main_->MILLISECS_PER_FRAME));
+			for (int i=0; i<processFrames; i++)
+				game_->process_gameplayobj(proj);
+		}
+	}
+	catch (std::runtime_error &err) {
+		// UDP packet received while we don't know the player yet,
+		// do not propagate the exception
 	}
 
 	return true;
