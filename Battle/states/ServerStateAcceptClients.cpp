@@ -264,7 +264,7 @@ void ServerStateAcceptClients::execute_active(Uint32 servertime, Server &server,
 		CommandPing ping;
 		ping.data.time = servertime;
 		client.send(ping);
-		client.setLastLagTime(servertime + 1000);
+		client.setLastLagTime(client.getLastLagTime() + 1000);
 	}
 }
 

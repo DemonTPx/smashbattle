@@ -13,13 +13,15 @@ using std::string;
 namespace network {
 
 ServerStateAcceptSpectatingClients::ServerStateAcceptSpectatingClients()
-	: ServerStateAcceptClients()
+	: ServerStateAcceptClients(), once(true)
 {
 }
 
 void ServerStateAcceptSpectatingClients::initialize(Server &server) const
 {
 	ServerStateAcceptClients::initialize(server);
+
+	once = true;
 }
 
 void ServerStateAcceptSpectatingClients::transform_spectators_into_valid_players(Server &server) const
