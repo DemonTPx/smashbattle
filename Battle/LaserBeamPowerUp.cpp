@@ -39,8 +39,8 @@ void LaserBeamPowerUp::shoot_laserbeam(Player * p, Main &main) {
 	int i, tmp;
 	bool swapped;
 
-	targets.reserve(main.gameplay().players->size());
-	target_hp.reserve(main.gameplay().players->size());
+	targets.resize(main.gameplay().players->size());
+	target_hp.resize(main.gameplay().players->size());
 	
 	// Get all target players
 	num_targets = 0;
