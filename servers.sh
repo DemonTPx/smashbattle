@@ -23,7 +23,7 @@ levels=(
 	"PITTFALL" 
 	"DUCK'N'HUNT" 
 	"COMMON GROUNDS" 
-	"POGO STICK" 
+	"POGOSTICK" 
 	"LA MOUSTACHE" 
 	"THE FUNNEL" 
 	"BLAST BOWL" 
@@ -46,17 +46,11 @@ while [  $count -lt $servercount ]; do
 
         # Launch a server
         printf "Starting Tweak Battle Server #$count \n"
-        (smashbattle -s "${levels[$levelcount]}" $port "${levels[$levelcount]}") &
+        (smashbattle -s "${levels[$levelcount]}" $port "${levels[$levelcount]}" > /var/log/smashbattle/server-${count}) &
         sleep 1
-
-	# Reset count if end of array is reached
-        if [ $levelcount == 14 ];
-        then
-                levelcount=0
-        fi
 
         # Increment port, loopcount and count
         port=$((port+1))
         count=$((count+1))
-	levelcount=$((levelcount+1))
+	levelcount=$(((levelcount+1) % 16))
 done
