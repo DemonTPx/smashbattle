@@ -8,7 +8,7 @@ public:
 	LocalMultiplayer(Main &main);
 
 
-	void set_ended(bool val) { this->ended = val; };
+	void set_ended(bool val) { this->ended = val; end_avatar_start_frame = frame; };
 	void set_countdown(bool countdown, int seconds = -1);
 	void set_draw(bool val) { this->draw = val; };
 	void set_winner(Player &winner) { this->winner = &winner; }
