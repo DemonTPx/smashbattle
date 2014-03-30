@@ -4,6 +4,9 @@
 
 #include "AbstractRestBase.h"
 
+#define SKIP_CLIENT_TOKEN_PROCESS
+
+
 namespace rest {
 
 class ClientToken : public AbstractRestBase {

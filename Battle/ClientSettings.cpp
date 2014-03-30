@@ -116,6 +116,7 @@ void ClientSettings::create_items()
 
 void ClientSettings::connect()
 {
+#ifndef SKIP_CLIENT_TOKEN_PROCESS
 	if (serverToken_.empty()) {
 		rest::ClientToken token;
 		try {
@@ -149,6 +150,10 @@ void ClientSettings::connect()
 	std::cout << "our generated token is: " << sha256randomhash << std::endl;
 
 	rest::ServerList slist(sha256randomhash);
+#else
+	rest::ServerList slist("NO_TOKEN");
+#endif
+
 	try {
 		json::Array servers = slist.list();
 
