@@ -851,10 +851,14 @@ bool ServerClient::process(CommandSetVictoryScreen *command)
 
 		auto &players = *(getGame().players);
 		std::vector<Player *>::iterator i;
-		for (i=std::begin(players); i!=std::end(players); ++i) {
-			vscr.add_player(*i);
-		}
 		vscr.winner = NULL;
+		for (i=std::begin(players); i!=std::end(players); ++i) {
+			auto &player = *i;
+			vscr.add_player(player);
+			if (command->data.winner != -1 && player->number == command->data.winner) {
+				vscr.winner = player;
+			}
+		}
 		vscr.round = 1;
 		
 		vscr.run();

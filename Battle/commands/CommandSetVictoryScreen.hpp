@@ -18,6 +18,7 @@ public:
 	{
 		Uint32 time;
 		Uint32 duration;
+		short winner;
 	} data;
 
 private:

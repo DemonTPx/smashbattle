@@ -438,6 +438,23 @@ size_t Server::numActiveClients() {
 	return num;
 }
 
+size_t Server::numUndeadActiveClients() {
+	size_t num = 0;
+	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
+	{
+		try {
+			Player &player(player_util::get_player_by_id(*main_, i->second->getClientId()));
+			if (i->second->getState() == Client::State::ACTIVE && !player.is_dead)
+				num++;
+		}
+		catch (std::runtime_error &err) {
+			// log this
+		}
+	}
+
+	return num;
+}
+
 void Server::sendAll(Command &command) {
 	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++)
 		i->second->send(command);

@@ -192,6 +192,7 @@ void NetworkMultiplayer::on_post_processing()
 					network::CommandSetVictoryScreen vscr;
 					vscr.data.time = server.getServerTime();
 					vscr.data.duration = 10000;
+					vscr.data.winner = (winner != NULL) ? winner->number : -1;
 					server.sendAll(vscr);
 
 					currentStateBeginTimeDelay_ = 10000;
