@@ -30,3 +30,4 @@
 #include "commands/CommandApiPing.hpp"
 #include "commands/CommandApiPong.hpp"
 #include "commands/CommandServerFull.hpp"
+#include "commands/CommandSetVictoryScreen.hpp"

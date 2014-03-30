@@ -41,6 +41,7 @@ public:
 		ApiPing = 0x1C,
 		ApiPong = 0x1D,
 		ServerFull = 0x1E,
+		SetVictoryScreen = 0x1F
 	};
 
 	Command::Types getType() const { return type_; }

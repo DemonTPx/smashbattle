@@ -24,6 +24,7 @@ using std::map;
 #include "RandomPowerUp.h"
 #include "Main.h"
 #include "commands/CommandSetBroadcastText.hpp"
+#include "commands/CommandSetVictoryScreen.hpp"
 
 NetworkMultiplayer::NetworkMultiplayer (Main &main) 
 : LocalMultiplayer(main), currentState_(State::DONE), currentStateBeginTime_(main.getServer().getServerTime())
@@ -188,6 +189,10 @@ void NetworkMultiplayer::on_post_processing()
 					currentStateBeginTimeDelay_ = 2000;
 				}
 				else {
+					network::CommandSetVictoryScreen vscr;
+					vscr.data.time = server.getServerTime();
+					server.sendAll(vscr);
+
 					network::CommandSetBroadcastText broadcast;
 					broadcast.data.time = server.getServerTime();
 					string text("PLACEHOLDER FOR VICTORY SCREEN 10 SECS");

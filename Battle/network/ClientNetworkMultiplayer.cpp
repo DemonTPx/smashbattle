@@ -171,11 +171,11 @@ void ClientNetworkMultiplayer::on_input_handled()
 			return;
 		}
 	}
+
 	short previous_flags = flags;
 		
 	CommandSetPlayerData req;
 	player_util::set_position_data(req, main_.getServerClient().getClientId(), SDL_GetTicks(), main_.getServerClient().getUdpSeq(), player);
-
 	flags = req.data.flags;
 
 	if (flags != previous_flags)

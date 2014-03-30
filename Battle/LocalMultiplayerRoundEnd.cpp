@@ -42,16 +42,17 @@ void LocalMultiplayerRoundEnd::run() {
 	ready = false;
 	frame = 0;
 
-	input = main_.input_master;
-	input->set_delay();
-	input->reset();
+	reset_input();
 	
 	while (main_.running && !ready) {
 		while(SDL_PollEvent(&event)) {
 			main_.handle_event(&event);
 			
-			input->handle_event(&event);
+			handle_event(*input, event);
 		}
+
+		do_run();
+
 		process_cursor();
 
 		frame++;
@@ -61,6 +62,18 @@ void LocalMultiplayerRoundEnd::run() {
 	}
 
 	cleanup();
+}
+
+void LocalMultiplayerRoundEnd::reset_input()
+{
+	input = main_.input_master;
+	input->set_delay();
+	input->reset();
+}
+
+void LocalMultiplayerRoundEnd::handle_event(GameInput &input, SDL_Event &event)
+{
+	input.handle_event(&event);
 }
 
 void LocalMultiplayerRoundEnd::init() {
@@ -311,8 +324,6 @@ void LocalMultiplayerRoundEnd::cleanup() {
 }
 
 void LocalMultiplayerRoundEnd::draw_impl() {
-	int i;
-	SDL_Surface * text;
 	SDL_Rect rect;
 	SDL_Surface * screen;
 
@@ -320,24 +331,7 @@ void LocalMultiplayerRoundEnd::draw_impl() {
 
 	SDL_BlitSurface(background, NULL, screen, NULL);
 	
-	// MENU
-	if(frame >= BEGIN_DELAY) {
-		for(i = 0; i < ITEMCOUNT; i++) {
-
-			text = surf_items->at(i);
-			
-			if(selected_item == i) {
-				rect.x = surf_items_clip->at(i)->x - TILE_W;
-				rect.y = surf_items_clip->at(i)->y - 8;
-				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
-				rect.h = MENU_ITEM_HEIGHT;
-
-				SDL_FillRect(screen, &rect, 0xa0062e);
-			}
-
-			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
-		}
-	}
+	draw_menu();
 	
 	// RESULTS
 	rect.x = (WINDOW_WIDTH - surf_result->w) / 2;
@@ -355,6 +349,32 @@ void LocalMultiplayerRoundEnd::draw_impl() {
 				SDL_BlitSurface(players->at(order[i])->sprites, main_.graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
 			else
 				SDL_BlitSurface(players->at(order[i])->sprites, main_.graphics->player_clip[SPR_AVATAR], screen, &rect);
+		}
+	}
+}
+
+void LocalMultiplayerRoundEnd::draw_menu()
+{
+	int i = 0;
+	SDL_Surface * text = NULL;
+	SDL_Surface * screen = main_.screen;
+	SDL_Rect rect;
+
+	if(frame >= BEGIN_DELAY) {
+		for(int i = 0; i < ITEMCOUNT; i++) {
+
+			text = surf_items->at(i);
+			
+			if(selected_item == i) {
+				rect.x = surf_items_clip->at(i)->x - TILE_W;
+				rect.y = surf_items_clip->at(i)->y - 8;
+				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
+				rect.h = MENU_ITEM_HEIGHT;
+
+				SDL_FillRect(screen, &rect, 0xa0062e);
+			}
+
+			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));
 		}
 	}
 }
