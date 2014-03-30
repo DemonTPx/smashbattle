@@ -176,8 +176,8 @@ void Server::listen() {
 	server = SDLNet_TCP_Open(&ip);
 
 	//I've confirmed with strace that libsdl 1.2 sets the TCP_NODELAY flag correctly
-        //int yes = 1; 
-        //setsockopt(sock->channel, IPPROTO_TCP, TCP_NODELAY, (char*)&yes, sizeof(yes)); 
+	//int yes = 1; 
+	//setsockopt(sock->channel, IPPROTO_TCP, TCP_NODELAY, (char*)&yes, sizeof(yes)); 
 
 	if (!server) {
 		log(format("SDLNet_TCP_Open: %s\n", SDLNet_GetError()), Logger::Priority::DEBUG);
@@ -259,8 +259,11 @@ void Server::poll() {
 	if (numready == -1)
 		return (void) printf("SDLNet_CheckSockets: %s\n", SDLNet_GetError());
 
+	if (!numready)
+		return;
+
 	// Accepting new clients
-	if (numready && SDLNet_SocketReady(server)) {
+	if (SDLNet_SocketReady(server)) {
 		sock = SDLNet_TCP_Accept(server);
 		if (sock) {
 
