@@ -135,6 +135,22 @@ void NetworkMultiplayer::on_post_processing()
 			currentState_ = State::DISPLAYING_DEATH;
 			currentStateBeginTimeDelay_ = 3000;
 
+			// Send player score, new player positions
+			for (auto i = vec.begin(); i != vec.end(); i++) {
+				auto &player(**i);
+				network::CommandSetPlayerScore score;
+				score.data.time = server.getServerTime();
+				score.data.client_id = player.number;
+				score.data.score = player.score;
+				server.sendAll(score);
+
+				// Unset input's for players, do not change location yet
+				player_util::unset_input(player);
+				network::CommandSetPlayerData pd;
+				player_util::set_position_data(pd, player.number, server.getServerTime(), server.getUdpSeq(), player);
+				server.sendAll(pd);
+			}
+
 			// Display winner for 3 seconds
 
 			if (winner != NULL) {
@@ -197,22 +213,6 @@ void NetworkMultiplayer::on_post_processing()
 				} else {
 					currentState_ = State::DISPLAYING_SCREEN;
 					currentStateBeginTimeDelay_ = 1;
-				}
-				
-				// Send player score, new player positions
-				for (auto i = vec.begin(); i != vec.end(); i++) {
-					auto &player(**i);
-					network::CommandSetPlayerScore score;
-					score.data.time = server.getServerTime();
-					score.data.client_id = player.number;
-					score.data.score = player.score;
-					server.sendAll(score);
-
-					// Unset input's for players, do not change location yet
-					player_util::unset_input(player);
-					network::CommandSetPlayerData pd;
-					player_util::set_position_data(pd, player.number, server.getServerTime(), server.getUdpSeq(), player);
-					server.sendAll(pd);
 				}
 			}
 		}
