@@ -46,7 +46,7 @@ while [  $count -lt $servercount ]; do
 
         # Launch a server
         printf "Starting Tweak Battle Server #$count \n"
-        (nohup smashbattle -s "${levels[$levelcount]}" $port "${levels[$levelcount]}" > /var/log/smashbattle/server-${count}) &
+        (daemon -- smashbattle -s "${levels[$levelcount]}" $port "${levels[$levelcount]}" > /var/log/smashbattle/server-${count}) &
         sleep 1
 
         # Increment port, loopcount and count
