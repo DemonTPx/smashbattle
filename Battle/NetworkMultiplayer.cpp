@@ -191,14 +191,9 @@ void NetworkMultiplayer::on_post_processing()
 				else {
 					network::CommandSetVictoryScreen vscr;
 					vscr.data.time = server.getServerTime();
+					vscr.data.duration = 10000;
 					server.sendAll(vscr);
 
-					network::CommandSetBroadcastText broadcast;
-					broadcast.data.time = server.getServerTime();
-					string text("PLACEHOLDER FOR VICTORY SCREEN 10 SECS");
-					strncpy(broadcast.data.text, text.c_str() , text.length());
-					broadcast.data.duration = 10000;
-					server.sendAll(broadcast);
 					currentStateBeginTimeDelay_ = 10000;
 				}
 			}
