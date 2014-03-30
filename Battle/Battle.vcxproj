@@ -130,6 +130,7 @@
     <ClCompile Include="Mission.cpp" />
     <ClCompile Include="MissionSelect.cpp" />
     <ClCompile Include="NetworkMultiplayer.cpp" />
+    <ClCompile Include="NetworkMultiplayerRoundEnd.cpp" />
     <ClCompile Include="network\Client.cpp" />
     <ClCompile Include="network\ClientNetworkMultiplayer.cpp" />
     <ClCompile Include="network\CommandProcessor.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="Mission.h" />
     <ClInclude Include="MissionSelect.h" />
     <ClInclude Include="NetworkMultiplayer.h" />
+    <ClInclude Include="NetworkMultiplayerRoundEnd.h" />
     <ClInclude Include="network\Client.h" />
     <ClInclude Include="network\ClientNetworkMultiplayer.h" />
     <ClInclude Include="network\Command.hpp" />
