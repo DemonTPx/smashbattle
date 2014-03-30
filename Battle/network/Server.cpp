@@ -79,6 +79,8 @@ void Server::initializeLevel() {
 }
 
 void Server::registerServer() {
+#ifndef SKIP_SERVER_TOKEN_PROCESS
+
 	if (serverToken_.empty()) {
 		rest::ServerToken token;
 		try {
@@ -115,6 +117,10 @@ void Server::registerServer() {
 	serverToken_ = sha256randomhash;
 
 	rest::RegisterServer regsrv(serverToken_);
+#else
+	rest::RegisterServer regsrv("NO TOKEN");
+#endif
+
 	regsrv.put(*main_);
 }
 

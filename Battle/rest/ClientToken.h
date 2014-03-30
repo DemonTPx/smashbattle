@@ -4,7 +4,7 @@
 
 #include "AbstractRestBase.h"
 
-#define SKIP_TOKEN_PROCESS
+#define SKIP_CLIENT_TOKEN_PROCESS
 
 
 namespace rest {

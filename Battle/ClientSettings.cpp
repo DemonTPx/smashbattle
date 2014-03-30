@@ -116,7 +116,7 @@ void ClientSettings::create_items()
 
 void ClientSettings::connect()
 {
-#ifndef SKIP_TOKEN_PROCESS
+#ifndef SKIP_CLIENT_TOKEN_PROCESS
 	if (serverToken_.empty()) {
 		rest::ClientToken token;
 		try {
