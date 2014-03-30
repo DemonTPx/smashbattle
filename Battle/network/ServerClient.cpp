@@ -651,6 +651,7 @@ bool ServerClient::process(CommandSetPlayerDeath *command)
 		Player &player(player_util::get_player_by_id(*main_, command->data.client_id));
 
 		player.is_dead = command->data.is_dead;
+		player.dead_start = SDL_GetTicks();
 	}
 	catch (std::runtime_error &err) {
 		log(err.what(), Logger::Priority::CONSOLE);
