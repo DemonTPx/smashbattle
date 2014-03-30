@@ -306,16 +306,14 @@ void Player::draw(SDL_Surface * screen, bool marker, int frames_processed) {
 
 	sprites = this->sprites;
 
-	// Dead players are not visible
-	if(is_dead) {
-		return;
-	}
 
 	// Check if player is hit and cycle between a show and a hide of the player to create
 	// a flicker effect
-	if(is_hit) {
+	if(is_hit || is_dead) {
 		hit_flicker_frame = (hit_flicker_frame + frames_processed) % 10;
 		if(hit_flicker_frame < 5)
+			return;
+		if (is_dead && (SDL_GetTicks() - dead_start > 1000))
 			return;
 	}
 

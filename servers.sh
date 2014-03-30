@@ -11,7 +11,7 @@ killall -9 smashbattle
 sleep 2
 
 # Number of servers we want to start
-servercount=24
+servercount=32
 
 # Define a starting port
 port=2000
