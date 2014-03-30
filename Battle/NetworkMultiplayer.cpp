@@ -6,6 +6,7 @@
 #include "network/Commands.hpp"
 
 #include <map>
+#include <memory>
 #include <string>
 using std::string;
 using std::map;
@@ -25,6 +26,7 @@ using std::map;
 #include "Main.h"
 #include "commands/CommandSetBroadcastText.hpp"
 #include "commands/CommandSetVictoryScreen.hpp"
+#include "commands/CommandKeepAlive.hpp"
 
 NetworkMultiplayer::NetworkMultiplayer (Main &main) 
 : LocalMultiplayer(main), currentState_(State::DONE), currentStateBeginTime_(main.getServer().getServerTime())
@@ -115,6 +117,8 @@ void NetworkMultiplayer::on_post_processing()
 			playerWasDead[player.number] = player.is_dead;
 		}
 
+		process_keep_alives();
+
 		// do normal post processing
 		LocalMultiplayer::on_post_processing();
 
@@ -192,6 +196,7 @@ void NetworkMultiplayer::on_post_processing()
 					network::CommandSetVictoryScreen vscr;
 					vscr.data.time = server.getServerTime();
 					vscr.data.duration = 10000;
+					vscr.data.winner = (winner != NULL) ? winner->number : -1;
 					server.sendAll(vscr);
 
 					currentStateBeginTimeDelay_ = 10000;
@@ -255,4 +260,43 @@ GameplayObject *NetworkMultiplayer::generate_powerup(bool force)
 		main_.getServer().sendAll(genpow);
 	}
 	return powerup;
+}
+
+void NetworkMultiplayer::process_keep_alives()
+{
+	int keepAliveEveryMs = 5000;
+	int keepAliveTimeoutMs = 10000;
+
+	auto &server = main_.getServer();
+
+	std::map<int, std::shared_ptr<network::Client>>::iterator i;
+	for (i = std::begin(server.getClients()); i!=std::end(server.getClients()); ++i) {
+		auto &client = i->second;
+		auto &cl(*client);
+		switch (cl.getKeepAliveState()) {
+			case network::Client::KeepAliveState::IDLE:
+			{
+				// Send the first keep alive packet
+				cl.setKeepAliveState(network::Client::KeepAliveState::CHECKING);
+				cl.setLastKeepAlive(server.getServerTime());
+				network::CommandKeepAlive alive;
+				alive.data.time = server.getServerTime();
+				cl.send(alive);
+				break;
+			}
+			case network::Client::KeepAliveState::CHECKING:
+				if (server.getServerTime() - cl.getLastKeepAlive() > keepAliveTimeoutMs) {
+					cl.setKeepAliveState(network::Client::KeepAliveState::ZOMBIE);
+				}
+				break;
+			case network::Client::KeepAliveState::CONFIRMED:
+				if (server.getServerTime() - cl.getLastKeepAlive() > keepAliveEveryMs) {
+					cl.setKeepAliveState(network::Client::KeepAliveState::IDLE);
+				}
+				break;
+			case network::Client::KeepAliveState::ZOMBIE:
+				// Simply wait until the server cleans the socket up
+				break;
+		}
+	}
 }

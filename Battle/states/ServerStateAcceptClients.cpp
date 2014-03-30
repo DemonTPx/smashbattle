@@ -32,26 +32,25 @@ void ServerStateAcceptClients::transform_spectators_into_valid_players(Server &s
 	auto &players = *(server.getGame().players);
 	for (auto i= players.begin(); i!=players.end(); i++) {
 		auto &player = **i;
-		if (player.spectating()) {
-			player.spectate(false);
-			player.is_dead = false;
-			server.getClientById(player.number)->setState(Client::State::ACTIVE);
 
-			CommandSetPlayerDeath dead;
-			dead.data.time = servertime;
-			dead.data.is_dead = player.is_dead;
-			dead.data.client_id = player.number;
-			server.sendAll(dead);
+		player.spectate(false);
+		player.is_dead = false;
+		server.getClientById(player.number)->setState(Client::State::ACTIVE);
 
-			CommandSetSpectating spec;
-			spec.data.time = servertime;
-			spec.data.is_spectating = player.spectating();
-			server.sendAll(spec);
+		CommandSetPlayerDeath dead;
+		dead.data.time = servertime;
+		dead.data.is_dead = player.is_dead;
+		dead.data.client_id = player.number;
+		server.sendAll(dead);
 
-			CommandSetPlayerData playerpos;
-			player_util::set_position_data(playerpos, player.number, server.getServerTime(), server.getUdpSeq(), player);
-			server.sendAll(playerpos);
-		}
+		CommandSetSpectating spec;
+		spec.data.time = servertime;
+		spec.data.is_spectating = player.spectating();
+		server.sendAll(spec);
+
+		CommandSetPlayerData playerpos;
+		player_util::set_position_data(playerpos, player.number, server.getServerTime(), server.getUdpSeq(), player);
+		server.sendAll(playerpos);
 	}
 }
 

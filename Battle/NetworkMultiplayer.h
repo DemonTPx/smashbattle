@@ -28,4 +28,9 @@ protected:
 	State currentState_;
 	Uint32 currentStateBeginTime_;
 	Uint32 currentStateBeginTimeDelay_;
+
+private:
+	
+	void process_keep_alives();
+
 };

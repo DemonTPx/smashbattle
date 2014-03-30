@@ -74,6 +74,10 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandServerFull());
 		case Command::Types::SetVictoryScreen:
 			return std::unique_ptr<Command>(new CommandSetVictoryScreen());
+		case Command::Types::KeepAlive:
+			return std::unique_ptr<Command>(new CommandKeepAlive());
+		case Command::Types::KeepAliveOk:
+			return std::unique_ptr<Command>(new CommandKeepAliveOk());
 
 	}
 	throw std::runtime_error(format("failure at type=%d 0x%x", type, type));

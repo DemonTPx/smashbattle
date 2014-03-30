@@ -25,7 +25,9 @@ Client::Client(Client &&other)
 	  currentState_(Client::State::CONNECTING),
 	  commToken_(other.getCommToken()),
 	  lastUdpSeq_(0),
-	  main_(other.main_)
+	  main_(other.main_),
+	  keepAliveState_(Client::KeepAliveState::IDLE),
+	  lastKeepAliveTime_(0)
 {
 	// UDP initialize
 	if (!(p = SDLNet_AllocPacket(4096))) {
@@ -42,6 +44,8 @@ Client & Client::operator=(Client&& other)
 		this->set_socket(other.socket_);
 		this->server_ = other.server_;
 		this->lastUdpSeq_ = other.lastUdpSeq_;
+		this->keepAliveState_ = other.keepAliveState_;
+		this->lastKeepAliveTime_ = other.lastKeepAliveTime_;
 	}
 	
 	return *this; 
@@ -65,7 +69,9 @@ Client::Client(int client_id, TCPsocket socket, Server * const server, Main &mai
 	  currentState_(Client::State::CONNECTING),
 	  commToken_(rand_get()),
 	  lastUdpSeq_(0),
-	  main_(main)
+	  main_(main),
+	  keepAliveState_(Client::KeepAliveState::IDLE),
+	  lastKeepAliveTime_(0)
 {
 	if (!(p = SDLNet_AllocPacket(4096))) {
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
@@ -101,6 +107,8 @@ bool Client::process(std::unique_ptr<Command> command)
 			return process(dynamic_cast<CommandSetClientReady *>(cmd));
 		case Command::Types::ApiPing:
 			return process(dynamic_cast<CommandApiPing *>(cmd));
+		case Command::Types::KeepAliveOk:
+			return process(dynamic_cast<CommandKeepAliveOk *>(cmd));
 	}
 
 	return true;
@@ -328,6 +336,14 @@ bool Client::process(CommandApiPing *command)
 	pong.data.num_active_players = '0' + server_->numActiveClients();
 
 	send(pong);
+
+	return true;
+}
+
+bool Client::process(CommandKeepAliveOk *command)
+{
+	setKeepAliveState(Client::KeepAliveState::CONFIRMED);
+	setLastKeepAlive(server_->getServerTime());
 
 	return true;
 }

@@ -131,13 +131,13 @@ ServerState * ServerStateGameStarted::check_self(Server &server) const
 	if (server.numActiveClients() == 0) {
 		newstate = new ServerStateAcceptClients();
 	}
-	else if (server.numActiveClients() == 1) {
+	else if (server.numUndeadActiveClients() == 1) {
 		newstate = new ServerStateAcceptClients();
 
 		CommandSetBroadcastText broadcast;
 		broadcast.data.time = server.getServerTime();
 		string text("YOU WIN");
-		strncpy(broadcast.data.text, text.c_str() , text.length());
+		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);
 	}
