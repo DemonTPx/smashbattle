@@ -362,11 +362,11 @@ void Server::poll() {
 		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		sendAll(broadcast);
-	}
 
-	ServerState *newstate = getState()->check_self(*this);
-	if (newstate) {
-		setState(newstate);
+		ServerState *newstate = getState()->check_self(*this);
+		if (newstate) {
+			setState(newstate);
+		}
 	}
 
 }
