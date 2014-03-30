@@ -41,7 +41,9 @@ public:
 		ApiPing = 0x1C,
 		ApiPong = 0x1D,
 		ServerFull = 0x1E,
-		SetVictoryScreen = 0x1F
+		SetVictoryScreen = 0x1F,
+		KeepAlive = 0x20,
+		KeepAliveOk = 0x21
 	};
 
 	Command::Types getType() const { return type_; }

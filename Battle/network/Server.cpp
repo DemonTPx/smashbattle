@@ -305,6 +305,7 @@ void Server::poll() {
 	vector<int> dead_clients;
 	for (map<int, std::shared_ptr<Client>>::iterator i = clients_.begin(); i != clients_.end(); i++) {
 		auto &client = i->second;
+		bool disconnectSocket = false;
 		if (SDLNet_SocketReady(client->socket())) {
 			char buffer[16384] = {0x00};
 			int bytesReceived = SDLNet_TCP_Recv(client->socket(), buffer, sizeof (buffer));
@@ -314,18 +315,26 @@ void Server::poll() {
 				while (client->parse())
 					;
 			} else {
-
-				// We now re-create the socket set every iteration
-				// SDLNet_TCP_DelSocket(set, client->socket());
-
-				// Close the old socket, even if it's dead... 
-				SDLNet_TCP_Close(client->socket());
-
-				// Mark for deletion
-				dead_clients.push_back(client->id());
-
-				log(format("Cleaning up client: %d\n", client->id()), Logger::Priority::INFO);
+				disconnectSocket = true;
 			}
+		}
+
+		// If a client is marked as a zombie, we want it dead
+		if (client->getKeepAliveState() == Client::KeepAliveState::ZOMBIE) {
+			disconnectSocket = true;
+		}
+		
+		if (disconnectSocket) {
+			// We now re-create the socket set every iteration
+			// SDLNet_TCP_DelSocket(set, client->socket());
+
+			// Close the old socket, even if it's dead... 
+			SDLNet_TCP_Close(client->socket());
+
+			// Mark for deletion
+			dead_clients.push_back(client->id());
+
+			log(format("Cleaning up client: %d\n", client->id()), Logger::Priority::INFO);
 		}
 	}
 

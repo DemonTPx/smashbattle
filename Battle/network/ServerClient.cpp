@@ -416,6 +416,9 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 		case Command::Types::SetVictoryScreen:
 			process(dynamic_cast<CommandSetVictoryScreen *>(command.get()));
 			break;
+		case Command::Types::KeepAlive:
+			process(dynamic_cast<CommandKeepAlive *>(command.get()));
+			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
 	}
@@ -872,6 +875,13 @@ bool ServerClient::process(CommandSetVictoryScreen *command)
 	}
 
 	return true;
+}
+
+bool ServerClient::process(CommandKeepAlive *command)
+{
+	CommandKeepAliveOk repl;
+	repl.data.time = command->data.time;
+	send(repl);
 }
 
 int ServerClient::characterByName(std::string characterName)

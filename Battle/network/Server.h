@@ -55,6 +55,8 @@ public:
 	}
 	void setLevel(std::string level);
 
+	std::map<int, std::shared_ptr<Client>> & getClients() { return clients_; }
+
 	void setPort(int port) {
 		port_ = (Uint16) port;
 	};

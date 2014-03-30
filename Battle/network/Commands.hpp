@@ -31,3 +31,5 @@
 #include "commands/CommandApiPong.hpp"
 #include "commands/CommandServerFull.hpp"
 #include "commands/CommandSetVictoryScreen.hpp"
+#include "commands/CommandKeepAlive.hpp"
+#include "commands/CommandKeepAliveOk.hpp"

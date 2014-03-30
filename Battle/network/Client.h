@@ -23,6 +23,7 @@ class CommandBombDropped;
 class CommandCommunicationTokenAck;
 class CommandSetClientReady;
 class CommandApiPing;
+class CommandKeepAliveOk;
 class Server;
 
 /**
@@ -50,6 +51,14 @@ public:
 		DENIED
 	};
 
+	enum KeepAliveState
+	{
+		IDLE,
+		CHECKING,
+		CONFIRMED,
+		ZOMBIE
+	};
+
 
 	Client(int client_id, TCPsocket socket, Server * const server, Main &main);
 	Client(Client &&other);
@@ -67,6 +76,7 @@ public:
 	bool process(CommandCommunicationTokenAck *command);
 	bool process(CommandSetClientReady *command);
 	bool process(CommandApiPing *command);
+	bool process(CommandKeepAliveOk *command);
 
 	// accessors
 	TCPsocket socket() { return socket_; }
@@ -76,6 +86,8 @@ public:
 	void setState(Client::State state) { currentState_ = state; }
 	char getCharacter() { return character_; }
 	LagMeasure &lag() { return lag_; }
+	Client::KeepAliveState getKeepAliveState() { return keepAliveState_; }
+	Uint32 getLastKeepAlive() { return lastKeepAliveTime_; }
 
 	// communication
 	void send(Command &command);
@@ -95,6 +107,9 @@ public:
 	int getInitialLagTests() { return initialLagTests_; }
 	void setInitialLagTests(int v) { initialLagTests_ = v; }
 
+	void setKeepAliveState(Client::KeepAliveState state) { keepAliveState_ = state; }
+	void setLastKeepAlive(Uint32 time) { lastKeepAliveTime_ = time; }
+
 	short test;
 
 	// Required for std::map, couldn't get it to work with friend classes..
@@ -102,6 +117,7 @@ public:
 	
 private:
 	
+	Client::KeepAliveState keepAliveState_;
 	int client_id_;
 	char character_;
 
@@ -109,6 +125,7 @@ private:
 
 	LagMeasure lag_;
 	Uint32 lastLagTime_;
+	Uint32 lastKeepAliveTime_;
 	int initialLagTests_;
 
 	Client::State currentState_;
