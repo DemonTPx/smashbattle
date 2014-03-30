@@ -58,12 +58,6 @@ void ServerStateGameStarted::initialize(Server &server) const
 		hp.data.hitpoints = player.hitpoints;
 		client->send(hp);
 
-		// Make them countdown
-		CommandSetGameStart gs;
-		gs.data.time = server.getServerTime();
-		gs.data.delay = 1000;
-		server.sendAll(gs);
-
 		// Set their correct positions
 		CommandSetPlayerData pd;
 		player_util::set_position_data(pd, player.number, server.getServerTime(), server.getUdpSeq(), player);
@@ -80,6 +74,12 @@ void ServerStateGameStarted::initialize(Server &server) const
 		score.data.client_id = player.number;
 		score.data.score = player.score;
 		server.sendAll(score);
+
+		// Make them countdown
+		CommandSetGameStart gs;
+		gs.data.time = server.getServerTime();
+		gs.data.delay = 1000;
+		server.sendAll(gs);
 	}
 }
 

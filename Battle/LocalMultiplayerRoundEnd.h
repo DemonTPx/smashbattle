@@ -4,12 +4,21 @@
 #define ROUNDEND_CHANGE_LEVEL 2
 #define ROUNDEND_QUIT 0
 
+#include <vector>
+
 #include "SimpleDrawable.h"
+
+class Player;
+class SDL_Surface;
+class SDL_Rect;
+union SDL_Event;
+class GameInput;
+class Main;
 
 class LocalMultiplayerRoundEnd : public SimpleDrawable {
 public:
 	LocalMultiplayerRoundEnd(Main &main);
-	~LocalMultiplayerRoundEnd();
+	virtual ~LocalMultiplayerRoundEnd();
 
 	void run();
 
@@ -23,11 +32,21 @@ protected:
 
 	virtual void draw_impl();
 
+	virtual void do_run() {};
+
+	virtual void reset_input();
+
+	virtual void process_cursor();
+
+	virtual void handle_event(GameInput &input, SDL_Event &event);
+
+	virtual void draw_menu();
+
+	bool ready;
+
 private:
 	void init();
 	void cleanup();
-
-	void process_cursor();
 
 	void select_up();
 	void select_down();
@@ -46,8 +65,6 @@ private:
 	std::vector<Player*> * players;
 
 	short order[4];
-
-	bool ready;
 
 	int frame;
 	

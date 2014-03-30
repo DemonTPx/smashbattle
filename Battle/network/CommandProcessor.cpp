@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <sstream>
+#include <functional>
 
 // temp
 #include "network/Client.h"
@@ -77,10 +78,13 @@ bool CommandProcessor::parse()
 {
 	size_t processed = 0;
 
+	std::unique_ptr<Command> cmd = nullptr;
+	std::function<void()> processCommand = nullptr;
+
 	if (expectRequestFor_) {
 
-	try {
-		auto cmd = Command::factory(static_cast<Command::Types>(expectRequestFor_));
+		try {
+			cmd = Command::factory(static_cast<Command::Types>(expectRequestFor_));
 			void *request = cmd.get()->getData();
 			size_t requestLen = cmd.get()->getDataLen();
 
@@ -100,7 +104,10 @@ bool CommandProcessor::parse()
 				cmd.get()->print();
 
 				log(format("Received packet of type 0x%x of length %d", expectRequestFor_, requestLen), Logger::Priority::DEBUG);
-				process(std::move(cmd));
+				processCommand = [&]() {
+					log(format("..processing.."), Logger::Priority::DEBUG);
+					process(std::move(cmd));
+				};
 
 				expectRequestFor_ = 0;
 				processed += requestLen;
@@ -132,6 +139,9 @@ bool CommandProcessor::parse()
 	memmove(buffer_, buffer_ + processed, buffer_idx_ - processed);
 
 	buffer_idx_ -= processed;
+
+	if (processCommand != nullptr)
+		processCommand();
 
 	return true;
 

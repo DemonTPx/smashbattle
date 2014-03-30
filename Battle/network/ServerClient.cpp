@@ -17,6 +17,7 @@
 #include "Bomb.h"
 #include "Server.h"
 #include "Main.h"
+#include "NetworkMultiplayerRoundEnd.h"
 
 #include "Player.h"
 
@@ -411,6 +412,9 @@ bool ServerClient::process(std::unique_ptr<Command> command)
 			break;
 		case Command::Types::ServerFull:
 			process(dynamic_cast<CommandServerFull *>(command.get()));
+			break;
+		case Command::Types::SetVictoryScreen:
+			process(dynamic_cast<CommandSetVictoryScreen *>(command.get()));
 			break;
 		default:
 			log(format("received command with type: %d", command.get()->getType()), Logger::Priority::CONSOLE);
@@ -827,6 +831,32 @@ bool ServerClient::process(CommandServerFull *command)
 		game_->del_other_players();
 
 		disconnect();
+
+		return false;
+
+	}
+	catch (std::runtime_error &err) 
+	{
+		log(format("failure in process(CommandSetSpectating): %s", err.what()), Logger::Priority::ERROR);
+	}
+
+	return true;
+}
+
+bool ServerClient::process(CommandSetVictoryScreen *command)
+{
+	try {
+		NetworkMultiplayerRoundEnd vscr(*main_, 5000);
+
+		auto &players = *(getGame().players);
+		std::vector<Player *>::iterator i;
+		for (i=std::begin(players); i!=std::end(players); ++i) {
+			vscr.add_player(*i);
+		}
+		vscr.winner = NULL;
+		vscr.round = 1;
+		
+		vscr.run();
 
 		return false;
 

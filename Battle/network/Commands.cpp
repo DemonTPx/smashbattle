@@ -72,6 +72,8 @@ std::unique_ptr<Command> Command::factory(Command::Types type)
 			return std::unique_ptr<Command>(new CommandApiPong());
 		case Command::Types::ServerFull:
 			return std::unique_ptr<Command>(new CommandServerFull());
+		case Command::Types::SetVictoryScreen:
+			return std::unique_ptr<Command>(new CommandSetVictoryScreen());
 
 	}
 	throw std::runtime_error(format("failure at type=%d 0x%x", type, type));

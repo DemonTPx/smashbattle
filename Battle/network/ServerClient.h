@@ -56,6 +56,7 @@ class CommandSetCommunicationToken;
 class CommandSetServerReady;
 class CommandSetSpectating;
 class CommandServerFull;
+class CommandSetVictoryScreen;
 
 class ServerClient : public CommandProcessor
 {
@@ -142,6 +143,7 @@ protected:
 	bool process(CommandSetServerReady *command);
 	bool process(CommandSetSpectating *command);
 	bool process(CommandServerFull *command);
+	bool process(CommandSetVictoryScreen *command);
 
 	
 private:
