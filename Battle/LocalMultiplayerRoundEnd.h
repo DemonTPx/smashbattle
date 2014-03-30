@@ -44,6 +44,8 @@ protected:
 
 	bool ready;
 
+	Main &main_;
+
 private:
 	void init();
 	void cleanup();
@@ -71,6 +73,4 @@ private:
 	GameInput * input;
 
 	int selected_item;
-
-	Main &main_;
 };

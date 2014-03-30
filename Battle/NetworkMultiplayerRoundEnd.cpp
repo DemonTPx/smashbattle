@@ -1,5 +1,6 @@
 #include "NetworkMultiplayerRoundEnd.h"
 #include "Main.h"
+#include "Server.h"
 
 NetworkMultiplayerRoundEnd::NetworkMultiplayerRoundEnd(Main &main, Uint32 displayMilliseconds)
   : LocalMultiplayerRoundEnd(main),
@@ -15,4 +16,7 @@ NetworkMultiplayerRoundEnd::~NetworkMultiplayerRoundEnd()
 void NetworkMultiplayerRoundEnd::do_run()
 {
 	ready = (SDL_GetTicks() - displayStartTime_  >= displayMilliseconds_);
+	if (ready) {
+		main_.audio->stop_music();
+	}
 }
