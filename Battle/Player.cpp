@@ -278,7 +278,7 @@ void Player::reset() {
 	bomb_start = 0;
 	bomb_delay = 30;
 
-	bullets = 10;
+	bullets = -1;
 	bombs = 3;
 	mines = 0;
 	doubledamagebullets = 0;

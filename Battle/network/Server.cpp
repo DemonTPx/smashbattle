@@ -338,7 +338,7 @@ void Server::poll() {
 	if (anotherPlayerDisconnected) {
 		CommandSetBroadcastText broadcast;
 		broadcast.data.time = getServerTime();
-		string text("ANOTHER PLAYER DISCONNECTED");
+		string text("A PLAYER LEFT THE GAME");
 		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		sendAll(broadcast);
