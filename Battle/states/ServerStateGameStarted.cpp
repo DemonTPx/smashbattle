@@ -137,7 +137,7 @@ ServerState * ServerStateGameStarted::check_self(Server &server) const
 		CommandSetBroadcastText broadcast;
 		broadcast.data.time = server.getServerTime();
 		string text("YOU WIN");
-		strncpy(broadcast.data.text, text.c_str() , text.length());
+		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);
 	}
