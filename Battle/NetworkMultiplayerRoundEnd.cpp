@@ -1,6 +1,6 @@
 #include "NetworkMultiplayerRoundEnd.h"
 #include "Main.h"
-#include "Server.h"
+#include "network/Server.h"
 
 NetworkMultiplayerRoundEnd::NetworkMultiplayerRoundEnd(Main &main, Uint32 displayMilliseconds)
   : LocalMultiplayerRoundEnd(main),

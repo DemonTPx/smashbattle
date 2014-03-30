@@ -882,6 +882,8 @@ bool ServerClient::process(CommandKeepAlive *command)
 	CommandKeepAliveOk repl;
 	repl.data.time = command->data.time;
 	send(repl);
+
+	return true;
 }
 
 int ServerClient::characterByName(std::string characterName)

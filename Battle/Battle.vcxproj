@@ -190,6 +190,8 @@
     <ClInclude Include="commands\CommandCommunicationTokenAck.hpp" />
     <ClInclude Include="commands\CommandDelPlayer.hpp" />
     <ClInclude Include="commands\CommandGeneratePowerup.h" />
+    <ClInclude Include="commands\CommandKeepAlive.hpp" />
+    <ClInclude Include="commands\CommandKeepAliveOk.hpp" />
     <ClInclude Include="commands\CommandPing.hpp" />
     <ClInclude Include="commands\CommandPong.hpp" />
     <ClInclude Include="commands\CommandRemovePowerup.hpp" />
@@ -210,6 +212,7 @@
     <ClInclude Include="commands\CommandSetPosition.hpp" />
     <ClInclude Include="commands\CommandSetServerReady.hpp" />
     <ClInclude Include="commands\CommandSetSpectating.hpp" />
+    <ClInclude Include="commands\CommandSetVictoryScreen.hpp" />
     <ClInclude Include="commands\CommandShotFired.hpp" />
     <ClInclude Include="commands\CommandUpdateTile.hpp" />
     <ClInclude Include="ControlsOptions.h" />
