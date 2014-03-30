@@ -17,6 +17,7 @@ public:
 	struct
 	{
 		Uint32 time;
+		Uint32 duration;
 	} data;
 
 private:

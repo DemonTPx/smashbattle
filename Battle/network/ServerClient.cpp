@@ -846,7 +846,7 @@ bool ServerClient::process(CommandServerFull *command)
 bool ServerClient::process(CommandSetVictoryScreen *command)
 {
 	try {
-		NetworkMultiplayerRoundEnd vscr(*main_, 5000);
+		NetworkMultiplayerRoundEnd vscr(*main_, command->data.duration);
 
 		auto &players = *(getGame().players);
 		std::vector<Player *>::iterator i;
