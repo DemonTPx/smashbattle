@@ -18,6 +18,9 @@ ServerListing::ServerListing(json::Array &servers, Main &main)
 
 void ServerListing::initialize()
 {
+	// Make sure there isn't already a connection left over
+	main_.getServerClient().disconnect();
+	
 	title = format("SERVERS FOUND: %-22d #PLAYERS/MAX", servers_.size());
 
 	OptionItem * item;

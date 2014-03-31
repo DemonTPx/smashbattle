@@ -375,6 +375,8 @@ int Main::run(const MainRunModes &runmode)
 		case MainRunModes::SERVER:
 			running = true;
 			getServer().setMain(*this);
+			
+			LoggerLogToStdOut = true;
 
 			while (getServer().active() && running)
 			{

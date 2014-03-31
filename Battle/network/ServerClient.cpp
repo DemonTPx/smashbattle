@@ -21,6 +21,8 @@
 
 #include "Player.h"
 
+int ServerClientVersion = 1;
+
 namespace network {
 
 using std::for_each;
@@ -643,7 +645,6 @@ bool ServerClient::process(CommandSetPlayerAmmo *command)
 
 bool ServerClient::process(CommandSetBroadcastText *command)
 {
-	std::cout << "BROADCAST TEXT: " << command->data.text << std::endl;
 	getGame().set_broadcast(command->data.text, command->data.duration);
 	return true;
 }

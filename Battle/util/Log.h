@@ -9,6 +9,8 @@
 
 #undef ERROR
 
+extern bool LoggerLogToStdOut;
+
 class Logger {
 public:
 
@@ -25,14 +27,7 @@ public:
 
 	static std::vector<std::string> console;
 
-	static void log(std::string filename, long line, std::string log, Logger::Priority priority) {
-		if (priority >= Logger::currentprio)
-			std::cout << Logger::toString(priority) << " " << log << std::endl;
-
-		if (priority == Logger::Priority::CONSOLE)
-			Logger::console.push_back(log);
-
-	}
+	static void log(std::string filename, long line, std::string log, Logger::Priority priority);
 
 private:
 

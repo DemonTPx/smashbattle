@@ -112,8 +112,6 @@ void ClientNetworkMultiplayer::start()
 		}
 	}
 	
-	std::cout << " Disconnecting etc. " << std::endl;
-	
 	main_.getServerClient().setState(ServerClient::State::INITIALIZING);
 	main_.getServerClient().disconnect();
 	
