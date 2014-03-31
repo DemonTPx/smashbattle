@@ -22,3 +22,9 @@ void NetworkMultiplayerRoundEnd::do_run()
 		main_.getServerClient().getGame().set_music_playing(false);
 	}
 }
+
+int NetworkMultiplayerRoundEnd::get_player_number(Player &player)
+{
+	// In Network multiplayer mode we start counting players from zero instead of one.
+	return LocalMultiplayerRoundEnd::get_player_number(player) + 1; 
+}

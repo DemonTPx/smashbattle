@@ -167,7 +167,7 @@ void LocalMultiplayerRoundEnd::init() {
 		// Player number
 		rect.x = r_block.x + 72;
 		rect.y = r_block.y + 10;
-		sprintf_s(str, 5, "P%d", players->at(order[i])->number);
+		sprintf_s(str, 5, "P%d", get_player_number(*(players->at(order[i]))));
 		text = main_.text->render_text_large(str);
 		SDL_BlitSurface(text, NULL, background, &rect);
 		SDL_FreeSurface(text);
@@ -305,6 +305,12 @@ void LocalMultiplayerRoundEnd::init() {
 		SDL_BlitSurface(text, NULL, background, &rect);
 		SDL_FreeSurface(text);
 	}
+}
+
+
+int LocalMultiplayerRoundEnd::get_player_number(Player &player)
+{
+	return player.number;
 }
 
 void LocalMultiplayerRoundEnd::cleanup() {
