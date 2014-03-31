@@ -200,10 +200,34 @@ void NetworkMultiplayer::on_post_processing()
 					currentStateBeginTimeDelay_ = 2000;
 				}
 				else {
+					// This is duplicate logic with.. search for "@MARK:1", the code is different
+					int highest_score = 0;
+					int winner = -1;
+					
+					auto &players = *server.getGame().players;
+					std::vector<Player *>::iterator i = std::begin(players);
+					int playerVectorIndex = 0, vectorIndex = 0;
+					for (; i!=std::end(players); ++i) {
+						auto &player = **i;
+						if (player.score == highest_score) {
+							// Two players with the same score, is a draw.
+							winner = -1;
+						}
+						if (player.score > highest_score) {
+							winner = player.number;
+							playerVectorIndex = vectorIndex;
+							highest_score = player.score;
+						}
+						vectorIndex++;
+					}
+					if (winner != -1) {
+						players[playerVectorIndex]->rounds_won++;
+					}
+					
 					network::CommandSetVictoryScreen vscr;
 					vscr.data.time = server.getServerTime();
 					vscr.data.duration = 10000;
-					vscr.data.winner = (winner != NULL) ? winner->number : -1;
+					vscr.data.winner = winner;
 					server.sendAll(vscr);
 
 					currentStateBeginTimeDelay_ = 10000;
