@@ -41,6 +41,7 @@ public:
 	bool is_ended() { return ended; }
 	bool is_countdown() { return countdown; }
 	void set_broadcast(std::string msg, int duration);
+        void set_music_playing(bool set) { music_playing = set; }
 
 	virtual void initialize();
 	virtual void deinitialize();
