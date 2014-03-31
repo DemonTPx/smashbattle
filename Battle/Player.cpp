@@ -237,11 +237,11 @@ void Player::update_suit()
 	suit_number = number % Player::COLORS_COUNT;
 }
 
-void Player::reset(bool excludeInputs) {
+void Player::reset(bool excludeInputs, bool excludeStats) {
 	momentumx = 0;
 	momentumy = 0;
 
-	distance_walked = 0;
+	
 
 	is_running = false;
 	is_duck = false;
@@ -284,14 +284,18 @@ void Player::reset(bool excludeInputs) {
 	doubledamagebullets = 0;
 	instantkillbullets = 0;
 
-	score = 0;
+	// Stats
+	if (!excludeStats) {
+		distance_walked = 0;
+		score = 0;
+		bullets_fired = 0;
+		bullets_hit = 0;
+		bombs_fired = 0;
+		bombs_hit = 0;
+		headstomps = 0;
+	}
+	
 	hitpoints = is_spectating ? 0 : 100;
-
-	bullets_fired = 0;
-	bullets_hit = 0;
-	bombs_fired = 0;
-	bombs_hit = 0;
-	headstomps = 0;
 
 	cycle_direction = CYCLE_UP;
 }

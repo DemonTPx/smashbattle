@@ -261,6 +261,16 @@ void NetworkMultiplayer::on_post_processing()
 				start.data.delay = 0;
 				server.sendAll(start);
 
+				// Reset all player stats
+				std::vector<Player *>::iterator i;
+				bool excludeInputs = true;
+				bool excludeStats = false;
+				auto &players = *(main_.getServer().getGame().players);
+				for (i=std::begin(players); i!=std::end(players); ++i) {
+					auto &player = **i;
+					player.reset(excludeInputs, excludeStats);
+				}
+				
 				currentStateBeginTime_ = server.getServerTime();
 				currentState_ = State::DONE;
 				game_running = true;

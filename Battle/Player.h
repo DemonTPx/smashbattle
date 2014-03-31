@@ -86,7 +86,7 @@ public:
 
 	void set_character(int character);
 	void set_sprites();
-	void reset(bool excludeInputs = false);
+	void reset(bool excludeInputs = false, bool excludeStats = false);
 	void update_suit();
 
 	void spectate(bool set = true);

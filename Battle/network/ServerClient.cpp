@@ -703,11 +703,12 @@ bool ServerClient::process(CommandSetGameStart *command)
 	
 	std::vector<Player *>::iterator i;
 	bool excludeInputs = true;
+	bool excludeStats = true;
 	auto &players = *main_->getServerClient().getGame().players;
 	for (i=std::begin(players); i!=std::end(players); ++i) {
 		auto &player = **i;
 		
-		player.reset(excludeInputs);
+		player.reset(excludeInputs, excludeStats);
 	}
 	
 	return true;
@@ -875,6 +876,15 @@ bool ServerClient::process(CommandSetVictoryScreen *command)
 		vscr.round = 1;
 		
 		vscr.run();
+		
+		// Reset all player stats now that we have displayed them
+		bool excludeInputs = true;
+		bool excludeStats = false;
+		for (i=std::begin(players); i!=std::end(players); ++i) {
+			auto &player = **i;
+
+			player.reset(excludeInputs, excludeStats);
+		}
 
 		return false;
 
