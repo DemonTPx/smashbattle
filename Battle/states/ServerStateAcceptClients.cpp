@@ -32,9 +32,26 @@ void ServerStateAcceptClients::transform_spectators_into_valid_players(Server &s
 	auto &players = *(server.getGame().players);
 	for (auto i= players.begin(); i!=players.end(); i++) {
 		auto &player = **i;
-
+		
 		player.spectate(false);
 		player.is_dead = false;
+
+		// (Re-)Send all players the AddPlayer command for each 'other' player
+		for (auto i= players.begin(); i!=players.end(); i++) {
+			auto &player2 = **i;
+			if (player.number != player2.number) {
+				CommandAddPlayer otherplayer;
+				otherplayer.data.time = server.getServerTime();
+				otherplayer.data.client_id = player.number;
+				otherplayer.data.character = player.character;
+				otherplayer.data.x = player.position->x;
+				otherplayer.data.y = player.position->y;
+				otherplayer.data.current_sprite = player.current_sprite;
+				otherplayer.data.is_spectating = player.spectating();
+				server.getClientById(player2.number)->send(otherplayer);
+			}
+		}
+		
 		server.getClientById(player.number)->setState(Client::State::ACTIVE);
 
 		CommandSetPlayerDeath dead;
