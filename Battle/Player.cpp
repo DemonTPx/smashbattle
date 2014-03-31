@@ -237,7 +237,7 @@ void Player::update_suit()
 	suit_number = number % Player::COLORS_COUNT;
 }
 
-void Player::reset() {
+void Player::reset(bool excludeInputs) {
 	momentumx = 0;
 	momentumy = 0;
 
@@ -251,7 +251,7 @@ void Player::reset() {
 	is_jumping = false;
 	is_falling = false;
 
-	if(input != NULL)
+	if(input != NULL && !excludeInputs)
 		input->reset();
 
 	is_hit = false;

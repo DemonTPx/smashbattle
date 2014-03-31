@@ -702,11 +702,12 @@ bool ServerClient::process(CommandSetGameStart *command)
 	main_->getServerClient().resumeGameIn(command->data.delay);
 	
 	std::vector<Player *>::iterator i;
+	bool excludeInputs = true;
 	auto &players = *main_->getServerClient().getGame().players;
 	for (i=std::begin(players); i!=std::end(players); ++i) {
 		auto &player = **i;
-	
-		player.reset();
+		
+		player.reset(excludeInputs);
 	}
 	
 	return true;
