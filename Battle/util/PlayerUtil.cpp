@@ -24,7 +24,6 @@ namespace player_util
 		if (player.input->is_pressed(A_RUN))		flags |= network::ServerClient::FLAG_RUN;
 		if (player.input->is_pressed(A_SHOOT))		flags |= network::ServerClient::FLAG_SHOOT;
 		if (player.input->is_pressed(A_BOMB))		flags |= network::ServerClient::FLAG_BOMB;
-		if (player.input->is_pressed(A_START))		flags |= network::ServerClient::FLAG_START;
 
 		playerpos.data.udp_sequence = udpseq;
 		playerpos.data.client_id = player.number;
@@ -62,7 +61,6 @@ namespace player_util
 			if (flags & network::ServerClient::FLAG_RUN)		player.input->pressed[A_RUN] = true;
 			if (flags & network::ServerClient::FLAG_SHOOT)	player.input->pressed[A_SHOOT] = true;
 			if (flags & network::ServerClient::FLAG_BOMB)	player.input->pressed[A_BOMB] = true;
-			if (flags & network::ServerClient::FLAG_START)	player.input->pressed[A_START] = true;
 		}
 
 		player.position->x =command.data.x;
