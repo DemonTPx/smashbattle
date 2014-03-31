@@ -700,6 +700,15 @@ bool ServerClient::process(CommandSetPlayerScore *command)
 bool ServerClient::process(CommandSetGameStart *command)
 {
 	main_->getServerClient().resumeGameIn(command->data.delay);
+	
+	std::vector<Player *>::iterator i;
+	auto &players = *main_->getServerClient().getGame().players;
+	for (i=std::begin(players); i!=std::end(players); ++i) {
+		auto &player = **i;
+	
+		player.reset();
+	}
+	
 	return true;
 }
 
