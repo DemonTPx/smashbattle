@@ -56,7 +56,7 @@ void ServerStateGameStarted::initialize(Server &server) const
 		hp.data.time = server.getServerTime();
 		hp.data.client_id = player.number;
 		hp.data.hitpoints = player.hitpoints;
-		client->send(hp);
+		server.sendAll(hp);
 
 		// Set their correct positions
 		CommandSetPlayerData pd;
@@ -118,7 +118,7 @@ void ServerStateGameStarted::execute(Server &server, Client &client) const
 		once = false;
 		CommandSetBroadcastText broadcast;
 		broadcast.data.time = server.getServerTime();
-		string text("WELCOME YOU ARE NOW IN THE GAME");
+		string text("WELCOME YOU JOINED THE GAME");
 		strncpy(broadcast.data.text, text.c_str() , text.length());
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);
@@ -136,7 +136,7 @@ ServerState * ServerStateGameStarted::check_self(Server &server) const
 
 		CommandSetBroadcastText broadcast;
 		broadcast.data.time = server.getServerTime();
-		string text("YOU WIN");
+		string text("RESTARTING GAME");
 		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);

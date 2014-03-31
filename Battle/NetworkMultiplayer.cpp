@@ -27,6 +27,7 @@ using std::map;
 #include "commands/CommandSetBroadcastText.hpp"
 #include "commands/CommandSetVictoryScreen.hpp"
 #include "commands/CommandKeepAlive.hpp"
+#include "commands/CommandSetHitPoints.hpp"
 
 NetworkMultiplayer::NetworkMultiplayer (Main &main) 
 : LocalMultiplayer(main), currentState_(State::DONE), currentStateBeginTime_(main.getServer().getServerTime())
@@ -132,6 +133,12 @@ void NetworkMultiplayer::on_post_processing()
 				died.data.client_id = player.number;
 				died.data.is_dead = player.is_dead;
 				server.sendAll(died);
+				
+				network::CommandSetHitPoints hp;
+				hp.data.time = server.getServerTime();
+				hp.data.client_id = player.number;
+				hp.data.hitpoints = player.hitpoints;
+				server.sendAll(hp);
 			}
 		}
 
