@@ -359,6 +359,7 @@ void Menu::start_local_multiplayer() {
 		}
 		lmp->run();
 
+		// This is duplicate logic with.. search for "@MARK:1", the code is different
 		highest_score = 0;
 		winner = -1;
 		for (int i = 0; i < 4; i++) {

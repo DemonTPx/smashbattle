@@ -142,8 +142,7 @@ void LocalMultiplayer::on_post_processing() {
 	if(!countdown && !ended) {
 		// Check if a player lost
 		Player * p, * p2;
-		int playersleft;
-		playersleft = 0;
+		int playersleft = 0;
 		for(unsigned int idx = 0; idx < players->size(); idx++) {
 			p = players->at(idx);
 			
