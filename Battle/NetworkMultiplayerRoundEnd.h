@@ -20,6 +20,8 @@ protected:
 	virtual void handle_event(GameInput &input, SDL_Event &event) {};
 
 	virtual void draw_menu() {}
+        
+        virtual int get_player_number(Player &player);
 
 private:
 
