@@ -56,7 +56,7 @@ void ServerStateGameStarted::initialize(Server &server) const
 		hp.data.time = server.getServerTime();
 		hp.data.client_id = player.number;
 		hp.data.hitpoints = player.hitpoints;
-		client->send(hp);
+		server.sendAll(hp);
 
 		// Set their correct positions
 		CommandSetPlayerData pd;
