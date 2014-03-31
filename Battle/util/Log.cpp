@@ -1,9 +1,12 @@
 #include "util/Log.h"
 
+#undef log
 
 Logger::Priority Logger::currentprio = Logger::Priority::INFO;
 
 std::vector<std::string> Logger::console;
+
+bool LoggerLogToStdOut = false;
 
 std::string format(const char *format, ...)
 {
@@ -17,3 +20,11 @@ std::string format(const char *format, ...)
 	return std::string(buffer);
 }
 
+void Logger::log(std::string filename, long line, std::string log, Logger::Priority priority)
+{
+	if (LoggerLogToStdOut && priority >= Logger::currentprio)
+		std::cout << Logger::toString(priority) << " " << log << std::endl;
+
+	if (priority == Logger::Priority::CONSOLE)
+		Logger::console.push_back(log);
+}

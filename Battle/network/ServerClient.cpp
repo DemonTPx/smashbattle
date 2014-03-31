@@ -643,7 +643,6 @@ bool ServerClient::process(CommandSetPlayerAmmo *command)
 
 bool ServerClient::process(CommandSetBroadcastText *command)
 {
-	std::cout << "BROADCAST TEXT: " << command->data.text << std::endl;
 	getGame().set_broadcast(command->data.text, command->data.duration);
 	return true;
 }
