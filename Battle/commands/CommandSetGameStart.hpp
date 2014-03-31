@@ -21,6 +21,7 @@ public:
 	{
 		Uint32 time;
 		short delay;
+                bool first_round;
 	} data;
 };
 

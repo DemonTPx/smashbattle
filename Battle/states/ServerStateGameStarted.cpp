@@ -29,8 +29,8 @@ void ServerStateGameStarted::initialize(Server &server) const
 
 		server.ignoreClientInputFor(3000);
 
-		player.hitpoints = 100;
-		player.score = 0;
+		player.reset();
+		
 		player_util::unset_input(player);
 		level_util::set_player_start(player, server.getLevel());
 
@@ -79,6 +79,7 @@ void ServerStateGameStarted::initialize(Server &server) const
 		CommandSetGameStart gs;
 		gs.data.time = server.getServerTime();
 		gs.data.delay = 1000;
+		gs.data.first_round = true;
 		server.sendAll(gs);
 	}
 }

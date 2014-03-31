@@ -703,7 +703,7 @@ bool ServerClient::process(CommandSetGameStart *command)
 	
 	std::vector<Player *>::iterator i;
 	bool excludeInputs = true;
-	bool excludeStats = true;
+	bool excludeStats = command->data.first_round ? false : true;
 	auto &players = *main_->getServerClient().getGame().players;
 	for (i=std::begin(players); i!=std::end(players); ++i) {
 		auto &player = **i;
@@ -878,7 +878,7 @@ bool ServerClient::process(CommandSetVictoryScreen *command)
 		vscr.run();
 		
 		// Reset all player stats now that we have displayed them
-		bool excludeInputs = true;
+		bool excludeInputs = false;
 		bool excludeStats = false;
 		for (i=std::begin(players); i!=std::end(players); ++i) {
 			auto &player = **i;

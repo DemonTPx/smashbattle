@@ -245,6 +245,7 @@ void NetworkMultiplayer::on_post_processing()
 					network::CommandSetGameStart start;
 					start.data.time = server.getServerTime();
 					start.data.delay = 100;
+					start.data.first_round = false;
 					server.sendAll(start);
 				} else {
 					currentState_ = State::DISPLAYING_SCREEN;
@@ -259,6 +260,7 @@ void NetworkMultiplayer::on_post_processing()
 				network::CommandSetGameStart start;
 				start.data.time = server.getServerTime();
 				start.data.delay = 0;
+				start.data.first_round = false;
 				server.sendAll(start);
 
 				// Reset all player stats
