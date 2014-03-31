@@ -21,6 +21,8 @@
 
 #include "Player.h"
 
+int ServerClientVersion = 1;
+
 namespace network {
 
 using std::for_each;

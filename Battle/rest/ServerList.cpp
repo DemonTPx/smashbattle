@@ -4,7 +4,9 @@
 #include <curl/curl.h>
 #include <cstring>
 #include <stdexcept>
+#include <sstream>
 #include "util/json.h"
+#include "network/ServerClient.h"
 
 
 namespace rest {
@@ -20,7 +22,9 @@ ServerList::~ServerList()
 
 json::Array ServerList::list()
 {
-	json::Object obj = request("GET", "http://battle.cppse.nl/server/list", token_);
+	std::stringstream ss;
+	ss << "http://battle.cppse.nl/server/list/" << ServerClientVersion;
+	json::Object obj = request("GET", ss.str(), token_);
 
 	if (!(bool)obj["return"]) {
 		throw std::runtime_error(std::string(obj["error_message"]));

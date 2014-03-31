@@ -26,6 +26,8 @@ class Player;
 class Gameplay;
 class Main;
 
+extern int ServerClientVersion;
+
 namespace network{
 
 class ClientNetworkMultiplayer;
