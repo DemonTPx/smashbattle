@@ -60,7 +60,7 @@ while [  $count -lt $servercount ]; do
 				(daemon -- smashbattle -s "${levels[$levelcount]}" $port "${levels[$levelcount]}" > /var/log/smashbattle/server-${count}) &
 		else
 			check_running=$(ps axufw |grep daemon|grep smashbattle|grep " $port ")
-			if [ "$CHECK_RUNNING" == "" ]; then
+			if [ "$check_running" == "" ]; then
 				(daemon -- smashbattle -s "${levels[$levelcount]}" $port "${levels[$levelcount]}" >> /var/log/smashbattle/server-${count}) &
 			fi
 		fi
