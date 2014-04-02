@@ -194,7 +194,7 @@ void NetworkMultiplayer::on_post_processing()
 				if (game_running) {
 					network::CommandSetBroadcastText broadcast;
 					broadcast.data.time = server.getServerTime();
-					string text(format("NEXT ROUND\n%d OF 5", round));
+					string text(format("NEXT ROUND (%d OF 5)", round));
 					strncpy(broadcast.data.text, text.c_str() , text.length());
 					broadcast.data.duration = 2000;
 					server.sendAll(broadcast);

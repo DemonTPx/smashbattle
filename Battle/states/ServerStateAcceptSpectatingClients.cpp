@@ -64,7 +64,7 @@ void ServerStateAcceptSpectatingClients::execute_gamestart(Uint32 servertime, Se
 	if (game) {
 		currentRound = game->get_round();
 	}
-	text.assign(format("YOU ARE NOW SPECTATING\nPLEASE WAIT FOR CURRENT GAME TO FINISH\nTHIS IS ROUND %d OF 5!", currentRound));
+	text.assign(format("PLEASE WAIT FOR GAME END (CURRENT ROUND %d/5)", currentRound));
 	strncpy(msg.data.text, text.c_str() , text.length());
 	msg.data.duration = 10000;
 	client.send(msg);
