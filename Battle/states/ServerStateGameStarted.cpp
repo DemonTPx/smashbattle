@@ -132,7 +132,7 @@ ServerState * ServerStateGameStarted::check_self(Server &server) const
 	if (server.numActiveClients() == 0) {
 		newstate = new ServerStateAcceptClients();
 	}
-	else if (server.numUndeadActiveClients() == 1) {
+	else if (server.numUndeadActiveClients() <= 1) {
 		newstate = new ServerStateAcceptClients();
 
 		CommandSetBroadcastText broadcast;
@@ -141,6 +141,12 @@ ServerState * ServerStateGameStarted::check_self(Server &server) const
 		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);
+
+		network::CommandSetGameStart start;
+		start.data.time = server.getServerTime();
+		start.data.delay = 0;
+		start.data.first_round = false;
+		server.sendAll(start);
 
 		server.getGame().game_interrupted_reset();
 	}
