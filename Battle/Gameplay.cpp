@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 
 #include <vector>
+#include <sstream>
 
 #include "Main.h"
 #include "Level.h"
@@ -538,17 +539,22 @@ void Gameplay::draw_broadcast()
 	if (broadcast_duration == 0)
 		return;
 
-	SDL_Surface * surf;
 
-	surf = main_.text->render_text_medium_shadow(broadcast_msg.c_str());
+	std::istringstream stream(broadcast_msg);
+	std::string line;
+	int offsetY = 0;
+	while(std::getline(stream, line)) {
+		SDL_Surface * surf = main_.text->render_text_medium_shadow(line.c_str());
 
-	SDL_Rect rect;
-	rect.x = (screen->w - surf->w) / 2;
-	rect.y = ((screen->h - surf->h) / 2) - TILE_H;
-	
-	SDL_BlitSurface(surf, NULL, screen, &rect);
-	SDL_FreeSurface(surf);
+		SDL_Rect rect;
+		rect.x = (screen->w - surf->w) / 2;
+		rect.y = ((screen->h - surf->h) / 2) - TILE_H + offsetY;
+		
+		SDL_BlitSurface(surf, NULL, screen, &rect);
+		SDL_FreeSurface(surf);
 
+		offsetY += 24;
+	}
 }
 
 

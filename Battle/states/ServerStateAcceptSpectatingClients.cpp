@@ -61,9 +61,14 @@ void ServerStateAcceptSpectatingClients::execute_gamestart(Uint32 servertime, Se
 	CommandSetBroadcastText msg;
 	msg.data.time = server.getServerTime();
 
-	text.assign("YOU ARE NOW SPECTATING!");
+	int currentRound = 1;
+	auto game = dynamic_cast<NetworkMultiplayer *>(&server.getGame());
+	if (game) {
+		currentRound = game->get_round();
+	}
+	text.assign(format("YOU ARE NOW SPECTATING\nPLEASE WAIT FOR CURRENT GAME TO FINISH\nTHIS IS ROUND %d OF 5!", currentRound));
 	strncpy(msg.data.text, text.c_str() , text.length());
-	msg.data.duration = 5000;
+	msg.data.duration = 10000;
 	client.send(msg);
 
 	client.setState(Client::State::SPECTATING);
