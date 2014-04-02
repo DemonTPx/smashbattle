@@ -16,6 +16,8 @@ public:
 
 	bool we_have_a_winner();
 
+	int get_round() { return round; }
+
 protected:
 	virtual void initialize();
 

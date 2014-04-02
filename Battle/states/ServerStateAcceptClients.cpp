@@ -287,13 +287,16 @@ void ServerStateAcceptClients::execute_active(Uint32 servertime, Server &server,
 void ServerStateAcceptClients::execute_gamestart(Uint32 servertime, Server &server, Client &client, size_t numActiveClients) const
 {
 	gameStartForPlayers_ = numActiveClients;
-	gameStart_ = servertime + 15 * 1000;
+	if (gameStart_ <= servertime) {
+		gameStart_ = servertime + 15 * 1000;
+	}
 	//gameStart_ = servertime + 1 * 1000; // temp set to 1
 	gameStartSendTime_ = servertime;
 
 	CommandSetBroadcastText broadcast;
 	broadcast.data.time = server.getServerTime();
-	string text("GAME STARTS IN 15 SECONDS");
+	int secsToGo = ((gameStart_  - servertime) / 1000) + 1;
+	string text(format("GAME STARTS IN %d SECONDS", secsToGo));
 	strncpy(broadcast.data.text, text.c_str() , text.length());
 	broadcast.data.duration = 2000;
 	server.sendAll(broadcast);

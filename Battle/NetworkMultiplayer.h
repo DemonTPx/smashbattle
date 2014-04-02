@@ -23,6 +23,8 @@ protected:
 	virtual void on_pre_processing() {}
 	virtual void on_post_processing();
 
+	virtual void game_interrupted_reset() { round = 1; }
+
 	virtual GameplayObject *generate_powerup(bool force = false);
 
 	State currentState_;
