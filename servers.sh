@@ -18,6 +18,7 @@ if [ "$1" != "preserve" ]; then
 	sleep 2
 fi
 
+
 # Number of servers we want to start
 servercount=32
 
@@ -58,7 +59,10 @@ while [  $count -lt $servercount ]; do
 		if [ "$1" != "preserve" ]; then
 				(daemon -- smashbattle -s "${levels[$levelcount]}" $port "${levels[$levelcount]}" > /var/log/smashbattle/server-${count}) &
 		else
+			check_running=$(ps axufw |grep daemon|grep smashbattle|grep " $port ")
+			if [ "$check_running" == "" ]; then
 				(daemon -- smashbattle -s "${levels[$levelcount]}" $port "${levels[$levelcount]}" >> /var/log/smashbattle/server-${count}) &
+			fi
 		fi
 
 		sleep 1
