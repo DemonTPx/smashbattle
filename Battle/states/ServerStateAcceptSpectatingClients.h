@@ -39,8 +39,6 @@ private:
 
 	friend class Server;
 
-	mutable bool once;
-
 };
 
 }

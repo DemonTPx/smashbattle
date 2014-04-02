@@ -45,6 +45,9 @@ public:
 
 	virtual void initialize();
 	virtual void deinitialize();
+
+	virtual void game_interrupted_reset() {}
+
 protected:
 
 	void reset_game();

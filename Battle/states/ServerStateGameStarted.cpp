@@ -141,6 +141,8 @@ ServerState * ServerStateGameStarted::check_self(Server &server) const
 		strncpy(broadcast.data.text, text.c_str(), text.length());
 		broadcast.data.duration = 2000;
 		server.sendAll(broadcast);
+
+		server.getGame().game_interrupted_reset();
 	}
 
 	return newstate;
