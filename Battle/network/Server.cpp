@@ -363,6 +363,11 @@ void Server::poll() {
 		broadcast.data.duration = 2000;
 		sendAll(broadcast);
 
+		bool lastPlayerLeft = !getClients().size();
+		if (lastPlayerLeft) {
+			getGame().level->reset();
+		}
+
 		ServerState *newstate = getState()->check_self(*this);
 		if (newstate) {
 			setState(newstate);
