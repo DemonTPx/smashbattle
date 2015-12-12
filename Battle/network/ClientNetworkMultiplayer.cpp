@@ -15,6 +15,7 @@ using std::for_each;
 using std::string;
 
 #include "util/Log.h"
+#include "Color.h"
 
 namespace network{
 
@@ -127,7 +128,7 @@ void ClientNetworkMultiplayer::draw_console()
 
 	screen = main_.screen;
 
-	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+	SDL_FillRectColor(screen, NULL, 0);
 
 	// Output console (exactly 20 lines fit)
 	size_t beginSize = Logger::console.size();

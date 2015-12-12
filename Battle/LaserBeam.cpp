@@ -4,6 +4,7 @@
 #include "AudioController.h"
 #include "LaserBeam.h"
 #include "Main.h"
+#include "Color.h"
 
 LaserBeam::LaserBeam(Main &main) : GameplayObject(main), main_(main) {
 	start = main_.gameplay().frame;
@@ -104,20 +105,20 @@ void LaserBeam::draw_impl(SDL_Surface * screen, int frames_processed) {
 	if(frame < 10) {
 		rect.h = ((WINDOW_HEIGHT - TILE_W) / 10) * frame;
 
-		SDL_FillRect(screen, &rect, color);
+		SDL_FillRectColor(screen, &rect, color);
 
 		if(rect.x < 0) {
 			rect_b.h = rect.h;
 			rect_b.x += WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 		if(rect.x  + rect.w >= WINDOW_WIDTH) {
 			rect_b.h = rect.h;
 			rect_b.x -= WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 	} else if(frame < 12) {
-		SDL_FillRect(screen, 0, color);
+		SDL_FillRectColor(screen, 0, color);
 	} else if(frame < 28) {
 		int offset, width;
 		offset = (frame - 12) * 2;
@@ -128,36 +129,36 @@ void LaserBeam::draw_impl(SDL_Surface * screen, int frames_processed) {
 
 		color = 0xffffffff - (0x00000002 * offset);
 
-		SDL_FillRect(screen, &rect, color);
+		SDL_FillRectColor(screen, &rect, color);
 		
 		if(rect.x < 0) {
 			rect_b.w = width;
 			rect_b.h = rect.h;
 			rect_b.x = rect.x + WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 		if(rect.x  + width >= WINDOW_WIDTH) {
 			rect_b.w = 32 - offset;
 			rect_b.h = rect.h;
 			rect_b.x = rect.x - WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 
 		rect.x += 32 + offset;
-		
-		SDL_FillRect(screen, &rect, color);
+
+		SDL_FillRectColor(screen, &rect, color);
 		
 		if(rect.x < 0) {
 			rect_b.w = width;
 			rect_b.h = rect.h;
 			rect_b.x = rect.x + WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 		if(rect.x  + width >= WINDOW_WIDTH) {
 			rect_b.w = width;
 			rect_b.h = rect.h;
 			rect_b.x = rect.x - WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 	}
 }

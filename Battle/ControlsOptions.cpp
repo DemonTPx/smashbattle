@@ -2,6 +2,7 @@
 
 #include "ControlsOptions.h"
 #include <sstream>
+#include "Color.h"
 
 #ifndef WIN32
 #define sprintf_s snprintf
@@ -169,12 +170,12 @@ void ControlsOptions::show_notification(const char * text) {
 	rect.y = screen->h / 2 - 25;
 	rect.w = screen->w - 200;
 	rect.h = 50;
-	SDL_FillRect(screen, &rect, 0xff0000);
+	SDL_FillRectColor(screen, &rect, 0xff0000);
 	rect.x += 2;
 	rect.y += 2;
 	rect.w -= 4;
 	rect.h -= 4;
-	SDL_FillRect(screen, &rect, 0);
+	SDL_FillRectColor(screen, &rect, 0);
 
 	surface = main_.text->render_text_medium(text);
 	rect.x = (screen->w - surface->w) / 2;

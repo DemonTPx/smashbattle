@@ -6,6 +6,8 @@
 #include "Timer.h"
 #include "AudioController.h"
 
+#include "Color.h"
+
 #include "Gameplay.h"
 
 #include "MissionSelect.h"
@@ -156,7 +158,7 @@ void Menu::draw_impl() {
 				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
 				rect.h = MENU_ITEM_HEIGHT;
 
-				SDL_FillRect(screen, &rect, 0xa0062e);
+				SDL_FillRectColor(screen, &rect, 0xa0062e);
 			}
 
 			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));

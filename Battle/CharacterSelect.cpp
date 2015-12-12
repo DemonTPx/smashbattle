@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Main.h"
+#include "Color.h"
 #include "Player.h"
 #include "PlayerAnimation.h"
 #include "CharacterSelect.h"
@@ -251,13 +252,13 @@ void CharacterSelect::prerender_background() {
 				direction = -1;
 				break;
 		}
-		SDL_FillRect(background, &r_block, Player::COLORS[i % Player::COLORS_COUNT]);
+		SDL_FillRectColor(background, &r_block, Player::COLORS[i % Player::COLORS_COUNT]);
 		r_block.x += 4; r_block.w -= 8;
 		r_block.y += 4; r_block.h -= 8;
-		SDL_FillRect(background, &r_block, 0);
+		SDL_FillRectColor(background, &r_block, 0);
 
 		// Player number
-		SDL_FillRect(background, &r_pnumber, Player::COLORS[i % Player::COLORS_COUNT]);
+		SDL_FillRectColor(background, &r_pnumber, Player::COLORS[i % Player::COLORS_COUNT]);
 
 		sprintf_s(str, 3, "P%1d", (i + 1));
 		surface = main_.text->render_text_large(str);
@@ -444,14 +445,14 @@ void CharacterSelect::draw_impl() {
 				color = Player::COLORS[i % Player::COLORS_COUNT];
 		}
 	}
-	
-	SDL_FillRect(screen, &rect, color);
+
+	SDL_FillRectColor(screen, &rect, color);
 
 	rect_c.x = rect_b.x + CHARACTER_SPACING;
 	rect_c.y = rect_b.y + CHARACTER_SPACING;
 	rect_c.w = (rect_b.w * CHARACTERS_PER_LINE) - (CHARACTER_SPACING * 2);
 	rect_c.h = rect_b.h - (CHARACTER_SPACING * 2);
-	SDL_FillRect(screen, &rect_c, 0);
+	SDL_FillRectColor(screen, &rect_c, 0);
 
 	surface = main_.graphics->text_random;
 	rect.x = (WINDOW_WIDTH - surface->w) / 2;
@@ -522,12 +523,12 @@ void CharacterSelect::draw_impl() {
 			}
 		}
 
-		SDL_FillRect(screen, &rect_b, color);
+		SDL_FillRectColor(screen, &rect_b, color);
 		rect_c.x = rect_b.x + CHARACTER_SPACING;
 		rect_c.y = rect_b.y + CHARACTER_SPACING;
 		rect_c.w = rect_b.w - (CHARACTER_SPACING * 2);
 		rect_c.h = rect_b.h - (CHARACTER_SPACING * 2);
-		SDL_FillRect(screen, &rect_c, color_back);
+		SDL_FillRectColor(screen, &rect_c, color_back);
 
 		SDL_BlitSurface(main_.graphics->player->at(idx), clip, screen, &rect);
 
@@ -625,7 +626,7 @@ void CharacterSelect::draw_impl() {
 			r_block.y += 12; r_block.h -= 24;
 
 			r_block.h = (TILE_H * 2) + 18;
-			SDL_FillRect(screen, &r_block, 0x2288ff);
+			SDL_FillRectColor(screen, &r_block, 0x2288ff);
 
 			rect.x = r_block.x;
 			rect.y = r_block.y + TILE_H + 18;
@@ -702,7 +703,7 @@ void CharacterSelect::draw_impl() {
 		} else {
 			r_block.x += 10; r_block.w -= 20;
 			r_block.y += 10; r_block.h -= 20;
-			SDL_FillRect(screen, &r_block, 0);
+			SDL_FillRectColor(screen, &r_block, 0);
 
 			if(direction == 1)
 				rect.x = r_block.x + 20;

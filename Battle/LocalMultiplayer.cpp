@@ -3,6 +3,7 @@
 #include "Main.h"
 #include "Level.h"
 #include "Gameplay.h"
+#include "Color.h"
 
 #include "HealthPowerUp.h"
 #include "AmmoPowerUp.h"
@@ -332,7 +333,7 @@ void LocalMultiplayer::draw_score() {
 	rect.y = WINDOW_HEIGHT - 32;
 	rect.w = WINDOW_WIDTH;
 	rect.h = 32;
-	SDL_FillRect(screen, &rect, 0x222222);
+	SDL_FillRectColor(screen, &rect, 0x222222);
 
 	if(main_.gameplay().players->size() == 2)
 		draw_score_duel();
@@ -376,7 +377,7 @@ void LocalMultiplayer::draw_score_duel() {
 	rect.y = WINDOW_HEIGHT - 30;
 	rect.w = 122;
 	rect.h = 10;
-	SDL_FillRect(screen, &rect, 0);
+	SDL_FillRectColor(screen, &rect, 0);
 
 	rect_s.w = (int)(1.18 * player1->hitpoints);
 	rect_s.h = 8;
@@ -391,7 +392,7 @@ void LocalMultiplayer::draw_score_duel() {
 	rect.y = WINDOW_HEIGHT - 30;
 	rect.w = 122;
 	rect.h = 10;
-	SDL_FillRect(screen, &rect, 0);
+	SDL_FillRectColor(screen, &rect, 0);
 
 	rect_s.w = (int)(1.18 * player2->hitpoints);
 	rect_s.h = 8;
@@ -611,7 +612,7 @@ void LocalMultiplayer::draw_score_multi() {
 		rect.y = y + 2;
 		rect.w = 122;
 		rect.h = 10;
-		SDL_FillRect(screen, &rect, 0);
+		SDL_FillRectColor(screen, &rect, 0);
 
 		rect_s.w = (int)(1.18 * player->hitpoints);
 		rect_s.h = 8;

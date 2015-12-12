@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Graphics.h"
 #include "Main.h"
+#include "Color.h"
 
 Graphics::Graphics(Main &main) : main_(main) {
 }
@@ -36,13 +37,13 @@ void Graphics::load_all() {
 	npc_gatling = load_bmp("gfx/gatling.bmp");
 
 	statsblock[0] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[0], NULL, 0x880000);
+	SDL_FillRectColor(statsblock[0], NULL, 0x880000);
 
 	statsblock[1] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[1], NULL, 0x888800);
+	SDL_FillRectColor(statsblock[1], NULL, 0x888800);
 
 	statsblock[2] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[2], NULL, 0x008800);
+	SDL_FillRectColor(statsblock[2], NULL, 0x008800);
 
 	text_ready = main_.text->render_text_medium("READY");
 	text_random = main_.text->render_text_medium("RANDOM");
@@ -96,6 +97,9 @@ void Graphics::replace_color(SDL_Surface * surface, Uint32 color_old, Uint32 col
 	Uint8 * pixels;
 	int pixelcount;
 	int mask;
+
+	color_old = SDL_MapRGBHex(surface->format, color_old);
+	color_new = SDL_MapRGBHex(surface->format, color_new);
 
 	pixels = (Uint8 *)surface->pixels;
 	pixelcount = surface->w * surface->h;

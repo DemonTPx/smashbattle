@@ -2,6 +2,7 @@
 
 #include "Main.h"
 #include "Player.h"
+#include "Color.h"
 
 #include <vector>
 
@@ -173,7 +174,7 @@ void MissionSelect::draw_impl() {
 
 		color = 0x888888;
 
-		SDL_FillRect(screen, &r_block, color);
+		SDL_FillRectColor(screen, &r_block, color);
 
 		// Highlight
 		rect.x = r_block.x + 2;
@@ -193,7 +194,7 @@ void MissionSelect::draw_impl() {
 				flicker_frame++;
 			}
 		}
-		SDL_FillRect(screen, &rect, color);
+		SDL_FillRectColor(screen, &rect, color);
 
 		// Mission number
 		sprintf_s(text, 4, "%02d", (idx + 1));
@@ -241,7 +242,7 @@ void MissionSelect::draw_impl() {
 		rect_b.y = rect.y - 6;
 		rect_b.w = surface->w + 12;
 		rect_b.h = surface->h + 12;
-		SDL_FillRect(screen, &rect_b, 0x0088ff);
+		SDL_FillRectColor(screen, &rect_b, 0x0088ff);
 	}
 	SDL_BlitSurface(surface, 0, screen, &rect);
 	SDL_FreeSurface(surface);

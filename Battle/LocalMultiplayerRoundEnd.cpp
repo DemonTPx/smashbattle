@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Level.h"
 #include "LocalMultiplayerRoundEnd.h"
+#include "Color.h"
 
 #define MENU_TOP_OFFSET 368
 #define MENU_ITEM_HEIGHT TILE_H
@@ -156,13 +157,13 @@ void LocalMultiplayerRoundEnd::init() {
 		r_block.x = 10;
 		r_block.y = 50 + (76 * i);
 
-		SDL_FillRect(background, &r_block, Player::COLORS[ players->at(order[i])->suit_number]);
+		SDL_FillRectColor(background, &r_block, Player::COLORS[ players->at(order[i])->suit_number]);
 
 		rect.x = r_block.x + 4;
 		rect.y = r_block.y + 4;
 		rect.w = r_block.w - 8;
 		rect.h = r_block.h - 8;
-		SDL_FillRect(background, &rect, 0);
+		SDL_FillRectColor(background, &rect, 0);
 
 		// Player number
 		rect.x = r_block.x + 72;
@@ -377,7 +378,7 @@ void LocalMultiplayerRoundEnd::draw_menu()
 				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
 				rect.h = MENU_ITEM_HEIGHT;
 
-				SDL_FillRect(screen, &rect, 0xa0062e);
+				SDL_FillRectColor(screen, &rect, 0xa0062e);
 			}
 
 			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));

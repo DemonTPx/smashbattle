@@ -8,6 +8,7 @@
 #include "Main.h"
 #include "Gameplay.h"
 #include "Level.h"
+#include "Color.h"
 #include "util/ServerUtil.h"
 
 const int Level::LEVEL_COUNT = 16;
@@ -177,7 +178,7 @@ void Level::load(const char * filename) {
 	// PRE-RENDER THE BACKGROUND
 
 	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
-	SDL_FillRect(background, 0, meta.background_color);
+	SDL_FillRectColor(background, 0, meta.background_color);
 
 	// Draw the background image (tiled) into the background
 	if(meta.filename_background[0] != 0) {
@@ -382,12 +383,12 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 	gzclose(file);
 
 	surface = SDL_CreateRGBSurface(0, TILE_COLS * 2 + 4, TILE_ROWS * 2 + 4, 32, 0, 0, 0, 0);
-	SDL_FillRect(surface, NULL, 0x444444);
+	SDL_FillRectColor(surface, NULL, 0x444444);
 	rect.x = 2;
 	rect.y = 2;
 	rect.w = TILE_COLS * 2;
 	rect.h = TILE_ROWS * 2;
-	SDL_FillRect(surface, &rect, 0);
+	SDL_FillRectColor(surface, &rect, 0);
 	rect.x = 2;
 	rect.y = 2;
 	rect.w = 2;
@@ -397,7 +398,7 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 
 	for(int i = 0; i < TILE_COUNT; i++) {
 		if(tile[i].tile != 0xffff) {
-			SDL_FillRect(surface, &rect, fillColor);
+			SDL_FillRectColor(surface, &rect, fillColor);
 		}
 		rect.x += 2;
 		if(rect.x >= maxx) {
@@ -460,7 +461,7 @@ SDL_Surface * Level::get_preview(const char * filename) {
 	// PRE-RENDER THE BACKGROUND
 
 	surface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
-	SDL_FillRect(surface, 0, meta.background_color);
+	SDL_FillRectColor(surface, 0, meta.background_color);
 
 	// Draw the background image (tiled) into the background
 	if(meta.filename_background[0] != 0) {

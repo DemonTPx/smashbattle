@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "OptionsScreen.h"
+#include "Color.h"
 
 #define DIRECTION_NONE	0
 #define DIRECTION_LEFT	1
@@ -126,7 +127,7 @@ void OptionsScreen::draw_impl() {
 			rect.y = item->rect_name->y - 5;
 			rect.w = text->w + 10;
 			rect.h = menu_item_height;
-			SDL_FillRect(screen, &rect, 0xa0062e);
+			SDL_FillRectColor(screen, &rect, 0xa0062e);
 		}
 
 		SDL_BlitSurface(text, NULL, screen, item->rect_name);
@@ -139,7 +140,7 @@ void OptionsScreen::draw_impl() {
 					rect.y = item->rect_options->at(j)->y - 5;
 					rect.w = text->w + 10;
 					rect.h = menu_item_height;
-					SDL_FillRect(screen, &rect, 0xa0062e);
+					SDL_FillRectColor(screen, &rect, 0xa0062e);
 				}
 
 				SDL_BlitSurface(text, NULL, screen, item->rect_options->at(j));

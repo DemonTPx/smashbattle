@@ -2,6 +2,7 @@
 
 #include "Main.h"
 #include "Player.h"
+#include "Color.h"
 
 #include <vector>
 
@@ -209,7 +210,7 @@ void LevelSelect::draw_impl() {
 	rect.w = TILES_COLS * TILE_W;
 	rect.h = TILES_ROWS * TILE_H;
 
-	SDL_FillRect(screen, &rect, 0);
+	SDL_FillRectColor(screen, &rect, 0);
 
 	rect_s.x = 0;
 	rect_s.y = 0;
@@ -250,14 +251,14 @@ void LevelSelect::draw_impl() {
 		rect.h = 32;
 
 		color = 0x0088ff;
-		SDL_FillRect(screen, &rect, color);
+		SDL_FillRectColor(screen, &rect, color);
 
 		rect.x += LEVEL_SPACING;
 		rect.y += LEVEL_SPACING;
 		rect.w -= (LEVEL_SPACING * 2);
 		rect.h -= (LEVEL_SPACING * 2);
 
-		SDL_FillRect(screen, &rect, 0);
+		SDL_FillRectColor(screen, &rect, 0);
 	}
 
 	surface = main_.graphics->text_random;
@@ -293,7 +294,7 @@ void LevelSelect::draw_impl() {
 				flicker_frame++;
 			}
 		}
-		SDL_FillRect(screen, &rect_b, color);
+		SDL_FillRectColor(screen, &rect_b, color);
 
 		SDL_BlitSurface(thumbs->at(idx), NULL, screen, &rect);
 

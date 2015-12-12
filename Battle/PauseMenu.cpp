@@ -7,6 +7,7 @@
 #include "PauseMenu.h"
 #include "network/Server.h"
 #include "Main.h"
+#include "Color.h"
 
 PauseMenu::PauseMenu(SDL_Surface * s, Main &main) : SimpleDrawable(main), main_(main) {
 	screen = s;
@@ -103,14 +104,14 @@ void PauseMenu::draw_impl() {
 	rect.w = width;
 	rect.h = height;
 
-	SDL_FillRect(screen, &rect, color);
+	SDL_FillRectColor(screen, &rect, color);
 
 	rect.x += 2;
 	rect.y += 2;
 	rect.w -= 4;
 	rect.h -= 4;
 
-	SDL_FillRect(screen, &rect, 0);
+	SDL_FillRectColor(screen, &rect, 0);
 
 	surface = main_.text->render_text_medium("PAUSE");
 	rect.x = (screen->w - surface->w) / 2;
@@ -132,7 +133,7 @@ void PauseMenu::draw_impl() {
 
 		if(selected_option == i) {
 			rect.y -= 4;
-			SDL_FillRect(screen, &rect, color);
+			SDL_FillRectColor(screen, &rect, color);
 			rect.y += 4;
 		}
 

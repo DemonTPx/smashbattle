@@ -2,6 +2,7 @@
 #include "ClientSettings.h"
 #include "Options.h"
 #include "PlayerAnimation.h"
+#include "Color.h"
 
 ClientSettings::ClientSettings(Main &main)
 : OptionsScreen("SET UP YOUR CHARACTER", main), main_(main)
@@ -170,7 +171,7 @@ void ClientSettings::show_error(const std::string &error_msg)
 {
 
 	SDL_Surface *screen = main_.screen;
-	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+	SDL_FillRectColor(screen, NULL, 0);
 	SDL_Event event;
 
 	while (true) {
