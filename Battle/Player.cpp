@@ -234,7 +234,7 @@ void Player::set_sprites() {
 
 void Player::update_suit()
 {
-	suit_number = number % Player::COLORS_COUNT;
+	suit_number = (number - 1) % Player::COLORS_COUNT;
 }
 
 void Player::reset(bool excludeInputs, bool excludeStats) {
