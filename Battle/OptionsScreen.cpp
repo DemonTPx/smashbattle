@@ -11,11 +11,13 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
+#ifndef __APPLE__
 #ifdef __GNUC__
 #  include <features.h>
 #  if __GNUC_PREREQ(4,7)
 #define USE_SHORT_CONSTRUCTOR
 #  endif
+#endif
 #endif
 
 #ifdef _WIN32

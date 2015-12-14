@@ -21,7 +21,7 @@ inline uint32 rr(uint32 v, int n) {
 }
 
 inline uint32 swap32(uint32 v) {
-	return (v << 24) | (v << 8) & 0x00FF0000 | (v >> 8) & 0x0000FF00 | v >> 24;
+	return (v << 24) | ((v << 8) & 0x00FF0000) | ((v >> 8) & 0x0000FF00) | v >> 24;
 }
 
 void sha256_next(uint32* ptr, uint32* h) {
