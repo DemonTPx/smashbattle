@@ -129,7 +129,7 @@ void OptionsScreen::draw_impl() {
 			rect.y = item->rect_name->y - 5;
 			rect.w = text->w + 10;
 			rect.h = menu_item_height;
-			SDL_FillRectColor(screen, &rect, 0xa0062e);
+			SDL_FillRectColor(screen, &rect, MENU_CURSOR_COLOR);
 		}
 
 		SDL_BlitSurface(text, NULL, screen, item->rect_name);
@@ -142,7 +142,7 @@ void OptionsScreen::draw_impl() {
 					rect.y = item->rect_options->at(j)->y - 5;
 					rect.w = text->w + 10;
 					rect.h = menu_item_height;
-					SDL_FillRectColor(screen, &rect, 0xa0062e);
+					SDL_FillRectColor(screen, &rect, MENU_CURSOR_COLOR);
 				}
 
 				SDL_BlitSurface(text, NULL, screen, item->rect_options->at(j));

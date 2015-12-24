@@ -42,5 +42,5 @@ private:
 	SDL_Surface * render_glyph_shadow(SDL_Surface * font, int w, int h, const char g, int offx, int offy);
 	SDL_Surface * render_text_shadow(SDL_Surface * font, int w, int h, int spacing, const char * t, int offx, int offy);
 
-	SDL_Rect * glyph_clip(int w, int h, const char g, bool gray);
+	void glyph_clip(SDL_Rect * rect, int w, int h, const char g, bool gray);
 };

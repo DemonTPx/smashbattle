@@ -378,7 +378,7 @@ void LocalMultiplayerRoundEnd::draw_menu()
 				rect.w = MENU_ITEM_WIDTH + (TILE_W * 2);
 				rect.h = MENU_ITEM_HEIGHT;
 
-				SDL_FillRectColor(screen, &rect, 0xa0062e);
+				SDL_FillRectColor(screen, &rect, MENU_CURSOR_COLOR);
 			}
 
 			SDL_BlitSurface(text, NULL, screen, surf_items_clip->at(i));

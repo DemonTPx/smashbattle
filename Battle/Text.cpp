@@ -54,16 +54,13 @@ void Text::clear_all() {
 	SDL_FreeSurface(font_large);
 }
 
-SDL_Rect * Text::glyph_clip(int w, int h, const char g, bool gray) {
+void Text::glyph_clip(SDL_Rect * rect, int w, int h, const char g, bool gray) {
 	if(g < TEXT_ASCII_OFFSET || g > TEXT_ASCII_MAX)
-		return NULL;
+		return;
 
 	int idx;
-	SDL_Rect * rect;
 
 	idx = (g - TEXT_ASCII_OFFSET);
-
-	rect = new SDL_Rect();
 
 	rect->x = (idx % GLYPS_PER_LINE) * w;
 	rect->y = (idx / GLYPS_PER_LINE) * h;
@@ -72,8 +69,6 @@ SDL_Rect * Text::glyph_clip(int w, int h, const char g, bool gray) {
 	
 	if(gray)
 		rect->y += (GLYPS_LINES * h);
-
-	return rect;
 }
 
 SDL_Surface * Text::render_glyph(SDL_Surface * font, int w, int h, const char g, bool gray) {
@@ -81,14 +76,12 @@ SDL_Surface * Text::render_glyph(SDL_Surface * font, int w, int h, const char g,
 		return NULL;
 
 	SDL_Surface * surface;
-	SDL_Rect * rect;
+	SDL_Rect rect;
 
-	rect = glyph_clip(w, h, g, gray);
+	glyph_clip(&rect, w, h, g, gray);
 
 	surface = SDL_CreateRGBSurface(0, w, h, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
-	SDL_BlitSurface(font, rect, surface, 0);
-
-	delete rect;
+	SDL_BlitSurface(font, &rect, surface, 0);
 
 	return surface;
 }
@@ -98,7 +91,7 @@ SDL_Surface * Text::render_glyph_shadow(SDL_Surface * font, int w, int h, const 
 		return NULL;
 
 	SDL_Surface * surface;
-	SDL_Rect * rect;
+	SDL_Rect rect;
 	SDL_Rect rect_d;
 
 	surface = SDL_CreateRGBSurface(0, w + offx, h + offy, 32, 0xff000000, 0xff0000, 0xff00, 0xff);
@@ -107,20 +100,18 @@ SDL_Surface * Text::render_glyph_shadow(SDL_Surface * font, int w, int h, const 
 	rect_d.y = offy;
 
 	// Get grey glyph first
-	rect = glyph_clip(w, h, g, true);
-	SDL_BlitSurface(font, rect, surface, &rect_d);
+	glyph_clip(&rect, w, h, g, true);
+	SDL_BlitSurface(font, &rect, surface, &rect_d);
 
-	rect = glyph_clip(w, h, g, false);
-	SDL_BlitSurface(font, rect, surface, 0);
-
-	delete rect;
+	glyph_clip(&rect, w, h, g, false);
+	SDL_BlitSurface(font, &rect, surface, 0);
 
 	return surface;
 }
 
 SDL_Surface * Text::render_text(SDL_Surface *font, int w, int h, int spacing, const char *t, bool gray) {
 	SDL_Surface * surface;
-	SDL_Rect * rect;
+	SDL_Rect rect;
 	SDL_Rect rect_d;
 	int length;
 	int surface_w;
@@ -138,11 +129,9 @@ SDL_Surface * Text::render_text(SDL_Surface *font, int w, int h, int spacing, co
 
 	for(int i = 0; i < length; i++) {
 		if(t[i] >= TEXT_ASCII_OFFSET && t[i] <= TEXT_ASCII_MAX) {
-			rect = glyph_clip(w, h, t[i], gray);
+			glyph_clip(&rect, w, h, t[i], gray);
 
-			SDL_BlitSurface(font, rect, surface, &rect_d);
-
-			delete rect;
+			SDL_BlitSurface(font, &rect, surface, &rect_d);
 		}
 
 		rect_d.x += w + spacing;
@@ -153,7 +142,7 @@ SDL_Surface * Text::render_text(SDL_Surface *font, int w, int h, int spacing, co
 
 SDL_Surface * Text::render_text_shadow(SDL_Surface * font, int w, int h, int spacing, const char * t, int offx, int offy) {
 	SDL_Surface * surface;
-	SDL_Rect * rect;
+	SDL_Rect rect;
 	SDL_Rect rect_d, rect_d_s;
 	int length;
 	int surface_w;
@@ -177,13 +166,11 @@ SDL_Surface * Text::render_text_shadow(SDL_Surface * font, int w, int h, int spa
 			rect_d_s.x = rect_d.x + offx;
 			rect_d_s.y = rect_d.y + offy;
 
-			rect = glyph_clip(w, h, t[i], true);
-			SDL_BlitSurface(font, rect, surface, &rect_d_s);
-			delete rect;
-			
-			rect = glyph_clip(w, h, t[i], false);
-			SDL_BlitSurface(font, rect, surface, &rect_d);
-			delete rect;
+			glyph_clip(&rect, w, h, t[i], true);
+			SDL_BlitSurface(font, &rect, surface, &rect_d_s);
+
+			glyph_clip(&rect, w, h, t[i], false);
+			SDL_BlitSurface(font, &rect, surface, &rect_d);
 		}
 
 		rect_d.x += w + spacing;

@@ -11,6 +11,8 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
+#define MENU_CURSOR_COLOR 0x0088ff
+
 #define SAVE_SIGNATURE 0x5353 // 'SS'
 #define SAVE_VERSION 1
 
