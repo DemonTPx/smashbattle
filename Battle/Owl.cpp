@@ -2,6 +2,8 @@
 
 #include "Gameplay.h"
 #include "Owl.h"
+#include "Bomb.h"
+#include "Main.h"
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
@@ -46,14 +48,35 @@ Owl::~Owl() {
 
 void Owl::move(Level * level) {
     position->x -= speedx;
-//
-//    if(level->is_intersecting(position))
-//        done = true;
+
+    if(level->is_intersecting(position)) {
+        done = true;
+    }
 }
 
 void Owl::process() {
     // One frame after the owl hit, we mark it as done
-    if(hit) done = true;
+    if(hit) {
+        done = true;
+        return;
+    }
+
+    if (main_.gameplay().frame % 11 == 0) {
+        Bomb * b = new Bomb(main_.graphics->bombs, main_);
+        b->position->x = position->x; // + static_cast<Sint16>(position->w / 2);
+        b->position->y = position->h;
+        b->speedy = 30;
+        b->time = 900;
+        b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
+        b->owner = owner;
+        b->frame_start = main_.gameplay().frame;
+        b->frame_change_start = main_.gameplay().frame;
+        b->frame_change_count = 12;
+        b->hit_on_impact = true;
+        b->current_frame = Bomb::FRAME_STRIKE_NORMAL;
+
+        main_.gameplay().add_object(b);
+    }
 }
 
 void Owl::hit_player(Player * player) {
