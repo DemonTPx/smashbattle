@@ -51,7 +51,7 @@ Owl::~Owl() {
 void Owl::move(Level * level) {
     position->x -= speedx;
 
-    Sint16 v = static_cast<Sint16>(cos(main_.gameplay().frame / 4) * 20);
+    Sint16 v = static_cast<Sint16>(cos(((float) main_.gameplay().frame) / 4) * 20 + 20);
     std::cout << v << std::endl;
     position->y = v;
 
@@ -69,8 +69,8 @@ void Owl::process() {
 
     if (main_.gameplay().frame % 8 == 0) {
         Bomb * b = new Bomb(main_.graphics->bombs, main_);
-        b->position->x = position->x; // + static_cast<Sint16>(position->w / 2);
-        b->position->y = position->h;
+        b->position->x = position->x;
+        b->position->y = position->y + position->h;
         b->speedy = 30;
         b->time = 900;
         b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;

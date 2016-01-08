@@ -2,8 +2,8 @@
 
 #include "GameplayObject.h"
 
-#define OWL_W 90
-#define OWL_H 72
+#define OWL_W 45
+#define OWL_H 36
 
 class Owl : public GameplayObject {
 public:
