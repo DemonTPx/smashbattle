@@ -55,7 +55,7 @@ void Owl::move(Level * level) {
     std::cout << v << std::endl;
     position->y = v;
 
-    if(level->is_intersecting(position)) {
+    if (position->x + position->w < 0) {
         done = true;
     }
 }
