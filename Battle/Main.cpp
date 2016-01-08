@@ -624,7 +624,7 @@ void Main::load_options() {
 
 	file.read((char*)&hdr, sizeof(SaveHeader));
 	
-	if(hdr.signature != SAVE_SIGNATURE || hdr.version != SAVE_VERSION) {
+	if(hdr.signature != SAVE_SIGNATURE || hdr.version > SAVE_VERSION) {
 		load_default_options();
 		file.close();
 		return;
@@ -633,7 +633,7 @@ void Main::load_options() {
 	audio->load_options(&file);
 
 	for(int i = 0; i < 4; i++) {
-		input[i]->load_options(&file);
+		input[i]->load_options(&file, hdr.version);
 	}
 
 	if (!file.eof()) {

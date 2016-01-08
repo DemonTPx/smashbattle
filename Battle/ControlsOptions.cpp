@@ -63,7 +63,11 @@ ControlsOptions::~ControlsOptions() {
 }
 
 void ControlsOptions::run() {
+	keyboard_enabled = input->keyboard_enabled;
+	joystick_enabled = input->joystick_enabled;
+
 	OptionsScreen::run();
+
 	save_input();
 }
 
@@ -115,6 +119,9 @@ void ControlsOptions::process_cursor() {
 		return;
 	}
 
+	keyboard_enabled = (items->at(0)->selected == 0);
+	joystick_enabled = (items->at(2)->selected == 0);
+
 	OptionsScreen::process_cursor();
 }
 
@@ -165,7 +172,6 @@ void ControlsOptions::show_notification(const char * text) {
 
 	screen = main_.screen;
 
-	surface = SDL_CreateRGBSurface(0, screen->w / 2, 50, 32, 0, 0, 0, 0);
 	rect.x = 100;
 	rect.y = screen->h / 2 - 25;
 	rect.w = screen->w - 200;
@@ -189,8 +195,8 @@ void ControlsOptions::show_notification(const char * text) {
 void ControlsOptions::save_input() {
 	input->copy_from(new_input);
 
-	//input->enable_keyboard(items->at(0)->selected == 0);
-	//input->enable_joystick(items->at(2)->selected == 0);
+	input->enable_keyboard(keyboard_enabled);
+	input->enable_joystick(joystick_enabled);
 
 	if (input->joystick_enabled) {
 		if (input->num_axes() >= 2) {

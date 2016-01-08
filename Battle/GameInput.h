@@ -105,7 +105,7 @@ public:
 	void keyboard_wait_event_bind(int action);
 	void joystick_wait_event_bind(int action);
 
-	void load_options(std::istream * stream);
+	void load_options(std::istream * stream, short version);
 	void save_options(std::ostream * stream);
 
 	void flush_keybinds();
@@ -132,6 +132,7 @@ public:
 	bool pressed[ACTION_COUNT];
 protected:
 	unsigned int press_start[ACTION_COUNT];
+	short press_owner[ACTION_COUNT];
 
 	void joystick_wait_released();
 

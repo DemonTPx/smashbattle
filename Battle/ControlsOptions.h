@@ -15,6 +15,9 @@ private:
 	GameInput * input;
 	GameInput * new_input;
 
+	bool keyboard_enabled;
+	bool joystick_enabled;
+
 	void redefine_keyboard();
 	void redefine_joystick();
 

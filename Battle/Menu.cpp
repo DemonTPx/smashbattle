@@ -232,11 +232,11 @@ void Menu::select() {
 			break;
 		}
 		case 3:
-			Options * options;
-			options = new Options(main_);
-			options->run();
-			delete options;
+		{
+			Options options(main_);
+			options.run();
 			break;
+		}
 		case 4:
 			SDL_Delay(500);
 			main_.running = false;
