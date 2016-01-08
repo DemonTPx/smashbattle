@@ -17,8 +17,8 @@
 #define GLYPH_LARGE_SPACING 4
 #define GLYPH_LARGE_SHADOW_OFFSET 2
 
-#define GLYPS_PER_LINE 20
-#define GLYPS_LINES 5
+#define GLYPHS_PER_LINE 20
+#define GLYPH_LINES 5
 
 #define TEXT_ASCII_OFFSET 0x21
 #define TEXT_ASCII_MAX 0x7e
@@ -62,13 +62,13 @@ void Text::glyph_clip(SDL_Rect * rect, int w, int h, const char g, bool gray) {
 
 	idx = (g - TEXT_ASCII_OFFSET);
 
-	rect->x = (idx % GLYPS_PER_LINE) * w;
-	rect->y = (idx / GLYPS_PER_LINE) * h;
+	rect->x = (idx % GLYPHS_PER_LINE) * w;
+	rect->y = (idx / GLYPHS_PER_LINE) * h;
 	rect->w = w;
 	rect->h = h;
 	
 	if(gray)
-		rect->y += (GLYPS_LINES * h);
+		rect->y += (GLYPH_LINES * h);
 }
 
 SDL_Surface * Text::render_glyph(SDL_Surface * font, int w, int h, const char g, bool gray) {

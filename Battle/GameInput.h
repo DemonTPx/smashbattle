@@ -105,7 +105,7 @@ public:
 	void keyboard_wait_event_bind(int action);
 	void joystick_wait_event_bind(int action);
 
-	void load_options(std::istream * stream);
+	void load_options(std::istream * stream, short version);
 	void save_options(std::ostream * stream);
 
 	void flush_keybinds();

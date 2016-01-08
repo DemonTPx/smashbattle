@@ -6,6 +6,8 @@
 
 #include "GameInput.h"
 
+#define XBOX_CONTROLLER_ONLY
+
 // The value where we make the difference between a press and a non-press
 const int GameInput::JOYSTICK_AXIS_THRESHOLD = 0x3fff;
 
@@ -399,6 +401,18 @@ void GameInput::joystick_wait_event(GameInputJoystickEvent * event) {
 			break;
 		}
 		if(sdlevent.type == SDL_JOYAXISMOTION && sdlevent.jaxis.which == jindex) {
+#ifdef XBOX_CONTROLLER_ONLY
+			// Axes 2 and 5 are the triggers. They are pressed when the value is > 0
+            if (sdlevent.jaxis.axis == 2 || sdlevent.jaxis.axis == 5) {
+				if (sdlevent.jaxis.value > 0) {
+					event->type = event->AXIS;
+					event->axis_idx = sdlevent.jaxis.axis;
+					event->axis_value = 0;
+					break;
+				}
+				continue;
+			}
+#endif
 			if(sdlevent.jaxis.value < -JOYSTICK_AXIS_THRESHOLD || sdlevent.jaxis.value > JOYSTICK_AXIS_THRESHOLD) {
 				event->type = event->AXIS;
 				event->axis_idx = sdlevent.jaxis.axis;
@@ -446,6 +460,15 @@ void GameInput::joystick_wait_released() {
 		}
 
 		for(i = 0; i < axes; i++) {
+#ifdef XBOX_CONTROLLER_ONLY
+            // Axes 2 and 5 are the triggers. They are pressed when the value is > 0
+            if (i == 2 || i == 5) {
+            	if (SDL_JoystickGetAxis(joystick, i) > 0) {
+					released = false;
+				}
+				continue;
+			}
+#endif
 			if(SDL_JoystickGetAxis(joystick, i) < -JOYSTICK_AXIS_THRESHOLD ||
 				SDL_JoystickGetAxis(joystick, i) > JOYSTICK_AXIS_THRESHOLD)
 				released = false;
@@ -484,14 +507,22 @@ void GameInput::joystick_wait_event_bind(int action) {
 	}
 }
 
-void GameInput::load_options(std::istream * stream) {
+void GameInput::load_options(std::istream * stream, short version) {
 	int i;
 	short count;
 
 	count = 0;
 
+	if (version == 2) {
+		stream->read((char *)&keyboard_enabled, sizeof(bool));
+		stream->read((char *)&joystick_enabled, sizeof(bool));
+	}
+
 	stream->read((char *)&joystick_idx, sizeof(int));
-	open_joystick(joystick_idx);
+
+	if (joystick_enabled) {
+		open_joystick(joystick_idx);
+	}
 
 	stream->read((char*)&count, sizeof(short));
 	for(i = 0; i < count; i++) {
@@ -524,6 +555,9 @@ void GameInput::load_options(std::istream * stream) {
 
 void GameInput::save_options(std::ostream * stream) {
 	short count;
+
+	stream->write((char *)&keyboard_enabled, sizeof(bool));
+	stream->write((char *)&joystick_enabled, sizeof(bool));
 
 	stream->write((char *)&joystick_idx, sizeof(int));
 
