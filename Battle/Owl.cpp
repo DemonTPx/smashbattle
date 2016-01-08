@@ -4,6 +4,8 @@
 #include "Owl.h"
 #include "Bomb.h"
 #include "Main.h"
+#include <math.h>
+#include <stdio.h>
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
@@ -49,6 +51,10 @@ Owl::~Owl() {
 void Owl::move(Level * level) {
     position->x -= speedx;
 
+    Sint16 v = static_cast<Sint16>(cos(main_.gameplay().frame / 4) * 20);
+    std::cout << v << std::endl;
+    position->y = v;
+
     if(level->is_intersecting(position)) {
         done = true;
     }
@@ -61,7 +67,7 @@ void Owl::process() {
         return;
     }
 
-    if (main_.gameplay().frame % 11 == 0) {
+    if (main_.gameplay().frame % 6 == 0) {
         Bomb * b = new Bomb(main_.graphics->bombs, main_);
         b->position->x = position->x; // + static_cast<Sint16>(position->w / 2);
         b->position->y = position->h;
