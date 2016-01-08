@@ -67,7 +67,7 @@ void Owl::process() {
         return;
     }
 
-    if (main_.gameplay().frame % 6 == 0) {
+    if (main_.gameplay().frame % 8 == 0) {
         Bomb * b = new Bomb(main_.graphics->bombs, main_);
         b->position->x = position->x; // + static_cast<Sint16>(position->w / 2);
         b->position->y = position->h;
