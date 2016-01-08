@@ -3,6 +3,7 @@
 #include "Gameplay.h"
 #include "AudioController.h"
 #include "Bomb.h"
+#include "Owl.h"
 #include "Main.h"
 #include "Owlstrike.h"
 
@@ -29,8 +30,13 @@ void Owlstrike::process() {
 		main_.audio->play(SND_OWLSTRIKE);
 	}
 	if(main_.gameplay().frame - start == DELAY) {
-		// Generate bombs!
+		// Generate le owl
+		Owl * owl = new Owl(main_.graphics->owl, main_);
+		owl->owner = owner;
+		main_.gameplay().add_object(owl);
 
+		// Generate bombs!
+		/*
 		Bomb * b;
 		int x_interval, x_correct;
 		int bombs;
@@ -56,6 +62,7 @@ void Owlstrike::process() {
 
 			main_.gameplay().add_object(b);
 		}
+		*/
 
 		done = true;
 	}

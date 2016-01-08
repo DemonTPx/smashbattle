@@ -38,7 +38,7 @@ list(REMOVE_DUPLICATES Battle_INCLUDE_DIRS)
 
 include_directories(${Battle_INCLUDE_DIRS})
 
-add_executable (smashbattle ${Battle_SOURCES})
+add_executable (smashbattle ${Battle_SOURCES} Battle/Owl.cpp)
 
 file(GLOB_RECURSE tests_SOURCES "tests/*.cpp")
 file(GLOB_RECURSE tests_HEADERS "tests/*.h")
