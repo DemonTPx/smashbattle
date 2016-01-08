@@ -8,6 +8,11 @@
 
 #define XBOX_CONTROLLER_ONLY
 
+#define KEYBOARD_KEY 1
+#define JOYSTICK_BUTTON 2
+#define JOYSTICK_AXIS 3
+#define JOYSTICK_HAT 4
+
 // The value where we make the difference between a press and a non-press
 const int GameInput::JOYSTICK_AXIS_THRESHOLD = 0x3fff;
 
@@ -217,6 +222,7 @@ bool GameInput::is_pressed(int action) {
 void GameInput::reset() {
 	for(int i = 0; i < ACTION_COUNT; i++) {
 		pressed[i] = false;
+		press_owner[i] = 0;
 	}
 }
 
@@ -244,10 +250,12 @@ void GameInput::handle_event(SDL_Event *event) {
 					if(event->type == SDL_KEYDOWN && !pressed[bind.action]) {
 						pressed[bind.action] = true;
 						press_start[bind.action] = main_.frame;
+						press_owner[bind.action] = KEYBOARD_KEY;
 					}
-					if(event->type == SDL_KEYUP && pressed[bind.action]) {
+					if(event->type == SDL_KEYUP && pressed[bind.action] && press_owner[bind.action] == KEYBOARD_KEY) {
 						pressed[bind.action] = false;
 						press_start[bind.action] = 0;
+						press_owner[bind.action] = 0;
 					}
 				}
 			}
@@ -268,10 +276,12 @@ void GameInput::handle_event(SDL_Event *event) {
 					if(event->type == SDL_JOYBUTTONDOWN && !pressed[bind.action]) {
 						pressed[bind.action] = true;
 						press_start[bind.action] = main_.frame;
+						press_owner[bind.action] = JOYSTICK_BUTTON;
 					}
-					if(event->type == SDL_JOYBUTTONUP && pressed[bind.action]) {
+					if(event->type == SDL_JOYBUTTONUP && pressed[bind.action] && press_owner[bind.action] == JOYSTICK_BUTTON) {
 						pressed[bind.action] = false;
 						press_start[bind.action] = 0;
+						press_owner[bind.action] = 0;
 					}
 				}
 			}
@@ -291,20 +301,24 @@ void GameInput::handle_event(SDL_Event *event) {
 						if(bind.threshold < 0 && bind.threshold > event->jaxis.value) {
 							pressed[bind.action] = true;
 							press_start[bind.action] = main_.frame;
+							press_owner[bind.action] = JOYSTICK_AXIS;
 						}
 						else if(bind.threshold >= 0 && bind.threshold < event->jaxis.value) {
 							pressed[bind.action] = true;
 							press_start[bind.action] = main_.frame;
+							press_owner[bind.action] = JOYSTICK_AXIS;
 						}
 					}
 					else {
-						if(bind.threshold < 0 && bind.threshold < event->jaxis.value) {
+						if(bind.threshold < 0 && bind.threshold < event->jaxis.value && press_owner[bind.action] == JOYSTICK_AXIS) {
 							pressed[bind.action] = false;
 							press_start[bind.action] = 0;
+							press_owner[bind.action] = 0;
 						}
-						if(bind.threshold >= 0 && bind.threshold > event->jaxis.value) {
+						if(bind.threshold >= 0 && bind.threshold > event->jaxis.value && press_owner[bind.action] == JOYSTICK_AXIS) {
 							pressed[bind.action] = false;
 							press_start[bind.action] = 0;
+							press_owner[bind.action] = 0;
 						}
 					}
 				}
@@ -325,10 +339,12 @@ void GameInput::handle_event(SDL_Event *event) {
 					if((event->jhat.value & bind.direction) == bind.direction && !pressed[bind.action]) {
 						pressed[bind.action] = true;
 						press_start[bind.action] = main_.frame;
+						press_owner[bind.action] = JOYSTICK_HAT;
 					}
-					if((event->jhat.value & bind.direction) == 0 && pressed[bind.action]) {
+					if((event->jhat.value & bind.direction) == 0 && pressed[bind.action] && press_owner[bind.action] == JOYSTICK_HAT) {
 						pressed[bind.action] = false;
 						press_start[bind.action] = 0;
+						press_owner[bind.action] = 0;
 					}
 				}
 			}

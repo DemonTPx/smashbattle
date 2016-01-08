@@ -132,6 +132,7 @@ public:
 	bool pressed[ACTION_COUNT];
 protected:
 	unsigned int press_start[ACTION_COUNT];
+	short press_owner[ACTION_COUNT];
 
 	void joystick_wait_released();
 
