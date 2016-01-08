@@ -14,6 +14,7 @@
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
+#include "OwlstrikePowerUp.h"
 #include "RandomPowerUp.h"
 
 #include "LocalMultiplayer.h"
@@ -47,8 +48,9 @@ void LocalMultiplayer::initialize() {
 	powerup_instantkill_rate = 1;
 	powerup_bomb_rate = 6;
 	powerup_mine_rate = 6;
-	powerup_airstrike_rate = 2;
+	powerup_airstrike_rate = 1;
 	powerup_laserbeam_rate = 3;
+	powerup_owlstrike_rate = 9000000;
 	powerup_shield_rate = 4;
 	if (main_.runmode == MainRunModes::SERVER)
 		powerup_random_rate = 0; // currently server does not support random powerup yet
@@ -239,7 +241,7 @@ GameplayObject *LocalMultiplayer::generate_powerup(bool force)
 	max = powerup_health_rate + powerup_bullet_rate + powerup_doubledamage_rate +
 		powerup_instantkill_rate + powerup_bomb_rate + powerup_mine_rate +
 		powerup_airstrike_rate + powerup_laserbeam_rate + powerup_shield_rate +
-		powerup_random_rate;
+		powerup_random_rate + powerup_owlstrike_rate;
 	
 	r = rand() % max;
 	
@@ -289,6 +291,12 @@ GameplayObject *LocalMultiplayer::generate_powerup(bool force)
 	last = first + powerup_airstrike_rate;
 	if(r >= first && r < last) {
 		gpo = new AirstrikePowerUp(main_.graphics->powerups, rect, pos, main_);
+	}
+
+	first = last;
+	last = first + powerup_owlstrike_rate;
+	if(r >= first && r < last) {
+		gpo = new OwlstrikePowerUp(main_.graphics->powerups, rect, pos, main_);
 	}
 
 	first = last;

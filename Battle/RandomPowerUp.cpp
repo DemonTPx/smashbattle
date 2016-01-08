@@ -11,12 +11,13 @@
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
+#include "OwlstrikePowerUp.h"
 #include "RandomPowerUp.h"
 #include "commands/CommandGeneratePowerup.h"
 #include "Main.h"
 
-const int RandomPowerUp::CYCLE_COUNT = 7;
-const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 80, 64, 112, 16, 128, 96};
+const int RandomPowerUp::CYCLE_COUNT = 8;
+const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 80, 64, 112, 16, 128, 96, 128};
 const int RandomPowerUp::CYCLE_DELAY = 20;
 
 #define RPU_DOUBLEDAMAGE 0
@@ -26,6 +27,7 @@ const int RandomPowerUp::CYCLE_DELAY = 20;
 #define RPU_BOMB 4
 #define RPU_MINE 5
 #define RPU_SHIELD 6
+#define RPU_OWLSTRIKE 7
 
 RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
 	this->surface = surface;
@@ -75,6 +77,9 @@ void RandomPowerUp::hit_player(Player * p) {
 			break;
 		case RPU_AIRSTRIKE:
 			AirstrikePowerUp::shoot_airstrike(p, main_);
+			break;
+		case RPU_OWLSTRIKE:
+			OwlstrikePowerUp::shoot_owlstrike(p, main_);
 			break;
 		case RPU_LASER:
 			LaserBeamPowerUp::shoot_laserbeam(p, main_);

@@ -27,6 +27,7 @@
 #define SND_GO 11
 
 #define SND_AIRSTRIKE 12
+#define SND_OWLSTRIKE 12
 
 #define SND_LASER 13
 #define SND_SHIELD 14

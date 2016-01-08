@@ -12,6 +12,7 @@
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
+#include "OwlstrikePowerUp.h"
 #include "RandomPowerUp.h"
 
 namespace network {
@@ -53,6 +54,9 @@ std::unique_ptr<GameplayObject> CommandGeneratePowerup::factory(
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeShield:
 			powerup = std::unique_ptr<GameplayObject>(new ShieldPowerUp(main.graphics->powerups, rect, pos, main));
+			break;
+		case CommandGeneratePowerup::PowerUps::TypeOwlstrike:
+			powerup = std::unique_ptr<GameplayObject>(new OwlstrikePowerUp(main.graphics->powerups, rect, pos, main));
 			break;
 		case CommandGeneratePowerup::PowerUps::TypeRandom:
 		default:
