@@ -48,9 +48,9 @@ void LocalMultiplayer::initialize() {
 	powerup_instantkill_rate = 1;
 	powerup_bomb_rate = 6;
 	powerup_mine_rate = 6;
-	powerup_airstrike_rate = 1;
+	powerup_airstrike_rate = 0;
 	powerup_laserbeam_rate = 3;
-	powerup_owlstrike_rate = 9000000;
+	powerup_owlstrike_rate = 4;
 	powerup_shield_rate = 4;
 	if (main_.runmode == MainRunModes::SERVER)
 		powerup_random_rate = 0; // currently server does not support random powerup yet
