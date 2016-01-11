@@ -5,19 +5,17 @@
 #include "Bomb.h"
 #include "Main.h"
 #include <math.h>
+#include <assert.h>
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
+const int Owl::FRAME_COUNT = 2;
+const int Owl::FRAME_NORMAL = 0;
+const int Owl::FRAME_FLASH = 1;
+
 Owl::Owl(Main &main) : GameplayObject(main), main_(main) {
-    speedx = 6;
-    speedy = 0;
-    hit = false;
-
-    damage = 100;
-
-    position = new SDL_Rect();
-    clip = new SDL_Rect();
+    assert( ! "Construction of Owl with one argument is not implemented");
 }
 
 Owl::Owl(SDL_Surface * surface, Main &main) : GameplayObject(main), main_(main) {
@@ -35,16 +33,18 @@ Owl::Owl(SDL_Surface * surface, Main &main) : GameplayObject(main), main_(main) 
     position->w = OWL_W;
     position->h = OWL_H;
 
-    clip = new SDL_Rect();
-    clip->x = 0;
-    clip->y = 0;
-    clip->w = OWL_W;
-    clip->h = OWL_H;
+    current_frame = 0;
+    frame_change_start = main_.gameplay().frame;
+    frame_change_count = 12;
+
+    set_clips();
 }
 
 Owl::~Owl() {
     delete position;
-    delete clip;
+    for(int i = 0; i < FRAME_COUNT; i++) {
+        delete clip[i];
+    }
 }
 
 void Owl::move(Level * level) {
@@ -64,6 +64,12 @@ void Owl::process() {
     if(hit) {
         done = true;
         return;
+    }
+
+    // Animate owl
+    if(main_.gameplay().frame - frame_change_start >= frame_change_count) {
+        current_frame = current_frame == FRAME_NORMAL ? FRAME_FLASH : FRAME_NORMAL;
+        frame_change_start = main_.gameplay().frame;
     }
 
     if (main_.gameplay().frame % 10 == 0) {
@@ -114,5 +120,19 @@ void Owl::draw_impl(SDL_Surface * screen, int frames_processed) {
     rect.x = position->x;
     rect.y = position->y;
 
-    SDL_BlitSurface(sprite, clip, screen, &rect);
+    SDL_BlitSurface(sprite, clip[current_frame], screen, &rect);
+}
+
+void Owl::set_clips() {
+    clip[FRAME_NORMAL] = new SDL_Rect();
+    clip[FRAME_NORMAL]->x = 0;
+    clip[FRAME_NORMAL]->y = 0;
+    clip[FRAME_NORMAL]->w = OWL_W;
+    clip[FRAME_NORMAL]->h = OWL_H;
+
+    clip[FRAME_FLASH] = new SDL_Rect();
+    clip[FRAME_FLASH]->x = OWL_W;
+    clip[FRAME_FLASH]->y = 0;
+    clip[FRAME_FLASH]->w = OWL_W;
+    clip[FRAME_FLASH]->h = OWL_H;
 }
