@@ -7,9 +7,8 @@
 #include <math.h>
 #include <assert.h>
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
-
+const int Owl::ANIMATION_SPEED = 6;
+const int Owl::BOMB_AREA_OFFSET = 20;
 const int Owl::FRAME_COUNT = 2;
 const int Owl::FRAME_NORMAL = 0;
 const int Owl::FRAME_FLASH = 1;
@@ -22,20 +21,21 @@ Owl::Owl(SDL_Surface * surface, Main &main) : GameplayObject(main), main_(main) 
     speedx = 6;
     speedy = 0;
     hit = false;
+    direction = rand() % 2 == 1 ? 1 : -1;
+    speedx *= direction;
 
     damage = 100;
 
     sprite = surface;
 
     position = new SDL_Rect();
-    position->x = WINDOW_WIDTH;
+    position->x = static_cast<Sint16>(direction == 1 ? WINDOW_WIDTH : -OWL_W);
     position->y = 0;
     position->w = OWL_W;
     position->h = OWL_H;
 
     current_frame = 0;
     frame_change_start = main_.gameplay().frame;
-    frame_change_count = 12;
 
     set_clips();
 }
@@ -51,11 +51,17 @@ void Owl::move(Level * level) {
     position->x -= speedx;
 
     Sint16 v = static_cast<Sint16>(cos(((float) main_.gameplay().frame) / 4) * 20 + 20);
-    std::cout << v << std::endl;
     position->y = v;
 
-    if (position->x + position->w < 0) {
-        done = true;
+    if (direction == 1) {
+        if (position->x + position->w < 0) {
+            done = true;
+        }
+    }
+    else {
+        if (position->x > WINDOW_WIDTH) {
+            done = true;
+        }
     }
 }
 
@@ -67,26 +73,29 @@ void Owl::process() {
     }
 
     // Animate owl
-    if(main_.gameplay().frame - frame_change_start >= frame_change_count) {
+    if(main_.gameplay().frame - frame_change_start >= ANIMATION_SPEED) {
         current_frame = current_frame == FRAME_NORMAL ? FRAME_FLASH : FRAME_NORMAL;
         frame_change_start = main_.gameplay().frame;
     }
 
-    if (main_.gameplay().frame % 10 == 0) {
-        Bomb * b = new Bomb(main_.graphics->bombs, main_);
-        b->position->x = position->x;
-        b->position->y = position->y + position->h;
-        b->speedy = 30;
-        b->time = 900;
-        b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
-        b->owner = owner;
-        b->frame_start = main_.gameplay().frame;
-        b->frame_change_start = main_.gameplay().frame;
-        b->frame_change_count = 12;
-        b->hit_on_impact = true;
-        b->current_frame = Bomb::FRAME_STRIKE_NORMAL;
+    // Owl in box
+    if (position->x > BOMB_AREA_OFFSET && position->x < WINDOW_WIDTH - BOMB_AREA_OFFSET) {
+        if (main_.gameplay().frame % 10 == 0) {
+            Bomb *b = new Bomb(main_.graphics->bombs, main_);
+            b->position->x = position->x;
+            b->position->y = position->y + position->h;
+            b->speedy = 30;
+            b->time = 900;
+            b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
+            b->owner = owner;
+            b->frame_start = main_.gameplay().frame;
+            b->frame_change_start = main_.gameplay().frame;
+            b->frame_change_count = 12;
+            b->hit_on_impact = true;
+            b->current_frame = Bomb::FRAME_STRIKE_NORMAL;
 
-        main_.gameplay().add_object(b);
+            main_.gameplay().add_object(b);
+        }
     }
 }
 

@@ -2,9 +2,7 @@
 
 #include "Gameplay.h"
 #include "Projectile.h"
-
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
+#include "Main.h"
 
 Projectile::Projectile(Main &main) : GameplayObject(main), main_(main) {
 	speedx = 0;

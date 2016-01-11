@@ -16,15 +16,17 @@ public:
 
     int speedx, speedy;
     bool hit;
+    int direction;
 
     int current_frame;
     int frame_change_start;
-    int frame_change_count;
 
     Player * owner;
 
     int damage;
 
+    static const int ANIMATION_SPEED;
+    static const int BOMB_AREA_OFFSET;
     static const int FRAME_COUNT;
     static const int FRAME_NORMAL;
     static const int FRAME_FLASH;
