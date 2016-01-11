@@ -5,7 +5,6 @@
 #include "Bomb.h"
 #include "Main.h"
 #include <math.h>
-#include <stdio.h>
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
