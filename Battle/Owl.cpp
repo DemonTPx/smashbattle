@@ -82,7 +82,7 @@ void Owl::process() {
     if (position->x > BOMB_AREA_OFFSET && position->x < WINDOW_WIDTH - BOMB_AREA_OFFSET) {
         if (main_.gameplay().frame % 10 == 0) {
             Bomb *b = new Bomb(main_.graphics->bombs, main_);
-            b->position->x = position->x;
+            b->position->x = position->x + static_cast<Sint16>(OWL_W / 2) - static_cast<Sint16>(BOMB_W / 2);
             b->position->y = position->y + position->h;
             b->speedy = 30;
             b->time = 900;
