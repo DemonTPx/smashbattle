@@ -14,6 +14,7 @@ Graphics::~Graphics() {
 void Graphics::load_all() {
 	weapons = load_bmp("gfx/weapons.bmp");
 	bombs = load_bmp("gfx/bomb.bmp");
+	owl = load_bmp("gfx/owl2.bmp");
 	powerups = load_bmp("gfx/powerups.bmp");
 
 	shield = load_bmp("gfx/shield.bmp");
@@ -155,6 +156,7 @@ void Graphics::create_player_masks() {
 void Graphics::clear_all() {
 	SDL_FreeSurface(weapons);
 	SDL_FreeSurface(bombs);
+	SDL_FreeSurface(owl);
 	SDL_FreeSurface(powerups);
 
 	SDL_FreeSurface(shield);

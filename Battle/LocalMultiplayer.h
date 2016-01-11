@@ -54,6 +54,7 @@ protected:
 	int powerup_airstrike_rate;
 	int powerup_laserbeam_rate;
 	int powerup_shield_rate;
+	int powerup_owlstrike_rate;
 	int powerup_random_rate;
 
 	Main &main_;

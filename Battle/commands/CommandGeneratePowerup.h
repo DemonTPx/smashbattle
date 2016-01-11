@@ -24,7 +24,8 @@ public:
 		TypeAirstrike = 0x07,
 		TypeLaserBeam = 0x08,
 		TypeShield = 0x09,
-		TypeRandom = 0x0A
+		TypeRandom = 0x0A,
+		TypeOwlstrike = 0x0B
 	};
 
 	static std::unique_ptr<GameplayObject> factory(

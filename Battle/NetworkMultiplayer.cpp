@@ -23,6 +23,7 @@ using std::map;
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
+#include "OwlstrikePowerUp.h"
 #include "RandomPowerUp.h"
 #include "Main.h"
 #include "commands/CommandSetBroadcastText.hpp"

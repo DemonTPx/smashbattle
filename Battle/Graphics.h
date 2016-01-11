@@ -58,6 +58,7 @@ public:
 
 	SDL_Surface * weapons;
 	SDL_Surface * bombs;
+	SDL_Surface * owl;
 	SDL_Surface * powerups;
 
 	SDL_Surface * shield;

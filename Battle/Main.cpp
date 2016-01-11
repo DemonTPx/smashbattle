@@ -526,7 +526,7 @@ int main(int argc, char* args[])
 #ifdef WIN32
 	_chdir(cwd.c_str());
 #else
-	chdir("/usr/share/games/smashbattle/");
+//	chdir("/usr/share/games/smashbattle/");
 #endif
 
 	if(argc > 1) {
