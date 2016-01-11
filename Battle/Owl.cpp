@@ -78,7 +78,6 @@ void Owl::process() {
         frame_change_start = main_.gameplay().frame;
     }
 
-    // Owl in box
     if (position->x > BOMB_AREA_OFFSET && position->x < WINDOW_WIDTH - BOMB_AREA_OFFSET) {
         if (main_.gameplay().frame % 10 == 0) {
             Bomb *b = new Bomb(main_.graphics->bombs, main_);
