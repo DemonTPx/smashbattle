@@ -11,7 +11,7 @@
 #define WINDOW_HEIGHT 480
 
 Owl::Owl(Main &main) : GameplayObject(main), main_(main) {
-    speedx = 20;
+    speedx = 6;
     speedy = 0;
     hit = false;
 
@@ -22,7 +22,7 @@ Owl::Owl(Main &main) : GameplayObject(main), main_(main) {
 }
 
 Owl::Owl(SDL_Surface * surface, Main &main) : GameplayObject(main), main_(main) {
-    speedx = 8;
+    speedx = 6;
     speedy = 0;
     hit = false;
 
@@ -67,7 +67,7 @@ void Owl::process() {
         return;
     }
 
-    if (main_.gameplay().frame % 8 == 0) {
+    if (main_.gameplay().frame % 10 == 0) {
         Bomb * b = new Bomb(main_.graphics->bombs, main_);
         b->position->x = position->x;
         b->position->y = position->y + position->h;
