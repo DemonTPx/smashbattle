@@ -2,7 +2,7 @@
 
 #include "GameplayObject.h"
 
-#define OWL_W 45
+#define OWL_W 42
 #define OWL_H 36
 
 class Owl : public GameplayObject {
@@ -12,14 +12,24 @@ public:
     ~Owl();
 
     SDL_Surface * sprite;
-    SDL_Rect * clip;
+    SDL_Rect * clip[2];
 
     int speedx, speedy;
     bool hit;
+    int direction;
+
+    int current_frame;
+    int frame_change_start;
 
     Player * owner;
 
     int damage;
+
+    static const int ANIMATION_SPEED;
+    static const int BOMB_AREA_OFFSET;
+    static const int FRAME_COUNT;
+    static const int FRAME_NORMAL;
+    static const int FRAME_FLASH;
 
     virtual void move(Level * level);
     virtual void process();
@@ -32,6 +42,8 @@ protected:
     virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
 
 private:
+
+    void set_clips();
 
     Main &main_;
 };
