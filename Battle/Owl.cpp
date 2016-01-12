@@ -8,7 +8,7 @@
 #include <assert.h>
 
 const int Owl::ANIMATION_SPEED = 6;
-const int Owl::BOMB_AREA_OFFSET = 20;
+const int Owl::BOMB_AREA_OFFSET = 5;
 const int Owl::FRAME_COUNT = 2;
 const int Owl::FRAME_NORMAL = 0;
 const int Owl::FRAME_FLASH = 1;
@@ -78,7 +78,7 @@ void Owl::process() {
         frame_change_start = main_.gameplay().frame;
     }
 
-    if (position->x > BOMB_AREA_OFFSET && position->x < WINDOW_WIDTH - BOMB_AREA_OFFSET) {
+    if (position->x > BOMB_AREA_OFFSET && position->x < WINDOW_WIDTH - BOMB_AREA_OFFSET - position->w) {
         if (main_.gameplay().frame % 10 == 0) {
             Bomb *b = new Bomb(main_.graphics->bombs, main_);
             b->position->x = position->x + static_cast<Sint16>(OWL_W / 2) - static_cast<Sint16>(BOMB_W / 2);
