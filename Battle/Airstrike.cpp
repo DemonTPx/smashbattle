@@ -51,6 +51,7 @@ void Airstrike::process() {
 			b->frame_start = main_.gameplay().frame;
 			b->frame_change_start = main_.gameplay().frame;
 			b->frame_change_count = 12;
+			b->kill_move = AIRSTRIKE;
 			b->hit_on_impact = true;
 			b->current_frame = Bomb::FRAME_STRIKE_NORMAL;
 

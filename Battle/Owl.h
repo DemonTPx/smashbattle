@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameplayObject.h"
+#include "KillMove.h"
 
 #define OWL_W 42
 #define OWL_H 36

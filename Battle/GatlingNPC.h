@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NPC.h"
+#include "KillMove.h"
 
 class GatlingNPC : public NPC {
 public:

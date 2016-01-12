@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NPC.h"
+#include "KillMove.h"
 
 class ChickNPC : public NPC {
 public:

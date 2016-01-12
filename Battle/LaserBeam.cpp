@@ -70,7 +70,7 @@ void LaserBeam::hit_player(Player * player) {
 		return;
 	if(main_.gameplay().frame - start < 10)
 		return;
-	player->damage(25);
+	player->damage(25, owner, LASER);
 }
 
 void LaserBeam::hit_npc(NPC * npc) {

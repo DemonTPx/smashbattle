@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameplayObject.h"
+#include "KillMove.h"
 
 class Airstrike : public GameplayObject {
 public:

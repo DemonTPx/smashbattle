@@ -90,6 +90,7 @@ void Owl::process() {
             b->frame_start = main_.gameplay().frame;
             b->frame_change_start = main_.gameplay().frame;
             b->frame_change_count = 12;
+            b->kill_move = OWL_BOMB;
             b->hit_on_impact = true;
             b->current_frame = Bomb::FRAME_STRIKE_NORMAL;
 
@@ -107,7 +108,7 @@ void Owl::hit_player(Player * player) {
     if(player == owner)
         return;
 
-    if(player->damage(damage)) {
+    if(player->damage(damage, owner, OWL)) {
         hit = true;
     }
 }

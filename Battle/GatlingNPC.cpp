@@ -119,13 +119,13 @@ void GatlingNPC::shoot() {
 }
 
 void GatlingNPC::hit_player_side(Player * p) {
-	if(p->damage(10)) {
+	if(p->damage(10, NULL, UNKNOWN)) {
 		main_.audio->play(SND_HIT, position->x);
 	}
 }
 
 void GatlingNPC::hit_player_top_bottom(Player * p) {
-	if(p->damage(10)) {
+	if(p->damage(10, NULL, UNKNOWN)) {
 		main_.audio->play(SND_HIT, position->x);
 	}
 }
