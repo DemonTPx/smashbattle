@@ -3,7 +3,7 @@ Type=Application
 Version=1.0
 Name=Smash Battle (full screen)
 GenericName=Arcade mutliplayer shooter
-Icon=/usr/share/games/smashbattle/gfx/SB.png
+Icon=/usr/share/games/smashbattle/gfx/sb-icon.png
 Exec=/usr/local/bin/smashbattle -f
 Categories=Game;ArcadeGame;
 

@@ -126,8 +126,13 @@ bool Main::init() {
 		SDL_Surface * icon;
 		Uint8 * mask;
 
-		icon = Graphics::load_icon("gfx/SB.bmp", &mask, 0x00ffff);
-		//SDL_WM_SetIcon(icon, mask);
+#ifdef TWEAKERS
+		icon = Graphics::load_icon("gfx/sb-tweakers.bmp", &mask, 0x00ffff);
+#else
+		icon = Graphics::load_icon("gfx/sb-icon.bmp", &mask, 0x00ffff);
+#endif
+		SDL_WM_SetIcon(icon, mask);
+		SDL_WM_SetCaption("Smash Battle", NULL);
 
 		SDL_FreeSurface(icon);
 		delete[] mask;
@@ -140,8 +145,6 @@ bool Main::init() {
 
 	if (!no_sdl) {
 		if(screen == NULL) return false;
-
-		SDL_WM_SetCaption("Battle", NULL);
 	}
 	
 	fps = new Timer();
