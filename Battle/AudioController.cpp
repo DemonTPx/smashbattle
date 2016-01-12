@@ -29,7 +29,8 @@ const char * AudioController::sound_files[SOUNDFILES] = {
 	"sfx/airstrike.wav",
 	"sfx/laser.wav",
 	"sfx/shield.wav",
-	"sfx/blip.wav"
+	"sfx/blip.wav",
+	"sfx/owl_drop.wav"
 };
 
 const int AudioController::soundvolume[SOUNDFILES] = {
@@ -48,7 +49,8 @@ const int AudioController::soundvolume[SOUNDFILES] = {
 	100, //airstrike
 	100, //laser
 	100, //shield
-	75 //blip
+	75, //blip
+	100, //owl_drop
 };
 
 AudioController::AudioController(Main &main) : main_(main) {
@@ -155,7 +157,7 @@ void AudioController::unpause_music() {
 	Mix_ResumeMusic();
 }
 
-// TODO: change these functions into something with constantes like:
+// TODO: change these functions into something with constants like:
 // play_sound(SND_JUMP);
 
 void AudioController::play(int sound, int x) {

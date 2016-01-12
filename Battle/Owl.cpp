@@ -94,6 +94,8 @@ void Owl::process() {
             b->current_frame = Bomb::FRAME_STRIKE_NORMAL;
 
             main_.gameplay().add_object(b);
+
+            main_.audio->play(SND_OWL_DROP);
         }
     }
 }

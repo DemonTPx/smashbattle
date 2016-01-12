@@ -7,7 +7,7 @@
 #define MUSIC_TITLE 0
 #define MUSIC_END 1
 
-#define SOUNDFILES 16
+#define SOUNDFILES 17
 
 #define SND_SELECT 0
 #define SND_PAUSE 1
@@ -33,6 +33,8 @@
 #define SND_SHIELD 14
 
 #define SND_BLIP 15
+
+#define SND_OWL_DROP 16
 
 struct SoundOptions {
 	int sound_volume;
