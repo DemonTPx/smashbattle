@@ -17,7 +17,7 @@
 #include "Main.h"
 
 const int RandomPowerUp::CYCLE_COUNT = 7;
-const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 144, 64, 112, 16, 128, 96};
+const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {54, 162, 72, 126, 18, 144, 108};
 const int RandomPowerUp::CYCLE_DELAY = 20;
 
 #define RPU_DOUBLEDAMAGE 0
@@ -39,8 +39,8 @@ RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position, Main &m
 	clip = new SDL_Rect();
 	clip->x = CYCLE_X[cycle];
 	clip->y = 0;
-	clip->w = 16;
-	clip->h = 16;
+	clip->w = 18;
+	clip->h = 18;
 
 	is_powerup = true;
 }

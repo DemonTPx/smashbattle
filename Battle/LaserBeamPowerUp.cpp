@@ -9,7 +9,7 @@
 #include "Main.h"
 
 LaserBeamPowerUp::LaserBeamPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
-	clip->x = 112;
+	clip->x = 126;
 	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;

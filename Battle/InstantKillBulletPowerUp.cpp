@@ -6,7 +6,7 @@
 #include "Main.h"
 
 InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : GameplayObject(main), main_(main) {
-	clip->x = 64;
+	clip->x = 72;
 	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;

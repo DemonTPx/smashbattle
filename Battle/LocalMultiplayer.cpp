@@ -224,8 +224,8 @@ GameplayObject *LocalMultiplayer::generate_powerup(bool force)
 				obj = objects->at(idx);
 				if(!obj->is_powerup)
 					continue;
-				if(obj->position->x == (col * TILE_W) + 8 &&
-					obj->position->y == (row * TILE_H) + 16) {
+				if(obj->position->x == (col * TILE_W) + 7 &&
+					obj->position->y == (row * TILE_H) + 14) {
 					done = false;
 				}
 			}
@@ -233,10 +233,10 @@ GameplayObject *LocalMultiplayer::generate_powerup(bool force)
 	}
 
 	pos = new SDL_Rect();
-	pos->w = 16;
-	pos->h = 16;
-	pos->x = (col * TILE_W) + 8;
-	pos->y = (row * TILE_H) + 16;
+	pos->w = 18;
+	pos->h = 18;
+	pos->x = (col * TILE_W) + 7;
+	pos->y = (row * TILE_H) + 14;
 
 	max = powerup_health_rate + powerup_bullet_rate + powerup_doubledamage_rate +
 		powerup_instantkill_rate + powerup_bomb_rate + powerup_mine_rate +
@@ -246,8 +246,8 @@ GameplayObject *LocalMultiplayer::generate_powerup(bool force)
 	r = rand() % max;
 	
 	rect = new SDL_Rect();
-	rect->w = 16;
-	rect->h = 16;
+	rect->w = 18;
+	rect->h = 18;
 
 	gpo = NULL;
 

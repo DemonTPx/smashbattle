@@ -8,7 +8,7 @@
 #include "commands/CommandGeneratePowerup.h"
 
 OwlstrikePowerUp::OwlstrikePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
-	clip->x = 144;
+	clip->x = 162;
 	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;

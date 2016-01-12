@@ -7,7 +7,7 @@
 #include "Main.h"
 
 DoubleDamagePowerUp::DoubleDamagePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : GameplayObject(main), main_(main) {
-	clip->x = 48;
+	clip->x = 54;
 	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
