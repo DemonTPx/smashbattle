@@ -242,16 +242,16 @@ void Graphics::set_player_clips() {
 
 	for(int i = 0; i < 4; i++) {
 		pmarker_clip_below[i] = new SDL_Rect();
-		pmarker_clip_below[i]->x = 16 * i;
+		pmarker_clip_below[i]->x = 14 * i;
 		pmarker_clip_below[i]->y = 0;
-		pmarker_clip_below[i]->w = 16;
-		pmarker_clip_below[i]->h = 22;
+		pmarker_clip_below[i]->w = 14;
+		pmarker_clip_below[i]->h = 20;
 
 		pmarker_clip_above[i] = new SDL_Rect();
-		pmarker_clip_above[i]->x = 16 * i;
-		pmarker_clip_above[i]->y = 22;
-		pmarker_clip_above[i]->w = 16;
-		pmarker_clip_above[i]->h = 22;
+		pmarker_clip_above[i]->x = 14 * i;
+		pmarker_clip_above[i]->y = 20;
+		pmarker_clip_above[i]->w = 14;
+		pmarker_clip_above[i]->h = 20;
 	}
 }
 
