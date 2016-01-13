@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameplayObject.h"
+#include "KillMove.h"
 #include "Player.h"
 
 #define BOMB_W 12
@@ -26,6 +27,8 @@ public:
 	int time;
 
 	bool hit_on_impact;
+
+	KillMove kill_move;
 
 	int current_frame;
 	int frame_start;

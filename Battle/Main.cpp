@@ -151,14 +151,16 @@ bool Main::init() {
 
 	fps_counter_timer = new Timer();
 
-	audio = new AudioController(*this);
-	audio->open_audio();
-	audio->load_files();
-
 	text = new Text();
 	if (!no_sdl) {
 		text->load_all();
 	}
+
+	draw_loading_screen();
+
+	audio = new AudioController(*this);
+	audio->open_audio();
+	audio->load_files();
 
 	graphics = new Graphics(*this);
 	if (!no_sdl) {
@@ -237,6 +239,28 @@ void Main::flip(bool no_cap)
 			is_reset = true;
 		}
 	}
+}
+
+void Main::draw_loading_screen() {
+	if (no_sdl) {
+		return;
+	}
+
+	SDL_FillRect(screen, NULL, 0);
+
+	SDL_Surface * loading;
+
+	loading = text->render_text_medium_shadow("LOADING...");
+
+	SDL_Rect rect;
+	rect.x = WINDOW_WIDTH - loading->w - 8;
+	rect.y = WINDOW_HEIGHT - loading->h - 8;
+	rect.w = loading->w;
+	rect.h = loading->h;
+
+	SDL_BlitSurface(loading, 0, screen, &rect);
+
+	flip(true);
 }
 
 void Main::fps_count() {

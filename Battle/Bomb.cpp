@@ -18,6 +18,8 @@ Bomb::Bomb(Main &main) : GameplayObject(main), main_(main) {
 	exploded = false;
 	done = false;
 
+	kill_move = BOMB;
+
 	hit_on_impact = false;
 
 	position = new SDL_Rect();
@@ -30,6 +32,8 @@ Bomb::Bomb(SDL_Surface * surface, Main &main) : GameplayObject(main), main_(main
 
 	exploded = false;
 	done = false;
+
+	kill_move = BOMB;
 
 	hit_on_impact = false;
 
@@ -196,7 +200,7 @@ void Bomb::explode() {
 		rect_player = p->get_rect();
 
 		if(main_.gameplay().is_intersecting(rect_bomb, rect_player)) {
-			if(p->damage(damage))
+			if(p->damage(damage, owner, kill_move))
 				player_hit = true;
 		}
 

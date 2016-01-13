@@ -170,6 +170,8 @@ Player::Player(int character, int number, Main &main) : main_(main) {
 
 	current_sprite = SPR_R;
 
+	kill_list = new std::vector<Kill>(15);
+
 	reset();
 
 	position = new SDL_Rect();
@@ -186,6 +188,8 @@ Player::Player(int character, int number, Main &main) : main_(main) {
 Player::~Player() {
 	delete position;
 	delete last_position;
+
+	delete kill_list;
 #ifdef PLAYER_REPLACE_SUIT_COLOR
 	SDL_FreeSurface(sprites);
 #endif
@@ -241,8 +245,6 @@ void Player::reset(bool excludeInputs, bool excludeStats) {
 	momentumx = 0;
 	momentumy = 0;
 
-	
-
 	is_running = false;
 	is_duck = false;
 	is_duck_forced = false;
@@ -284,6 +286,9 @@ void Player::reset(bool excludeInputs, bool excludeStats) {
 	doubledamagebullets = 0;
 	instantkillbullets = 0;
 
+	last_damage_player = 0;
+	last_damage_move = UNKNOWN;
+
 	// Stats
 	if (!excludeStats) {
 		distance_walked = 0;
@@ -293,6 +298,11 @@ void Player::reset(bool excludeInputs, bool excludeStats) {
 		bombs_fired = 0;
 		bombs_hit = 0;
 		headstomps = 0;
+
+		kills = 0;
+		deaths = 0;
+
+		kill_list->clear();
 	}
 	
 	hitpoints = is_spectating ? 0 : 100;
@@ -699,7 +709,7 @@ void Player::move(Level * level) {
 
 	// Die when we fall out of the level
 	if(position->y + position->h > (14 * TILE_H)) {
-		hitpoints = 0;
+		damage(hitpoints, NULL, FALLING);
 	}
 }
 
@@ -762,7 +772,7 @@ void Player::bounce(Player * other) {
 		is_duck_forced = true;
 		duck_force_start = main_.gameplay().frame;
 		momentumy = -10;
-		if(damage(WEIGHTCLASSES[other->weightclass].headjump_damage)) {
+		if(damage(WEIGHTCLASSES[other->weightclass].headjump_damage, other, HEAD_STOMP)) {
 			other->headstomps++;
 		}
 	}
@@ -805,7 +815,7 @@ void Player::bounce_up(SDL_Rect * source) {
 		momentumx = -MAX_MOMENTUM_HORIZ;
 }
 
-bool Player::damage(int damage) {
+bool Player::damage(int damage, Player * other, KillMove move) {
 	if(is_shielded)
 		return true;
 
@@ -814,6 +824,9 @@ bool Player::damage(int damage) {
 
 	is_hit = true;
 	hit_start = main_.gameplay().frame;
+
+	last_damage_player = other;
+	last_damage_move = move;
 
 	switch (main_.runmode) {
 		default:
@@ -935,12 +948,16 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 
 	pr = new Projectile(main_.graphics->weapons, clip_weapon, main_);
 	pr->owner = this;
-	if(instantkill)
+	if(instantkill) {
 		pr->damage = 100;
-	else if(doubledamage)
+		pr->kill_move = BULLET_INSTANT;
+	} else if(doubledamage) {
 		pr->damage = WEAPONCLASSES[weaponclass].damage * 2;
-	else
+		pr->kill_move = BULLET_DOUBLE;
+	} else {
 		pr->damage = WEAPONCLASSES[weaponclass].damage;
+		pr->kill_move = BULLET;
+	}
 
 	if(current_sprite >= SPR_L && current_sprite <= SPR_L_DUCK) {
 		pr->speedx = -10;
@@ -949,10 +966,7 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 		pr->speedx = 10;
 		pr->position->x = x;
 	}
-	if(is_duck)
-		pr->position->y = y;
-	else
-		pr->position->y = y;
+	pr->position->y = y;
 	main_.gameplay().add_object(pr);
 
 	pr->max_distance = WEAPONCLASSES[weaponclass].distance;
@@ -963,7 +977,7 @@ Projectile * Player::create_projectile(Sint16 x, Sint16 y)
 		doubledamagebullets--;
 //			else if(ruleset.doubledamagebullets != BULLETS_UNLIMITED)
 //				bullets--;
-	
+
 	bullets_fired++;
 
 	main_.audio->play(SND_SHOOT, pr->position->x);
@@ -987,10 +1001,13 @@ Bomb* Player::create_bomb(Sint16 x, Sint16 y)
 
 	Bomb * b;
 
-	if(mines > 0 || mines == -1)
+	if(mines > 0 || mines == -1) {
 		b = new Mine(main_.graphics->bombs, main_);
-	else
+		b->kill_move = MINE;
+	} else {
 		b = new Bomb(main_.graphics->bombs, main_);
+		b->kill_move = BOMB;
+	}
 
 	b->damage = BOMBPOWERCLASSES[bombpowerclass].damage;
 	b->time = 60;

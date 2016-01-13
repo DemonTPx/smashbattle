@@ -23,6 +23,21 @@
 #define sprintf_s snprintf
 #endif
 
+const char * KILL_MOVE_DESCRIPTION[] = {
+	"[unknown]",
+	"falling into a pit",
+	"a stomp to the head",
+	"a bullet",
+	"a double damage bullet",
+	"an instant kill bullet",
+	"a bomb",
+	"a mine",
+	"a laser",
+	"an airstrike",
+	"an owl",
+	"a bomb dropped by an owl"
+};
+
 LocalMultiplayer::LocalMultiplayer(Main &main) 
 : Gameplay(main), winner(NULL), main_(main)
 {
@@ -157,6 +172,20 @@ void LocalMultiplayer::on_post_processing() {
 
 			if(p->hitpoints <= 0) {
 				main_.audio->play(SND_YOULOSE, p->position->x);
+
+				p->deaths++;
+				if (p->last_damage_player != NULL) {
+					Kill k;
+					k.player = p;
+					k.move = p->last_damage_move;
+
+					p->last_damage_player->kills++;
+					p->last_damage_player->kill_list->push_back(k);
+
+					std::cout << p->last_damage_player->name << " killed " << p->name << " using " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
+				} else {
+					std::cout << p->name << " killed itself " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
+				}
 
 				p->is_dead = true;
 				p->dead_start = main_.gameplay().frame;

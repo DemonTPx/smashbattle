@@ -99,6 +99,7 @@ public:
 
 	int run(const MainRunModes &);
 	void flip(bool no_cap = false);
+	void draw_loading_screen();
 	void handle_event(SDL_Event * event);
 	void reset_inputs();
 private:

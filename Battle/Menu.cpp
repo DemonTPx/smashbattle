@@ -285,6 +285,8 @@ void Menu::start_missions() {
 }
 
 void Menu::start_local_multiplayer() {
+	main_.draw_loading_screen();
+
 	Player ** player;
 
 	Level * level;
@@ -323,7 +325,9 @@ void Menu::start_local_multiplayer() {
 		round++;
 
 		if (change_character) {
+			main_.draw_loading_screen();
 			cs->run();
+
 			if (cs->cancel) break;
 
 			for (int i = 0; i < 4; i++) {
@@ -338,7 +342,9 @@ void Menu::start_local_multiplayer() {
 		}
 
 		if (change_level) {
+			main_.draw_loading_screen();
 			ls->run();
+
 			if (ls->cancel) break;
 
 			if (level != NULL)

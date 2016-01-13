@@ -79,7 +79,7 @@ void ChickNPC::reset() {
 }
 
 void ChickNPC::hit_player_side(Player * p) {
-	if(p->damage(10)) {
+	if(p->damage(10, NULL, UNKNOWN)) {
 		main_.audio->play(SND_HIT, position->x);
 	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameplayObject.h"
+#include "KillMove.h"
 
 class LaserBeam : public GameplayObject {
 public:

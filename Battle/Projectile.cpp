@@ -73,7 +73,7 @@ void Projectile::hit_player(Player * player) {
 	if(player == owner)
 		return;
 
-	if(player->damage(damage)) {
+	if(player->damage(damage, owner, kill_move)) {
 		hit = true;
 		if(owner != NULL)
 			owner->bullets_hit++;

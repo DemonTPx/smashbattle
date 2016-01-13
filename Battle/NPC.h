@@ -2,6 +2,7 @@
 
 #include "Level.h"
 #include "Player.h"
+#include "KillMove.h"
 
 #define CYCLE_UP 0
 #define CYCLE_DN 1

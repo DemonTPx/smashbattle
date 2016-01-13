@@ -2,6 +2,7 @@
 
 #include "Level.h"
 #include "GameInput.h"
+#include "KillMove.h"
 
 #define FACE_LEFT 0
 #define FACE_RIGHT 1
@@ -43,6 +44,11 @@ struct WeaponClass {
 
 struct BombPowerClass {
 	int damage;
+};
+
+struct Kill {
+	Player * player;
+	KillMove move;
 };
 
 namespace network {
@@ -159,12 +165,20 @@ public:
 
 	int bounce_direction_x, bounce_direction_y;
 
+	Player * last_damage_player = 0;
+	KillMove last_damage_move = UNKNOWN;
+
+	std::vector<Kill> * kill_list = 0;
+
 	int rounds_won;
 	unsigned int bullets_fired;
 	unsigned int bullets_hit;
 	unsigned int bombs_fired;
 	unsigned int bombs_hit;
 	unsigned int headstomps;
+
+	unsigned int kills;
+	unsigned int deaths;
 
 	static const int jump_height;
 
@@ -182,7 +196,7 @@ public:
 	void bounce(Player * other);
 	void bounce_up(SDL_Rect * source);
 
-	bool damage(int damage);
+	bool damage(int damage, Player * other, KillMove move);
 
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);

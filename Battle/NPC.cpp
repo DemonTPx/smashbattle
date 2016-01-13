@@ -220,7 +220,7 @@ void NPC::bounce(Player * other) {
 		other->is_duck_forced = true;
 		other->duck_force_start = main_.gameplay().frame;
 		other->momentumy = -10;
-		other->damage(5);
+		other->damage(5, NULL, UNKNOWN);
 
 		hit_player_top_bottom(other);
 	}

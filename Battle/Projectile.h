@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameplayObject.h"
+#include "KillMove.h"
 
 class Projectile : public GameplayObject {
 public:
@@ -15,6 +16,8 @@ public:
 	int distance_traveled;
 	int max_distance;
 	bool hit;
+
+	KillMove kill_move;
 	
 	Player * owner;
 
