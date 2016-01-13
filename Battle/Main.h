@@ -16,6 +16,9 @@
 #define SAVE_SIGNATURE 0x5353 // 'SS'
 #define SAVE_VERSION 2
 
+//#define TWEAKERS
+#define PBWEB
+
 struct SaveHeader {
 	short signature;
 	short version;
