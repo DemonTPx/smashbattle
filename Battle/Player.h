@@ -46,6 +46,11 @@ struct BombPowerClass {
 	int damage;
 };
 
+struct Kill {
+	Player * player;
+	KillMove move;
+};
+
 namespace network {
 class CommandSetPlayerData;
 }
@@ -162,6 +167,8 @@ public:
 
 	Player * last_damage_player = 0;
 	KillMove last_damage_move = UNKNOWN;
+
+	std::vector<Kill> * kill_list = 0;
 
 	int rounds_won;
 	unsigned int bullets_fired;

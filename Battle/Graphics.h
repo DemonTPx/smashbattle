@@ -25,10 +25,13 @@
 #define SPR_L_JUMP	18
 #define SPR_L_DUCK	19
 
-#define SPR_COUNT	22
+#define SPR_COUNT	24
 
 #define SPR_AVATAR	20
 #define SPR_AVATAR_SELECTED 21
+
+#define SPR_R_HEAD 22
+#define SPR_L_HEAD 23
 
 #define PLAYER_SURF_COLS 10
 #define PLAYER_SURF_COUNT 20

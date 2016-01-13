@@ -44,6 +44,34 @@ void LocalMultiplayerRoundEnd::run() {
 	frame = 0;
 
 	reset_input();
+
+	Player * p;
+
+	std::cout << std::endl;
+	std::cout << "-- GAME ENDED --" << std::endl;
+	for(unsigned int idx = 0; idx < players->size(); idx++) {
+		p = players->at(idx);
+
+		std::cout << p->number << " ";
+		std::cout << p->name << ":";
+		std::cout << " score: " << p->score;
+		std::cout << " kills: " << p->kills;
+		std::cout << " deaths: " << p->deaths;
+
+		if (p->deaths == 0) {
+			std::cout << " k/d: INF";
+		} else {
+			std::cout << " k/d: " << ((float) p->kills / p->deaths);
+		}
+
+		std::cout << std::endl;
+
+		std::cout << "Kills:" << std::endl;
+
+		for (std::vector<Kill>::iterator k = p->kill_list->begin(); k != p->kill_list->end(); k++) {
+			std::cout << " - " << k->player->name << " / " << k->move << std::endl;
+		}
+	}
 	
 	while (main_.running && !ready) {
 		while(SDL_PollEvent(&event)) {
@@ -202,93 +230,96 @@ void LocalMultiplayerRoundEnd::init() {
 			SDL_BlitSurface(main_.graphics->cups, &rect_s, background, &rect);
 		}
 
-		// Bullets fired
-		rect.x = r_block.x + 224;
+		// Kills
+		rect.x = r_block.x + 190;
 		rect.y = r_block.y + 10;
-		rect_s.x = 0;
-		rect_s.y = 0;
-		rect_s.w = 8;
-		rect_s.h = 8;
-		SDL_BlitSurface(main_.graphics->weapons, &rect_s, background, &rect);
 
-		sprintf_s(str, 20, "%d", pl->bullets_fired);
-		text = main_.text->render_text_medium_gray(str);
-		rect.x = r_block.x + 240;
-		rect.y = r_block.y + 8;
-		SDL_BlitSurface(text, NULL, background, &rect);
-		SDL_FreeSurface(text);
-		
-		// Bullets accuracy
-		rect.x = r_block.x + 332;
-		rect.y = r_block.y + 6;
-		rect_s.x = 0;
-		rect_s.y = 16;
-		rect_s.w = 16;
-		rect_s.h = 16;
-		SDL_BlitSurface(main_.graphics->common, &rect_s, background, &rect);
+		for (std::vector<Kill>::iterator k = pl->kill_list->begin(); k != pl->kill_list->end(); k++) {
+			// Draw kill move
+			SDL_Surface * s_kill_move = 0;
+			SDL_Rect rect_km_s;
+			SDL_Rect rect_km_d;
 
-		if(pl->bullets_fired == 0)
-			accuracy = 0;
-		else
-			accuracy = ((double)pl->bullets_hit / (double)pl->bullets_fired) * 100;
-		sprintf_s(str, 20, "%1.0f%%", accuracy);
-		text = main_.text->render_text_medium_gray(str);
-		rect.x = r_block.x + 352;
-		rect.y = r_block.y + 8;
-		SDL_BlitSurface(text, NULL, background, &rect);
-		SDL_FreeSurface(text);
+			rect_km_s.x = 0;
+			rect_km_s.y = 0;
 
-		// Bombs fired
-		rect.x = r_block.x + 222;
-		rect.y = r_block.y + 28;
-		rect_s.x = 12;
-		rect_s.y = 0;
-		rect_s.w = 12;
-		rect_s.h = 16;
-		SDL_BlitSurface(main_.graphics->bombs, &rect_s, background, &rect);
+			// TODO: Preset the kill move clips
+			switch (k->move) {
+				case BULLET:
+				case BULLET_DOUBLE:
+				case BULLET_INSTANT:
+					s_kill_move = main_.graphics->weapons;
 
-		sprintf_s(str, 20, "%d", pl->bombs_fired);
-		text = main_.text->render_text_medium_gray(str);
-		rect.x = r_block.x + 240;
-		rect.y = r_block.y + 30;
-		SDL_BlitSurface(text, NULL, background, &rect);
-		SDL_FreeSurface(text);
-		
-		// Bombs accuracy
-		rect.x = r_block.x + 332;
-		rect.y = r_block.y + 28;
-		rect_s.x = 0;
-		rect_s.y = 16;
-		rect_s.w = 16;
-		rect_s.h = 16;
-		SDL_BlitSurface(main_.graphics->common, &rect_s, background, &rect);
+					rect_km_s.w = 8;
+					rect_km_s.h = 8;
 
-		if(pl->bombs_fired == 0)
-			accuracy = 0;
-		else
-			accuracy = ((double)pl->bombs_hit / (double)pl->bombs_fired) * 100;
-		sprintf_s(str, 20, "%1.0f%%", accuracy);
-		text = main_.text->render_text_medium_gray(str);
-		rect.x = r_block.x + 352;
-		rect.y = r_block.y + 30;
-		SDL_BlitSurface(text, NULL, background, &rect);
-		SDL_FreeSurface(text);
+					if (k->move == BULLET_DOUBLE) {
+						rect_km_s.x = 8;
+					}
+					if (k->move == BULLET_INSTANT) {
+						rect_km_s.x = 16;
+					}
 
-		// Headstomps
-		rect.x = r_block.x + 220;
-		rect.y = r_block.y + 50;
-		rect_s.x = 0;
-		rect_s.y = 32;
-		rect_s.w = 16;
-		rect_s.h = 16;
-		SDL_BlitSurface(main_.graphics->common, &rect_s, background, &rect);
+					break;
+				case BOMB:
+				case MINE:
+				case AIRSTRIKE:
+				case OWL_BOMB:
+					s_kill_move = main_.graphics->bombs;
 
-		sprintf_s(str, 20, "%d", pl->headstomps);
-		text = main_.text->render_text_medium_gray(str);
-		rect.x = r_block.x + 240;
-		rect.y = r_block.y + 52;
-		SDL_BlitSurface(text, NULL, background, &rect);
-		SDL_FreeSurface(text);
+					rect_km_s.w = 12;
+					rect_km_s.h = 16;
+
+					if (k->move == AIRSTRIKE) {
+						rect_km_s.x = 24;
+					}
+					if (k->move == OWL_BOMB) {
+						rect_km_s.x = 36;
+					}
+
+					if (k->move == MINE) {
+						rect_km_s.x = 54;
+						rect_km_s.w = 6;
+						rect_km_s.h = 4;
+					}
+					break;
+				case LASER:
+					s_kill_move = main_.graphics->powerups;
+
+					rect_km_s.x = 126;
+					rect_km_s.w = 18;
+					rect_km_s.h = 18;
+					break;
+				case OWL:
+					s_kill_move = main_.graphics->owl;
+
+					rect_km_s.w = 42;
+					rect_km_s.h = 36;
+					break;
+				case HEAD_STOMP:
+					s_kill_move = main_.graphics->common;
+
+					rect_km_s.y = 32;
+					rect_km_s.w = 16;
+					rect_km_s.h = 16;
+					break;
+				default:
+					break;
+			}
+
+			rect_km_d.x = rect.x + ((PLAYER_W - rect_km_s.w) / 2);
+			rect_km_d.y = rect.y + PLAYER_W + 5 + ((PLAYER_W - rect_km_s.h) / 2);
+			rect_km_d.w = rect_km_s.w;
+			rect_km_d.h = rect_km_s.h;
+
+			if (s_kill_move != 0) {
+				SDL_BlitSurface(s_kill_move, &rect_km_s, background, &rect_km_d);
+			}
+
+			// Draw killed player
+			SDL_BlitSurface(k->player->sprites, main_.graphics->player_clip[SPR_R_HEAD], background, &rect);
+			rect.x += PLAYER_W + 2;
+		}
 
 		// Score
 		sprintf_s(str, 4, "%d", pl->score);

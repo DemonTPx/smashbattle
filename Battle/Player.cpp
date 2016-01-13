@@ -170,6 +170,8 @@ Player::Player(int character, int number, Main &main) : main_(main) {
 
 	current_sprite = SPR_R;
 
+	kill_list = new std::vector<Kill>(15);
+
 	reset();
 
 	position = new SDL_Rect();
@@ -186,6 +188,8 @@ Player::Player(int character, int number, Main &main) : main_(main) {
 Player::~Player() {
 	delete position;
 	delete last_position;
+
+	delete kill_list;
 #ifdef PLAYER_REPLACE_SUIT_COLOR
 	SDL_FreeSurface(sprites);
 #endif
@@ -297,6 +301,8 @@ void Player::reset(bool excludeInputs, bool excludeStats) {
 
 		kills = 0;
 		deaths = 0;
+
+		kill_list->clear();
 	}
 	
 	hitpoints = is_spectating ? 0 : 100;

@@ -228,6 +228,18 @@ void Graphics::set_player_clips() {
 	player_clip[SPR_AVATAR_SELECTED]->w = PLAYER_W * 2;
 	player_clip[SPR_AVATAR_SELECTED]->h = PLAYER_H;
 
+	player_clip[SPR_R_HEAD] = new SDL_Rect();
+	player_clip[SPR_R_HEAD]->x = 0;
+	player_clip[SPR_R_HEAD]->y = 0;
+	player_clip[SPR_R_HEAD]->w = PLAYER_W;
+	player_clip[SPR_R_HEAD]->h = PLAYER_W;
+
+	player_clip[SPR_L_HEAD] = new SDL_Rect();
+	player_clip[SPR_L_HEAD]->x = 0;
+	player_clip[SPR_L_HEAD]->y = player_clip[SPR_L_HEAD]->h;
+	player_clip[SPR_L_HEAD]->w = PLAYER_W;
+	player_clip[SPR_L_HEAD]->h = PLAYER_W;
+
 	for(int i = 0; i < 4; i++) {
 		pmarker_clip_below[i] = new SDL_Rect();
 		pmarker_clip_below[i]->x = 16 * i;

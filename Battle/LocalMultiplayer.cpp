@@ -103,27 +103,6 @@ void LocalMultiplayer::on_game_reset()
 	
 	if(we_have_a_winner()) {
 		game_running = false;
-
-		std::cout << std::endl;
-		std::cout << "-- GAME ENDED --" << std::endl;
-		for(unsigned int idx = 0; idx < players->size(); idx++) {
-			p = players->at(idx);
-
-			std::cout << p->number << " ";
-			std::cout << p->name << ":";
-			std::cout << " score: " << p->score;
-			std::cout << " kills: " << p->kills;
-			std::cout << " deaths: " << p->deaths;
-
-			if (p->deaths == 0) {
-				std::cout << " k/d: INF";
-			} else {
-				std::cout << " k/d: " << ((float) p->kills / p->deaths);
-			}
-
-			std::cout << std::endl;
-		}
-
 		strcpy(countdown_pre_text, "");
 		return;
 	}
@@ -196,7 +175,13 @@ void LocalMultiplayer::on_post_processing() {
 
 				p->deaths++;
 				if (p->last_damage_player != NULL) {
+					Kill k;
+					k.player = p;
+					k.move = p->last_damage_move;
+
 					p->last_damage_player->kills++;
+					p->last_damage_player->kill_list->push_back(k);
+
 					std::cout << p->last_damage_player->name << " killed " << p->name << " using " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
 				} else {
 					std::cout << p->name << " killed itself " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
