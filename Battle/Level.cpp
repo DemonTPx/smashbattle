@@ -13,7 +13,8 @@
 
 const int Level::LEVEL_COUNT = 16;
 const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
-	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.lvl"},
+	{(char*)"JUNGLE TEMPLE", (char*)"stage/jungle_temple.lvl"},
+//	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.lvl"},
 	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.lvl"},
 	{(char*)"PITTFALL", (char*)"stage/pitfall.lvl"},
 	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.lvl"},
