@@ -807,14 +807,15 @@ void Player::bounce(Player * other) {
 	// Players hit each others side
 	if(is_left || is_right) {
 		newmomentumx = other->momentumx;
-		
-		if(is_left) {
-			bounce_direction_x = -1;
-			newmomentumx -= WEIGHTCLASSES[other->weightclass].push_force - WEIGHTCLASSES[weightclass].push_force + 10;
+
+		bounce_direction_x = is_left ? -1 : 1;
+		newmomentumx += bounce_direction_x * (WEIGHTCLASSES[other->weightclass].push_force - WEIGHTCLASSES[weightclass].push_force + 10);
+
+		if (other->is_shielded) {
+			newmomentumx += bounce_direction_x * 10;
 		}
-		if(is_right) {
-			bounce_direction_x = 1;
-			newmomentumx += WEIGHTCLASSES[other->weightclass].push_force - WEIGHTCLASSES[weightclass].push_force + 10;
+		if (is_shielded) {
+			newmomentumx -= bounce_direction_x * 10;
 		}
 	} else {
 		bounce_direction_x = 0;
