@@ -35,8 +35,7 @@ const char * KILL_MOVE_DESCRIPTION[] = {
 	"a laser",
 	"an airstrike",
 	"an owl",
-	"a bomb dropped by an owl",
-	"Lion king style push"
+	"a bomb dropped by an owl"
 };
 
 LocalMultiplayer::LocalMultiplayer(Main &main) 
