@@ -165,8 +165,9 @@ public:
 
 	int bounce_direction_x, bounce_direction_y;
 
-	Player * last_damage_player = 0;
+	Player * last_damage_player = NULL;
 	KillMove last_damage_move = UNKNOWN;
+	Player * last_pushed_player = NULL;
 
 	std::vector<Kill> * kill_list = 0;
 

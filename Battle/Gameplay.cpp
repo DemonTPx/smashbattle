@@ -412,12 +412,15 @@ void Gameplay::add_npc(NPC * npc) {
 	npcs->push_back(npc);
 }
 
-void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source) {
+void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source, Player * initialized_by_player) {
 	Player * p;
 	for(unsigned int i = 0; i < players->size(); i++) {
 		p = players->at(i);
-		if(is_intersecting(rect, p->position))
+		if(is_intersecting(rect, p->position)) {
+			p->last_pushed_player = initialized_by_player;
+			p->last_damage_move = KillMove::FALLING;
 			p->bounce_up(source);
+		}
 	}
 
 	NPC * npc;

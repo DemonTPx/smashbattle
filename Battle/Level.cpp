@@ -787,7 +787,7 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 	}
 }
 
-void Level::bounce_tile(SDL_Rect * rect) {
+void Level::bounce_tile(SDL_Rect * rect, Player * player) {
 	int l, x, r, y;
 	int pos;
 
@@ -820,6 +820,6 @@ void Level::bounce_tile(SDL_Rect * rect) {
 	rect_hit.w = TILE_W;
 	rect_hit.h = BOUNCE_HIT_HEIGHT;
 
-	main_.gameplay().bounce_up_players_and_npcs(&rect_hit, rect);
+	main_.gameplay().bounce_up_players_and_npcs(&rect_hit, rect, player);
 }
 
