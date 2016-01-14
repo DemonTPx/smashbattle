@@ -115,6 +115,7 @@ void Menu::draw_impl() {
 	rect.y = 40;
 	SDL_BlitSurface(title, NULL, screen, &rect);
 
+#ifndef PBWEB
 	// Tile border
 	rect_s.x = 0;
 	rect_s.y = 0;
@@ -142,6 +143,7 @@ void Menu::draw_impl() {
 		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
+#endif
 
 	if (started) {
 		// The menu
@@ -490,7 +492,13 @@ void Menu::init() {
 
 	selected_item = 0;
 
+#ifdef PBWEB
+	title = main_.text->render_text_large_shadow("PB WEB   MEDIA ");
+#elif TWEAKERS
+	title = main_.text->render_text_large_shadow("TWEAK   BATTLE");
+#else
 	title = main_.text->render_text_large_shadow("SMASH BATTLE");
+#endif
 
 	surf_items = new std::vector<SDL_Surface*>(0);
 	surf_items_clip = new std::vector<SDL_Rect*>(0);
@@ -500,7 +508,7 @@ void Menu::init() {
 
 		rect = new SDL_Rect();
 		rect->x = (WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2;
-		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) + 8;
+		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) - 12;
 		surf_items_clip->push_back(rect);
 	}
 

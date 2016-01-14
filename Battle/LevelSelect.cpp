@@ -250,7 +250,7 @@ void LevelSelect::draw_impl() {
 		rect.w = width;
 		rect.h = 32;
 
-		color = 0x0088ff;
+		color = MENU_CURSOR_COLOR;
 		SDL_FillRectColor(screen, &rect, color);
 
 		rect.x += LEVEL_SPACING;
@@ -284,7 +284,7 @@ void LevelSelect::draw_impl() {
 		color = 0;
 
 		if(level == idx) {
-			color = 0x0088ff;
+			color = MENU_CURSOR_COLOR;
 			
 			if(ready_level && flicker) {
 				if(flicker_frame > 0x20)
