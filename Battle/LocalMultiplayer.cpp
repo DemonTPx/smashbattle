@@ -54,7 +54,7 @@ void LocalMultiplayer::set_countdown(bool countdown, int seconds)
 void LocalMultiplayer::initialize() {
 	Gameplay::initialize();
 
-	powerup_rate = 100;
+	powerup_rate = 300;
 	powerup_max = 2;
 
 	powerup_health_rate = 10;

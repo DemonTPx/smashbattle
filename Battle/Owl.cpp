@@ -3,6 +3,7 @@
 #include "Gameplay.h"
 #include "Owl.h"
 #include "Bomb.h"
+#include "Egg.h"
 #include "Main.h"
 #include <math.h>
 #include <assert.h>
@@ -80,12 +81,19 @@ void Owl::process() {
 
     if (position->x > BOMB_AREA_OFFSET && position->x < WINDOW_WIDTH - BOMB_AREA_OFFSET - position->w) {
         if (main_.gameplay().frame % 10 == 0) {
-            Bomb *b = new Bomb(main_.graphics->bombs, main_);
+            Bomb *b = NULL;
+            if (rand() % 5 == 1) {
+                b = new Egg(main_.graphics->bombs, main_);
+                b->damage = -Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
+            } else {
+                b = new Bomb(main_.graphics->bombs, main_);
+                b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
+            }
+
             b->position->x = position->x + static_cast<Sint16>(OWL_W / 2) - static_cast<Sint16>(BOMB_W / 2);
             b->position->y = position->y + position->h;
             b->speedy = 30;
             b->time = 900;
-            b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
             b->owner = owner;
             b->frame_start = main_.gameplay().frame;
             b->frame_change_start = main_.gameplay().frame;
