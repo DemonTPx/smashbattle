@@ -387,8 +387,7 @@ void LocalMultiplayer::draw_score() {
 		draw_score_duel();
 	else
 		draw_score_multi();
-
-	std::cout << frame << std::endl;
+	
 	if (murder_list->size() > 0) {
 		for (unsigned int i = 0; i < murder_list->size(); ++i) {
 			Murder m;
