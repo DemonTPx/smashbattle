@@ -44,6 +44,10 @@ LocalMultiplayer::LocalMultiplayer(Main &main)
 	main_.setGameplay(this);
 }
 
+LocalMultiplayer::~LocalMultiplayer() {
+	delete murder_list;
+}
+
 void LocalMultiplayer::set_countdown(bool countdown, int seconds)
 {
 	this->countdown = countdown;
@@ -73,6 +77,7 @@ void LocalMultiplayer::initialize() {
 		powerup_random_rate = 6;
 
 	round = 0;
+	murder_list = new std::vector<Murder>();
 }
 
 bool LocalMultiplayer::we_have_a_winner() 
@@ -144,6 +149,7 @@ void LocalMultiplayer::on_game_reset()
 	}
 
 	round++;
+	murder_list->clear();
 
 	winner = NULL;
 	if(round == 5)
@@ -181,6 +187,11 @@ void LocalMultiplayer::on_post_processing() {
 
 					p->last_damage_player->kills++;
 					p->last_damage_player->kill_list->push_back(k);
+
+					Murder m;
+					m.kill = k;
+					m.startFrame = frame;
+					murder_list->insert(murder_list->begin(), m);
 
 					std::cout << p->last_damage_player->name << " killed " << p->name << " using " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
 				} else {
@@ -376,6 +387,37 @@ void LocalMultiplayer::draw_score() {
 		draw_score_duel();
 	else
 		draw_score_multi();
+
+	std::cout << frame << std::endl;
+	if (murder_list->size() > 0) {
+		for (unsigned int i = 0; i < murder_list->size(); ++i) {
+			Murder m;
+			m = murder_list->at(i);
+
+			if ((frame - m.startFrame) > 200) {
+				murder_list->erase(murder_list->begin() + i);
+				continue;
+			}
+
+			SDL_Rect m_rect;
+
+			m_rect.x = 5;
+			m_rect.y = 5 + i * (KILL_MOVE_H + 5);
+			SDL_BlitSurface(m.kill.player->last_damage_player->sprites, main_.graphics->player_clip[SPR_R_HEAD], screen, &m_rect);
+
+			SDL_Rect km_rect;
+			km_rect.x = m.kill.move * KILL_MOVE_W;
+			km_rect.y = 0;
+			km_rect.w = KILL_MOVE_W;
+			km_rect.h = KILL_MOVE_H;
+
+			m_rect.x += PLAYER_W + 5;
+			SDL_BlitSurface(main_.graphics->kill_moves, &km_rect, screen, &m_rect);
+
+			m_rect.x += KILL_MOVE_W + 5;
+			SDL_BlitSurface(m.kill.player->sprites, main_.graphics->player_clip[SPR_R_HEAD], screen, &m_rect);
+		}
+	}
 }
 
 void LocalMultiplayer::draw_score_duel() {

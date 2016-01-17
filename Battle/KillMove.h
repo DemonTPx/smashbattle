@@ -1,5 +1,8 @@
 #pragma once
 
+#define KILL_MOVE_W 22
+#define KILL_MOVE_H 22
+
 enum KillMove {
     UNKNOWN,
     FALLING,

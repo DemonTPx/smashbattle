@@ -94,6 +94,7 @@ void NetworkMultiplayer::on_game_reset()
 		server_game_running = true;
 		initialize();
 		round = 1;
+		murder_list->clear();
 		server.setState(new network::ServerStateAcceptClients());
 	}
 }
