@@ -50,7 +50,7 @@ public:
 	virtual void hit_player(Player * player);
 	virtual void hit_npc(NPC * npc);
 
-	void explode();
+	virtual void explode();
 
 	SDL_Rect * get_damage_rect();
 protected:

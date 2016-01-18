@@ -30,7 +30,8 @@ const char * AudioController::sound_files[SOUNDFILES] = {
 	"sfx/laser.wav",
 	"sfx/shield.wav",
 	"sfx/blip.wav",
-	"sfx/owl_drop.wav"
+	"sfx/owl_drop.wav",
+	"sfx/egg_break.wav"
 };
 
 const int AudioController::soundvolume[SOUNDFILES] = {
@@ -51,6 +52,7 @@ const int AudioController::soundvolume[SOUNDFILES] = {
 	100, //shield
 	75, //blip
 	100, //owl_drop
+	75, //egg_break
 };
 
 AudioController::AudioController(Main &main) : main_(main) {

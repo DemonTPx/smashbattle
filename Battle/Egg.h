@@ -10,7 +10,9 @@ class Egg : public Bomb {
 public:
 	Egg(SDL_Surface * surface, Main &main);
 
-	void process();
+	virtual void hit_player(Player * player);
+
+	virtual void explode();
 protected:
 	void set_clips();
 

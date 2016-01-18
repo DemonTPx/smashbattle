@@ -84,12 +84,11 @@ void Owl::process() {
             Bomb *b = NULL;
             if (rand() % 5 == 1) {
                 b = new Egg(main_.graphics->bombs, main_);
-                b->damage = -Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
             } else {
                 b = new Bomb(main_.graphics->bombs, main_);
-                b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
             }
 
+            b->damage = Player::BOMBPOWERCLASSES[owner->bombpowerclass].damage;
             b->position->x = position->x + static_cast<Sint16>(OWL_W / 2) - static_cast<Sint16>(BOMB_W / 2);
             b->position->y = position->y + position->h;
             b->speedy = 30;
