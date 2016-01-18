@@ -143,6 +143,9 @@ void LocalMultiplayer::on_game_reset()
 		p->set_sprite(sprite);
 		p->hitpoints = 100;
 		p->is_dead = false;
+		p->last_damage_player = NULL;
+		p->last_damage_move = UNKNOWN;
+		p->last_pushed_player = NULL;
 	}
 
 	round++;
