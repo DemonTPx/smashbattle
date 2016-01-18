@@ -265,10 +265,10 @@ void Bomb::set_clips() {
 	clip[FRAME_STRIKE_FLASH]->h = BOMB_H;
 	
 	clip[FRAME_EXPLOSION] = new SDL_Rect();
-	clip[FRAME_EXPLOSION]->x = 4;
-	clip[FRAME_EXPLOSION]->y = 24;
+	clip[FRAME_EXPLOSION]->x = 0;
+	clip[FRAME_EXPLOSION]->y = 16;
 	clip[FRAME_EXPLOSION]->w = 86;
-	clip[FRAME_EXPLOSION]->h = 67;
+	clip[FRAME_EXPLOSION]->h = 66;
 
 	explosion_offset_x = (clip[FRAME_NORMAL]->w - clip[FRAME_EXPLOSION]->w) / 2;
 	explosion_offset_y = -clip[FRAME_EXPLOSION]->h + clip[FRAME_NORMAL]->h + 12;

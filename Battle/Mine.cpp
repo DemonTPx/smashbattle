@@ -38,14 +38,14 @@ void Mine::set_clips() {
 	delete clip[FRAME_FLASH];
 
 	clip[FRAME_NORMAL] = new SDL_Rect();
-	clip[FRAME_NORMAL]->x = 48;
-	clip[FRAME_NORMAL]->y = 0;
+	clip[FRAME_NORMAL]->x = 72;
+	clip[FRAME_NORMAL]->y = 8;
 	clip[FRAME_NORMAL]->w = MINE_W;
 	clip[FRAME_NORMAL]->h = MINE_H;
 
 	clip[FRAME_FLASH] = new SDL_Rect();
-	clip[FRAME_FLASH]->x = 48 + MINE_W;
-	clip[FRAME_FLASH]->y = 0;
+	clip[FRAME_FLASH]->x = 72 + MINE_W;
+	clip[FRAME_FLASH]->y = 8;
 	clip[FRAME_FLASH]->w = MINE_W;
 	clip[FRAME_FLASH]->h = MINE_H;
 
