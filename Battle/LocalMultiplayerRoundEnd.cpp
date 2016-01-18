@@ -47,32 +47,6 @@ void LocalMultiplayerRoundEnd::run() {
 
 	Player * p;
 
-	std::cout << std::endl;
-	std::cout << "-- GAME ENDED --" << std::endl;
-	for(unsigned int idx = 0; idx < players->size(); idx++) {
-		p = players->at(idx);
-
-		std::cout << p->number << " ";
-		std::cout << p->name << ":";
-		std::cout << " score: " << p->score;
-		std::cout << " kills: " << p->kills;
-		std::cout << " deaths: " << p->deaths;
-
-		if (p->deaths == 0) {
-			std::cout << " k/d: INF";
-		} else {
-			std::cout << " k/d: " << ((float) p->kills / p->deaths);
-		}
-
-		std::cout << std::endl;
-
-		std::cout << "Kills:" << std::endl;
-
-		for (std::vector<Kill>::iterator k = p->kill_list->begin(); k != p->kill_list->end(); k++) {
-			std::cout << " - " << k->player->name << " / " << k->move << std::endl;
-		}
-	}
-	
 	while (main_.running && !ready) {
 		while(SDL_PollEvent(&event)) {
 			main_.handle_event(&event);
@@ -253,7 +227,7 @@ void LocalMultiplayerRoundEnd::init() {
 			SDL_BlitSurface(s_kill_move, &rect_km, background, &rect_km_d);
 
 			// Draw killed player
-			SDL_BlitSurface(k->player->sprites, main_.graphics->player_clip[SPR_R_HEAD], background, &rect);
+			SDL_BlitSurface(k->victim->sprites, main_.graphics->player_clip[SPR_R_HEAD], background, &rect);
 			rect.x += PLAYER_W + 2;
 		}
 

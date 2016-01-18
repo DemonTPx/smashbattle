@@ -47,7 +47,8 @@ struct BombPowerClass {
 };
 
 struct Kill {
-	Player * player;
+	Player * victim;
+	Player * killer;
 	KillMove move;
 };
 

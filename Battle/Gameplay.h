@@ -14,6 +14,7 @@ public:
 	virtual ~Gameplay();
 
 	int frame;
+	int previous_round_max_frame;
 
 	Level * level;
 

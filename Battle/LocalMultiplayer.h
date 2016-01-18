@@ -2,11 +2,15 @@
 
 #include "Gameplay.h"
 
+struct KillLog {
+	Kill kill;
+	int start_frame;
+};
+
 class LocalMultiplayer : public Gameplay {
 public:
 
 	LocalMultiplayer(Main &main);
-	~LocalMultiplayer();
 
 	void set_ended(bool val) { this->ended = val; end_avatar_start_frame = frame; };
 	void set_countdown(bool countdown, int seconds = -1);
@@ -29,6 +33,8 @@ protected:
 
 	virtual void draw_score();
 	virtual void draw_game_ended();
+
+	void draw_score_kills();
 
 	void draw_score_duel();
 	void draw_score_multi();
@@ -57,12 +63,7 @@ protected:
 	int powerup_owlstrike_rate;
 	int powerup_random_rate;
 
-	struct Murder {
-		Kill kill;
-		int startFrame;
-	};
-
-	std::vector<Murder> * murder_list;
+	std::vector<KillLog> kill_log_list;
 
 	Main &main_;
 };

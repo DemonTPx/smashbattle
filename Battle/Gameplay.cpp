@@ -230,7 +230,7 @@ void Gameplay::run() {
 			}
 		}
 
-		main_.flip(true);
+		main_.flip();
 	}
 
 	deinitialize();
@@ -436,6 +436,7 @@ void Gameplay::add_object(GameplayObject * obj) {
 }
 
 void Gameplay::reset_game() {
+	previous_round_max_frame = frame;
 	frame = 0;
 	
 	//paused = false;

@@ -44,10 +44,6 @@ LocalMultiplayer::LocalMultiplayer(Main &main)
 	main_.setGameplay(this);
 }
 
-LocalMultiplayer::~LocalMultiplayer() {
-	delete murder_list;
-}
-
 void LocalMultiplayer::set_countdown(bool countdown, int seconds)
 {
 	this->countdown = countdown;
@@ -77,7 +73,8 @@ void LocalMultiplayer::initialize() {
 		powerup_random_rate = 6;
 
 	round = 0;
-	murder_list = new std::vector<Murder>();
+
+	kill_log_list.clear();
 }
 
 bool LocalMultiplayer::we_have_a_winner() 
@@ -149,7 +146,10 @@ void LocalMultiplayer::on_game_reset()
 	}
 
 	round++;
-	murder_list->clear();
+
+	for (unsigned int i = 0; i < kill_log_list.size(); ++i) {
+		kill_log_list.at(i).start_frame -= previous_round_max_frame;
+	}
 
 	winner = NULL;
 	if(round == 5)
@@ -181,30 +181,26 @@ void LocalMultiplayer::on_post_processing() {
 
 				p->deaths++;
 
-				if (p->last_damage_player != NULL || (p->last_pushed_player != NULL && p->last_damage_move == KillMove::FALLING)) {
-					Kill k;
-					k.player = p;
-					k.move = p->last_damage_move;
+				Kill k;
+				k.victim = p;
+				k.killer = NULL;
+				k.move = p->last_damage_move;
 
-					Player * killer = NULL;
+				if (p->last_damage_player != NULL || (p->last_pushed_player != NULL && p->last_damage_move == KillMove::FALLING)) {
 					if (k.move == KillMove::FALLING) {
-						killer = p->last_pushed_player;
+						k.killer = p->last_pushed_player;
 					} else {
-						killer = p->last_damage_player;
+						k.killer = p->last_damage_player;
 					}
 
-					killer->kills++;
-					killer->kill_list->push_back(k);
-
-					Murder m;
-					m.kill = k;
-					m.startFrame = frame;
-					murder_list->insert(murder_list->begin(), m);
-
-					std::cout << killer->name << " killed " << p->name << " using " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
-				} else {
-					std::cout << p->name << " killed itself " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
+					k.killer->kills++;
+					k.killer->kill_list->push_back(k);
 				}
+
+				KillLog kl;
+				kl.kill = k;
+				kl.start_frame = frame;
+				kill_log_list.insert(kill_log_list.begin(), kl);
 
 				p->is_dead = true;
 				p->dead_start = main_.gameplay().frame;
@@ -391,39 +387,52 @@ void LocalMultiplayer::draw_score() {
 	rect.h = 32;
 	SDL_FillRectColor(screen, &rect, 0x222222);
 
-	if(main_.gameplay().players->size() == 2)
+	if(main_.gameplay().players->size() == 2) {
 		draw_score_duel();
-	else
+	} else {
 		draw_score_multi();
-	
-	if (murder_list->size() > 0) {
-		for (unsigned int i = 0; i < murder_list->size(); ++i) {
-			Murder m;
-			m = murder_list->at(i);
+	}
 
-			if ((frame - m.startFrame) > 200) {
-				murder_list->erase(murder_list->begin() + i);
-				continue;
-			}
+	draw_score_kills();
+}
 
-			SDL_Rect m_rect;
+void LocalMultiplayer::draw_score_kills() {
+	unsigned long kill_log_size;
 
-			m_rect.x = 5;
-			m_rect.y = 5 + i * (KILL_MOVE_H + 5);
-			SDL_BlitSurface(m.kill.player->last_damage_player->sprites, main_.graphics->player_clip[SPR_R_HEAD], screen, &m_rect);
+	kill_log_size = kill_log_list.size();
 
-			SDL_Rect km_rect;
-			km_rect.x = m.kill.move * KILL_MOVE_W;
-			km_rect.y = 0;
-			km_rect.w = KILL_MOVE_W;
-			km_rect.h = KILL_MOVE_H;
+	if (kill_log_size == 0) {
+		return;
+	}
 
-			m_rect.x += PLAYER_W + 5;
-			SDL_BlitSurface(main_.graphics->kill_moves, &km_rect, screen, &m_rect);
+	for (unsigned int i = 0; i < kill_log_size; ++i) {
+		KillLog kl;
+		kl = kill_log_list.at(i);
 
-			m_rect.x += KILL_MOVE_W + 5;
-			SDL_BlitSurface(m.kill.player->sprites, main_.graphics->player_clip[SPR_R_HEAD], screen, &m_rect);
+		if ((frame - kl.start_frame) > 200) {
+			kill_log_list.erase(kill_log_list.begin() + i);
+			continue;
 		}
+
+		SDL_Rect m_rect;
+
+		m_rect.x = 5;
+		m_rect.y = 5 + ((kill_log_size - i - 1) * (KILL_MOVE_H + 5));
+		if (kl.kill.killer != NULL) {
+			SDL_BlitSurface(kl.kill.killer->sprites, main_.graphics->player_clip[SPR_R_HEAD], screen, &m_rect);
+			m_rect.x += PLAYER_W + 5;
+		}
+
+		SDL_Rect km_rect;
+		km_rect.x = kl.kill.move * KILL_MOVE_W;
+		km_rect.y = 0;
+		km_rect.w = KILL_MOVE_W;
+		km_rect.h = KILL_MOVE_H;
+
+		SDL_BlitSurface(main_.graphics->kill_moves, &km_rect, screen, &m_rect);
+		m_rect.x += KILL_MOVE_W + 5;
+
+		SDL_BlitSurface(kl.kill.victim->sprites, main_.graphics->player_clip[SPR_R_HEAD], screen, &m_rect);
 	}
 }
 
@@ -434,7 +443,7 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_Surface * surface;
 	SDL_Rect rect;
 	SDL_Rect rect_s;
-	int ammount;
+	int amount;
 	char str[40];
 
 	Player * player1, * player2;
@@ -507,7 +516,7 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	// Show bomb ammount
+	// Show bomb amount
 	if(player1->mines > 0 || player1->mines == -1) {
 		rect_s.x = 54;
 		rect_s.y = 0;
@@ -579,7 +588,7 @@ void LocalMultiplayer::draw_score_duel() {
 		SDL_BlitSurface(main_.graphics->common, &rect_s, screen, &rect);
 	}
 	
-	// Ammo type and ammount
+	// Ammo type and amount
 	rect_s.x = 0;
 	rect_s.y = 0;
 	rect_s.w = 8;
@@ -590,12 +599,12 @@ void LocalMultiplayer::draw_score_duel() {
 	if(player1->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(main_.graphics->weapons, &rect_s, screen, &rect);
 
-	if(player1->instantkillbullets > 0) ammount = player1->instantkillbullets;
-	else if(player1->doubledamagebullets > 0) ammount = player1->doubledamagebullets;
-	else ammount = -1;
+	if(player1->instantkillbullets > 0) amount = player1->instantkillbullets;
+	else if(player1->doubledamagebullets > 0) amount = player1->doubledamagebullets;
+	else amount = -1;
 
-	if(ammount != -1) {
-		sprintf_s(str, 3, "%02d", ammount);
+	if(amount != -1) {
+		sprintf_s(str, 3, "%02d", amount);
 		surface = main_.text->render_text_medium(str);
 		rect.x = 74;
 		rect.y = 464;
@@ -621,12 +630,12 @@ void LocalMultiplayer::draw_score_duel() {
 	if(player2->instantkillbullets > 0) rect_s.x = 16;
 	SDL_BlitSurface(main_.graphics->weapons, &rect_s, screen, &rect);
 
-	if(player2->instantkillbullets > 0) ammount = player2->instantkillbullets;
-	else if(player2->doubledamagebullets > 0) ammount = player2->doubledamagebullets;
-	else ammount = -1;
+	if(player2->instantkillbullets > 0) amount = player2->instantkillbullets;
+	else if(player2->doubledamagebullets > 0) amount = player2->doubledamagebullets;
+	else amount = -1;
 
-	if(ammount != -1) {
-		sprintf_s(str, 3, "%02d", ammount);
+	if(amount != -1) {
+		sprintf_s(str, 3, "%02d", amount);
 		surface = main_.text->render_text_medium(str);
 		rect.x = 566 - surface->w;
 		rect.y = 464;
@@ -649,7 +658,7 @@ void LocalMultiplayer::draw_score_multi() {
 	SDL_Surface * surface;
 	SDL_Rect rect;
 	SDL_Rect rect_s;
-	int ammount;
+	int amount;
 	char str[40];
 
 	int player_count;
@@ -719,14 +728,14 @@ void LocalMultiplayer::draw_score_multi() {
 		if(player->instantkillbullets == -1 || player->instantkillbullets > 0) rect_s.x = 16;
 		SDL_BlitSurface(main_.graphics->weapons, &rect_s, screen, &rect);
 
-		if(player->instantkillbullets > 0) ammount = player->instantkillbullets;
-		else if(player->doubledamagebullets > 0) ammount = player->doubledamagebullets;
+		if(player->instantkillbullets > 0) amount = player->instantkillbullets;
+		else if(player->doubledamagebullets > 0) amount = player->doubledamagebullets;
 		else {
-			ammount = player->bullets;
+			amount = player->bullets;
 		}
 
-		if(ammount != -1) {
-			sprintf_s(str, 3, "%02d", ammount);
+		if(amount != -1) {
+			sprintf_s(str, 3, "%02d", amount);
 			surface = main_.text->render_text_medium_gray(str);
 			rect.x = x + 132;
 			rect.y = y + 14;

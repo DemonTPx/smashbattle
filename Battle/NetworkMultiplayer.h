@@ -6,7 +6,7 @@ class NetworkMultiplayer : public LocalMultiplayer
 {
 public:
 	NetworkMultiplayer (Main &main);
-	~NetworkMultiplayer() {}
+	~NetworkMultiplayer() {};
 
 	enum class State {
 		DISPLAYING_DEATH,
