@@ -6,7 +6,7 @@ class LocalMultiplayer : public Gameplay {
 public:
 
 	LocalMultiplayer(Main &main);
-
+	~LocalMultiplayer();
 
 	void set_ended(bool val) { this->ended = val; end_avatar_start_frame = frame; };
 	void set_countdown(bool countdown, int seconds = -1);
@@ -56,6 +56,13 @@ protected:
 	int powerup_shield_rate;
 	int powerup_owlstrike_rate;
 	int powerup_random_rate;
+
+	struct Murder {
+		Kill kill;
+		int startFrame;
+	};
+
+	std::vector<Murder> * murder_list;
 
 	Main &main_;
 };

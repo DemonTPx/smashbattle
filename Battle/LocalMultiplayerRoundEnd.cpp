@@ -236,86 +236,21 @@ void LocalMultiplayerRoundEnd::init() {
 
 		for (std::vector<Kill>::iterator k = pl->kill_list->begin(); k != pl->kill_list->end(); k++) {
 			// Draw kill move
-			SDL_Surface * s_kill_move = 0;
-			SDL_Rect rect_km_s;
+			SDL_Surface * s_kill_move = main_.graphics->kill_moves;
+			SDL_Rect rect_km;
 			SDL_Rect rect_km_d;
 
-			rect_km_s.x = 0;
-			rect_km_s.y = 0;
+			rect_km.x = k->move * KILL_MOVE_W;
+			rect_km.y = 0;
+			rect_km.w = KILL_MOVE_W;
+			rect_km.h = KILL_MOVE_H;
 
-			// TODO: Preset the kill move clips
-			switch (k->move) {
-				case BULLET:
-				case BULLET_DOUBLE:
-				case BULLET_INSTANT:
-					s_kill_move = main_.graphics->weapons;
+			rect_km_d.x = rect.x + ((PLAYER_W - rect_km.w) / 2);
+			rect_km_d.y = rect.y + PLAYER_W + 5 + ((PLAYER_W - rect_km.h) / 2);
+			rect_km_d.w = rect_km.w;
+			rect_km_d.h = rect_km.h;
 
-					rect_km_s.w = 8;
-					rect_km_s.h = 8;
-
-					if (k->move == BULLET_DOUBLE) {
-						rect_km_s.x = 8;
-					}
-					if (k->move == BULLET_INSTANT) {
-						rect_km_s.x = 16;
-					}
-
-					break;
-				case BOMB:
-				case MINE:
-				case AIRSTRIKE:
-				case OWL_BOMB:
-					s_kill_move = main_.graphics->bombs;
-
-					rect_km_s.w = 12;
-					rect_km_s.h = 16;
-
-					if (k->move == AIRSTRIKE) {
-						rect_km_s.x = 24;
-					}
-					if (k->move == OWL_BOMB) {
-						rect_km_s.x = 36;
-					}
-
-					if (k->move == MINE) {
-						rect_km_s.x = 54;
-						rect_km_s.w = 6;
-						rect_km_s.h = 4;
-					}
-					break;
-				case LASER:
-					s_kill_move = main_.graphics->powerups;
-
-					rect_km_s.x = 126;
-					rect_km_s.w = 18;
-					rect_km_s.h = 18;
-					break;
-				case OWL:
-					s_kill_move = main_.graphics->owl;
-
-					rect_km_s.w = 42;
-					rect_km_s.h = 36;
-					break;
-				case HEAD_STOMP:
-				case FALLING:
-					s_kill_move = main_.graphics->common;
-
-					rect_km_s.y = 32;
-					rect_km_s.w = 16;
-					rect_km_s.h = 16;
-					break;
-				default:
-					break;
-			}
-
-			rect_km_d.x = rect.x + ((PLAYER_W - rect_km_s.w) / 2);
-			rect_km_d.y = rect.y + PLAYER_W + 5 + ((PLAYER_W - rect_km_s.h) / 2);
-			rect_km_d.w = rect_km_s.w;
-			rect_km_d.h = rect_km_s.h;
-
-			if (s_kill_move != 0) {
-				SDL_BlitSurface(s_kill_move, &rect_km_s, background, &rect_km_d);
-			}
+			SDL_BlitSurface(s_kill_move, &rect_km, background, &rect_km_d);
 
 			// Draw killed player
 			SDL_BlitSurface(k->player->sprites, main_.graphics->player_clip[SPR_R_HEAD], background, &rect);

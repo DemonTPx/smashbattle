@@ -13,6 +13,7 @@ Graphics::~Graphics() {
 
 void Graphics::load_all() {
 	weapons = load_bmp("gfx/weapons.bmp");
+	kill_moves = load_bmp("gfx/kill_moves.bmp");
 	bombs = load_bmp("gfx/bomb.bmp");
 	owl = load_bmp("gfx/owl.bmp");
 	powerups = load_bmp("gfx/powerups.bmp");

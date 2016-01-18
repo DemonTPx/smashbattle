@@ -60,6 +60,7 @@ public:
 	static SDL_Surface * load_icon(const char * filename, Uint8 ** mask, Uint32 color);
 
 	SDL_Surface * weapons;
+	SDL_Surface * kill_moves;
 	SDL_Surface * bombs;
 	SDL_Surface * owl;
 	SDL_Surface * powerups;
