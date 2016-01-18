@@ -170,7 +170,7 @@ public:
 	void reset();
 
 	void damage_tiles(SDL_Rect * rect, int damage);
-	void bounce_tile(SDL_Rect * rect);
+	void bounce_tile(SDL_Rect * rect, Player * player = NULL);
 
 	bool is_intersecting(SDL_Rect * rect);
 	bool is_on_bottom(SDL_Rect * rect);

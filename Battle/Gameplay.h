@@ -34,7 +34,7 @@ public:
 	void add_npc(NPC * npc);
 
 	void add_object(GameplayObject * obj);
-	void bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source);
+	void bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source, Player * initialized_by_player);
 
 	static bool is_intersecting(SDL_Rect * one, SDL_Rect * two);
 

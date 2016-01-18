@@ -25,8 +25,8 @@ const int Player::CHARACTER_COUNT = 20;
 const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	//		Name				Filename						sp wt wp bd
 	{(char *)"BERT",		(char *)"gfx/pbw-bert.bmp",			1, 1, 2, 0},
-	{(char *)"TIM", 		(char *)"gfx/pbw-tim.bmp",			2, 1, 1, 0},
 	{(char *)"JORDY", 		(char *)"gfx/pbw-jordy.bmp",		1, 2, 1, 0},
+	{(char *)"TIM", 		(char *)"gfx/pbw-tim.bmp",			2, 1, 1, 0},
 	{(char *)"JEROEN G", 	(char *)"gfx/jeroen.bmp",			1, 1, 1, 1},
 	{(char *)"JEROEN S", 	(char *)"gfx/pbw-jeroen-s.bmp",		1, 1, 1, 1},
 	{(char *)"FRANK", 		(char *)"gfx/pbw-frank.bmp",		1, 1, 0, 2},
@@ -309,8 +309,9 @@ void Player::reset(bool excludeInputs, bool excludeStats) {
 	doubledamagebullets = 0;
 	instantkillbullets = 0;
 
-	last_damage_player = 0;
+	last_damage_player = NULL;
 	last_damage_move = UNKNOWN;
+	last_pushed_player = NULL;
 
 	// Stats
 	if (!excludeStats) {
@@ -706,7 +707,7 @@ void Player::move(Level * level) {
 	// Did we hit something?
 	if(level->is_intersecting(&rect)) {
 		if(speedy > 0) {
-			level->bounce_tile(&rect);
+			level->bounce_tile(&rect, this);
 		}
 
 		// Put the player back into the previous position
@@ -722,6 +723,7 @@ void Player::move(Level * level) {
 			is_jumping = false;
 			is_falling = false;
 			momentumy = 0;
+			this->last_pushed_player = NULL;
 		}
 	}
 
@@ -737,6 +739,9 @@ void Player::move(Level * level) {
 }
 
 void Player::bounce(Player * other) {
+	other->last_pushed_player = this;
+	this->last_pushed_player = other;
+
 	SDL_Rect * rect, * source;
 
 	rect = last_position;
@@ -786,6 +791,7 @@ void Player::bounce(Player * other) {
 			momentumy = MAX_MOMENTUM_JUMP;
 			is_falling = false;
 			is_jumping = true;
+			this->last_pushed_player = NULL;
 		} else {
 			momentumy = 30;
 		}

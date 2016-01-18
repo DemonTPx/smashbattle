@@ -25,7 +25,7 @@
 
 const char * KILL_MOVE_DESCRIPTION[] = {
 	"[unknown]",
-	"falling into a pit",
+	"pushed into a pit",
 	"a stomp to the head",
 	"a bullet",
 	"a double damage bullet",
@@ -65,7 +65,7 @@ void LocalMultiplayer::initialize() {
 	powerup_mine_rate = 6;
 	powerup_airstrike_rate = 0;
 	powerup_laserbeam_rate = 3;
-	powerup_owlstrike_rate = 5;
+	powerup_owlstrike_rate = 10;
 	powerup_shield_rate = 4;
 	if (main_.runmode == MainRunModes::SERVER)
 		powerup_random_rate = 0; // currently server does not support random powerup yet
@@ -174,15 +174,23 @@ void LocalMultiplayer::on_post_processing() {
 				main_.audio->play(SND_YOULOSE, p->position->x);
 
 				p->deaths++;
-				if (p->last_damage_player != NULL) {
+
+				if (p->last_damage_player != NULL || (p->last_pushed_player != NULL && p->last_damage_move == KillMove::FALLING)) {
 					Kill k;
 					k.player = p;
 					k.move = p->last_damage_move;
 
-					p->last_damage_player->kills++;
-					p->last_damage_player->kill_list->push_back(k);
+					Player * killer = NULL;
+					if (k.move == KillMove::FALLING) {
+						killer = p->last_pushed_player;
+					} else {
+						killer = p->last_damage_player;
+					}
 
-					std::cout << p->last_damage_player->name << " killed " << p->name << " using " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
+					killer->kills++;
+					killer->kill_list->push_back(k);
+
+					std::cout << killer->name << " killed " << p->name << " using " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
 				} else {
 					std::cout << p->name << " killed itself " << KILL_MOVE_DESCRIPTION[p->last_damage_move] << std::endl;
 				}

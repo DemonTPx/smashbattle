@@ -297,6 +297,7 @@ void LocalMultiplayerRoundEnd::init() {
 					rect_km_s.h = 36;
 					break;
 				case HEAD_STOMP:
+				case FALLING:
 					s_kill_move = main_.graphics->common;
 
 					rect_km_s.y = 32;
