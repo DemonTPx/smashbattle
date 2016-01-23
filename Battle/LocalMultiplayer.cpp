@@ -400,15 +400,11 @@ void LocalMultiplayer::draw_score() {
 }
 
 void LocalMultiplayer::draw_score_kills() {
-	unsigned long kill_log_size;
-
-	kill_log_size = kill_log_list.size();
-
-	if (kill_log_size == 0) {
+	if (kill_log_list.size() == 0) {
 		return;
 	}
 
-	for (unsigned int i = 0; i < kill_log_size; ++i) {
+	for (unsigned int i = 0; i < kill_log_list.size(); ++i) {
 		KillLog kl;
 		kl = kill_log_list.at(i);
 
@@ -420,7 +416,7 @@ void LocalMultiplayer::draw_score_kills() {
 		SDL_Rect m_rect;
 
 		m_rect.x = 5;
-		m_rect.y = 5 + ((kill_log_size - i - 1) * (KILL_MOVE_H + 5));
+		m_rect.y = 5 + ((kill_log_list.size() - i - 1) * (KILL_MOVE_H + 5));
 		if (kl.kill.killer != NULL) {
 			SDL_BlitSurface(kl.kill.killer->sprites, main_.graphics->player_clip[SPR_R_HEAD], screen, &m_rect);
 			m_rect.x += PLAYER_W + 5;

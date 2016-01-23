@@ -734,7 +734,7 @@ void Player::move(Level * level) {
 
 	// Die when we fall out of the level
 	if(position->y + position->h > (14 * TILE_H)) {
-		damage(hitpoints, NULL, FALLING);
+		damage(hitpoints, NULL, FALLING, true);
 	}
 }
 
@@ -849,12 +849,18 @@ bool Player::damage(int damage, Player * other, KillMove move) {
 	return this->damage(damage, other, move, false);
 }
 
-bool Player::damage(int damage, Player * other, KillMove move, bool ignore_shield) {
-	if( ! ignore_shield && is_shielded)
-		return true;
+bool Player::damage(int damage, Player * other, KillMove move, bool force) {
+	if ( ! force) {
+		if(is_shielded)
+			return true;
 
-	if(is_dead || is_hit)
+		if(is_hit)
+			return false;
+	}
+
+	if (is_dead) {
 		return false;
+	}
 
 	is_hit = true;
 	hit_start = main_.gameplay().frame;
