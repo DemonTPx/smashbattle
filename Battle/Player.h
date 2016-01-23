@@ -199,6 +199,7 @@ public:
 	void bounce_up(SDL_Rect * source);
 
 	bool damage(int damage, Player * other, KillMove move);
+	bool damage(int damage, Player * other, KillMove move, bool ignore_shield);
 
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);

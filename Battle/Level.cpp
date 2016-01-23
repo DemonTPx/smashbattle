@@ -11,10 +11,9 @@
 #include "Color.h"
 #include "util/ServerUtil.h"
 
-const int Level::LEVEL_COUNT = 16;
+const int Level::LEVEL_COUNT = 20;
 const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
-	{(char*)"JUNGLE TEMPLE", (char*)"stage/jungle_temple.lvl"},
-//	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.lvl"},
+	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.lvl"},
 	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.lvl"},
 	{(char*)"PITTFALL", (char*)"stage/pitfall.lvl"},
 	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.lvl"},
@@ -22,6 +21,10 @@ const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"POGOSTICK", (char*)"stage/pogostick.lvl"},
 	{(char*)"LA MOUSTACHE", (char*)"stage/lamoustache.lvl"},
 	{(char*)"THE FUNNEL", (char*)"stage/thefunnel.lvl"},
+	{(char*)"JUNGLE TEMPLE", (char*)"stage/jungle_temple.lvl"},
+	{(char*)"JUNGLE NEW", (char*)"stage/jungle_new.lvl"},
+	{(char*)"JUNGLE NEW", (char*)"stage/jungle_new.lvl"},
+	{(char*)"JUNGLE NEW", (char*)"stage/jungle_new.lvl"},
 	{(char*)"BLAST BOWL", (char*)"stage/blastbowl.lvl"},
 	{(char*)"PIT OF DEATH", (char*)"stage/pitofdeath.lvl"},
 	{(char*)"RABBIT HOLE", (char*)"stage/rabbithole.lvl"},

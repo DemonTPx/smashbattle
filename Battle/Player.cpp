@@ -45,7 +45,7 @@ const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	{(char *)"MARK", 		(char *)"gfx/mark.bmp", 			2, 0, 1, 1},
 	{(char *)"SIM", 		(char *)"gfx/sim.bmp", 				2, 2, 0, 0},
 };
-#elif TWEAKERS
+#elif defined(TWEAKERS)
 const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	//      Name               	Filename            			sp wt wp bd
 	{(char *)"INSPECTOR", 	(char *)"gfx/jeroen.bmp",		1, 1, 1, 1},
@@ -846,7 +846,11 @@ void Player::bounce_up(SDL_Rect * source) {
 }
 
 bool Player::damage(int damage, Player * other, KillMove move) {
-	if(is_shielded)
+	return this->damage(damage, other, move, false);
+}
+
+bool Player::damage(int damage, Player * other, KillMove move, bool ignore_shield) {
+	if( ! ignore_shield && is_shielded)
 		return true;
 
 	if(is_dead || is_hit)

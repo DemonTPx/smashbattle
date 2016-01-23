@@ -23,9 +23,9 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-#define MENU_TOP_OFFSET 128
+#define MENU_TOP_OFFSET 100
 #define TILES_COLS		10
-#define TILES_ROWS		9
+#define TILES_ROWS		10
 
 LevelSelect::LevelSelect(Main &main) : SimpleDrawable(main), main_(main) {
 }

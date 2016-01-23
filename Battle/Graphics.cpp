@@ -30,8 +30,8 @@ void Graphics::load_all() {
 
 #ifdef PBWEB
 	bg_menu = Level::get_preview("stage/titlescreen_jungle.lvl");
-#elif TWEAKERS
-	bg_menu = Level::get_preview("stage/titlescreen.lvl");
+#elif defined(TWEAKERS)
+	bg_menu = Level::get_preview("stage/titlescreen_tweakers.lvl");
 #else
 	bg_menu = Level::get_preview("stage/titlescreen.lvl");
 #endif

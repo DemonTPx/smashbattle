@@ -11,13 +11,24 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
-#define MENU_CURSOR_COLOR 0x426302
-
 #define SAVE_SIGNATURE 0x5353 // 'SS'
 #define SAVE_VERSION 2
 
 //#define TWEAKERS
 #define PBWEB
+#define PBWEB_JUNGLE
+
+#ifdef PBWEB
+#ifdef PBWEB_JUNGLE
+#define MENU_CURSOR_COLOR 0x426302
+#else
+#define MENU_CURSOR_COLOR 0xD19431
+#endif
+#elif defined(TWEAKERS)
+#define MENU_CURSOR_COLOR 0xA0062E
+#else
+#define MENU_CURSOR_COLOR 0x0088FF
+#endif
 
 struct SaveHeader {
 	short signature;

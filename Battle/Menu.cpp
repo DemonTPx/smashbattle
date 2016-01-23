@@ -494,7 +494,7 @@ void Menu::init() {
 
 #ifdef PBWEB
 	title = main_.text->render_text_large_shadow("PB WEB   MEDIA ");
-#elif TWEAKERS
+#elif defined(TWEAKERS)
 	title = main_.text->render_text_large_shadow("TWEAK   BATTLE");
 #else
 	title = main_.text->render_text_large_shadow("SMASH BATTLE");
@@ -508,7 +508,11 @@ void Menu::init() {
 
 		rect = new SDL_Rect();
 		rect->x = (WINDOW_WIDTH - MENU_ITEM_WIDTH) / 2;
+#ifdef PBWEB
 		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) - 12;
+#else
+		rect->y = MENU_TOP_OFFSET + (i * MENU_ITEM_HEIGHT) + 8;
+#endif
 		surf_items_clip->push_back(rect);
 	}
 
