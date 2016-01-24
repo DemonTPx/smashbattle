@@ -1,39 +1,51 @@
+# Smash Battle
 
-Tweakbattle is a spin-off from Smashbattle, and both games will be merged into
-one later.
+![Screenshot of Smash Battle leveleditor working on linux](/screenshot.gif?raw=true)
 
-## Available branches
+An 8-bit multiplayer platform shooter.
 
-* master
-* network\_multiplayer (development of network multiplayer game)
+## Prerequisites
 
-Currently all work is being done in network\_multiplayer.
-The branch is no longer only about the network multiplayer feature, but
-currently also about "tweak battle".
+Smash Battle depends on the following packages:
 
-This will be merged into master once stable.
+- libsdl1.2
+- libsdl-mixer1.2
+- libsdl-net1.2
+- libcurl
+- zlib
 
-## Installing prerequisites Ubuntu
+### Install dependencies on Ubuntu linux
 
-There is a virtual package named `smashbattle-dev' that you can install, and it
-will install all required development packages for building smashbattle..
+    sudo apt-get install libsdl1.2{debian,-dev} libsdl-{net,mixer}1.2{,-dev} libcurl4-openssl-dev zlib1g-dev
 
-    wget -O - http://cppse.nl/apt/keyFile | sudo apt-key add -
-    sudo sh -c "echo deb http://cppse.nl/apt/dists/stable/main/binary / >> /etc/apt/sources.list"
-    sudo apt-get update
-    sudo apt-get install smashbattle smashbattle-dev
+### Install dependencies on Mac OSX (using brew)
 
-## Building Tweakbattle/Smashbattle
+    brew install sql sql_net sql_mixer curl zlib
+    
+## Build instructions
 
     cmake .
     make
-    sudo make install
 
-Note that when running the game, smashbattle will expect certain stuff to be in
-`/usr/share/games/smashbattle'.
-That's why you should at least now and then perform the make install.
+For a debug build, generate a debug Makefile with:
 
-For a debug build, generate a debug Makefile with `cmake -DCMAKE_BUILD_TYPE=Debug .'
+    cmake -DCMAKE_BUILD_TYPE=Debug .
+    
+### Building Smash Battle variants
+
+Variant determine which characters and title screen are loaded. They can be configured in `Main.h`. There are three variant at the moment:
+
+#### Smash Battle
+
+Do not define `PBWEB` or `TWEAKERS`.
+
+#### PB Web Media Battle
+
+Define `PBWEB`.
+
+#### Tweak Battle
+
+Define `TWEAKERS`. 
 
 ## Building documentation
 
@@ -43,24 +55,13 @@ For a debug build, generate a debug Makefile with `cmake -DCMAKE_BUILD_TYPE=Debu
 
 Documentation will be created in `docs/' directory.
 
-Documentation is build automatically by jenkins, and is available here:
+## Level editor
 
-http://cppse.nl/smashbattle/docs/
+The level editor can be [found on github](https://github.com/DemonTPx/smashbattle-leveleditor).
 
-## Jenkins
+## Networking
 
-Jenkins is configured at http://cppse.nl:8080/
-
-Get username and password in #smashbattle on freenode :)
-
-Currently there are two projects:
-
-- smashbattle      - automatically builds merged PR's in
-                     git@github.com:/DemonTPx/smashbattle
-- smashbattle\_ray - automatically builds pushed commits to
-                     git@github.com:/rayburgemeestre/smashbattle
-
-## Running server
+#### Running a server
 
 Simply launch a server:
 
@@ -68,7 +69,7 @@ Simply launch a server:
 
 Optional parameter is no\_sdl flag
 
-## Running client
+#### Running a client
 
     smashbattle --> choose "play online"
 
@@ -76,8 +77,7 @@ Or use the shortcut (can be convenient when debugging):
 
     smashbattle -c host:port [ character_name ]
 
-## Simply ksh script to debug server with multiple clients
-
+#### Simple ksh script to debug server with multiple clients
 
     #!/bin/ksh
     # CONTROL+C on this script will kill all running smashbattle exes.
