@@ -100,6 +100,8 @@ public:
 	GameInput * input[4];
 	GameInput * input_master;
 
+	bool menu_skips_to_local_multiplayer;
+
 	Uint8 online_character;
 
 	Main();

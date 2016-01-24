@@ -94,6 +94,8 @@ Main::Main()
 
 	runmode = MainRunModes::ARCADE;
 	no_sdl = false;
+
+	menu_skips_to_local_multiplayer = false;
 }
 
 network::ServerClient & Main::getServerClient()
@@ -560,6 +562,11 @@ int main(int argc, char* args[])
 		if(strcmp(args[1], "-f") == 0) {
 			main.flags |= SDL_FULLSCREEN;
 		}
+
+		else if (strcmp(args[1], "-d") == 0) {
+			main.menu_skips_to_local_multiplayer = true;
+		}
+
 		
 		// Usage smashbattle -s "TRAINING DOJO" 1100 --> start server on port 1100 with level "TRAINING DOJO"
 		else if(strcmp(args[1], "-s") == 0 && argc >= 2) {

@@ -213,6 +213,11 @@ void Menu::process_cursor() {
 
 				main_.input_master = input[i];
 				input_master = input[i];
+				
+				if (main_.menu_skips_to_local_multiplayer) {
+					start_local_multiplayer();
+					started = false;
+				}
 			}
 		}
 	}
