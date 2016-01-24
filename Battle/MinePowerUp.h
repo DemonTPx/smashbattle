@@ -1,9 +1,12 @@
-#ifndef _MINEPOWERUP_H
-#define _MINEPOWERUP_H
+#pragma once
+
+namespace network {
+class CommandGeneratePowerup;
+}
 
 class MinePowerUp : public GameplayObject {
 public:
-	MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount);
+	MinePowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main);
 	~MinePowerUp();
 
 	virtual void move(Level * level);
@@ -12,11 +15,16 @@ public:
 	virtual void hit_player(Player * player);
 	virtual void hit_npc(NPC * npc);
 
-	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
+	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 	int ammount;
-};
 
-#endif
+	Main &main_;
+
+protected:
+
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
+};

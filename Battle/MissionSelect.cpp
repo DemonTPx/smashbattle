@@ -2,6 +2,7 @@
 
 #include "Main.h"
 #include "Player.h"
+#include "Color.h"
 
 #include <vector>
 
@@ -22,7 +23,7 @@
 #define MISSIONSELECT_HEIGHT 50
 #define MISSIONSELECT_COUNT 6
 
-MissionSelect::MissionSelect() {
+MissionSelect::MissionSelect(Main &main) : SimpleDrawable(main), main_(main) {
 	cancel = false;
 
 	mission = 0;
@@ -34,7 +35,7 @@ void MissionSelect::run() {
 
 	load_sprites();
 
-	input = Main::instance->input_master;
+	input = main_.input_master;
 	input->reset();
 	input->set_delay();
 
@@ -47,9 +48,9 @@ void MissionSelect::run() {
 
 	frame = 0;
 
-	while (Main::running && !ready) {
+	while (main_.running && !ready) {
 		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+			main_.handle_event(&event);
 			
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
 				ready = true;
@@ -70,7 +71,7 @@ void MissionSelect::run() {
 			ready = true;
 		}
 
-		Main::instance->flip();
+		main_.flip();
 	}
 
 	if(!ready)
@@ -82,6 +83,12 @@ void MissionSelect::run() {
 void MissionSelect::process_cursor() {
 	int direction;
 
+	if (input->is_pressed(A_BACK)) {
+		ready = true;
+		cancel = true;
+		return;
+	}
+
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
 		input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
 			if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
@@ -92,7 +99,7 @@ void MissionSelect::process_cursor() {
 				if(!ready_mission) {
 					ready_mission = true;
 					
-					Main::audio->play(SND_SELECT_CHARACTER);
+					main_.audio->play(SND_SELECT_CHARACTER);
 
 					flicker = true;
 					flicker_frame = 0;
@@ -108,7 +115,7 @@ void MissionSelect::process_cursor() {
 	if(direction != DIRECTION_NONE) {
 		if(!ready_mission) {
 			select(direction);
-			Main::audio->play(SND_SELECT);
+			main_.audio->play(SND_SELECT);
 		}
 	}
 }
@@ -146,14 +153,14 @@ void MissionSelect::select(int direction) {
 	}
 }
 
-void MissionSelect::draw() {
+void MissionSelect::draw_impl() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
 	SDL_Rect r_block, rect, rect_b, rect_s;
 	Uint32 color;
 	char text[4];
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
 	SDL_BlitSurface(background, NULL, screen, NULL);
 
@@ -167,7 +174,7 @@ void MissionSelect::draw() {
 
 		color = 0x888888;
 
-		SDL_FillRect(screen, &r_block, color);
+		SDL_FillRectColor(screen, &r_block, color);
 
 		// Highlight
 		rect.x = r_block.x + 2;
@@ -187,20 +194,20 @@ void MissionSelect::draw() {
 				flicker_frame++;
 			}
 		}
-		SDL_FillRect(screen, &rect, color);
+		SDL_FillRectColor(screen, &rect, color);
 
 		// Mission number
 		sprintf_s(text, 4, "%02d", (idx + 1));
 		rect.x = r_block.x + 60;
 		rect.y = r_block.y + 10;
-		surface = Main::text->render_text_large(text);
+		surface = main_.text->render_text_large(text);
 		SDL_BlitSurface(surface, 0, screen, &rect);
 		SDL_FreeSurface(surface);
 
 		// Mission name
 		rect.x = r_block.x + 120;
 		rect.y = r_block.y + 6;
-		surface = Main::text->render_text_medium(Mission::MISSIONS[idx].name);
+		surface = main_.text->render_text_medium(Mission::MISSIONS[idx].name);
 		SDL_BlitSurface(surface, 0, screen, &rect);
 		SDL_FreeSurface(surface);
 
@@ -208,9 +215,9 @@ void MissionSelect::draw() {
 		rect.x = r_block.x + 120;
 		rect.y = r_block.y + 30;
 		if(idx == 0)
-			surface = Main::text->render_text_medium_gray("00:45:23");
+			surface = main_.text->render_text_medium_gray("00:45:23");
 		else
-			surface = Main::text->render_text_medium_gray("--:--:--");
+			surface = main_.text->render_text_medium_gray("--:--:--");
 		SDL_BlitSurface(surface, 0, screen, &rect);
 		SDL_FreeSurface(surface);
 
@@ -223,11 +230,11 @@ void MissionSelect::draw() {
 			rect_s.y = 0;
 			rect_s.w = CUP_W;
 			rect_s.h = CUP_H;
-			SDL_BlitSurface(Main::graphics->cups, &rect_s, screen, &rect);
+			SDL_BlitSurface(main_.graphics->cups, &rect_s, screen, &rect);
 		}
 	}
 
-	surface = Main::text->render_text_medium((char*)"QUIT TO MENU\0");
+	surface = main_.text->render_text_medium((char*)"QUIT TO MENU\0");
 	rect.x = WINDOW_WIDTH - 30 - surface->w;
 	rect.y = WINDOW_HEIGHT - 30 - surface->h;
 	if(cancel_selected) {
@@ -235,7 +242,7 @@ void MissionSelect::draw() {
 		rect_b.y = rect.y - 6;
 		rect_b.w = surface->w + 12;
 		rect_b.h = surface->h + 12;
-		SDL_FillRect(screen, &rect_b, 0x0088ff);
+		SDL_FillRectColor(screen, &rect_b, 0x0088ff);
 	}
 	SDL_BlitSurface(surface, 0, screen, &rect);
 	SDL_FreeSurface(surface);
@@ -246,11 +253,11 @@ void MissionSelect::load_sprites() {
 
 	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
 	
-	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
-		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
+	for(int y = 0; y < WINDOW_HEIGHT; y += main_.graphics->bg_grey->h) {
+		for(int x = 0; x < WINDOW_WIDTH; x += main_.graphics->bg_grey->w) {
 			rect.x = x;
 			rect.y = y;
-			SDL_BlitSurface(Main::graphics->bg_grey, NULL, background, &rect);
+			SDL_BlitSurface(main_.graphics->bg_grey, NULL, background, &rect);
 		}
 	}
 }

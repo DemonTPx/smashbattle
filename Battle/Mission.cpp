@@ -3,6 +3,7 @@
 #include "Main.h"
 #include "Level.h"
 #include "Gameplay.h"
+#include "Color.h"
 
 #include "HealthPowerUp.h"
 #include "AmmoPowerUp.h"
@@ -36,17 +37,19 @@ const MISSION_INFO Mission::MISSIONS[Mission::MISSION_COUNT] = {
 	{(char*)"KILL THE FAGGOT", (char*)"stage/tryout.lvl"},
 };
 
-Mission::Mission() {
+Mission::Mission(Main &main) : Gameplay(main), main_(main) {
 	npcs_collide = false;
 
 	mission_ended = false;
 
 	player_won = false;
 	cup = 2;
+
+	main.setGameplay(this);
 }
 
 void Mission::initialize() {
-	pause_menu = new PauseMenu(screen);
+	pause_menu = new PauseMenu(screen, main_);
 	pause_menu->add_option((char*)"RESUME\0");
 	pause_menu->add_option((char*)"RESTART\0");
 	pause_menu->add_option((char*)"QUIT\0");
@@ -105,31 +108,31 @@ void Mission::on_game_reset() {
 		switch(lpu->type) {
 			case L_PU_HEALTH:
 				rect->x = 0; rect->y = 0;
-				gpo = new HealthPowerUp(Main::graphics->powerups, rect, pos, 25);
+				gpo = new HealthPowerUp(main_.graphics->powerups, rect, pos, 25, main_);
 				break;
 			case L_PU_AMMO:
 				rect->x = 32; rect->y = 0;
-				gpo = new AmmoPowerUp(Main::graphics->powerups, rect, pos, 20);
+				gpo = new AmmoPowerUp(main_.graphics->powerups, rect, pos, 20, main_);
 				break;
 			case L_PU_DOUBLEDAMAGE:
 				rect->x = 48; rect->y = 0;
-				gpo = new DoubleDamagePowerUp(Main::graphics->powerups, rect, pos, 5);
+				gpo = new DoubleDamagePowerUp(main_.graphics->powerups, rect, pos, 5, main_);
 				break;
 			case L_PU_INSTANTKILL:
 				rect->x = 64; rect->y = 0;
-				gpo = new InstantKillBulletPowerUp(Main::graphics->powerups, rect, pos, 1);
+				gpo = new InstantKillBulletPowerUp(main_.graphics->powerups, rect, pos, 1, main_);
 				break;
 			case L_PU_BOMB:
 				rect->x = 16; rect->y = 0;
-				gpo = new BombPowerUp(Main::graphics->powerups, rect, pos, 1);
+				gpo = new BombPowerUp(main_.graphics->powerups, rect, pos, 1, main_);
 				break;
 			case L_PU_AIRSTRIKE:
 				rect->x = 80; rect->y = 0;
-				gpo = new AirstrikePowerUp(Main::graphics->powerups, rect, pos);
+				gpo = new AirstrikePowerUp(main_.graphics->powerups, rect, pos, main_);
 				break;
 			case L_PU_LASERBEAM:
 				rect->x = 112; rect->y = 0;
-				gpo = new LaserBeamPowerUp(Main::graphics->powerups, rect, pos);
+				gpo = new LaserBeamPowerUp(main_.graphics->powerups, rect, pos, main_);
 				break;
 		}
 		if(gpo == NULL) {
@@ -153,13 +156,13 @@ void Mission::on_game_reset() {
 		lnpc = level->npcs->at(i);
 		switch(lnpc->type) {
 			case L_NPC_CHICK:
-				npc = new ChickNPC();
+				npc = new ChickNPC(main_);
 				break;
 			case L_NPC_CANNON:
-				npc = new CannonNPC();
+				npc = new CannonNPC(main_);
 				break;
 			case L_NPC_GATLING:
-				npc = new GatlingNPC();
+				npc = new GatlingNPC(main_);
 				break;
 		}
 		if(npc == NULL) continue;
@@ -192,10 +195,10 @@ void Mission::on_post_processing() {
 
 		if(!p->is_dead) {
 			if(p->hitpoints == 0) {
-				Main::audio->play(SND_YOULOSE, p->position->x);
+				main_.audio->play(SND_YOULOSE, p->position->x);
 
 				p->is_dead = true;
-				p->dead_start = Gameplay::frame;
+				p->dead_start = main_.gameplay().frame;
 				p->is_hit = true;
 
 				ended = true;
@@ -245,7 +248,7 @@ void Mission::draw_score() {
 	rect.y = WINDOW_HEIGHT - 32;
 	rect.w = WINDOW_WIDTH;
 	rect.h = 32;
-	SDL_FillRect(screen, &rect, 0x222222);
+	SDL_FillRectColor(screen, &rect, 0x222222);
 
 	// Show the time
 	int min, sec, milsec;
@@ -255,14 +258,14 @@ void Mission::draw_score() {
 	milsec = (int)((time % 60) * 1.6667);
 
 	sprintf_s(str, 10, "%02d:%02d", min, sec);
-	surface = Main::text->render_text_large(str);
+	surface = main_.text->render_text_large(str);
 	rect.x = 480;
 	rect.y = 450;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 	
 	sprintf_s(str, 10, ".%02d", milsec);
-	surface = Main::text->render_text_medium(str);
+	surface = main_.text->render_text_medium(str);
 	rect.x = 602;
 	rect.y = 464;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -292,7 +295,7 @@ void Mission::draw_score() {
 			rect.x = 440;
 			rect.y = 450;
 
-			SDL_BlitSurface(Main::graphics->cups, &rect_s, screen, &rect);
+			SDL_BlitSurface(main_.graphics->cups, &rect_s, screen, &rect);
 		}
 	}
 
@@ -301,14 +304,14 @@ void Mission::draw_score() {
 	// Show player avatars
 	rect.x = 2;
 	rect.y = 450;
-	SDL_BlitSurface(p->sprites, Main::graphics->player_clip[SPR_R], screen, &rect);
+	SDL_BlitSurface(p->sprites, main_.graphics->player_clip[SPR_R], screen, &rect);
 	
 	// Health bar
 	rect.x = 30;
 	rect.y = WINDOW_HEIGHT - 30;
 	rect.w = 122;
 	rect.h = 10;
-	SDL_FillRect(screen, &rect, 0);
+	SDL_FillRectColor(screen, &rect, 0);
 
 	rect_s.w = (int)(1.18 * p->hitpoints);
 	rect_s.h = 8;
@@ -316,10 +319,10 @@ void Mission::draw_score() {
 	rect_s.y = 0;
 	rect.x = 32;
 	rect.y = WINDOW_HEIGHT - 28;
-	SDL_BlitSurface(Main::instance->graphics->player1hp, &rect_s, screen, &rect);
+	SDL_BlitSurface(main_.graphics->player1hp, &rect_s, screen, &rect);
 	
 	// Player name
-	surface = Main::graphics->playername->at(p->character);
+	surface = main_.graphics->playername->at(p->character);
 	rect.x = 240 - surface->w;
 	rect.y = 455;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -331,7 +334,7 @@ void Mission::draw_score() {
 	rect_s.h = 16;
 	rect.x = 30;
 	rect.y = 462;
-	SDL_BlitSurface(Main::graphics->bombs, &rect_s, screen, &rect);
+	SDL_BlitSurface(main_.graphics->bombs, &rect_s, screen, &rect);
 
 	rect_s.x = 0;
 	rect_s.y = 0;
@@ -340,7 +343,7 @@ void Mission::draw_score() {
 
 	if(p->bombs != -1) {
 		sprintf_s(str, 3, "%02d", p->bombs);
-		surface = Main::text->render_text_medium(str);
+		surface = main_.text->render_text_medium(str);
 		rect.x = 46;
 		rect.y = 464;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -348,7 +351,7 @@ void Mission::draw_score() {
 	} else {
 		rect.x = 46;
 		rect.y = 462;
-		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->common, &rect_s, screen, &rect);
 	}
 	
 	// Ammo type and ammount
@@ -360,7 +363,7 @@ void Mission::draw_score() {
 	rect.y = 466;
 	if(p->doubledamagebullets > 0) rect_s.x = 8;
 	if(p->instantkillbullets > 0) rect_s.x = 16;
-	SDL_BlitSurface(Main::graphics->weapons, &rect_s, screen, &rect);
+	SDL_BlitSurface(main_.graphics->weapons, &rect_s, screen, &rect);
 
 	if(p->instantkillbullets > 0) ammount = p->instantkillbullets;
 	else if(p->doubledamagebullets > 0) ammount = p->doubledamagebullets;
@@ -368,7 +371,7 @@ void Mission::draw_score() {
 
 	if(ammount != -1) {
 		sprintf_s(str, 3, "%02d", ammount);
-		surface = Main::text->render_text_medium(str);
+		surface = main_.text->render_text_medium(str);
 		rect.x = 102;
 		rect.y = 464;
 		SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -380,7 +383,7 @@ void Mission::draw_score() {
 		rect_s.h = 16;
 		rect.x = 102;
 		rect.y = 462;
-		SDL_BlitSurface(Main::graphics->common, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->common, &rect_s, screen, &rect);
 	}
 }
 
@@ -395,7 +398,7 @@ void Mission::draw_game_ended() {
 	else
 		sprintf(text, "YOU LOST");
 
-	surface = Main::text->render_text_medium(text);
+	surface = main_.text->render_text_medium(text);
 	rect.x = (screen->w - surface->w) / 2;
 	if(player_won)
 		rect.x += CUP_W / 2 + 4;
@@ -412,6 +415,6 @@ void Mission::draw_game_ended() {
 		rect.x = rect.x - CUP_W - 8;
 		rect.y = (screen->h - CUP_H) / 2; 
 
-		SDL_BlitSurface(Main::graphics->cups, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->cups, &rect_s, screen, &rect);
 	}
 }

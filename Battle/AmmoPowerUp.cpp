@@ -2,8 +2,12 @@
 
 #include "GameplayObject.h"
 #include "AmmoPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
-AmmoPowerUp::AmmoPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo) {
+AmmoPowerUp::AmmoPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : GameplayObject(main), main_(main) {
+	clip->x = 36;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -17,7 +21,7 @@ AmmoPowerUp::~AmmoPowerUp() {
 }
 
 void AmmoPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->bullets += ammo;
 
@@ -29,7 +33,7 @@ void AmmoPowerUp::hit_player(Player * p) {
 
 void AmmoPowerUp::hit_npc(NPC * npc) {}
 
-void AmmoPowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void AmmoPowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 
@@ -40,3 +44,11 @@ void AmmoPowerUp::move(Level * level) {
 }
 
 void AmmoPowerUp::process() {}
+
+void AmmoPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeAmmo;
+	powerup.data.param = this->ammo;
+}

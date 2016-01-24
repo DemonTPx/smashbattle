@@ -2,33 +2,39 @@
 
 #include "Gameplay.h"
 #include "Bomb.h"
+#include "Main.h"
 
-const int Bomb::FRAME_COUNT = 5;
+const int Bomb::FRAME_COUNT = 6;
 const int Bomb::FRAME_NORMAL = 0;
 const int Bomb::FRAME_FLASH = 1;
 const int Bomb::FRAME_STRIKE_NORMAL = 2;
 const int Bomb::FRAME_STRIKE_FLASH = 3;
 const int Bomb::FRAME_EXPLOSION = 4;
+const int Bomb::FRAME_EXPLOSION_ALT = 5;
 
-Bomb::Bomb() {
+Bomb::Bomb(Main &main) : GameplayObject(main), main_(main) {
 	damage = 0;
 	speedy = 0;
 
 	exploded = false;
 	done = false;
+
+	kill_move = BOMB;
 
 	hit_on_impact = false;
 
 	position = new SDL_Rect();
 }
 
-Bomb::Bomb(SDL_Surface * surface) {
+Bomb::Bomb(SDL_Surface * surface, Main &main) : GameplayObject(main), main_(main) {
 	damage = 0;
 	time = 180;
 	speedy = 0;
 
 	exploded = false;
 	done = false;
+
+	kill_move = BOMB;
 
 	hit_on_impact = false;
 
@@ -41,6 +47,7 @@ Bomb::Bomb(SDL_Surface * surface) {
 	position->h = BOMB_H;
 
 	current_frame = 0;
+	frame_explode = FRAME_EXPLOSION;
 
 	set_clips();
 }
@@ -52,7 +59,8 @@ Bomb::~Bomb() {
 	}
 }
 
-void Bomb::draw(SDL_Surface * screen, int frames_processed) {
+void Bomb::draw_impl(SDL_Surface * screen, int frames_processed) {
+
 	SDL_Rect rect;
 
 	rect.x = position->x;
@@ -60,8 +68,8 @@ void Bomb::draw(SDL_Surface * screen, int frames_processed) {
 	
 	// Flicker explosion
 	if(exploded) {
-		if(current_frame != FRAME_EXPLOSION) {
-			current_frame = FRAME_EXPLOSION;
+		if(current_frame != frame_explode) {
+			current_frame = frame_explode;
 			frame_change_start = 0;
 			flicker_frame = 0;
 		}
@@ -71,16 +79,19 @@ void Bomb::draw(SDL_Surface * screen, int frames_processed) {
 		if(flicker_frame % 12 >= 6) return;
 	}
 
-	if(current_frame == FRAME_EXPLOSION) {
+	if(current_frame == frame_explode) {
 		rect.x = position->x + explosion_offset_x;
 		rect.y = position->y + explosion_offset_y;
 	}
+
+	if (main_.no_sdl)
+		return;
 
 	SDL_BlitSurface(sprite, clip[current_frame], screen, &rect);
 
 	// If the bomb is going out the side of the screen, we want it to
 	// appear on the other side.
-	if(current_frame == FRAME_EXPLOSION) {
+	if(current_frame == frame_explode) {
 		rect.x = position->x + explosion_offset_x;
 		rect.y = position->y + explosion_offset_y;
 	}
@@ -150,16 +161,16 @@ void Bomb::move(Level * level) {
 void Bomb::process() {
 	if(!exploded) {
 		// Animate bomb
-		if(Gameplay::frame - frame_change_start >= frame_change_count) {
+		if(main_.gameplay().frame - frame_change_start >= frame_change_count) {
 			if(hit_on_impact)
 				current_frame = current_frame == FRAME_STRIKE_NORMAL ? FRAME_STRIKE_FLASH : FRAME_STRIKE_NORMAL;
 			else
 				current_frame = current_frame == FRAME_NORMAL ? FRAME_FLASH : FRAME_NORMAL;
-			frame_change_start = Gameplay::frame;
+			frame_change_start = main_.gameplay().frame;
 		}
 
 		// Explode
-		if(Gameplay::frame - frame_start >= time) {
+		if(main_.gameplay().frame - frame_start >= time) {
 			explode();
 		}
 	}
@@ -170,8 +181,9 @@ void Bomb::explode() {
 		return;
 
 	exploded = true;
+	frame_explode = (rand() % 2 == 0) ? FRAME_EXPLOSION : FRAME_EXPLOSION_ALT;
 
-	Main::audio->play(SND_EXPLODE, position->x);
+	main_.audio->play(SND_EXPLODE, position->x);
 
 	Player * p;
 	NPC * npc;
@@ -183,27 +195,27 @@ void Bomb::explode() {
 
 	rect_bomb = get_damage_rect();
 
-	for(unsigned int i = 0; i < Gameplay::instance->players->size(); i++) {
-		p = Gameplay::instance->players->at(i);
+	for(unsigned int i = 0; i < main_.gameplay().players->size(); i++) {
+		p = main_.gameplay().players->at(i);
 		if(p == owner)
 			continue;
 
 		rect_player = p->get_rect();
 
-		if(Gameplay::is_intersecting(rect_bomb, rect_player)) {
-			if(p->damage(damage))
+		if(main_.gameplay().is_intersecting(rect_bomb, rect_player)) {
+			if(p->damage(damage, owner, kill_move))
 				player_hit = true;
 		}
 
 		delete rect_player;
 	}
 
-	for(unsigned int i = 0; i < Gameplay::instance->npcs->size(); i++) {
-		npc = Gameplay::instance->npcs->at(i);
+	for(unsigned int i = 0; i < main_.gameplay().npcs->size(); i++) {
+		npc = main_.gameplay().npcs->at(i);
 
 		rect_npc = npc->get_rect();
 
-		if(Gameplay::is_intersecting(rect_bomb, rect_npc)) {
+		if(main_.gameplay().is_intersecting(rect_bomb, rect_npc)) {
 			if(npc->damage(damage))
 				npcs_hit = true;
 		}
@@ -214,10 +226,7 @@ void Bomb::explode() {
 	if(player_hit || npcs_hit)
 		owner->bombs_hit++;
 
-	// Tiles below are also to be damaged
-	rect_bomb->h += TILE_H;
-
-	Gameplay::instance->level->damage_tiles(rect_bomb, damage);
+	main_.gameplay().level->damage_tiles(rect_bomb, damage);
 
 	delete rect_bomb;
 }
@@ -229,7 +238,7 @@ SDL_Rect * Bomb::get_damage_rect() {
 	rect->x = position->x + explosion_offset_x;
 	rect->y = position->y + explosion_offset_y;
 	rect->w = clip[FRAME_EXPLOSION]->w;
-	rect->h = clip[FRAME_EXPLOSION]->h;
+	rect->h = clip[FRAME_EXPLOSION]->h + 8;
 	return rect;
 }
 
@@ -260,10 +269,16 @@ void Bomb::set_clips() {
 	
 	clip[FRAME_EXPLOSION] = new SDL_Rect();
 	clip[FRAME_EXPLOSION]->x = 0;
-	clip[FRAME_EXPLOSION]->y = BOMB_H;
+	clip[FRAME_EXPLOSION]->y = 16;
 	clip[FRAME_EXPLOSION]->w = 86;
-	clip[FRAME_EXPLOSION]->h = 68;
+	clip[FRAME_EXPLOSION]->h = 58;
+
+	clip[FRAME_EXPLOSION_ALT] = new SDL_Rect();
+	clip[FRAME_EXPLOSION_ALT]->x = 0;
+	clip[FRAME_EXPLOSION_ALT]->y = 74;
+	clip[FRAME_EXPLOSION_ALT]->w = 86;
+	clip[FRAME_EXPLOSION_ALT]->h = 58;
 
 	explosion_offset_x = (clip[FRAME_NORMAL]->w - clip[FRAME_EXPLOSION]->w) / 2;
-	explosion_offset_y = -clip[FRAME_EXPLOSION]->h + clip[FRAME_NORMAL]->h;
+	explosion_offset_y = -clip[FRAME_EXPLOSION]->h + clip[FRAME_NORMAL]->h + 12;
 }

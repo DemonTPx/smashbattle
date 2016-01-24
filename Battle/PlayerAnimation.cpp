@@ -20,13 +20,13 @@
 #define MOMENTUM_INTERV_HORIZ 1
 #define MOMENTUM_INTERV_VERT 1
 
-PlayerAnimation::PlayerAnimation(int character) {
+PlayerAnimation::PlayerAnimation(int character, Main &main) : Drawable(main), main_(main) {
 	this->character = character;
 
 	position = new SDL_Rect();
 	position->w = PLAYER_W;
 	position->h = PLAYER_H;
-	sprites = Main::graphics->player->at(character);
+	sprites = main_.graphics->player->at(character);
 	current_sprite = 0;
 
 	momentumx = 0;
@@ -50,20 +50,12 @@ PlayerAnimation::~PlayerAnimation() {
 
 void PlayerAnimation::set_character(int character) {
 	this->character = character;
-	sprites = Main::graphics->player->at(character);
+	sprites = main_.graphics->player->at(character);
 }
 
 void PlayerAnimation::move() {
-	int speedx, speedy;
+	int speedx = SPEED_HORIZ;
 	int maxx;
-	int momentumx_old;
-	
-	speedx = 0;
-	speedy = 0;
-
-	speedx = SPEED_HORIZ;
-
-	momentumx_old = momentumx;
 	
 	// Are we running?
 	if(is_running) {
@@ -210,7 +202,7 @@ void PlayerAnimation::move() {
 		momentumy = MAX_MOMENTUM_JUMP;
 		is_jumping = true;
 
-		Main::instance->audio->play(SND_JUMP);
+		main_.instance->audio->play(SND_JUMP);
 	}
 	if(!keydn_u && is_jumping) {
 		// The up key is released, so fall faster
@@ -272,11 +264,11 @@ void PlayerAnimation::move() {
 	}*/
 }
 
-void PlayerAnimation::draw(SDL_Surface * screen, int frames_processed) {
+void PlayerAnimation::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect;
 	rect.x = position->x;
 	rect.y = position->y;
-	SDL_BlitSurface(sprites, Main::graphics->player_clip[current_sprite], screen, &rect);
+	SDL_BlitSurface(sprites, main_.graphics->player_clip[current_sprite], screen, &rect);
 }
 
 void PlayerAnimation::set_sprite(int sprite) {

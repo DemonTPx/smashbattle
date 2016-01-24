@@ -1,14 +1,24 @@
-#ifndef _LOCALMULTIPLAYERROUNDEND_H
-#define _LOCALMULTIPLAYERROUNDEND_H
+#pragma once
 
 #define ROUNDEND_CHANGE_CHARACTER 1
 #define ROUNDEND_CHANGE_LEVEL 2
 #define ROUNDEND_QUIT 0
 
-class LocalMultiplayerRoundEnd {
+#include <vector>
+
+#include "SimpleDrawable.h"
+
+class Player;
+class SDL_Surface;
+class SDL_Rect;
+union SDL_Event;
+class GameInput;
+class Main;
+
+class LocalMultiplayerRoundEnd : public SimpleDrawable {
 public:
-	LocalMultiplayerRoundEnd();
-	~LocalMultiplayerRoundEnd();
+	LocalMultiplayerRoundEnd(Main &main);
+	virtual ~LocalMultiplayerRoundEnd();
 
 	void run();
 
@@ -17,13 +27,30 @@ public:
 	int round;
 
 	void add_player(Player * p);
+
+protected:
+
+	virtual void draw_impl();
+
+	virtual void do_run() {};
+
+	virtual void reset_input();
+
+	virtual void process_cursor();
+
+	virtual void handle_event(GameInput &input, SDL_Event &event);
+
+	virtual void draw_menu();
+        
+        virtual int get_player_number(Player &player);
+
+	bool ready;
+
+	Main &main_;
+
 private:
 	void init();
 	void cleanup();
-
-	void draw();
-
-	void process_cursor();
 
 	void select_up();
 	void select_down();
@@ -43,13 +70,9 @@ private:
 
 	short order[4];
 
-	bool ready;
-
 	int frame;
 	
 	GameInput * input;
 
 	int selected_item;
 };
-
-#endif

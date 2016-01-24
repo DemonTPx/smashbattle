@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 
 #include <vector>
+#include <sstream>
 
 #include "Main.h"
 #include "Level.h"
@@ -10,17 +11,21 @@
 
 #include "Gameplay.h"
 
+#include "network/ServerClient.h"
+#include "commands/CommandApplyPowerup.hpp"
+
 #ifndef WIN32
 #define sprintf_s snprintf
 #endif
 
-int Gameplay::frame = 0;
-Gameplay * Gameplay::instance = 0;
+Gameplay::Gameplay(Main &main) : main_(main) {
 
-Gameplay::Gameplay() {
-	instance = this;
+	frame = 0;
 
+	ticks_start = SDL_GetTicks();
+	
 	game_running = false;
+	server_game_running = false;
 	players = new std::vector<Player*>();
 	npcs = new std::vector<NPC*>();
 	objects = new std::vector<GameplayObject*>();
@@ -29,25 +34,33 @@ Gameplay::Gameplay() {
 	npcs_collide = true;
 	players_npcs_collide = true;
 
+	broadcast_duration = 0;
+
+	disconnected_time_ = 0;
 }
 
 Gameplay::~Gameplay() {
-	instance = NULL;
 }
+
+#include "network/Server.h"
+#include <map>
+using std::map;
+#include "network/Client.h"
+#include "network/Server.h"
 
 void Gameplay::run() {
 	SDL_Event event;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
-	Main::autoreset = false;
+	main_.autoreset = false;
 
 	initialize();
 
 	reset_game();
 
 	game_running = true;
-	Main::instance->audio->stop_music();
+	main_.audio->stop_music();
 	music_playing = false;
 	
 	// Set the input defaults
@@ -57,35 +70,37 @@ void Gameplay::run() {
 	}
 
 	// Get ticks (milliseconds since SDL started)
-	Uint32 ticks_start = SDL_GetTicks();
+	ticks_start = SDL_GetTicks();
 
-	while(Main::running && game_running) {
-		// Event handling
-		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+	while(main_.running && (game_running || server_game_running)) {
+		if (!main_.no_sdl) {
+			// Event handling
+			while(SDL_PollEvent(&event)) {
+				main_.handle_event(&event);
 
-			// Handle player input
-			for(unsigned int idx = 0; idx < players->size(); idx++) {
-				Player * p = players->at(idx);
-				p->input->handle_event(&event);
+				// Handle player input
+				for(unsigned int idx = 0; idx < players->size(); idx++) {
+					Player * p = players->at(idx);
+					p->input->handle_event(&event);
+				}
+
+				handle_pause_input(&event);
 			}
-
-			handle_pause_input(&event);
-
 		}
 
+		on_input_handled();
 
 		int frames_processed = 0;
 
 		// Calculate difference in milliseconds since our previous measure
-		Uint32 ticks_diff = SDL_GetTicks() - ticks_start;
+		Sint32 ticks_diff = SDL_GetTicks() - ticks_start;
 
 		// If enough time has passed skip frame(s)
-		while (ticks_diff >= Main::MILLISECS_PER_FRAME)
+		while (ticks_diff >= main_.MILLISECS_PER_FRAME)
 		{
 			// Update our 'previous'/start measure and diff
-			ticks_start += Main::MILLISECS_PER_FRAME;
-			ticks_diff -= Main::MILLISECS_PER_FRAME;
+			ticks_start += main_.MILLISECS_PER_FRAME;
+			ticks_diff -= main_.MILLISECS_PER_FRAME;
 
 			// Gameplay processing
 			on_pre_processing();
@@ -94,7 +109,21 @@ void Gameplay::run() {
 				for(unsigned int idx = 0; idx < players->size(); idx++) {
 					Player * p = players->at(idx);
 					p->move(level);
-					p->process();
+					switch (main_.runmode)
+					{
+						case MainRunModes::SERVER:
+							// Server gets projectiles from client through commands
+							break;
+						case MainRunModes::CLIENT:
+							// Client will only process and send it's own projectiles to server, 
+							//  for other player bullets we depend on the server for sending them.
+							if (p->number == main_.getServerClient().getClientId())
+								p->process();
+							break;
+						default:
+							p->process();
+							break;
+					}
 				}
 
 				process_player_collission();
@@ -116,37 +145,8 @@ void Gameplay::run() {
 				process_player_npc_collission();
 
 				// Move and process objects
-				for(unsigned int idx = 0; idx < objects->size(); idx++) {
-					GameplayObject * obj = objects->at(idx);
-					obj->move(level);
-					obj->process();
-					for(unsigned int i = 0; i < players->size(); i++) {
-						Player * p = players->at(i);
-						if(p->is_dead)
-							continue;
-						SDL_Rect * rect;
-						rect = p->get_rect();
-						if(is_intersecting(rect, obj->position)) {
-							obj->hit_player(p);
-						}
-						delete rect;
-					}
-					for(unsigned int i = 0; i < npcs->size(); i++) {
-						NPC * npc = npcs->at(i);
-						if(npc->is_dead)
-							continue;
-						SDL_Rect * rect;
-						rect = npc->get_rect();
-						if(is_intersecting(rect, obj->position)) {
-							obj->hit_npc(npc);
-						}
-						delete rect;
-					}
-					if(obj->done) {
-						objects->erase(objects->begin() + idx);
-						delete obj;
-					}
-				}
+				process_gameplayobj();
+
 			}
 			if(countdown) {
 				process_countdown();
@@ -160,44 +160,191 @@ void Gameplay::run() {
 		}
 
 		// Drawing
-		level->draw(screen, frames_processed);
+		if (!main_.no_sdl) {
+			level->draw(screen, frames_processed);
 
-		for(unsigned int idx = 0; idx < players->size(); idx++) {
-			Player * p = players->at(idx);
-			if(countdown)
-				p->draw(screen, true, frames_processed);
-			else
-				p->draw(screen, false, frames_processed);
-		}
-		for(unsigned int idx = 0; idx < npcs->size(); idx++) {
-			NPC * npc = npcs->at(idx);
-			npc->draw(screen, frames_processed);
-		}
+			for(unsigned int idx = 0; idx < players->size(); idx++) {
+				Player * p = players->at(idx);
+				if(countdown)
+					p->draw(screen, true, frames_processed);
+				else
+					p->draw(screen, false, frames_processed);
+			}
+			for(unsigned int idx = 0; idx < npcs->size(); idx++) {
+				NPC * npc = npcs->at(idx);
+				npc->draw(screen, frames_processed);
+			}
 
-		for(unsigned int idx = 0; idx < objects->size(); idx++) {
-			GameplayObject * obj = objects->at(idx);
-			obj->draw(screen, frames_processed);
-		}
+			for(unsigned int idx = 0; idx < objects->size(); idx++) {
+				GameplayObject * obj = objects->at(idx);
+				obj->draw(screen, frames_processed);
+			}
 
-		draw_score();
+			draw_score();
+		}
 		
 		if(ended) {
-			draw_game_ended();
+			if (!main_.no_sdl) {
+				draw_game_ended();
+			}
 
-			if(frame - end_start > 120) {
+			if (main_.runmode == MainRunModes::CLIENT) {
+				// reset games are handled by server
+			}
+			else if(frame - end_start > 120) {
 				reset_game();
 			}
 		}
 		if(countdown) {
-			draw_countdown();
+			if (!main_.no_sdl) {
+				draw_countdown();
+			}
 		}
 
-		Main::instance->flip(true);
+		if (main_.runmode == MainRunModes::CLIENT)
+		{
+			if (!main_.getServerClient().isConnected()) {
+				draw_disconnected();
+				if (disconnected_time_ == 0) {
+					disconnected_time_ = main_.getServer().getServerTime();
+				}
+				else {
+					if ((main_.getServer().getServerTime() - disconnected_time_) >= 3000) {
+						disconnected_time_ = 0;
+						break;
+					}
+				}
+			}
+			else if (main_.getServerClient().showConsole())
+				draw_console();
+		}
+
+		if (!main_.no_sdl) {
+			draw_broadcast();
+		}
+		if (broadcast_duration > 0) {
+			for (int i=0; i<frames_processed; i++) {
+				broadcast_duration -= main_.MILLISECS_PER_FRAME;
+				if (broadcast_duration < 0)
+					broadcast_duration = 0;
+			}
+		}
+
+		main_.flip();
 	}
 
 	deinitialize();
 
-	Main::autoreset = true;
+	main_.autoreset = true;
+}
+
+void Gameplay::move_player(Player &player)
+{
+	// Move (do not process)
+	player.move(level);
+
+	process_player_collission();
+
+	process_npc_collission();
+
+	process_player_npc_collission();
+
+	// Process collisions with gameplay objects
+	for(unsigned int idx = 0; idx < objects->size(); idx++) {
+		GameplayObject * obj = objects->at(idx);
+		for(unsigned int i = 0; i < players->size(); i++) {
+			Player * p = players->at(i);
+			if(p->is_dead)
+				continue;
+			std::unique_ptr<SDL_Rect> rect(p->get_rect());
+			if(is_intersecting(rect.get(), obj->position)) {
+ 				// In case the runmode is client, and it is a powerup, skip hit_player() call, we receive these commands from the server
+				if (!obj->is_powerup || main_.runmode != MainRunModes::CLIENT) {
+					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
+					if (obj->is_powerup && main_.runmode == MainRunModes::SERVER) {
+						network::CommandApplyPowerup apply;
+						apply.data.time = main_.getServer().getServerTime();
+						apply.data.player_id = p->number;
+						apply.data.powerup_id = obj->id();
+						main_.getServer().sendAll(apply);
+					}
+					obj->hit_player(p);
+				}
+			}
+		}
+		for(unsigned int i = 0; i < npcs->size(); i++) {
+			NPC * npc = npcs->at(i);
+			if(npc->is_dead)
+				continue;
+			std::unique_ptr<SDL_Rect> rect(npc->get_rect());
+			if(is_intersecting(rect.get(), obj->position)) {
+				obj->hit_npc(npc);
+			}
+		}
+		if(obj->done) {
+			objects->erase(objects->begin() + idx);
+			delete obj;
+		}
+	}
+
+}
+
+/**
+ * If projectile is NULL, process all otherwise only given gameplayobject
+ returns false if the object is deleted
+ */
+bool Gameplay::process_gameplayobj(GameplayObject *gameplayobj)
+{
+	// Move and process objects
+	for(unsigned int idx = 0; idx < objects->size(); idx++) {
+		GameplayObject * obj = objects->at(idx);
+
+		if (gameplayobj != NULL && gameplayobj != obj)
+			continue;
+		
+		obj->move(level);
+		obj->process();
+		for(unsigned int i = 0; i < players->size(); i++) {
+			Player * p = players->at(i);
+			if(p->is_dead)
+				continue;
+			SDL_Rect * rect;
+			rect = p->get_rect();
+			if(is_intersecting(rect, obj->position)) {
+ 				// In case the runmode is client, and it is a powerup, skip hit_player() call, we receive these commands from the server
+				if (!obj->is_powerup || main_.runmode != MainRunModes::CLIENT)
+				{
+					// In case the runmode is server, and it's a powerup, send a hit notification to clients, so they can process the powerup
+					if (obj->is_powerup && main_.runmode == MainRunModes::SERVER) {
+						network::CommandApplyPowerup apply;
+						apply.data.time = main_.getServer().getServerTime();
+						apply.data.player_id = p->number;
+						apply.data.powerup_id = obj->id();
+						main_.getServer().sendAll(apply);
+					}
+					obj->hit_player(p);
+				}
+			}
+			delete rect;
+		}
+		for(unsigned int i = 0; i < npcs->size(); i++) {
+			NPC * npc = npcs->at(i);
+			if(npc->is_dead)
+				continue;
+			SDL_Rect * rect;
+			rect = npc->get_rect();
+			if(is_intersecting(rect, obj->position)) {
+				obj->hit_npc(npc);
+			}
+			delete rect;
+		}
+		if(obj->done) {
+			objects->erase(objects->begin() + idx);
+			delete obj;
+			return false;
+		}
+	}
+	return true;
 }
 
 void Gameplay::handle_pause_input(SDL_Event * event) {
@@ -214,7 +361,13 @@ void Gameplay::handle_pause_input(SDL_Event * event) {
 void Gameplay::pause(Player * p) {
 	int ret;
 	ret = pause_menu->pause(p);
+	
 	if(ret == 1) game_running = false;
+	
+	// In Arcade mode time does not elapse in pause menu
+	if (main_.runmode == MainRunModes::ARCADE) {
+		ticks_start = SDL_GetTicks();
+	}
 }
 
 void Gameplay::set_level(Level * l) {
@@ -224,21 +377,50 @@ void Gameplay::set_level(Level * l) {
 }
 
 void Gameplay::add_player(Player * p) {
-	if(!game_running) {
-		players->push_back(p);
+	players->push_back(p);
+}
+
+void Gameplay::del_player_by_id(char number)
+{
+	std::unique_ptr<Player> deletePlayer;
+	for (std::vector<Player *>::iterator i = players->begin(); i!= players->end(); i++)
+	{
+		Player *player(*i);
+
+		if (number == player->number)
+		{
+			deletePlayer = std::move(std::unique_ptr<Player>(player));
+			on_pre_delete_player(*deletePlayer.get());
+			players->erase(i);
+			return;
+		}
 	}
+}
+
+void Gameplay::del_players()
+{
+	players->clear();
+}
+
+void Gameplay::del_other_players()
+{
+	while (players->size() > 1)
+		players->erase(players->begin()++);
 }
 
 void Gameplay::add_npc(NPC * npc) {
 	npcs->push_back(npc);
 }
 
-void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source) {
+void Gameplay::bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source, Player * initialized_by_player) {
 	Player * p;
 	for(unsigned int i = 0; i < players->size(); i++) {
 		p = players->at(i);
-		if(is_intersecting(rect, p->position))
+		if(is_intersecting(rect, p->position)) {
+			p->last_pushed_player = initialized_by_player;
+			p->last_damage_move = KillMove::FALLING;
 			p->bounce_up(source);
+		}
 	}
 
 	NPC * npc;
@@ -254,6 +436,7 @@ void Gameplay::add_object(GameplayObject * obj) {
 }
 
 void Gameplay::reset_game() {
+	previous_round_max_frame = frame;
 	frame = 0;
 	
 	//paused = false;
@@ -264,7 +447,11 @@ void Gameplay::reset_game() {
 	countdown_start = frame;
 	strcpy(countdown_pre_text, "GET READY");
 
-	level->reset();
+	// In network::ServerClient upon receiving the level from server, we reset already, and then initialize the tiles
+	if (main_.runmode != MainRunModes::CLIENT)
+	{
+		level->reset();
+	}
 	
 	// Clear gameplay objects
 	GameplayObject * obj;
@@ -276,13 +463,13 @@ void Gameplay::reset_game() {
 
 	on_game_reset();
 
-	//Main::audio->stop_music();
+	//main_.audio->stop_music();
 
 	srand(SDL_GetTicks());
 }
 
 void Gameplay::initialize() {
-	pause_menu = new PauseMenu(screen);
+	pause_menu = new PauseMenu(screen, main_);
 	pause_menu->add_option((char*)"RESUME\0");
 	pause_menu->add_option((char*)"QUIT\0");
 }
@@ -290,7 +477,7 @@ void Gameplay::initialize() {
 void Gameplay::deinitialize() {
 	// Stop the music
 	if(!countdown)
-		Main::audio->stop_music();
+		main_.audio->stop_music();
 
 	// Clear players (we don't delete the players, because they are not created in this class)
 	players->clear();
@@ -323,10 +510,10 @@ void Gameplay::draw_countdown() {
 	SDL_Surface * surf;
 
 	if(countdown_sec_left > 3) {
-		surf = Main::text->render_text_medium_shadow(countdown_pre_text);
+		surf = main_.text->render_text_medium_shadow(countdown_pre_text);
 	} else {
 		sprintf_s(text, 5, "%d", countdown_sec_left);
-		surf = Main::text->render_text_large_shadow(text);
+		surf = main_.text->render_text_large_shadow(text);
 	}
 
 	SDL_Rect rect;
@@ -336,6 +523,44 @@ void Gameplay::draw_countdown() {
 	SDL_BlitSurface(surf, NULL, screen, &rect);
 	SDL_FreeSurface(surf);
 }
+
+void Gameplay::draw_disconnected() 
+{
+	SDL_Surface * surf;
+
+	surf = main_.text->render_text_medium("DISCONNECTED FROM SERVER");
+
+	SDL_Rect rect;
+	rect.x = (screen->w - surf->w) / 2;
+	rect.y = (screen->h - surf->h) / 2;
+	
+	SDL_BlitSurface(surf, NULL, screen, &rect);
+	SDL_FreeSurface(surf);
+}
+
+void Gameplay::draw_broadcast()
+{
+	if (broadcast_duration == 0)
+		return;
+
+
+	std::istringstream stream(broadcast_msg);
+	std::string line;
+	int offsetY = 0;
+	while(std::getline(stream, line)) {
+		SDL_Surface * surf = main_.text->render_text_medium_shadow(line.c_str());
+
+		SDL_Rect rect;
+		rect.x = (screen->w - surf->w) / 2;
+		rect.y = ((screen->h - surf->h) / 2) - TILE_H + offsetY;
+		
+		SDL_BlitSurface(surf, NULL, screen, &rect);
+		SDL_FreeSurface(surf);
+
+		offsetY += 24;
+	}
+}
+
 
 void Gameplay::draw_pause_screen() {
 
@@ -396,12 +621,12 @@ bool Gameplay::is_intersecting(SDL_Rect * one, SDL_Rect * two) {
 }
 
 
+#include "commands/CommandSetPlayerData.hpp"
 void Gameplay::process_player_collission() {
 	if(!players_collide)
 		return;
 
 	Player * p1, * p2;
-	SDL_Rect * r1, * r2;
 
 	for(unsigned int i1 = 0; i1 < players->size(); i1++) {
 		p1 = players->at(i1);
@@ -413,21 +638,29 @@ void Gameplay::process_player_collission() {
 
 			if(p2->is_dead) continue;
 
-			r1 = p1->get_rect();
-			r2 = p2->get_rect();
+			std::unique_ptr<SDL_Rect> r1 (p1->get_rect());
+			std::unique_ptr<SDL_Rect> r2 (p2->get_rect());
 
-			if(is_intersecting(r1, r2)) {
-				Main::audio->play(SND_BOUNCE, (p1->position->x + p2->position->x) / 2);
+			if(is_intersecting(r1.get(), r2.get())) {
+				main_.audio->play(SND_BOUNCE, (p1->position->x + p2->position->x) / 2);
 
 				p1->bounce(p2);
 				p2->bounce(p1);
 
 				p1->momentumx = p1->newmomentumx;
 				p2->momentumx = p2->newmomentumx;
-			}
 
-			delete r1;
-			delete r2;
+				// We re-send our position to the server if we bounced someone, just in case some bounce didn't happen on the server.
+				//  We cannot however send this update immediately, because if we send the new position *we* know of now, we may not bounce
+				//  on the server (I learned this by actually implementing it wrong).
+				// Therefore (re)set a timer that will periodically send our data to server.
+				// But we cannot do this 
+				if (main_.runmode == MainRunModes::CLIENT && main_.getServerClient().isConnected()) {
+					if (main_.getServerClient().getClientId() == p1->number || main_.getServerClient().getClientId() == p2->number) {
+						main_.getServerClient().resetTimer();
+					}
+				}
+			}
 		}
 	}
 }
@@ -502,9 +735,9 @@ void Gameplay::process_countdown() {
 	if(frame - countdown_start >= 60) {
 		if(countdown_sec_left == 1) {
 			countdown = false;
-			Main::audio->play(SND_GO);
+			main_.audio->play(SND_GO);
 			if(!music_playing) {
-				Main::audio->play_music(level->music);
+				main_.audio->play_music(level->music);
 				music_playing = true;
 			}
 			return;
@@ -513,6 +746,12 @@ void Gameplay::process_countdown() {
 		countdown_start = frame;
 
 		if(countdown_sec_left <= 3)
-			Main::audio->play(SND_COUNTDOWN);
+			main_.audio->play(SND_COUNTDOWN);
 	}
+}
+
+void Gameplay::set_broadcast(std::string msg, int duration) 
+{
+	broadcast_msg = msg;
+	broadcast_duration = duration;
 }

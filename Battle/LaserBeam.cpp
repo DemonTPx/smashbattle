@@ -2,11 +2,12 @@
 
 #include "Gameplay.h"
 #include "AudioController.h"
-
 #include "LaserBeam.h"
+#include "Main.h"
+#include "Color.h"
 
-LaserBeam::LaserBeam() {
-	start = Gameplay::instance->frame;
+LaserBeam::LaserBeam(Main &main) : GameplayObject(main), main_(main) {
+	start = main_.gameplay().frame;
 
 	position = new SDL_Rect();
 	position->x = 0;
@@ -21,7 +22,11 @@ LaserBeam::~LaserBeam() {
 }
 
 void LaserBeam::move(Level * level) {
-	if(Gameplay::frame - start == 10) {
+	int frame;
+
+	frame = main_.gameplay().frame - start;
+
+	if (frame == 10) {
 		SDL_Rect rect;
 
 		rect.x = position->x - 34;
@@ -31,12 +36,16 @@ void LaserBeam::move(Level * level) {
 
 		level->damage_tiles(&rect, 25);
 	}
+	if (frame == 12) {
+		position->x -= 32;
+		position->w = 66;
+	}
 }
 
 void LaserBeam::process() {
 	int frame;
 
-	frame = Gameplay::instance->frame - start;
+	frame = main_.gameplay().frame - start;
 
 	if(frame == 1) {
 		if(target->is_dead) {
@@ -44,7 +53,7 @@ void LaserBeam::process() {
 			return;
 		}
 
-		Main::audio->play(SND_LASER);
+		main_.audio->play(SND_LASER);
 		position->x = target->position->x + (PLAYER_W / 2);
 
 		if(position->x > WINDOW_WIDTH)
@@ -59,28 +68,23 @@ void LaserBeam::process() {
 void LaserBeam::hit_player(Player * player) {
 	if(player == owner)
 		return;
-	if(Gameplay::frame - start < 10)
+	if(main_.gameplay().frame - start < 10)
 		return;
-	player->damage(25);
+	player->damage(25, owner, LASER);
 }
 
 void LaserBeam::hit_npc(NPC * npc) {
 	npc->damage(25);
 }
 
-void LaserBeam::draw(SDL_Surface * screen, int frames_processed) {
+void LaserBeam::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect, rect_b;
 	int frame;
 	Uint32 color;
 
-	frame = Gameplay::instance->frame - start;
+	frame = main_.gameplay().frame - start;
 
 	if(frame < 0) return;
-
-	if(frame == 12) {
-		position->x -= 32;
-		position->w = 66;
-	}
 
 	rect.x = position->x;
 	rect.y = 0;
@@ -93,25 +97,28 @@ void LaserBeam::draw(SDL_Surface * screen, int frames_processed) {
 	rect_b.h = rect.h;
 
 	color = 0xffffffff;
+
+	if (main_.no_sdl)
+		return;
 	
 	// Preloading beam
 	if(frame < 10) {
 		rect.h = ((WINDOW_HEIGHT - TILE_W) / 10) * frame;
 
-		SDL_FillRect(screen, &rect, color);
+		SDL_FillRectColor(screen, &rect, color);
 
 		if(rect.x < 0) {
 			rect_b.h = rect.h;
 			rect_b.x += WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 		if(rect.x  + rect.w >= WINDOW_WIDTH) {
 			rect_b.h = rect.h;
 			rect_b.x -= WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 	} else if(frame < 12) {
-		SDL_FillRect(screen, 0, color);
+		SDL_FillRectColor(screen, 0, color);
 	} else if(frame < 28) {
 		int offset, width;
 		offset = (frame - 12) * 2;
@@ -122,36 +129,36 @@ void LaserBeam::draw(SDL_Surface * screen, int frames_processed) {
 
 		color = 0xffffffff - (0x00000002 * offset);
 
-		SDL_FillRect(screen, &rect, color);
+		SDL_FillRectColor(screen, &rect, color);
 		
 		if(rect.x < 0) {
 			rect_b.w = width;
 			rect_b.h = rect.h;
 			rect_b.x = rect.x + WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 		if(rect.x  + width >= WINDOW_WIDTH) {
 			rect_b.w = 32 - offset;
 			rect_b.h = rect.h;
 			rect_b.x = rect.x - WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 
 		rect.x += 32 + offset;
-		
-		SDL_FillRect(screen, &rect, color);
+
+		SDL_FillRectColor(screen, &rect, color);
 		
 		if(rect.x < 0) {
 			rect_b.w = width;
 			rect_b.h = rect.h;
 			rect_b.x = rect.x + WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 		if(rect.x  + width >= WINDOW_WIDTH) {
 			rect_b.w = width;
 			rect_b.h = rect.h;
 			rect_b.x = rect.x - WINDOW_WIDTH;
-			SDL_FillRect(screen, &rect_b, color);
+			SDL_FillRectColor(screen, &rect_b, color);
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "OptionsScreen.h"
+#include "Color.h"
 
 #define DIRECTION_NONE	0
 #define DIRECTION_LEFT	1
@@ -10,14 +11,57 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-OptionsScreen::OptionsScreen() {
+#ifndef __APPLE__
+#ifdef __GNUC__
+#  include <features.h>
+#  if __GNUC_PREREQ(4,7)
+#define USE_SHORT_CONSTRUCTOR
+#  endif
+#endif
+#endif
+
+#ifdef _WIN32
+#define USE_SHORT_CONSTRUCTOR
+#endif
+
+#ifdef USE_SHORT_CONSTRUCTOR
+OptionsScreen::OptionsScreen(Main &main) : OptionsScreen("", main) {
+	background = NULL;
+}
+#else
+OptionsScreen::OptionsScreen(Main &main) : SimpleDrawable(main), main_(main) {
+// duplicate
+	this->title = title;
 	items = new std::vector<OptionItem*>(0);
 
+	background = NULL;
+	
 	align = LEFT;
+	
+	title_left_offset = 20;
+	title_top_offset = 20;
 
 	menu_item_height = 26;
-	menu_top_offset = 30;
 	menu_left_offset = 20;
+	menu_top_offset = 70;
+	menu_options_left_offset = 250;
+}
+#endif
+
+OptionsScreen::OptionsScreen(std::string title, Main &main) : SimpleDrawable(main), main_(main) {
+	this->title = title;
+	items = new std::vector<OptionItem*>(0);
+
+	background = NULL;
+	
+	align = LEFT;
+	
+	title_left_offset = 20;
+	title_top_offset = 20;
+
+	menu_item_height = 26;
+	menu_left_offset = 20;
+	menu_top_offset = 70;
 	menu_options_left_offset = 250;
 }
 
@@ -30,40 +74,49 @@ void OptionsScreen::run() {
 
 	running = true;
 
-	input = Main::instance->input_master;
+	input = main_.input_master;
 	input->set_delay();
 	input->reset();
 
-	while (Main::running && running) {
+	while (main_.running && running) {
 		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+			
+			if (process_event(event)) {
+				main_.handle_event(&event);
 
-			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-				running = false;
-				break;
+				if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+					running = false;
+					break;
+				}
+
+				input->handle_event(&event);
 			}
-
-			input->handle_event(&event);
 		}
 		process_cursor();
 		
 		draw();
 
-		Main::instance->flip();
+		main_.flip();
 		frame++;
 	}
 
 	cleanup();
 }
 
-void OptionsScreen::draw() {
+bool OptionsScreen::process_event(SDL_Event &event)
+{
+	return true;
+}
+
+void OptionsScreen::draw_impl() {
+	on_pre_draw();
 	unsigned int i, j;
 	SDL_Surface * text;
 	SDL_Rect rect;
 	SDL_Surface * screen;
 	OptionItem * item;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
 	SDL_BlitSurface(background, NULL, screen, NULL);
 
@@ -76,7 +129,7 @@ void OptionsScreen::draw() {
 			rect.y = item->rect_name->y - 5;
 			rect.w = text->w + 10;
 			rect.h = menu_item_height;
-			SDL_FillRect(screen, &rect, 0x444488);
+			SDL_FillRectColor(screen, &rect, MENU_CURSOR_COLOR);
 		}
 
 		SDL_BlitSurface(text, NULL, screen, item->rect_name);
@@ -89,18 +142,25 @@ void OptionsScreen::draw() {
 					rect.y = item->rect_options->at(j)->y - 5;
 					rect.w = text->w + 10;
 					rect.h = menu_item_height;
-					SDL_FillRect(screen, &rect, 0x444488);
+					SDL_FillRectColor(screen, &rect, MENU_CURSOR_COLOR);
 				}
 
 				SDL_BlitSurface(text, NULL, screen, item->rect_options->at(j));
 			}
 		}
 	}
+	on_post_draw();
 }
 
 void OptionsScreen::process_cursor() {
+	if (input->is_pressed(A_BACK)) {
+		running = false;
+		return;
+	}
+
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
-			input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
+			input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB) ||
+			input->is_pressed(A_START)) {
 		if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) // It's likely that up and jump are the same keybind
 			select();
 	}
@@ -116,12 +176,16 @@ void OptionsScreen::process_cursor() {
 }
 
 void OptionsScreen::select() {
-	Main::audio->play(SND_SELECT);
+	if (items->size() == 0) {
+		return;
+	}
+
+	main_.audio->play(SND_SELECT);
 	item_selected();
 }
 
 void OptionsScreen::select_up() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 
 	selected_item--;
 
@@ -131,7 +195,7 @@ void OptionsScreen::select_up() {
 }
 
 void OptionsScreen::select_down() {
-	Main::audio->play(SND_SELECT);
+	main_.audio->play(SND_SELECT);
 
 	selected_item++;
 
@@ -183,50 +247,79 @@ void OptionsScreen::selection_changed() { }
 
 void OptionsScreen::init() {
 	SDL_Surface * surface;
-	SDL_Rect * rect;
 	SDL_Rect rect_d;
-	OptionItem * item;
-	int x;
 	
 	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
 
-	for(int y = 0; y < WINDOW_HEIGHT; y += Main::graphics->bg_grey->h) {
-		for(int x = 0; x < WINDOW_WIDTH; x += Main::graphics->bg_grey->w) {
+	for(int y = 0; y < WINDOW_HEIGHT; y += main_.graphics->bg_grey->h) {
+		for(int x = 0; x < WINDOW_WIDTH; x += main_.graphics->bg_grey->w) {
 			rect_d.x = x;
 			rect_d.y = y;
-			SDL_BlitSurface(Main::graphics->bg_grey, NULL, background, &rect_d);
+			SDL_BlitSurface(main_.graphics->bg_grey, NULL, background, &rect_d);
 		}
 	}
 
-	if(selected_item < 0 || selected_item >= (int)items->size())
+	rect_d.x = title_left_offset;
+	rect_d.y = title_top_offset;
+
+	surface = main_.text->render_text_medium_shadow(title.c_str());
+	SDL_BlitSurface(surface, NULL, background, &rect_d);
+	SDL_FreeSurface(surface);
+
+	initialize_items();
+}
+
+void OptionsScreen::update() {
+	cleanup_items(false);
+	initialize_items();
+}
+
+void OptionsScreen::cleanup() {
+	cleanup_items(true);
+	items->clear();
+	delete items;
+
+	SDL_FreeSurface(background);
+}
+
+void OptionsScreen::initialize_items()
+{
+	SDL_Surface * surface;
+	SDL_Rect * rect;
+	OptionItem * item;
+	int x;
+
+	if (selected_item < 0 || selected_item >= (int)items->size())
 		selected_item = 0;
 
-	screen_w = Main::instance->screen->w;
-	screen_h = Main::instance->screen->h;
+	screen_w = main_.screen->w;
+	screen_h = main_.screen->h;
 
-	for(unsigned int i = 0; i < items->size(); i++) {
+	for (unsigned int i = 0; i < items->size(); i++) {
 		item = items->at(i);
-		
-		item->surf_name = Main::text->render_text_medium(item->name);
+
+		item->surf_name = main_.text->render_text_medium(item->name);
 
 		item->rect_name = new SDL_Rect();
 
 		item->rect_name->y = menu_top_offset + (i * menu_item_height) - 3;
-		if(align == LEFT) {
+		if (align == LEFT) {
 			item->rect_name->x = menu_left_offset;
-		} else if(align == CENTER) {
+		}
+		else if (align == CENTER) {
 			item->rect_name->x = (screen_w - item->surf_name->w) / 2;
-		} else {
+		}
+		else {
 			item->rect_name->x = screen_w - item->surf_name->w - menu_left_offset;
 		}
 
 		x = menu_options_left_offset;
 
-		if(item->options != NULL) {
+		if (item->options != NULL) {
 			item->surf_options = new std::vector<SDL_Surface *>(0);
 			item->rect_options = new std::vector<SDL_Rect *>(0);
-			for(unsigned int j = 0; j < item->options->size(); j++) {
-				surface = Main::text->render_text_medium(item->options->at(j));
+			for (unsigned int j = 0; j < item->options->size(); j++) {
+				surface = main_.text->render_text_medium(item->options->at(j));
 				item->surf_options->push_back(surface);
 
 				rect = new SDL_Rect();
@@ -237,34 +330,40 @@ void OptionsScreen::init() {
 
 				x += surface->w + 10;
 			}
-		} else {
+		}
+		else {
 			item->surf_options = NULL;
 			item->rect_options = NULL;
 		}
 	}
 }
 
-void OptionsScreen::cleanup() {
-	for(unsigned int i = 0; i < items->size(); i++) {
-		if(items->at(i)->options != NULL) {
-			for(unsigned int j = 0; j < items->at(i)->options->size(); j++) {
+void OptionsScreen::cleanup_items(bool with_delete)
+{
+	for (unsigned int i = 0; i < items->size(); i++) {
+		if (items->at(i)->options != NULL) {
+			for (unsigned int j = 0; j < items->at(i)->options->size(); j++) {
 				SDL_FreeSurface(items->at(i)->surf_options->at(j));
 				delete(items->at(i)->rect_options->at(j));
 			}
-			
+
 			delete items->at(i)->surf_options;
 			delete items->at(i)->rect_options;
 
-			items->at(i)->options->clear();
-			delete items->at(i)->options;
+			if (with_delete) {
+				items->at(i)->options->clear();
+				delete items->at(i)->options;
+			}
 		}
 		SDL_FreeSurface(items->at(i)->surf_name);
 		delete items->at(i)->rect_name;
 
-		delete items->at(i);
+		if (with_delete) {
+			delete items->at(i);
+		}
 	}
-	items->clear();
-	delete items;
 
-	SDL_FreeSurface(background);
+	if (with_delete) {
+		items->clear();
+	}
 }

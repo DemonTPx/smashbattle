@@ -1,12 +1,12 @@
-#ifndef _PROJECTILE_H
-#define _PROJECTILE_H
+#pragma once
 
 #include "GameplayObject.h"
+#include "KillMove.h"
 
 class Projectile : public GameplayObject {
 public:
-	Projectile();
-	Projectile(SDL_Surface * surface, SDL_Rect * clip);
+	Projectile(Main &main);
+	Projectile(SDL_Surface * surface, SDL_Rect * clip, Main &main);
 	~Projectile();
 
 	SDL_Surface * sprite;
@@ -16,6 +16,8 @@ public:
 	int distance_traveled;
 	int max_distance;
 	bool hit;
+
+	KillMove kill_move;
 	
 	Player * owner;
 
@@ -29,8 +31,11 @@ public:
 	virtual void hit_player(Player * player);
 	virtual void hit_npc(NPC * npc);
 
-	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
-private:
-};
+protected:
 
-#endif
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
+private:
+
+	Main &main_;
+};

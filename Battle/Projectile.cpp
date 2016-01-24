@@ -2,11 +2,9 @@
 
 #include "Gameplay.h"
 #include "Projectile.h"
+#include "Main.h"
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
-
-Projectile::Projectile() {
+Projectile::Projectile(Main &main) : GameplayObject(main), main_(main) {
 	speedx = 0;
 	speedy = 0;
 	distance_traveled = 0;
@@ -17,7 +15,7 @@ Projectile::Projectile() {
 	position = new SDL_Rect();
 }
 
-Projectile::Projectile(SDL_Surface * surface, SDL_Rect * clip) {
+Projectile::Projectile(SDL_Surface * surface, SDL_Rect * clip, Main &main) : GameplayObject(main), main_(main) {
 	speedx = 0;
 	speedy = 0;
 	distance_traveled = 0;
@@ -75,7 +73,7 @@ void Projectile::hit_player(Player * player) {
 	if(player == owner)
 		return;
 
-	if(player->damage(damage)) {
+	if(player->damage(damage, owner, kill_move)) {
 		hit = true;
 		if(owner != NULL)
 			owner->bullets_hit++;
@@ -97,7 +95,7 @@ void Projectile::hit_npc(NPC * npc) {
 	}
 }
 
-void Projectile::draw(SDL_Surface * screen, int frames_processed) {
+void Projectile::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect;
 
 	rect.x = position->x;

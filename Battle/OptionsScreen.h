@@ -1,8 +1,8 @@
-#ifndef _OPTIONSSCREEN_H
-#define _OPTIONSSCREEN_H
+#pragma once
 
 #include <vector>
 #include "Main.h"
+#include "SimpleDrawable.h"
 
 struct OptionItem {
 	char * name;
@@ -15,15 +15,20 @@ struct OptionItem {
 	std::vector<SDL_Rect *> * rect_options;
 };
 
-class OptionsScreen {
+class OptionsScreen : public SimpleDrawable {
 public:
-	OptionsScreen();
+	OptionsScreen(Main &main);
+	OptionsScreen(std::string title, Main &main);
+	virtual ~OptionsScreen() {}
 
 	void run();
 protected:
+	GameInput * input;
+
 	int selected_item;
 	bool running;
 
+	std::string title;
 	std::vector<OptionItem *> * items;
 
 	enum {
@@ -31,6 +36,9 @@ protected:
 		CENTER,
 		RIGHT
 	} align;
+
+	int title_left_offset;
+	int title_top_offset;
 	
 	int menu_item_height;
 	int menu_top_offset;
@@ -40,31 +48,39 @@ protected:
 	void init();
 	void cleanup();
 
+	void update();
+
 	void add_item(OptionItem *);
 
 	virtual void item_selected();
 	virtual void selection_changed();
-private:	
-	GameInput * input;
+	
+	virtual bool process_event(SDL_Event &event);
+	virtual void process_cursor();
 
+	Main &main_;
+
+private:
+	SDL_Surface * surf_title;
 	std::vector<SDL_Surface *> * surf_items;
 	std::vector<SDL_Rect *> * surf_items_clip;
 
 	SDL_Surface * background;
-
 	int frame;
 
 	int screen_w, screen_h;
 
-	void draw();
-
-	void process_cursor();
+	virtual void draw_impl();
+	
+	virtual void on_pre_draw() {};
+	virtual void on_post_draw() {};
 	
 	void select_up();
 	void select_down();
 	void select_left();
 	void select_right();
 	void select();
-};
 
-#endif
+	void initialize_items();
+	void cleanup_items(bool with_delete);
+};

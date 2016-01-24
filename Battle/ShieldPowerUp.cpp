@@ -3,8 +3,12 @@
 #include "Gameplay.h"
 #include "GameplayObject.h"
 #include "ShieldPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
-ShieldPowerUp::ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position) {
+ShieldPowerUp::ShieldPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
+	clip->x = 108;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -17,17 +21,17 @@ ShieldPowerUp::~ShieldPowerUp() {
 }
 
 void ShieldPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->is_shielded = true;
-	p->shield_start = Gameplay::frame;
+	p->shield_start = main_.gameplay().frame;
 
 	done = true;
 }
 
 void ShieldPowerUp::hit_npc(NPC * npc) {}
 
-void ShieldPowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void ShieldPowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 
@@ -38,3 +42,10 @@ void ShieldPowerUp::move(Level * level) {
 }
 
 void ShieldPowerUp::process() {}
+
+void ShieldPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeShield;
+}

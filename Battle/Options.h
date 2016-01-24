@@ -1,13 +1,15 @@
-#ifndef _OPTIONS_H
-#define _OPTIONS_H
+#pragma once
+
 #include "OptionsScreen.h"
+
+class Main;
 
 class Options : public OptionsScreen {
 public:
-	Options();
+	Options(Main &main);
 
 	void run();
 	void item_selected();
-};
 
-#endif
+	Main &main_;
+};

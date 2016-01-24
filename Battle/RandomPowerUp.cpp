@@ -11,33 +11,36 @@
 #include "AirstrikePowerUp.h"
 #include "LaserBeamPowerUp.h"
 #include "ShieldPowerUp.h"
+#include "OwlstrikePowerUp.h"
 #include "RandomPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
 const int RandomPowerUp::CYCLE_COUNT = 7;
-const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {48, 80, 64, 112, 16, 128, 96};
+const int RandomPowerUp::CYCLE_X[CYCLE_COUNT] = {54, 162, 72, 126, 18, 144, 108};
 const int RandomPowerUp::CYCLE_DELAY = 20;
 
 #define RPU_DOUBLEDAMAGE 0
-#define RPU_AIRSTRIKE 1
+#define RPU_OWLSTRIKE 1
 #define RPU_INSTANTKILL 2
 #define RPU_LASER 3
 #define RPU_BOMB 4
 #define RPU_MINE 5
 #define RPU_SHIELD 6
 
-RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position) {
+RandomPowerUp::RandomPowerUp(SDL_Surface * surface, SDL_Rect * position, Main &main) : GameplayObject(main), main_(main) {
 	this->surface = surface;
 	this->position = position;
 
 	cycle = rand() % CYCLE_COUNT;
 
-	frame_last_cycle = Gameplay::frame;
+	frame_counter = 0;
 
 	clip = new SDL_Rect();
 	clip->x = CYCLE_X[cycle];
 	clip->y = 0;
-	clip->w = 16;
-	clip->h = 16;
+	clip->w = 18;
+	clip->h = 18;
 
 	is_powerup = true;
 }
@@ -48,7 +51,7 @@ RandomPowerUp::~RandomPowerUp() {
 }
 
 void RandomPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	switch(cycle) {
 		case RPU_DOUBLEDAMAGE:
@@ -71,15 +74,15 @@ void RandomPowerUp::hit_player(Player * p) {
 			if(p->mines > 9)
 				p->mines = 9;
 			break;
-		case RPU_AIRSTRIKE:
-			AirstrikePowerUp::shoot_airstrike(p);
+		case RPU_OWLSTRIKE:
+			OwlstrikePowerUp::shoot_owlstrike(p, main_);
 			break;
 		case RPU_LASER:
-			LaserBeamPowerUp::shoot_laserbeam(p);
+			LaserBeamPowerUp::shoot_laserbeam(p, main_);
 			break;
 		case RPU_SHIELD:
 			p->is_shielded = true;
-			p->shield_start = Gameplay::frame;
+			p->shield_start = main_.gameplay().frame;
 			break;
 	}
 
@@ -88,7 +91,8 @@ void RandomPowerUp::hit_player(Player * p) {
 
 void RandomPowerUp::hit_npc(NPC * npc) {}
 
-void RandomPowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void RandomPowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
+	frame_counter += frames_processed;
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 
@@ -99,7 +103,7 @@ void RandomPowerUp::move(Level * level) {
 }
 
 void RandomPowerUp::process() {
-	if(Gameplay::frame - frame_last_cycle >= CYCLE_DELAY) {
+	if(frame_counter >= CYCLE_DELAY) {
 		int last;
 
 		last = cycle;
@@ -108,6 +112,13 @@ void RandomPowerUp::process() {
 		}
 
 		clip->x = CYCLE_X[cycle];
-		frame_last_cycle = Gameplay::frame;
+		frame_counter = 0;
 	}
+}
+
+void RandomPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeRandom;
 }

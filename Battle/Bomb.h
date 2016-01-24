@@ -1,7 +1,7 @@
-#ifndef _BOMB_H
-#define _BOMB_H
+#pragma once
 
 #include "GameplayObject.h"
+#include "KillMove.h"
 #include "Player.h"
 
 #define BOMB_W 12
@@ -9,12 +9,12 @@
 
 class Bomb : public GameplayObject {
 public:
-	Bomb();
-	Bomb(SDL_Surface * surface);
+	Bomb(Main &main);
+	Bomb(SDL_Surface * surface, Main &main);
 	~Bomb();
 
 	SDL_Surface * sprite;
-	SDL_Rect * clip[5];
+	SDL_Rect * clip[6];
 	int explosion_offset_x, explosion_offset_y;
 
 	Player * owner;
@@ -27,6 +27,8 @@ public:
 	int time;
 
 	bool hit_on_impact;
+
+	KillMove kill_move;
 
 	int current_frame;
 	int frame_start;
@@ -41,20 +43,22 @@ public:
 	static const int FRAME_STRIKE_NORMAL;
 	static const int FRAME_STRIKE_FLASH;
 	static const int FRAME_EXPLOSION;
-	
+	static const int FRAME_EXPLOSION_ALT;
+
 	virtual void move(Level * level);
 	virtual void process();
 
 	virtual void hit_player(Player * player);
 	virtual void hit_npc(NPC * npc);
 
-	void explode();
-
-	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
+	virtual void explode();
 
 	SDL_Rect * get_damage_rect();
 protected:
-	void set_clips();
-};
 
-#endif
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
+	void set_clips();
+
+	Main &main_;
+};

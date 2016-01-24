@@ -1,16 +1,21 @@
-#ifndef _MISSIONSELECT_H
-#define _MISSIONSELECT_H
+#pragma once
 
-class MissionSelect {
+#include "SimpleDrawable.h"
+
+class MissionSelect : public SimpleDrawable {
 public:
-	MissionSelect();
+	MissionSelect(Main &main);
 	void run();
 
 	bool cancel;
 
 	int mission;
+
+protected:
+
+	virtual void draw_impl();
+
 private:
-	void draw();
 
 	void load_sprites();
 	void free_sprites();
@@ -35,6 +40,6 @@ private:
 	std::vector<SDL_Surface*> * thumbs;
 
 	int frame;
-};
 
-#endif
+	Main &main_;
+};

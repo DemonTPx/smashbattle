@@ -1,11 +1,11 @@
-#ifndef _GATLINGNPC_H
-#define _GATLINGNPC_H
+#pragma once
 
 #include "NPC.h"
+#include "KillMove.h"
 
 class GatlingNPC : public NPC {
 public:
-	GatlingNPC();
+	GatlingNPC(Main &main);
 	~GatlingNPC();
 
 	void shoot();
@@ -24,5 +24,3 @@ protected:
 
 	SDL_Rect range;
 };
-
-#endif

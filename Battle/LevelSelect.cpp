@@ -2,6 +2,7 @@
 
 #include "Main.h"
 #include "Player.h"
+#include "Color.h"
 
 #include <vector>
 
@@ -22,11 +23,11 @@
 #define DIRECTION_UP	4
 #define DIRECTION_DOWN	8
 
-#define MENU_TOP_OFFSET 128
+#define MENU_TOP_OFFSET 100
 #define TILES_COLS		10
-#define TILES_ROWS		9
+#define TILES_ROWS		10
 
-LevelSelect::LevelSelect() {
+LevelSelect::LevelSelect(Main &main) : SimpleDrawable(main), main_(main) {
 }
 
 void LevelSelect::run() {
@@ -34,7 +35,7 @@ void LevelSelect::run() {
 
 	load_sprites();
 
-	input = Main::instance->input_master;
+	input = main_.input_master;
 
 	ready = false;
 	ready_level = false;
@@ -51,9 +52,9 @@ void LevelSelect::run() {
 
 	frame = 0;
 
-	while (Main::running && !ready) {
+	while (main_.running && !ready) {
 		while(SDL_PollEvent(&event)) {
-			Main::instance->handle_event(&event);
+			main_.handle_event(&event);
 			
 			if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
 				ready = true;
@@ -76,7 +77,7 @@ void LevelSelect::run() {
 			ready = true;
 		}
 
-		Main::instance->flip();
+		main_.flip();
 	}
 
 	if(!ready)
@@ -88,13 +89,20 @@ void LevelSelect::run() {
 void LevelSelect::process_cursors() {
 	int direction;
 
+	if (input->is_pressed(A_BACK)) {
+		ready = true;
+		cancel = true;
+		return;
+	}
+
 	if(input->is_pressed(A_RUN) || input->is_pressed(A_JUMP) ||
-		input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB)) {
+		input->is_pressed(A_SHOOT) || input->is_pressed(A_BOMB) ||
+		input->is_pressed(A_START)) {
 			if(!(input->is_pressed(A_JUMP) && input->is_pressed(A_UP))) { // It's likely that up and jump are the same keybind
 				if(!ready_level) {
 					ready_level = true;
 					
-					Main::audio->play(SND_SELECT_CHARACTER);
+					main_.audio->play(SND_SELECT_CHARACTER);
 
 					random = false;
 
@@ -112,7 +120,7 @@ void LevelSelect::process_cursors() {
 	if(direction != DIRECTION_NONE) {
 		if(!ready_level) {
 			select(direction);
-			Main::audio->play(SND_SELECT);
+			main_.audio->play(SND_SELECT);
 		}
 	}
 }
@@ -185,14 +193,14 @@ void LevelSelect::select(int direction) {
 	if(level >= Level::LEVEL_COUNT) level -= Level::LEVEL_COUNT;
 }
 
-void LevelSelect::draw() {
+void LevelSelect::draw_impl() {
 	SDL_Surface * screen;
 	SDL_Surface * surface;
 	SDL_Rect rect, rect_b, rect_s;
 	Uint32 color;
 	int width;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
 	SDL_BlitSurface(backgrounds->at(level), NULL, screen, NULL);
 
@@ -202,7 +210,7 @@ void LevelSelect::draw() {
 	rect.w = TILES_COLS * TILE_W;
 	rect.h = TILES_ROWS * TILE_H;
 
-	SDL_FillRect(screen, &rect, 0);
+	SDL_FillRectColor(screen, &rect, 0);
 
 	rect_s.x = 0;
 	rect_s.y = 0;
@@ -212,23 +220,23 @@ void LevelSelect::draw() {
 	rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
 	rect.y = MENU_TOP_OFFSET - 40 - TILE_H;
 	for(int i = 0; i < TILES_COLS; i++) {
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
 
 	for(int i = 1; i < TILES_ROWS; i++) {
 		rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
 		rect.y = (MENU_TOP_OFFSET - 40 - TILE_H) + (TILE_H * i);
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 		
 		rect.x = rect.x + ((TILES_COLS - 1) * TILE_W);
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 	}
 
 	rect.x = (WINDOW_WIDTH - (TILES_COLS * TILE_W)) / 2;
 	rect.y = (MENU_TOP_OFFSET - 40 - TILE_H) + (TILES_ROWS * TILE_H);
 	for(int i = 0; i < TILES_COLS; i++) {
-		SDL_BlitSurface(Main::graphics->tiles, &rect_s, screen, &rect);
+		SDL_BlitSurface(main_.graphics->tiles, &rect_s, screen, &rect);
 		rect.x += TILE_W;
 	}
 
@@ -242,18 +250,18 @@ void LevelSelect::draw() {
 		rect.w = width;
 		rect.h = 32;
 
-		color = 0x0088ff;
-		SDL_FillRect(screen, &rect, color);
+		color = MENU_CURSOR_COLOR;
+		SDL_FillRectColor(screen, &rect, color);
 
 		rect.x += LEVEL_SPACING;
 		rect.y += LEVEL_SPACING;
 		rect.w -= (LEVEL_SPACING * 2);
 		rect.h -= (LEVEL_SPACING * 2);
 
-		SDL_FillRect(screen, &rect, 0);
+		SDL_FillRectColor(screen, &rect, 0);
 	}
 
-	surface = Main::graphics->text_random;
+	surface = main_.graphics->text_random;
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = MENU_TOP_OFFSET - 24;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
@@ -276,7 +284,7 @@ void LevelSelect::draw() {
 		color = 0;
 
 		if(level == idx) {
-			color = 0x0088ff;
+			color = MENU_CURSOR_COLOR;
 			
 			if(ready_level && flicker) {
 				if(flicker_frame > 0x20)
@@ -286,7 +294,7 @@ void LevelSelect::draw() {
 				flicker_frame++;
 			}
 		}
-		SDL_FillRect(screen, &rect_b, color);
+		SDL_FillRectColor(screen, &rect_b, color);
 
 		SDL_BlitSurface(thumbs->at(idx), NULL, screen, &rect);
 
@@ -294,7 +302,7 @@ void LevelSelect::draw() {
 	}
 	
 	// Stage name
-	surface = Main::text->render_text_medium(Level::LEVELS[level].name);
+	surface = main_.text->render_text_medium(Level::LEVELS[level].name);
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = MENU_TOP_OFFSET + ((LEVEL_HEIGHT + (LEVEL_SPACING * 2)) * (Level::LEVEL_COUNT / LEVELS_PER_LINE)) + 10;
 	SDL_BlitSurface(surface, NULL, screen, &rect);

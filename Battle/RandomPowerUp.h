@@ -1,9 +1,12 @@
-#ifndef _RANDOMPOWERUP_H
-#define _RANDOMPOWERUP_H
+#pragma once
+
+namespace network {
+class CommandGeneratePowerup;
+}
 
 class RandomPowerUp : public GameplayObject {
 public:
-	RandomPowerUp(SDL_Surface * surface, SDL_Rect * position);
+	RandomPowerUp(SDL_Surface * surface, SDL_Rect * position, Main &main);
 	~RandomPowerUp();
 
 	static const int CYCLE_COUNT;
@@ -16,15 +19,21 @@ public:
 	virtual void hit_player(Player * player);
 	virtual void hit_npc(NPC * npc);
 
-	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
+	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 
 	int cycle;
 	
-	int frame_last_cycle;
 	int frame_cycle;
-};
 
-#endif
+	int frame_counter;
+
+	Main &main_;
+
+protected:
+
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
+};

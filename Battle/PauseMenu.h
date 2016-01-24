@@ -1,17 +1,21 @@
-#ifndef _PAUSEMENU_H
-#define _PAUSEMENU_H
+#pragma once
 
-class PauseMenu {
+#include "SimpleDrawable.h"
+
+class PauseMenu : public SimpleDrawable {
 public:
-	PauseMenu(SDL_Surface * screen);
+	PauseMenu(SDL_Surface * screen, Main &main);
 	~PauseMenu();
 
 	int pause(Player * player);
 	void add_option(char * name);
 
+protected:
+
+	virtual void draw_impl();
+
 private:
 	void process();
-	void draw();
 
 	SDL_Surface * screen;
 	Player * player;
@@ -22,6 +26,6 @@ private:
 
 	std::vector<char*> * options;
 	unsigned int selected_option;
-};
 
-#endif
+	Main &main_;
+};

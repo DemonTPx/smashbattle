@@ -3,7 +3,7 @@
 
 #include "AudioOptions.h"
 
-AudioOptions::AudioOptions() {
+AudioOptions::AudioOptions(Main &main) : OptionsScreen("OPTIONS > SOUND AND MUSIC", main) {
 	OptionItem * item;
 
 	item = new OptionItem();
@@ -15,7 +15,7 @@ AudioOptions::AudioOptions() {
 	item->options->push_back((char*)"60");
 	item->options->push_back((char*)"80");
 	item->options->push_back((char*)"100");
-	item->selected = Main::instance->audio->options.sound_volume / 20;
+	item->selected = main_.audio->options.sound_volume / 20;
 	add_item(item);
 
 	item = new OptionItem();
@@ -27,13 +27,7 @@ AudioOptions::AudioOptions() {
 	item->options->push_back((char*)"60");
 	item->options->push_back((char*)"80");
 	item->options->push_back((char*)"100");
-	item->selected = Main::instance->audio->options.music_volume / 20;
-	add_item(item);
-
-	item = new OptionItem();
-	item->name = (char*)"RETURN";
-	item->options = NULL;
-	item->selected = 0;
+	item->selected = main_.audio->options.music_volume / 20;
 	add_item(item);
 
 	OptionsScreen::align = LEFT;
@@ -43,26 +37,18 @@ void AudioOptions::run() {
 	OptionsScreen::run();
 }
 
-void AudioOptions::item_selected() {
-	switch(selected_item) {
-		case 2:
-			running = false;
-			break;
-	}
-}
-
 void AudioOptions::selection_changed() {
 	switch(selected_item) {
 		case 0: // sound volume
-			Main::instance->audio->options.sound_volume = items->at(0)->selected * 20;
-			Main::instance->audio->play(SND_SELECT);
+			main_.audio->options.sound_volume = items->at(0)->selected * 20;
+			main_.audio->play(SND_SELECT);
 			break;
 		case 1: // music volume
-			Main::instance->audio->options.music_volume = items->at(1)->selected * 20;
-			if(Main::instance->audio->options.music_volume == 0)
-				Main::instance->audio->stop_music();
+			main_.audio->options.music_volume = items->at(1)->selected * 20;
+			if(main_.audio->options.music_volume == 0)
+				main_.audio->stop_music();
 			else
-				Main::instance->audio->play_music(MUSIC_TITLE);
+				main_.audio->play_music(MUSIC_TITLE);
 			break;
 	}
 }

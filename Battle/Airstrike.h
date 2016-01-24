@@ -1,11 +1,11 @@
-#ifndef _AIRSTRIKE_H
-#define _AIRSTRIKE_H
+#pragma once
 
 #include "GameplayObject.h"
+#include "KillMove.h"
 
 class Airstrike : public GameplayObject {
 public:
-	Airstrike();
+	Airstrike(Main &main);
 	~Airstrike();
 
 	virtual void move(Level * level);
@@ -14,13 +14,16 @@ public:
 	virtual void hit_player(Player * player);
 	virtual void hit_npc(NPC * npc);
 
-	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
-
 	static const int DELAY;
 
 	int start;
 
 	Player * owner;
-};
 
-#endif
+	Main &main_;
+
+protected:
+
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
+};

@@ -8,17 +8,23 @@
 #include "Main.h"
 #include "Gameplay.h"
 #include "Level.h"
+#include "Color.h"
+#include "util/ServerUtil.h"
 
-const int Level::LEVEL_COUNT = 16;
+const int Level::LEVEL_COUNT = 20;
 const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"TRAINING DOJO", (char*)"stage/trainingdojo.lvl"},
 	{(char*)"PLATFORM ALLEY", (char*)"stage/platformalley.lvl"},
-	{(char*)"PITTFALL", (char*)"stage/pitfall.lvl"},
+	{(char*)"MIND YOUR STEP", (char*)"stage/mindyourstep.lvl"},
 	{(char*)"DUCK'N'HUNT", (char*)"stage/ducknhunt.lvl"},
 	{(char*)"COMMON GROUNDS", (char*)"stage/commongrounds.lvl"},
 	{(char*)"POGOSTICK", (char*)"stage/pogostick.lvl"},
 	{(char*)"LA MOUSTACHE", (char*)"stage/lamoustache.lvl"},
 	{(char*)"THE FUNNEL", (char*)"stage/thefunnel.lvl"},
+	{(char*)"JUNGLE TEMPLE", (char*)"stage/jungle_temple.lvl"},
+	{(char*)"OVER AND UNDER", (char*)"stage/over_and_under.lvl"},
+	{(char*)"FOREST RUN", (char*)"stage/forest_run.lvl"},
+	{(char*)"PITFALL", (char*)"stage/pitfall.lvl"},
 	{(char*)"BLAST BOWL", (char*)"stage/blastbowl.lvl"},
 	{(char*)"PIT OF DEATH", (char*)"stage/pitofdeath.lvl"},
 	{(char*)"RABBIT HOLE", (char*)"stage/rabbithole.lvl"},
@@ -29,7 +35,7 @@ const LevelInfo Level::LEVELS[Level::LEVEL_COUNT] = {
 	{(char*)"SNOW FIGHT", (char*)"stage/snowfight.lvl"}
 };
 
-Level::Level() {
+Level::Level(Main &main) : Drawable(main), main_(main) {
 	background = NULL;
 	tiles = NULL;
 
@@ -162,6 +168,11 @@ void Level::load(const char * filename) {
 	strncpy(tiles_file_full, "gfx/\0", 5);
 	strncat(tiles_file_full, meta.filename_tiles, 30);
 
+
+	if (main_.no_sdl) {
+		return;
+	}
+
 	surface = SDL_LoadBMP(tiles_file_full);
 	tiles = SDL_DisplayFormat(surface);
 	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
@@ -171,7 +182,7 @@ void Level::load(const char * filename) {
 	// PRE-RENDER THE BACKGROUND
 
 	background = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
-	SDL_FillRect(background, 0, meta.background_color);
+	SDL_FillRectColor(background, 0, meta.background_color);
 
 	// Draw the background image (tiled) into the background
 	if(meta.filename_background[0] != 0) {
@@ -375,13 +386,13 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 	gzread(file, &tile, sizeof(tile));
 	gzclose(file);
 
-	surface = SDL_CreateRGBSurface(NULL, TILE_COLS * 2 + 4, TILE_ROWS * 2 + 4, 32, 0, 0, 0, 0);
-	SDL_FillRect(surface, NULL, 0x444444);
+	surface = SDL_CreateRGBSurface(0, TILE_COLS * 2 + 4, TILE_ROWS * 2 + 4, 32, 0, 0, 0, 0);
+	SDL_FillRectColor(surface, NULL, 0x444444);
 	rect.x = 2;
 	rect.y = 2;
 	rect.w = TILE_COLS * 2;
 	rect.h = TILE_ROWS * 2;
-	SDL_FillRect(surface, &rect, 0);
+	SDL_FillRectColor(surface, &rect, 0);
 	rect.x = 2;
 	rect.y = 2;
 	rect.w = 2;
@@ -391,7 +402,7 @@ SDL_Surface * Level::get_thumbnail(const char * filename) {
 
 	for(int i = 0; i < TILE_COUNT; i++) {
 		if(tile[i].tile != 0xffff) {
-			SDL_FillRect(surface, &rect, fillColor);
+			SDL_FillRectColor(surface, &rect, fillColor);
 		}
 		rect.x += 2;
 		if(rect.x >= maxx) {
@@ -454,7 +465,7 @@ SDL_Surface * Level::get_preview(const char * filename) {
 	// PRE-RENDER THE BACKGROUND
 
 	surface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
-	SDL_FillRect(surface, 0, meta.background_color);
+	SDL_FillRectColor(surface, 0, meta.background_color);
 
 	// Draw the background image (tiled) into the background
 	if(meta.filename_background[0] != 0) {
@@ -549,14 +560,16 @@ int Level::tile_pos(int x, int y) {
 	return ((int)(y / TILE_H) * TILE_COLS) + (int)(x / TILE_W);
 }
 
-void Level::draw(SDL_Surface * screen, int frames_processed) {
+void Level::draw_impl(SDL_Surface * screen, int frames_processed) {
+
 	SDL_Rect rect;
 	SDL_Rect rect_s;
 
 	rect.w = TILE_W;
 	rect.h = TILE_H;
 
-	SDL_BlitSurface(background, NULL, screen, NULL);
+	if (!main_.no_sdl)
+		SDL_BlitSurface(background, NULL, screen, NULL);
 
 	// Draw each sprite, one by one
 
@@ -586,7 +599,7 @@ void Level::draw(SDL_Surface * screen, int frames_processed) {
 		// Show bouncing tiles
 		if(level_bounce[i] != 0) {
 			level_bounce[i] += frames_processed;
-			level_bounce_start[i] = Gameplay::frame;
+			level_bounce_start[i] = main_.gameplay().frame;
 			if(level_bounce[i] >= BOUNCE_LAST_FRAME) {
 				level_bounce[i] = 0;
 			}
@@ -597,7 +610,8 @@ void Level::draw(SDL_Surface * screen, int frames_processed) {
 			}
 		}
 
-		SDL_BlitSurface(tiles, &rect_s, screen, &rect);
+		if (!main_.no_sdl)
+			SDL_BlitSurface(tiles, &rect_s, screen, &rect);
 	}
 }
 
@@ -694,24 +708,25 @@ bool Level::is_intersecting(SDL_Rect * rect) {
 
 bool Level::is_on_bottom(SDL_Rect * rect) {
 	// Check if there is anything to stand on below the rect
-	int l, r, t, b;
+	int l, r, b;
 
 	l = rect->x;
 	r = rect->x + rect->w - 1;
 
-	t = rect->y;
+	//t = rect->y;
 	b = rect->y + rect->h - 1;
 
 	// Above the screen is no bottom
 	if(b < 0) return false;
 
-	if(l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
-	if(r >= WINDOW_WIDTH) r -= WINDOW_WIDTH;
+	while (l >= WINDOW_WIDTH) l -= WINDOW_WIDTH;
+	while (r >= WINDOW_WIDTH) r -= WINDOW_WIDTH;
 
 	if(level[tile_pos(l, b + 1)] != -1)
 		return true;
 	if(level[tile_pos(r, b + 1)] != -1)
 		return true;
+
 	return false;
 }
 
@@ -750,15 +765,33 @@ void Level::damage_tiles(SDL_Rect * rect, int damage) {
 			pos = tile_pos(wx, y);
 
 			if(!tile[pos].indestructible) {
-				level_hp[pos] -= damage;
-				if(level_hp[pos] <= 0)
-					level[pos] = -1;
+				switch (main_.runmode) {
+					case MainRunModes::CLIENT:
+						// Server handles this, we update level_hp and level through receiving
+						//  CommandUpdateTile's
+						break;
+					case MainRunModes::SERVER:
+
+						level_hp[pos] -= damage;
+						if(level_hp[pos] <= 0)
+							level[pos] = -1;
+
+						// Server will send all clients an update regarding this block
+						server_util::update_tile(main_, pos, level_hp[pos]);
+
+						break;
+					default:
+						level_hp[pos] -= damage;
+						if(level_hp[pos] <= 0)
+							level[pos] = -1;
+						break;
+				}
 			}
 		}
 	}
 }
 
-void Level::bounce_tile(SDL_Rect * rect) {
+void Level::bounce_tile(SDL_Rect * rect, Player * player) {
 	int l, x, r, y;
 	int pos;
 
@@ -782,7 +815,7 @@ void Level::bounce_tile(SDL_Rect * rect) {
 
 	// Start bouncing
 	level_bounce[pos] = 1;
-	level_bounce_start[pos] = Gameplay::frame;
+	level_bounce_start[pos] = main_.gameplay().frame;
 
 	// Check if a player is standing on the tile
 	SDL_Rect rect_hit;
@@ -791,6 +824,6 @@ void Level::bounce_tile(SDL_Rect * rect) {
 	rect_hit.w = TILE_W;
 	rect_hit.h = BOUNCE_HIT_HEIGHT;
 
-	Gameplay::instance->bounce_up_players_and_npcs(&rect_hit, rect);
+	main_.gameplay().bounce_up_players_and_npcs(&rect_hit, rect, player);
 }
 

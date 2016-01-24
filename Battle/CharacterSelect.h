@@ -1,11 +1,14 @@
-#ifndef _CHARACTERSELECT_H
-#define _CHARACTERSELECT_H
+#pragma once
 
 #include "PlayerAnimation.h"
+#include "SimpleDrawable.h"
 
-class CharacterSelect {
+class CharacterSelect : public SimpleDrawable {
 public:
-	CharacterSelect();
+	CharacterSelect(Main &main);
+
+	CharacterSelect(int max_possible_players, int required_num_players, Main &main);
+	
 	void run();
 
 	char * name[4];
@@ -14,9 +17,14 @@ public:
 	bool player_joined[4];
 	int player_select[4];
 
+	int player_select_first;
+
 	bool cancel;
+protected:
+
+	virtual void draw_impl();
+
 private:
-	void draw();
 
 	void init();
 	void clean_up();
@@ -47,6 +55,8 @@ private:
 	int flicker_frame[4];
 
 	int frame;
-};
+	int possible_players_;
+	int required_num_players_;
 
-#endif
+	Main &main_;
+};

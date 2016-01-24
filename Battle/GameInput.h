@@ -1,5 +1,4 @@
-#ifndef _GAMEINPUT_H
-#define _GAMEINPUT_H
+#pragma once
 
 #include <vector>
 
@@ -8,7 +7,7 @@
 #define GAMEINPUT_TYPE_JAXIS	0x0003
 #define GAMEINPUT_TYPE_JHAT		0x0004
 
-#define ACTION_COUNT 9
+#define ACTION_COUNT 10
 
 #define A_LEFT	0
 #define A_RIGHT	1
@@ -19,6 +18,7 @@
 #define A_SHOOT	6
 #define A_BOMB	7
 #define A_START	8
+#define A_BACK	9
 
 struct GameInputKeyBind {
 	int key;
@@ -59,10 +59,15 @@ struct GameInputJoystickEvent {
 	int hat_direction;
 };
 
+namespace network {
+	class Client;
+	class ClientNetworkMultiplayer;
+}
+
 class GameInput {
 public:
-	GameInput();
-	~GameInput();
+	GameInput(Main &main);
+	virtual ~GameInput();
 
 	GameInput * clone(bool clone_binds = true);
 	void copy_from(GameInput * gi);
@@ -85,7 +90,7 @@ public:
 
 	int get_joyaxis(int axis);
 
-	void handle_event(SDL_Event * event);
+	virtual void handle_event(SDL_Event * event);
 
 	bool is_pressed(int action);
 
@@ -100,7 +105,7 @@ public:
 	void keyboard_wait_event_bind(int action);
 	void joystick_wait_event_bind(int action);
 
-	void load_options(std::istream * stream);
+	void load_options(std::istream * stream, short version);
 	void save_options(std::ostream * stream);
 
 	void flush_keybinds();
@@ -110,6 +115,7 @@ public:
 
 	bool keyboard_enabled;
 	bool joystick_enabled;
+
 protected:
 	SDL_Joystick * joystick;
 	int joystick_idx;
@@ -122,12 +128,29 @@ protected:
 	int delay;
 	int interval;
 
+public:
 	bool pressed[ACTION_COUNT];
+protected:
 	unsigned int press_start[ACTION_COUNT];
+	short press_owner[ACTION_COUNT];
 
 	void joystick_wait_released();
 
 	static const int JOYSTICK_AXIS_THRESHOLD;
+
+	// temporary for accessing pressed array :p
+	friend class Gameplay;
+	friend class network::Client;
+	friend class network::ClientNetworkMultiplayer;
+
+	Main &main_;
 };
 
-#endif
+
+class GameInputStub : public GameInput
+{
+public:
+	GameInputStub(Main &main) : GameInput(main) { }
+
+	virtual void handle_event(SDL_Event * event) { /* handle nothing */ }
+};

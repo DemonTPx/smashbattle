@@ -1,8 +1,8 @@
-#ifndef _LEVEL_H
-#define _LEVEL_H
+#pragma once
 
 #include "SDL/SDL_mixer.h"
 #include <vector>
+#include <string>
 
 // Tile sizes, dimensions and count
 #define TILE_W 32
@@ -146,19 +146,31 @@ struct LEVEL_NPC_DISPENSER {
 	int max; // maximum NPCs to dispence
 };
 
-class Level {
-public:
-	Level();
-	~Level();
+class Player;
+class Level;
+namespace level_util
+{
 
-	void draw(SDL_Surface * screen, int frames_processed = 0);
+
+	std::string get_filename_by_name(std::string lvlname);
+	void set_player_start(Player &player, const Level & level);
+}
+
+class Main;
+
+#include "Drawable.h"
+
+class Level : public Drawable {
+public:
+	Level(Main &main);
+	~Level();
 
 	void load(const char * filename);
 
 	void reset();
 
 	void damage_tiles(SDL_Rect * rect, int damage);
-	void bounce_tile(SDL_Rect * rect);
+	void bounce_tile(SDL_Rect * rect, Player * player = NULL);
 
 	bool is_intersecting(SDL_Rect * rect);
 	bool is_on_bottom(SDL_Rect * rect);
@@ -193,9 +205,14 @@ public:
 
 	std::vector<LEVEL_NPC *> * npcs;
 	std::vector<LEVEL_NPC_DISPENSER *> * npc_dispensers;
+
+protected:
+
+	void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
 private:
 	SDL_Surface * tiles;
 	SDL_Surface * background;
-};
 
-#endif
+	Main &main_;
+};

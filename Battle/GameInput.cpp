@@ -6,11 +6,18 @@
 
 #include "GameInput.h"
 
+#define XBOX_CONTROLLER_ONLY
+
+#define KEYBOARD_KEY 1
+#define JOYSTICK_BUTTON 2
+#define JOYSTICK_AXIS 3
+#define JOYSTICK_HAT 4
+
 // The value where we make the difference between a press and a non-press
 const int GameInput::JOYSTICK_AXIS_THRESHOLD = 0x3fff;
 
 // Input handling for keyboard and joystick
-GameInput::GameInput() {
+GameInput::GameInput(Main &main) : main_(main) {
 	joystick = NULL;
 
 	reset();
@@ -38,7 +45,7 @@ GameInput::~GameInput() {
 }
 
 GameInput * GameInput::clone(bool clone_binds) {
-	GameInput * gi = new GameInput();
+	GameInput * gi = new GameInput(main_);
 	
 	gi->enable_keyboard(keyboard_enabled);
 	gi->enable_joystick(joystick_enabled);
@@ -94,16 +101,25 @@ void GameInput::copy_from(GameInput * gi) {
 
 // Enable keyboard
 void GameInput::enable_keyboard(bool enable) {
+	if (main_.no_sdl)
+		return;
+	
 	keyboard_enabled = enable;
 }
 
 // Enable joystick
 void GameInput::enable_joystick(bool enable) {
+	if (main_.no_sdl)
+		return;
+
 	joystick_enabled = enable;
 }
 
 // Open a joystick
 bool GameInput::open_joystick(int index) {
+	if (main_.no_sdl)
+		return false;
+
 	if(joystick != NULL) {
 		SDL_JoystickClose(joystick);
 	}
@@ -186,7 +202,7 @@ bool GameInput::is_pressed(int action) {
 
 	int frames;
 
-	frames = Main::frame - press_start[action];
+	frames = main_.frame - press_start[action];
 
 	if(frames == 0)
 		return true;
@@ -206,6 +222,7 @@ bool GameInput::is_pressed(int action) {
 void GameInput::reset() {
 	for(int i = 0; i < ACTION_COUNT; i++) {
 		pressed[i] = false;
+		press_owner[i] = 0;
 	}
 }
 
@@ -232,11 +249,13 @@ void GameInput::handle_event(SDL_Event *event) {
 				if(bind.key == event->key.keysym.sym) {
 					if(event->type == SDL_KEYDOWN && !pressed[bind.action]) {
 						pressed[bind.action] = true;
-						press_start[bind.action] = Main::frame;
+						press_start[bind.action] = main_.frame;
+						press_owner[bind.action] = KEYBOARD_KEY;
 					}
-					if(event->type == SDL_KEYUP && pressed[bind.action]) {
+					if(event->type == SDL_KEYUP && pressed[bind.action] && press_owner[bind.action] == KEYBOARD_KEY) {
 						pressed[bind.action] = false;
 						press_start[bind.action] = 0;
+						press_owner[bind.action] = 0;
 					}
 				}
 			}
@@ -256,11 +275,13 @@ void GameInput::handle_event(SDL_Event *event) {
 				if(bind.button == event->jbutton.button) {
 					if(event->type == SDL_JOYBUTTONDOWN && !pressed[bind.action]) {
 						pressed[bind.action] = true;
-						press_start[bind.action] = Main::frame;
+						press_start[bind.action] = main_.frame;
+						press_owner[bind.action] = JOYSTICK_BUTTON;
 					}
-					if(event->type == SDL_JOYBUTTONUP && pressed[bind.action]) {
+					if(event->type == SDL_JOYBUTTONUP && pressed[bind.action] && press_owner[bind.action] == JOYSTICK_BUTTON) {
 						pressed[bind.action] = false;
 						press_start[bind.action] = 0;
+						press_owner[bind.action] = 0;
 					}
 				}
 			}
@@ -279,21 +300,25 @@ void GameInput::handle_event(SDL_Event *event) {
 					if(!pressed[bind.action]) {
 						if(bind.threshold < 0 && bind.threshold > event->jaxis.value) {
 							pressed[bind.action] = true;
-							press_start[bind.action] = Main::frame;
+							press_start[bind.action] = main_.frame;
+							press_owner[bind.action] = JOYSTICK_AXIS;
 						}
 						else if(bind.threshold >= 0 && bind.threshold < event->jaxis.value) {
 							pressed[bind.action] = true;
-							press_start[bind.action] = Main::frame;
+							press_start[bind.action] = main_.frame;
+							press_owner[bind.action] = JOYSTICK_AXIS;
 						}
 					}
 					else {
-						if(bind.threshold < 0 && bind.threshold < event->jaxis.value) {
+						if(bind.threshold < 0 && bind.threshold < event->jaxis.value && press_owner[bind.action] == JOYSTICK_AXIS) {
 							pressed[bind.action] = false;
 							press_start[bind.action] = 0;
+							press_owner[bind.action] = 0;
 						}
-						if(bind.threshold >= 0 && bind.threshold > event->jaxis.value) {
+						if(bind.threshold >= 0 && bind.threshold > event->jaxis.value && press_owner[bind.action] == JOYSTICK_AXIS) {
 							pressed[bind.action] = false;
 							press_start[bind.action] = 0;
+							press_owner[bind.action] = 0;
 						}
 					}
 				}
@@ -313,11 +338,13 @@ void GameInput::handle_event(SDL_Event *event) {
 				if(bind.hat == event->jhat.hat) {
 					if((event->jhat.value & bind.direction) == bind.direction && !pressed[bind.action]) {
 						pressed[bind.action] = true;
-						press_start[bind.action] = Main::frame;
+						press_start[bind.action] = main_.frame;
+						press_owner[bind.action] = JOYSTICK_HAT;
 					}
-					if((event->jhat.value & bind.direction) == 0 && pressed[bind.action]) {
+					if((event->jhat.value & bind.direction) == 0 && pressed[bind.action] && press_owner[bind.action] == JOYSTICK_HAT) {
 						pressed[bind.action] = false;
 						press_start[bind.action] = 0;
+						press_owner[bind.action] = 0;
 					}
 				}
 			}
@@ -342,10 +369,10 @@ int GameInput::keyboard_wait_event() {
 	int retval;
 	
 	retval = 0;
-	while(Main::instance->running) {
+	while(main_.running) {
 		SDL_WaitEvent(&event);
 		
-		Main::instance->handle_event(&event);
+		main_.handle_event(&event);
 
 		if(event.type == SDL_KEYDOWN) {
 			retval = event.key.keysym.sym;
@@ -379,10 +406,10 @@ void GameInput::joystick_wait_event(GameInputJoystickEvent * event) {
 
 	jindex = SDL_JoystickIndex(joystick);
 
-	while(Main::instance->running) {
+	while(main_.running) {
 		SDL_WaitEvent(&sdlevent);
 		
-		Main::instance->handle_event(&sdlevent);
+		main_.handle_event(&sdlevent);
 
 		if(sdlevent.type == SDL_JOYBUTTONDOWN && sdlevent.jbutton.which == jindex) {
 			event->type = event->BUTTON;
@@ -390,6 +417,18 @@ void GameInput::joystick_wait_event(GameInputJoystickEvent * event) {
 			break;
 		}
 		if(sdlevent.type == SDL_JOYAXISMOTION && sdlevent.jaxis.which == jindex) {
+#ifdef XBOX_CONTROLLER_ONLY
+			// Axes 2 and 5 are the triggers. They are pressed when the value is > 0
+            if (sdlevent.jaxis.axis == 2 || sdlevent.jaxis.axis == 5) {
+				if (sdlevent.jaxis.value > 0) {
+					event->type = event->AXIS;
+					event->axis_idx = sdlevent.jaxis.axis;
+					event->axis_value = 0;
+					break;
+				}
+				continue;
+			}
+#endif
 			if(sdlevent.jaxis.value < -JOYSTICK_AXIS_THRESHOLD || sdlevent.jaxis.value > JOYSTICK_AXIS_THRESHOLD) {
 				event->type = event->AXIS;
 				event->axis_idx = sdlevent.jaxis.axis;
@@ -437,6 +476,15 @@ void GameInput::joystick_wait_released() {
 		}
 
 		for(i = 0; i < axes; i++) {
+#ifdef XBOX_CONTROLLER_ONLY
+            // Axes 2 and 5 are the triggers. They are pressed when the value is > 0
+            if (i == 2 || i == 5) {
+            	if (SDL_JoystickGetAxis(joystick, i) > 0) {
+					released = false;
+				}
+				continue;
+			}
+#endif
 			if(SDL_JoystickGetAxis(joystick, i) < -JOYSTICK_AXIS_THRESHOLD ||
 				SDL_JoystickGetAxis(joystick, i) > JOYSTICK_AXIS_THRESHOLD)
 				released = false;
@@ -475,14 +523,22 @@ void GameInput::joystick_wait_event_bind(int action) {
 	}
 }
 
-void GameInput::load_options(std::istream * stream) {
+void GameInput::load_options(std::istream * stream, short version) {
 	int i;
 	short count;
 
 	count = 0;
 
+	if (version == 2) {
+		stream->read((char *)&keyboard_enabled, sizeof(bool));
+		stream->read((char *)&joystick_enabled, sizeof(bool));
+	}
+
 	stream->read((char *)&joystick_idx, sizeof(int));
-	open_joystick(joystick_idx);
+
+	if (joystick_enabled) {
+		open_joystick(joystick_idx);
+	}
 
 	stream->read((char*)&count, sizeof(short));
 	for(i = 0; i < count; i++) {
@@ -515,6 +571,9 @@ void GameInput::load_options(std::istream * stream) {
 
 void GameInput::save_options(std::ostream * stream) {
 	short count;
+
+	stream->write((char *)&keyboard_enabled, sizeof(bool));
+	stream->write((char *)&joystick_enabled, sizeof(bool));
 
 	stream->write((char *)&joystick_idx, sizeof(int));
 

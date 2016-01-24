@@ -1,17 +1,15 @@
-#ifndef _PLAYERANIMATION_H
-#define _PLAYERANIMATION_H
+#pragma once
 
 #include "Player.h"
 
-class PlayerAnimation {
+class PlayerAnimation : public Drawable {
 public:
-	PlayerAnimation(int character);
+	PlayerAnimation(int character, Main &main);
 	~PlayerAnimation();
 
 	void set_character(int character);
 
 	void move();
-	void draw(SDL_Surface * screen, int frames_processed = 0);
 
 	void set_sprite(int sprite);
 	void cycle_sprite(int first, int last);
@@ -35,6 +33,10 @@ public:
 	int cycle_direction;
 	int distance_walked;
 	int total_distance_walked;
-};
 
-#endif
+	Main &main_;
+
+protected:
+
+	void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+};

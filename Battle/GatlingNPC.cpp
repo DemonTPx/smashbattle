@@ -1,17 +1,16 @@
 #include "SDL/SDL.h"
 
 #include "Gameplay.h"
-
 #include "Projectile.h"
-
 #include "GatlingNPC.h"
+#include "Main.h"
 
 #define GATLING_L1	0
 #define GATLING_L2	1
 #define GATLING_R1	2
 #define GATLING_R2	3
 
-GatlingNPC::GatlingNPC() : NPC() {
+GatlingNPC::GatlingNPC(Main &main) : NPC(main) {
 	is_stationary = true;
 
 	frame_w = 64;
@@ -23,7 +22,7 @@ GatlingNPC::GatlingNPC() : NPC() {
 
 	frame_dead = 0;
 
-	sprites = Main::graphics->npc_gatling;
+	sprites = main_.graphics->npc_gatling;
 	
 	position->w = frame_w;
 	position->h = frame_h;
@@ -37,12 +36,16 @@ GatlingNPC::GatlingNPC() : NPC() {
 	frame_last = GATLING_L2;
 }
 
+GatlingNPC::~GatlingNPC()
+{
+}
+
 void GatlingNPC::process() {
 	if(!is_dead && hitpoints <= 0) {
 		is_dead = true;
-		dead_start = Gameplay::frame;
+		dead_start = main_.gameplay().frame;
 	}
-	if(is_dead && (Gameplay::frame - dead_start >= 30)) {
+	if(is_dead && (main_.gameplay().frame - dead_start >= 30)) {
 		done = true;
 	}
 
@@ -53,9 +56,9 @@ void GatlingNPC::process() {
 	range.h = 4;
 	range.w = 500;
 
-	player = Gameplay::instance->players->at(0)->position;
+	player = main_.gameplay().players->at(0)->position;
 
-	if(Gameplay::instance->is_intersecting(player, &range)) {
+	if(main_.gameplay().is_intersecting(player, &range)) {
 		shoot();
 	}
 }
@@ -73,12 +76,12 @@ void GatlingNPC::reset() {
 }
 
 void GatlingNPC::shoot() {
-	if(Gameplay::frame - shoot_start < 6) return;
+	if(main_.gameplay().frame - shoot_start < 6) return;
 
 	Projectile * pr;
 	SDL_Rect * clip_weapon;
 
-	shoot_start = Gameplay::frame;
+	shoot_start = main_.gameplay().frame;
 
 	clip_weapon = new SDL_Rect();
 	clip_weapon->x = 0;
@@ -86,7 +89,7 @@ void GatlingNPC::shoot() {
 	clip_weapon->w = 8;
 	clip_weapon->h = 8;
 
-	pr = new Projectile(Main::graphics->weapons, clip_weapon);
+	pr = new Projectile(main_.graphics->weapons, clip_weapon, main_);
 	pr->owner = NULL;
 
 	pr->damage = 10;
@@ -110,19 +113,19 @@ void GatlingNPC::shoot() {
 			break;
 	}
 	
-	Gameplay::instance->add_object(pr);
+	main_.gameplay().add_object(pr);
 	
 	cycle_sprite_updown(frame_first, frame_last);
 }
 
 void GatlingNPC::hit_player_side(Player * p) {
-	if(p->damage(10)) {
-		Main::audio->play(SND_HIT, position->x);
+	if(p->damage(10, NULL, UNKNOWN)) {
+		main_.audio->play(SND_HIT, position->x);
 	}
 }
 
 void GatlingNPC::hit_player_top_bottom(Player * p) {
-	if(p->damage(10)) {
-		Main::audio->play(SND_HIT, position->x);
+	if(p->damage(10, NULL, UNKNOWN)) {
+		main_.audio->play(SND_HIT, position->x);
 	}
 }

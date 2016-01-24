@@ -1,11 +1,11 @@
-#ifndef _CANNONNPC_H
-#define _CANNONNPC_H
+#pragma once
 
 #include "NPC.h"
+#include "KillMove.h"
 
 class CannonNPC : public NPC {
 public:
-	CannonNPC();
+	CannonNPC(Main &main);
 	~CannonNPC();
 
 	void shoot();
@@ -19,6 +19,6 @@ protected:
 
 	int frame_first;
 	int frame_last;
+	
+	Main &main_;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _GAMEPLAY_H
-#define _GAMEPLAY_H
+#pragma once
 
 #include <vector>
 
@@ -11,12 +10,11 @@
 
 class Gameplay {
 public:
-	Gameplay();
-	~Gameplay();
+	Gameplay(Main &main);
+	virtual ~Gameplay();
 
-	static int frame;
-
-	static Gameplay * instance;
+	int frame;
+	int previous_round_max_frame;
 
 	Level * level;
 
@@ -26,18 +24,32 @@ public:
 	std::vector<GameplayObject*> * objects;
 
 	void run();
+	void move_player(Player &player);
+	bool process_gameplayobj(GameplayObject *projectile = NULL);
 
 	void set_level(Level * level);
 	void add_player(Player * player);
+	void del_player_by_id(char number);
+	void del_players();
+	void del_other_players();
 	void add_npc(NPC * npc);
 
 	void add_object(GameplayObject * obj);
-	void bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source);
+	void bounce_up_players_and_npcs(SDL_Rect * rect, SDL_Rect * source, Player * initialized_by_player);
 
 	static bool is_intersecting(SDL_Rect * one, SDL_Rect * two);
-protected:
+
+	bool is_ended() { return ended; }
+	bool is_countdown() { return countdown; }
+	void set_broadcast(std::string msg, int duration);
+        void set_music_playing(bool set) { music_playing = set; }
+
 	virtual void initialize();
 	virtual void deinitialize();
+
+	virtual void game_interrupted_reset() {}
+
+protected:
 
 	void reset_game();
 
@@ -49,19 +61,28 @@ protected:
 	virtual void draw_score();
 	virtual void draw_game_ended();
 	virtual void draw_countdown();
+	virtual void draw_disconnected();
+	virtual void draw_console() {};
+	virtual void draw_broadcast();
 
 	virtual void on_game_reset() = 0;
 
 	virtual void on_pre_processing() = 0;
 	virtual void on_post_processing() = 0;
+	virtual void on_input_handled() {};
+
+	virtual void on_pre_delete_player(const Player &player) {}
 
 	void process_player_collission();
 	void process_npc_collission();
 	void process_player_npc_collission();
 
-	void handle_pause_input(SDL_Event * event);
+	virtual void handle_pause_input(SDL_Event * event);
+	
+	Uint32 ticks_start;
 	
 	bool game_running;
+	bool server_game_running;
 
 	PauseMenu * pause_menu;
 
@@ -83,6 +104,11 @@ protected:
 	bool npcs_collide;
 	// Do players collide with NPC's?
 	bool players_npcs_collide;
-};
 
-#endif
+	std::string broadcast_msg;
+	int broadcast_duration;
+
+	Uint32 disconnected_time_;
+
+	Main &main_;
+};

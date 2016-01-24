@@ -1,15 +1,21 @@
-#ifndef _LEVELSELECT_H
-#define _LEVELSELECT_H
 
-class LevelSelect {
+#include "SimpleDrawable.h"
+
+#pragma once
+
+class LevelSelect : public SimpleDrawable {
 public:
-	LevelSelect();
+	LevelSelect(Main &main);
 	void run();
 
 	int level;
 	bool cancel;
+
+protected:
+
+	virtual void draw_impl();
+
 private:
-	void draw();
 
 	void load_sprites();
 	void free_sprites();
@@ -37,6 +43,6 @@ private:
 	std::vector<SDL_Surface*> * backgrounds;
 
 	int frame;
-};
 
-#endif
+	Main &main_;
+};

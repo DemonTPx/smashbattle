@@ -3,6 +3,7 @@
 #include "Gameplay.h"
 
 #include "NPC.h"
+#include "Main.h"
 
 #define MOMENTUM_INTERV_HORIZ 1
 #define MOMENTUM_INTERV_VERT 1
@@ -11,7 +12,7 @@
 
 #define FRAME_CYCLE_DISTANCE 24
 
-NPC::NPC() {
+NPC::NPC(Main &main) : Drawable(main), main_(main) {
 	done = false;
 
 	is_stationary = false;
@@ -89,14 +90,14 @@ SDL_Rect * NPC::get_rect() {
 	return rect;
 }
 
-void NPC::draw(SDL_Surface * screen, int frames_processed) {
+void NPC::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_Rect rect, rect_s;
 
 	if(sprites == NULL)
 		return;
 	
 	// Dead NPCs are not visible
-	if(is_dead && Gameplay::frame - dead_start > 120) {
+	if(is_dead && main_.gameplay().frame - dead_start > 120) {
 		return;
 	}
 	
@@ -135,10 +136,10 @@ void NPC::draw(SDL_Surface * screen, int frames_processed) {
 void NPC::process() {
 	if(!is_dead && hitpoints <= 0) {
 		is_dead = true;
-		dead_start = Gameplay::frame;
+		dead_start = main_.gameplay().frame;
 		set_sprite(frame_dead);
 	}
-	if(is_dead && (Gameplay::frame - dead_start >= 30)) {
+	if(is_dead && (main_.gameplay().frame - dead_start >= 30)) {
 		done = true;
 	}
 }
@@ -152,7 +153,7 @@ void NPC::bounce_up(SDL_Rect * source) {
 
 	is_falling = true;
 	is_frozen = true;
-	freeze_start = Gameplay::frame;
+	freeze_start = main_.gameplay().frame;
 	momentumy = 30;
 	
 	if(position->x < source->x) {
@@ -217,9 +218,9 @@ void NPC::bounce(Player * other) {
 
 		other->bounce_direction_y = 1;
 		other->is_duck_forced = true;
-		other->duck_force_start = Gameplay::frame;
+		other->duck_force_start = main_.gameplay().frame;
 		other->momentumy = -10;
-		other->damage(5);
+		other->damage(5, NULL, UNKNOWN);
 
 		hit_player_top_bottom(other);
 	}
@@ -230,7 +231,7 @@ void NPC::bounce(Player * other) {
 
 		other->bounce_direction_y = -1;
 		if(other->input->is_pressed(A_JUMP)) {
-			Main::audio->play(SND_JUMP, position->x);
+			main_.audio->play(SND_JUMP, position->x);
 			other->momentumy = 40;
 			other->is_falling = false;
 			other->is_jumping = true;
@@ -326,7 +327,7 @@ void NPC::bounce(NPC * other) {
 		/*
 		if(!is_hit) {
 			is_hit = true;
-			hit_start = Gameplay::frame;
+			hit_start = main_.gameplay().frame;
 			momentumy = -10;
 			hitpoints -= WEIGHTCLASSES[other->weightclass].headjump_damage;
 		}*/
@@ -360,7 +361,7 @@ bool NPC::damage(int damage) {
 		return false;
 
 	is_hit = true;
-	hit_start = Gameplay::frame;
+	hit_start = main_.gameplay().frame;
 
 	hitpoints -= damage;
 
@@ -387,13 +388,13 @@ void NPC::move(Level * level) {
 	
 	if(is_hit) {
 		// The player has been hit long enough
-		if(Gameplay::frame > hit_start + hit_delay) {
+		if(main_.gameplay().frame > hit_start + hit_delay) {
 			is_hit = false;
 		}
 	}
 	
 	if(is_frozen) {
-		if(Gameplay::frame > freeze_start + freeze_delay) {
+		if(main_.gameplay().frame > freeze_start + freeze_delay) {
 			is_frozen = false;
 		}
 	}
@@ -460,11 +461,11 @@ void NPC::move(Level * level) {
 		if(is_jumping || is_falling) {
 			if(current_sprite < (frame_jump_first + frames) || current_sprite > (frame_jump_last + frames)) {
 				cycle_sprite_updown(frame_jump_first + frames, frame_jump_last + frames);
-				jump_cycle_start = Gameplay::instance->frame;
+				jump_cycle_start = main_.gameplay().frame;
 			} else {
-				if(Gameplay::instance->frame - jump_cycle_start >= 6) {
+				if(main_.gameplay().frame - jump_cycle_start >= 6) {
 					cycle_sprite_updown(frame_jump_first + frames, frame_jump_last + frames);
-					jump_cycle_start = Gameplay::instance->frame;
+					jump_cycle_start = main_.gameplay().frame;
 				}
 			}
 		} else {
@@ -487,11 +488,11 @@ void NPC::move(Level * level) {
 		if(is_jumping || is_falling) {
 			if(current_sprite < (frame_jump_first) || current_sprite > (frame_jump_last)) {
 				cycle_sprite_updown(frame_jump_first, frame_jump_last);
-				jump_cycle_start = Gameplay::instance->frame;
+				jump_cycle_start = main_.gameplay().frame;
 			} else {
-				if(Gameplay::instance->frame - jump_cycle_start >= 6) {
+				if(main_.gameplay().frame - jump_cycle_start >= 6) {
 					cycle_sprite_updown(frame_jump_first, frame_jump_last);
-					jump_cycle_start = Gameplay::instance->frame;
+					jump_cycle_start = main_.gameplay().frame;
 				}
 			}
 		} else {

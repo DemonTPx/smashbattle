@@ -1,9 +1,12 @@
-#ifndef _BOMBPOWERUP_H
-#define _BOMBPOWERUP_H
+#pragma once
+
+namespace network {
+class CommandGeneratePowerup;
+}
 
 class BombPowerUp : public GameplayObject {
 public:
-	BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount);
+	BombPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammount, Main &main);
 	~BombPowerUp();
 
 	virtual void move(Level * level);
@@ -12,11 +15,16 @@ public:
 	virtual void hit_player(Player * player);
 	virtual void hit_npc(NPC * npc);
 
-	virtual void draw(SDL_Surface * screen, int frames_processed = 0);
+	virtual void copyTo(network::CommandGeneratePowerup &powerup);
 	
 	SDL_Surface * surface;
 	SDL_Rect * clip;
 	int ammount;
-};
+	
+	Main &main_;
 
-#endif
+protected:
+
+	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
+
+};

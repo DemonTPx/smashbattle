@@ -1,13 +1,19 @@
 #include "SDL/SDL.h"
 
 #include "ControlsOptions.h"
+#include <sstream>
+#include "Color.h"
 
 #ifndef WIN32
 #define sprintf_s snprintf
 #endif
 
-ControlsOptions::ControlsOptions(GameInput * input) {
+ControlsOptions::ControlsOptions(GameInput * input, int number, Main &main) : OptionsScreen(main) {
 	OptionItem * item;
+
+	std::stringstream ss;
+	ss << "OPTIONS > CONTROLS PLAYER " << number;
+	title = ss.str();
 
 	this->input = input;
 
@@ -47,18 +53,6 @@ ControlsOptions::ControlsOptions(GameInput * input) {
 	item->selected = 0;
 	add_item(item);
 
-	item = new OptionItem();
-	item->name = (char*)"RETURN AND SAVE";
-	item->options = NULL;
-	item->selected = 0;
-	add_item(item);
-
-	item = new OptionItem();
-	item->name = (char*)"RETURN AND CANCEL";
-	item->options = NULL;
-	item->selected = 0;
-	add_item(item);
-
 	menu_options_left_offset = 400;
 
 	OptionsScreen::align = LEFT;
@@ -69,7 +63,12 @@ ControlsOptions::~ControlsOptions() {
 }
 
 void ControlsOptions::run() {
+	keyboard_enabled = input->keyboard_enabled;
+	joystick_enabled = input->joystick_enabled;
+
 	OptionsScreen::run();
+
+	save_input();
 }
 
 void ControlsOptions::item_selected() {
@@ -90,7 +89,7 @@ void ControlsOptions::item_selected() {
 				return;
 			}
 			JoystickSelect * joystickselect;
-			joystickselect = new JoystickSelect(new_input->get_joystick_idx());
+			joystickselect = new JoystickSelect(new_input->get_joystick_idx(), main_);
 			joystickselect->run();
 			if(joystickselect->index > -1) {
 				new_input->open_joystick(joystickselect->index);
@@ -105,42 +104,25 @@ void ControlsOptions::item_selected() {
 			}
 			new_input->flush_joybuttons();
 			redefine_joystick();
-			break; 
-		case 5: // Return save
-			if(items->at(0)->selected == 1 && items->at(2)->selected == 1) {
-				show_notification("ENABLE KEYBOARD OR JOYSTICK");
-				SDL_Delay(1000);
-				return;
-			}
-
-			input->copy_from(new_input);
-
-			input->enable_keyboard(items->at(0)->selected == 0);
-			input->enable_joystick(items->at(2)->selected == 0);
-
-			if(input->joystick_enabled) {
-				if(input->num_axes() >= 2) {
-					input->bind_joyaxis(0, false, A_LEFT);
-					input->bind_joyaxis(0, true, A_RIGHT);
-					input->bind_joyaxis(1, false, A_UP);
-					input->bind_joyaxis(1, true, A_DOWN);
-				}
-				if(input->num_axes() >= 1) {
-					input->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
-					input->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
-					input->bind_joyhat(0, SDL_HAT_UP, A_UP);
-					input->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
-				}
-
-			}
-		case 6: // Return cancel
-			running = false;
 			break;
 	}
 
 	for(int i = 0; i < 4; i++) {
-		Main::instance->input[i]->reset();
+		main_.input[i]->reset();
 	}
+}
+
+void ControlsOptions::process_cursor() {
+	if (OptionsScreen::input->is_pressed(A_BACK) && ! save_permitted()) {
+		show_notification("ENABLE KEYBOARD OR JOYSTICK");
+		SDL_Delay(1000);
+		return;
+	}
+
+	keyboard_enabled = (items->at(0)->selected == 0);
+	joystick_enabled = (items->at(2)->selected == 0);
+
+	OptionsScreen::process_cursor();
 }
 
 void ControlsOptions::redefine_keyboard() {
@@ -153,6 +135,7 @@ void ControlsOptions::redefine_keyboard() {
 	poll_keyboard(A_SHOOT, "PRESS SHOOT");
 	poll_keyboard(A_BOMB, "PRESS BOMB");
 	poll_keyboard(A_START, "PRESS START");
+	poll_keyboard(A_BACK, "PRESS BACK");
 }
 
 void ControlsOptions::redefine_joystick() {
@@ -167,6 +150,7 @@ void ControlsOptions::redefine_joystick() {
 	poll_joystick(A_SHOOT, "PRESS SHOOT");
 	poll_joystick(A_BOMB, "PRESS BOMB");
 	poll_joystick(A_START, "PRESS START");
+	poll_joystick(A_BACK, "PRESS BACK");
 
 	input->reset();
 }
@@ -186,31 +170,58 @@ void ControlsOptions::show_notification(const char * text) {
 	SDL_Surface * surface;
 	SDL_Rect rect;
 
-	screen = Main::instance->screen;
+	screen = main_.screen;
 
-	surface = SDL_CreateRGBSurface(NULL, screen->w / 2, 50, 32, 0, 0, 0, 0);
 	rect.x = 100;
 	rect.y = screen->h / 2 - 25;
 	rect.w = screen->w - 200;
 	rect.h = 50;
-	SDL_FillRect(screen, &rect, 0xff0000);
+	SDL_FillRectColor(screen, &rect, 0xff0000);
 	rect.x += 2;
 	rect.y += 2;
 	rect.w -= 4;
 	rect.h -= 4;
-	SDL_FillRect(screen, &rect, 0);
+	SDL_FillRectColor(screen, &rect, 0);
 
-	surface = Main::text->render_text_medium(text);
+	surface = main_.text->render_text_medium(text);
 	rect.x = (screen->w - surface->w) / 2;
 	rect.y = (screen->h - surface->h) / 2;
 	SDL_BlitSurface(surface, NULL, screen, &rect);
 	SDL_FreeSurface(surface);
 
-	Main::instance->flip();
+	main_.flip();
+}
+
+void ControlsOptions::save_input() {
+	input->copy_from(new_input);
+
+	input->enable_keyboard(keyboard_enabled);
+	input->enable_joystick(joystick_enabled);
+
+	if (input->joystick_enabled) {
+		if (input->num_axes() >= 2) {
+			input->bind_joyaxis(0, false, A_LEFT);
+			input->bind_joyaxis(0, true, A_RIGHT);
+			input->bind_joyaxis(1, false, A_UP);
+			input->bind_joyaxis(1, true, A_DOWN);
+		}
+		if (input->num_axes() >= 1) {
+			input->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
+			input->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
+			input->bind_joyhat(0, SDL_HAT_UP, A_UP);
+			input->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
+		}
+
+	}
+}
+
+bool ControlsOptions::save_permitted() {
+	// Keyboard and joystick are both disabled...
+	return (items->at(0)->selected == 0 || items->at(2)->selected == 0);
 }
 
 // Joystick select
-JoystickSelect::JoystickSelect(int index) {
+JoystickSelect::JoystickSelect(int index, Main &main) : OptionsScreen(main) {
 	OptionItem * item;
 
 	this->index = index;

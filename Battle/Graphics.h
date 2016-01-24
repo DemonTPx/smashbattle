@@ -1,5 +1,4 @@
-#ifndef _GRAPHICS_H
-#define _GRAPHICS_H
+#pragma once
 
 #include "SDL/SDL.h"
 
@@ -26,10 +25,13 @@
 #define SPR_L_JUMP	18
 #define SPR_L_DUCK	19
 
-#define SPR_COUNT	22
+#define SPR_COUNT	24
 
 #define SPR_AVATAR	20
 #define SPR_AVATAR_SELECTED 21
+
+#define SPR_R_HEAD 22
+#define SPR_L_HEAD 23
 
 #define PLAYER_SURF_COLS 10
 #define PLAYER_SURF_COUNT 20
@@ -37,9 +39,11 @@
 #define CUP_W 30
 #define CUP_H 28
 
+class Main;
+
 class Graphics {
 public:
-	Graphics();
+	Graphics(Main &main);
 	~Graphics();
 	
 	void load_all();
@@ -52,10 +56,13 @@ public:
 	void clear_player_clips();
 
 	static Uint32 combine_colors(Uint32 color1, Uint32 color2);
+	static void replace_color(SDL_Surface * surface, Uint32 color_old, Uint32 color_new);
 	static SDL_Surface * load_icon(const char * filename, Uint8 ** mask, Uint32 color);
 
 	SDL_Surface * weapons;
+	SDL_Surface * kill_moves;
 	SDL_Surface * bombs;
+	SDL_Surface * owl;
 	SDL_Surface * powerups;
 
 	SDL_Surface * shield;
@@ -92,6 +99,6 @@ public:
 	SDL_Rect * pmarker_clip_below[4];
 private:
 	SDL_Surface * load_bmp(const char * filename);
-};
 
-#endif
+	Main &main_;
+};

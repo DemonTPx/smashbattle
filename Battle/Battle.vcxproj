@@ -1,0 +1,383 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0B41AD8A-641E-4854-9075-382245257AE3}</ProjectGuid>
+    <RootNamespace>Battle</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50214.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>./;../include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>../lib/x86;../lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>./;../include/;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>../lib/x86;../lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4312;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_mixer.lib;SDL_net.lib;zdll.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4312;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_mixer.lib;SDL_net.lib;zdll.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Airstrike.cpp" />
+    <ClCompile Include="AirstrikePowerUp.cpp" />
+    <ClCompile Include="AmmoPowerUp.cpp" />
+    <ClCompile Include="AudioController.cpp" />
+    <ClCompile Include="AudioOptions.cpp" />
+    <ClCompile Include="Bomb.cpp" />
+    <ClCompile Include="BombPowerUp.cpp" />
+    <ClCompile Include="CannonNPC.cpp" />
+    <ClCompile Include="CharacterSelect.cpp" />
+    <ClCompile Include="ChickNPC.cpp" />
+    <ClCompile Include="ClientSettings.cpp" />
+    <ClCompile Include="commands\CommandGeneratePowerup.cpp" />
+    <ClCompile Include="ControlsOptions.cpp" />
+    <ClCompile Include="DoubleDamagePowerUp.cpp" />
+    <ClCompile Include="Drawable.cpp" />
+    <ClCompile Include="GameInput.cpp" />
+    <ClCompile Include="Gameplay.cpp" />
+    <ClCompile Include="GameplayObject.cpp" />
+    <ClCompile Include="GatlingNPC.cpp" />
+    <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="HealthPowerUp.cpp" />
+    <ClCompile Include="InstantKillBulletPowerUp.cpp" />
+    <ClCompile Include="LaserBeam.cpp" />
+    <ClCompile Include="LaserBeamPowerUp.cpp" />
+    <ClCompile Include="Level.cpp" />
+    <ClCompile Include="LevelSelect.cpp" />
+    <ClCompile Include="LocalMultiplayer.cpp" />
+    <ClCompile Include="LocalMultiplayerRoundEnd.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="Mine.cpp" />
+    <ClCompile Include="MinePowerUp.cpp" />
+    <ClCompile Include="Mission.cpp" />
+    <ClCompile Include="MissionSelect.cpp" />
+    <ClCompile Include="NetworkMultiplayer.cpp" />
+    <ClCompile Include="NetworkMultiplayerRoundEnd.cpp" />
+    <ClCompile Include="network\Client.cpp" />
+    <ClCompile Include="network\ClientNetworkMultiplayer.cpp" />
+    <ClCompile Include="network\CommandProcessor.cpp" />
+    <ClCompile Include="network\Commands.cpp" />
+    <ClCompile Include="network\Server.cpp" />
+    <ClCompile Include="network\ServerClient.cpp" />
+    <ClCompile Include="NPC.cpp" />
+    <ClCompile Include="Options.cpp" />
+    <ClCompile Include="OptionsScreen.cpp" />
+    <ClCompile Include="PauseMenu.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerAnimation.cpp" />
+    <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="RandomPowerUp.cpp" />
+    <ClCompile Include="rest\AbstractRestBase.cpp" />
+    <ClCompile Include="rest\ClientToken.cpp" />
+    <ClCompile Include="rest\RegisterServer.cpp" />
+    <ClCompile Include="rest\ServerList.cpp" />
+    <ClCompile Include="rest\ServerToken.cpp" />
+    <ClCompile Include="ServerListing.cpp" />
+    <ClCompile Include="ShieldPowerUp.cpp" />
+    <ClCompile Include="SimpleDrawable.cpp" />
+    <ClCompile Include="states\ServerState.cpp" />
+    <ClCompile Include="states\ServerStateAcceptClients.cpp" />
+    <ClCompile Include="states\ServerStateAcceptSpectatingClients.cpp" />
+    <ClCompile Include="states\ServerStateGameStarted.cpp" />
+    <ClCompile Include="states\ServerStateInactive.cpp" />
+    <ClCompile Include="states\ServerStateInitialize.cpp" />
+    <ClCompile Include="Text.cpp" />
+    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="util\json.cpp" />
+    <ClCompile Include="util\LevelUtil.cpp" />
+    <ClCompile Include="util\Log.cpp" />
+    <ClCompile Include="util\PlayerUtil.cpp" />
+    <ClCompile Include="util\random.cpp" />
+    <ClCompile Include="util\ServerUtil.cpp" />
+    <ClCompile Include="util\sha256.cpp" />
+    <ClCompile Include="util\StringUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Airstrike.h" />
+    <ClInclude Include="AirstrikePowerUp.h" />
+    <ClInclude Include="AmmoPowerUp.h" />
+    <ClInclude Include="AudioController.h" />
+    <ClInclude Include="AudioOptions.h" />
+    <ClInclude Include="Bomb.h" />
+    <ClInclude Include="BombPowerUp.h" />
+    <ClInclude Include="CannonNPC.h" />
+    <ClInclude Include="CharacterSelect.h" />
+    <ClInclude Include="ChickNPC.h" />
+    <ClInclude Include="ClientSettings.h" />
+    <ClInclude Include="commands\CommandAddPlayer.hpp" />
+    <ClInclude Include="commands\CommandApiPing.hpp" />
+    <ClInclude Include="commands\CommandApiPong.hpp" />
+    <ClInclude Include="commands\CommandApplyPowerup.hpp" />
+    <ClInclude Include="commands\CommandBombDropped.hpp" />
+    <ClInclude Include="commands\CommandCommunicationTokenAck.hpp" />
+    <ClInclude Include="commands\CommandDelPlayer.hpp" />
+    <ClInclude Include="commands\CommandGeneratePowerup.h" />
+    <ClInclude Include="commands\CommandKeepAlive.hpp" />
+    <ClInclude Include="commands\CommandKeepAliveOk.hpp" />
+    <ClInclude Include="commands\CommandPing.hpp" />
+    <ClInclude Include="commands\CommandPong.hpp" />
+    <ClInclude Include="commands\CommandRemovePowerup.hpp" />
+    <ClInclude Include="commands\CommandRequestCharacter.hpp" />
+    <ClInclude Include="commands\CommandServerFull.hpp" />
+    <ClInclude Include="commands\CommandSetBroadcastText.hpp" />
+    <ClInclude Include="commands\CommandSetCharacter.hpp" />
+    <ClInclude Include="commands\CommandSetClientReady.hpp" />
+    <ClInclude Include="commands\CommandSetCommunicationToken.hpp" />
+    <ClInclude Include="commands\CommandSetGameEnd.hpp" />
+    <ClInclude Include="commands\CommandSetGameStart.hpp" />
+    <ClInclude Include="commands\CommandSetHitPoints.hpp" />
+    <ClInclude Include="commands\CommandSetLevel.hpp" />
+    <ClInclude Include="commands\CommandSetPlayerAmmo.hpp" />
+    <ClInclude Include="commands\CommandSetPlayerData.hpp" />
+    <ClInclude Include="commands\CommandSetPlayerDeath.hpp" />
+    <ClInclude Include="commands\CommandSetPlayerScore.hpp" />
+    <ClInclude Include="commands\CommandSetPosition.hpp" />
+    <ClInclude Include="commands\CommandSetServerReady.hpp" />
+    <ClInclude Include="commands\CommandSetSpectating.hpp" />
+    <ClInclude Include="commands\CommandSetVictoryScreen.hpp" />
+    <ClInclude Include="commands\CommandShotFired.hpp" />
+    <ClInclude Include="commands\CommandUpdateTile.hpp" />
+    <ClInclude Include="ControlsOptions.h" />
+    <ClInclude Include="DoubleDamagePowerUp.h" />
+    <ClInclude Include="Drawable.h" />
+    <ClInclude Include="GameInput.h" />
+    <ClInclude Include="Gameplay.h" />
+    <ClInclude Include="GameplayObject.h" />
+    <ClInclude Include="GatlingNPC.h" />
+    <ClInclude Include="Graphics.h" />
+    <ClInclude Include="HealthPowerUp.h" />
+    <ClInclude Include="InstantKillBulletPowerUp.h" />
+    <ClInclude Include="LaserBeam.h" />
+    <ClInclude Include="LaserBeamPowerUp.h" />
+    <ClInclude Include="Level.h" />
+    <ClInclude Include="LevelSelect.h" />
+    <ClInclude Include="LocalMultiplayer.h" />
+    <ClInclude Include="LocalMultiplayerRoundEnd.h" />
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="Mine.h" />
+    <ClInclude Include="MinePowerUp.h" />
+    <ClInclude Include="Mission.h" />
+    <ClInclude Include="MissionSelect.h" />
+    <ClInclude Include="NetworkMultiplayer.h" />
+    <ClInclude Include="NetworkMultiplayerRoundEnd.h" />
+    <ClInclude Include="network\Client.h" />
+    <ClInclude Include="network\ClientNetworkMultiplayer.h" />
+    <ClInclude Include="network\Command.hpp" />
+    <ClInclude Include="network\CommandProcessor.h" />
+    <ClInclude Include="network\Commands.hpp" />
+    <ClInclude Include="network\Server.h" />
+    <ClInclude Include="network\ServerClient.h" />
+    <ClInclude Include="NPC.h" />
+    <ClInclude Include="Options.h" />
+    <ClInclude Include="OptionsScreen.h" />
+    <ClInclude Include="PauseMenu.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerAnimation.h" />
+    <ClInclude Include="Projectile.h" />
+    <ClInclude Include="RandomPowerUp.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="rest\AbstractRestBase.h" />
+    <ClInclude Include="rest\ClientToken.h" />
+    <ClInclude Include="rest\RegisterServer.h" />
+    <ClInclude Include="rest\ServerList.h" />
+    <ClInclude Include="rest\ServerToken.h" />
+    <ClInclude Include="ServerListing.h" />
+    <ClInclude Include="ShieldPowerUp.h" />
+    <ClInclude Include="SimpleDrawable.h" />
+    <ClInclude Include="states\ServerState.h" />
+    <ClInclude Include="states\ServerStateAcceptClients.h" />
+    <ClInclude Include="states\ServerStateAcceptSpectatingClients.h" />
+    <ClInclude Include="states\ServerStateGameStarted.h" />
+    <ClInclude Include="states\ServerStateInactive.h" />
+    <ClInclude Include="states\ServerStateInitialize.h" />
+    <ClInclude Include="states\ServerStates.h" />
+    <ClInclude Include="Text.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="util\json.h" />
+    <ClInclude Include="util\LagMeasure.hpp" />
+    <ClInclude Include="util\Log.h" />
+    <ClInclude Include="util\random.h" />
+    <ClInclude Include="util\ServerUtil.h" />
+    <ClInclude Include="util\sha256.h" />
+    <ClInclude Include="util\StringUtils.h" />
+    <ClInclude Include="util\stringutils.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="music\a_hero_rises.ogg" />
+    <None Include="stage\blastbowl.lvl" />
+    <None Include="stage\boulderdash.lvl" />
+    <None Include="stage\chick_invasion.lvl" />
+    <None Include="stage\chick_invasion_ii.lvl" />
+    <None Include="stage\chicken_run.lvl" />
+    <None Include="stage\commongrounds.lvl" />
+    <None Include="stage\ducknhunt.lvl" />
+    <None Include="stage\easy_does_it.lvl" />
+    <None Include="music\graveyard.ogg" />
+    <None Include="music\hydro_dreams.ogg" />
+    <None Include="stage\lamoustache.lvl" />
+    <None Include="stage\piepit.lvl" />
+    <None Include="stage\pitfall.lvl" />
+    <None Include="stage\pitofdeath.lvl" />
+    <None Include="stage\platformalley.lvl" />
+    <None Include="stage\pogostick.lvl" />
+    <None Include="stage\rabbithole.lvl" />
+    <None Include="stage\slipnslide.lvl" />
+    <None Include="stage\snowfight.lvl" />
+    <None Include="music\space_farer.ogg" />
+    <None Include="stage\stayhigh.lvl" />
+    <None Include="stage\thefunnel.lvl" />
+    <None Include="stage\titlescreen.lvl" />
+    <None Include="stage\trainingdojo.lvl" />
+    <None Include="stage\tryout.lvl" />
+    <None Include="music\victory.ogg" />
+    <None Include="Makefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="sfx\airstrike.wav" />
+    <Media Include="sfx\countdown.wav" />
+    <Media Include="sfx\explode.wav" />
+    <Media Include="sfx\go.wav" />
+    <Media Include="sfx\hit.wav" />
+    <Media Include="sfx\item.wav" />
+    <Media Include="sfx\jump.wav" />
+    <Media Include="sfx\laser.wav" />
+    <Media Include="sfx\pause.wav" />
+    <Media Include="sfx\select.wav" />
+    <Media Include="sfx\select_character.wav" />
+    <Media Include="sfx\shield.wav" />
+    <Media Include="sfx\shoot.wav" />
+    <Media Include="sfx\youlose.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="gfx\anton.bmp" />
+    <Image Include="gfx\arjan.bmp" />
+    <Image Include="gfx\berry.bmp" />
+    <Image Include="gfx\bert.bmp" />
+    <Image Include="gfx\bg_black.bmp" />
+    <Image Include="gfx\bg_blue.bmp" />
+    <Image Include="gfx\bg_grey.bmp" />
+    <Image Include="gfx\bg_orange.bmp" />
+    <Image Include="gfx\bg_white.bmp" />
+    <Image Include="gfx\bomb.bmp" />
+    <Image Include="gfx\cannon.bmp" />
+    <Image Include="gfx\chick.bmp" />
+    <Image Include="gfx\common.bmp" />
+    <Image Include="gfx\cups.bmp" />
+    <Image Include="gfx\donja.bmp" />
+    <Image Include="gfx\eva.bmp" />
+    <Image Include="gfx\font_l.bmp" />
+    <Image Include="gfx\font_m.bmp" />
+    <Image Include="gfx\font_s.bmp" />
+    <Image Include="gfx\gatling.bmp" />
+    <Image Include="gfx\gijs.bmp" />
+    <Image Include="gfx\jay.bmp" />
+    <Image Include="gfx\jeremy.bmp" />
+    <Image Include="gfx\jeroen.bmp" />
+    <Image Include="gfx\kim.bmp" />
+    <Image Include="gfx\marcel.bmp" />
+    <Image Include="gfx\okke.bmp" />
+    <Image Include="gfx\peter.bmp" />
+    <Image Include="gfx\player1hp.bmp" />
+    <Image Include="gfx\player2hp.bmp" />
+    <Image Include="gfx\pmarkers.bmp" />
+    <Image Include="gfx\powerups.bmp" />
+    <Image Include="gfx\props.bmp" />
+    <Image Include="gfx\rob.bmp" />
+    <Image Include="gfx\rutger.bmp" />
+    <Image Include="gfx\ruud.bmp" />
+    <Image Include="gfx\SB.bmp" />
+    <Image Include="gfx\SB.ico" />
+    <Image Include="gfx\shield.bmp" />
+    <Image Include="gfx\steven.bmp" />
+    <Image Include="gfx\tedje.bmp" />
+    <Image Include="gfx\tiles.bmp" />
+    <Image Include="gfx\tobias.bmp" />
+    <Image Include="gfx\ton.bmp" />
+    <Image Include="gfx\weapons.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

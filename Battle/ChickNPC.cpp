@@ -1,10 +1,10 @@
 #include "SDL/SDL.h"
 
 #include "Gameplay.h"
-
+#include "Main.h"
 #include "ChickNPC.h"
 
-ChickNPC::ChickNPC() : NPC() {
+ChickNPC::ChickNPC(Main &main) : NPC(main) {
 	is_stationary = false;
 
 	frame_w = 24;
@@ -25,7 +25,7 @@ ChickNPC::ChickNPC() : NPC() {
 
 	frame_dead = 7;
 
-	sprites = Main::graphics->npc_chick;
+	sprites = main_.graphics->npc_chick;
 	
 	position->w = frame_w;
 	position->h = frame_h;
@@ -64,7 +64,7 @@ void ChickNPC::process() {
 			rect.y = position->y;
 		}
 
-		if(!Gameplay::instance->level->is_on_bottom(&rect)) {
+		if(!main_.gameplay().level->is_on_bottom(&rect)) {
 			move_direction = -move_direction;
 		}
 	}
@@ -79,8 +79,8 @@ void ChickNPC::reset() {
 }
 
 void ChickNPC::hit_player_side(Player * p) {
-	if(p->damage(10)) {
-		Main::audio->play(SND_HIT, position->x);
+	if(p->damage(10, NULL, UNKNOWN)) {
+		main_.audio->play(SND_HIT, position->x);
 	}
 }
 

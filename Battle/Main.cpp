@@ -1,6 +1,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_mixer.h"
 
+#include <future>
 #include <cstdio>
 #include <iostream>
 #include <fstream>
@@ -11,105 +12,177 @@
 #include "AudioController.h"
 #include "Graphics.h"
 
+
 #include "Main.h"
+#include "network/ServerClient.h"
+#include "network/Server.h"
+#include "NetworkMultiplayer.h"
+#include "network/ClientNetworkMultiplayer.h"
 
+#include "states/ServerStates.h"
 
-/**
- * Used in 'main' gameloop where frame_delay is no longer used.
- * A value of 17 would force the game to run in (1s = 1000ms / 17 =) ~58.82 fps
- */
-const int Main::MILLISECS_PER_FRAME = 17;
-/**
- * Used in all other places, like in menu, character set, these 'cap' to 60 fps.
- */
-const int Main::FRAMES_PER_SECOND = 60;
+#include "util/StringUtils.h"
+#include "util/Log.h"
+#include "util/random.h"
 
-const int Main::FRAMES_UNTIL_RESET = 7200;
+using std::string;
 
-const int Main::CONTROLS_REPEAT_DELAY = 30;
-const int Main::CONTROLS_REPEAT_SPEED = 10;
+#ifdef WIN32
+#include <direct.h> // for _chdir
+#else
+#include <unistd.h> // for chdir
+#endif
 
-const int Main::JOYSTICK_AXIS_THRESHOLD = 0x3fff;
+#include "Gameplay.h"
+#include "Airstrike.h"
+#include "network/ServerClient.h"
+#include "network/Server.h"
 
-Main * Main::instance = NULL;
+Main::Main()
+:
+	/**
+	 * Used in 'main' gameloop where frame_delay is no longer used.
+	 * A value of 17 would force the game to run in (1s = 1000ms / 17 =) ~58.82 fps
+	 */
+	MILLISECS_PER_FRAME(17),
+	/**
+	 * Used in all other places, like in menu, character set, these 'cap' to 60 fps.
+	 */
+	FRAMES_PER_SECOND(60),
 
-SDL_Surface * Main::screen = NULL;
-int Main::flags = SDL_SWSURFACE;
+	FRAMES_UNTIL_RESET(7200),
 
-bool Main::running = false;
-int Main::frame_delay = 0;
-unsigned int Main::frame = 0;
-bool Main::fps_cap = false;
+	CONTROLS_REPEAT_DELAY(30),
+	CONTROLS_REPEAT_SPEED(10),
 
-bool Main::screenshot_next_flip = false;
+	JOYSTICK_AXIS_THRESHOLD(0x3fff),
 
-Timer * Main::fps = NULL;
+	gameplay_(NULL),
 
-int Main::fps_counter_last_frame = 0;
-int Main::fps_counter_this_frame = 0;
-Timer * Main::fps_counter_timer = NULL;
-bool Main::fps_counter_visible = false;
+	serverClient_(NULL),
+	server_(NULL)
 
-AudioController * Main::audio = NULL;
-Graphics * Main::graphics = NULL;
-Text * Main::text = NULL;
+{
+	serverClient_ = new network::ServerClient();
+	server_ = new network::Server();
 
-unsigned int Main::last_activity = 0;
-bool Main::autoreset = true;
-bool Main::is_reset = false;
+	screen = NULL;
+	flags = SDL_SWSURFACE;
 
-Main::Main() {
-	Main::instance = this;
+	running = false;
+	frame_delay = 0;
+	frame = 0;
+	fps_cap = false;
+
+	screenshot_next_flip = false;
+
+	fps = NULL;
+
+	fps_counter_last_frame = 0;
+	fps_counter_this_frame = 0;
+	fps_counter_timer = NULL;
+	fps_counter_visible = false;
+	ingame_debug_visible = false;
+
+	audio = NULL;
+	graphics = NULL;
+	text = NULL;
+
+	last_activity = 0;
+	autoreset = true;
+	is_reset = false;
+
+	runmode = MainRunModes::ARCADE;
+	no_sdl = false;
+
+	menu_skips_to_local_multiplayer = false;
+}
+
+network::ServerClient & Main::getServerClient()
+{
+	return *serverClient_;
+}
+
+network::Server & Main::getServer()
+{
+	return *server_;
+}
+
+void Main::setGameplay(Gameplay *gameplay) {
+	gameplay_ = gameplay;
+}
+
+Gameplay &Main::gameplay() {
+	return *gameplay_;
 }
 
 Main::~Main() {
-	if(Main::instance == this) {
-		Main::instance = NULL;
-	}
 }
 
 bool Main::init() {
 	//Start SDL
-	SDL_Init(SDL_INIT_EVERYTHING);
 
-	SDL_Surface * icon;
-	Uint8 * mask;
+	if (!no_sdl) {
+		SDL_Init(SDL_INIT_EVERYTHING);
 
-	icon = Graphics::load_icon("gfx/SB.bmp", &mask, 0x00ffff);
-	SDL_WM_SetIcon(icon, mask);
+		SDL_Surface * icon;
+		Uint8 * mask;
 
-	SDL_FreeSurface(icon);
-	delete[] mask;
-	
-	screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
-	SDL_ShowCursor(0);
+#ifdef TWEAKERS
+		icon = Graphics::load_icon("gfx/sb-tweakers.bmp", &mask, 0x00ffff);
+#else
+		icon = Graphics::load_icon("gfx/sb-icon.bmp", &mask, 0x00ffff);
+#endif
+		SDL_WM_SetIcon(icon, mask);
+		SDL_WM_SetCaption("Smash Battle", NULL);
+
+		SDL_FreeSurface(icon);
+		delete[] mask;
+		
+		screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
+		SDL_ShowCursor(0);
+	}
 
 	fps_cap = true;
 
-	if(screen == NULL) return false;
-
-	SDL_WM_SetCaption("Battle", NULL);
+	if (!no_sdl) {
+		if(screen == NULL) return false;
+	}
 	
 	fps = new Timer();
 
 	fps_counter_timer = new Timer();
 
-	audio = new AudioController();
+	text = new Text();
+	if (!no_sdl) {
+		text->load_all();
+	}
+
+	draw_loading_screen();
+
+	audio = new AudioController(*this);
 	audio->open_audio();
 	audio->load_files();
 
-	text = new Text();
-	text->load_all();
+	graphics = new Graphics(*this);
+	if (!no_sdl) {
+		graphics->load_all();
+	}
 
-	graphics = new Graphics();
-	graphics->load_all();
-
-	SDL_JoystickEventState(SDL_ENABLE);
+	if (!no_sdl) {
+		SDL_JoystickEventState(SDL_ENABLE);
+	}
 
 	for(int i = 0; i < 4; i++) {
-		input[i] = new GameInput();
+		input[i] = new GameInput(*this);
 	}
 	input_master = NULL;
+
+	if (runmode == MainRunModes::SERVER) {
+		// In case we need to do a level select we need to have a master input already
+		input_master = input[0];
+		input_master->set_delay(20);
+	}
 
 	return true;
 }
@@ -139,7 +212,12 @@ void Main::clean_up() {
 	SDL_Quit();
 }
 
-void Main::flip(bool no_cap) {
+void Main::flip(bool no_cap) 
+{
+	getServer().poll();
+
+	getServerClient().poll();
+
 	fps_count();
 
 	if(screenshot_next_flip) {
@@ -147,7 +225,9 @@ void Main::flip(bool no_cap) {
 		screenshot_next_flip = false;
 	}
 
-	SDL_Flip(screen);
+	if (!no_sdl) {
+		SDL_Flip(screen);
+	}
 	frame++;
 	if(!no_cap && (fps_cap == true) && (fps->get_ticks() < frame_delay)) {
 		SDL_Delay((frame_delay) - fps->get_ticks());
@@ -163,6 +243,28 @@ void Main::flip(bool no_cap) {
 	}
 }
 
+void Main::draw_loading_screen() {
+	if (no_sdl) {
+		return;
+	}
+
+	SDL_FillRect(screen, NULL, 0);
+
+	SDL_Surface * loading;
+
+	loading = text->render_text_medium_shadow("LOADING...");
+
+	SDL_Rect rect;
+	rect.x = WINDOW_WIDTH - loading->w - 8;
+	rect.y = WINDOW_HEIGHT - loading->h - 8;
+	rect.w = loading->w;
+	rect.h = loading->h;
+
+	SDL_BlitSurface(loading, 0, screen, &rect);
+
+	flip(true);
+}
+
 void Main::fps_count() {
 	// Calculate the FPS
 	if(fps_counter_timer->get_ticks() > 1000) {
@@ -174,18 +276,19 @@ void Main::fps_count() {
 
 	// Show FPS
 	if(fps_counter_visible) {
-		char cap[20];
+		char cap[80];
 
 		SDL_Surface * surf;
 		SDL_Rect rect;
-		SDL_Color color;
-		
-		color.r = 0xff;
-		color.g = 0xff;
-		color.b = 0xff;
 
-		sprintf(cap, "%d FPS", fps_counter_this_frame);
-		surf = Main::text->render_text_small(cap);
+		if (getServerClient().isConnected())
+			sprintf(cap, "%d FPS %f LAG", fps_counter_this_frame, getServerClient().getLag().avg());
+		else if (getServer().active())
+			sprintf(cap, "%d FPS %s STATE", fps_counter_this_frame, getServer().getState()->type().c_str());
+		else
+			sprintf(cap, "%d FPS", fps_counter_this_frame);
+
+		surf = text->render_text_small(cap);
 
 		rect.x = screen->w - surf->w - 2;
 		rect.y = 2;
@@ -209,15 +312,33 @@ void Main::take_screenshot() {
 }
 
 void Main::handle_event(SDL_Event * event) {	
+
+	/* A server can only be closed with ESCAPE */
+	if(event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE) {
+		if (runmode == MainRunModes::SERVER)
+			running = false;
+	}
+
 	/* Catch quit event and ALT-F4 */
 	if(event->type == SDL_QUIT) {
-		running = false;
+		if (runmode != MainRunModes::SERVER)
+			running = false;
 	}
 	if(event->type == SDL_KEYDOWN) {
 		if(event->key.keysym.mod & KMOD_ALT) {
-			if(event->key.keysym.sym == SDLK_F4) {
+			if(event->key.keysym.sym == SDLK_F4 && runmode != MainRunModes::SERVER) {
 				running = false;
 			}
+		}
+		if(event->key.keysym.sym == SDLK_F1) {
+			// Toggle console in case we're in client mode
+			if (runmode == MainRunModes::CLIENT && getServerClient().isConnected())
+				getServerClient().toggleConsole();
+		}
+		if(event->key.keysym.sym == SDLK_F5) {
+			// Re-set server, accept client connects..
+			if (runmode == MainRunModes::SERVER && getServer().active())
+				getServer().setState(new network::ServerStateAcceptClients());
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
 			// Toggle fullscreen X11
@@ -232,6 +353,9 @@ void Main::handle_event(SDL_Event * event) {
 		if(event->key.keysym.sym == SDLK_F11) {
 			fps_counter_visible = !fps_counter_visible;
 		}
+		if(event->key.keysym.sym == SDLK_F2) {
+			ingame_debug_visible = !ingame_debug_visible;
+		}
 		if(event->key.keysym.sym == SDLK_PRINT) {
 			screenshot_next_flip = true;
 		}
@@ -242,8 +366,22 @@ void Main::handle_event(SDL_Event * event) {
 	}
 }
 
-int Main::run() {
+void Main::reset_inputs()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {}
+	for (int i = 0; i < 4; i++) {
+		input[i]->reset();
+	}
+	input_master->reset();
+}
+
+int Main::run(const MainRunModes &runmode) 
+{
+	this->runmode = runmode;
+
 	if(!init()) return 1;
+
 
 	frame_delay = 1000 / FRAMES_PER_SECOND;
 	frame = 0;
@@ -252,14 +390,55 @@ int Main::run() {
 
 	fps_counter_timer->start();
 
-	Menu * menu;
-	menu = new Menu();
+	switch (runmode)
+	{
+		case MainRunModes::ARCADE:
+			{
+				Menu menu(*this);
 
-	running = true;
-	menu->run();
+				running = true;
+				menu.run();
+			}
+			break;
 
-	delete menu;
+		case MainRunModes::SERVER:
+			running = true;
+			getServer().setMain(*this);
+			
+			LoggerLogToStdOut = true;
 
+			while (getServer().active() && running)
+			{
+
+				NetworkMultiplayer multiplayer(*this);
+				Level &level(getServer().getLevel());
+				multiplayer.set_level(&level);
+
+				// This is a little bit of a design flaw, need to refactor server a bit later.
+				getServer().initializeGame(multiplayer);
+
+				getServer().initializeLevel();
+				
+				getServer().listen();
+
+				getServer().registerServer();
+
+				multiplayer.run();
+			}
+			break;
+		case MainRunModes::CLIENT:
+			fps_counter_visible = true;
+
+			getServer().setMain(*this);
+			getServerClient().setCharacter((int)online_character);
+
+			network::ClientNetworkMultiplayer clientgame(*this);
+
+			clientgame.start();
+
+			break;
+	}
+	
 	save_options();
 
 	clean_up();
@@ -272,15 +451,191 @@ int Main::run() {
 	return 0;
 }
 
+int main(int argc, char* args[]) 
+{
+	/*
+	TCPsocket socket;
+	Client test(1, socket, 	&network::Server::getInstance());
+	
+	char peer0_a[] = { 0x07 };
+	char peer0_a1[] = {
+	    0x00, 0x00, 0x00, 0x00, 0x55, 0x41, 0x00, 0x00,  
+	    0x00, 0x00, 0xc1, 0x01, 0x14, 0x01, 0x00, 0x00,  
+	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+ 	    0x00, 0xff, 0xff};
+	
+	char peer0_a2[] = {
+		                  0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00, 0x00 
+	};
+	char peer0_a3[] = {
+                                0x0a, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00
+	};
+	char peer0_a4[] = {
+                          0x00
+	};
+	
+	
+	char peer0_b[] = { 0x07 };
+	char peer0_b1[] = {
+	0x00, 0x00, 0x00, 0x00, 0x1f, 0x42, 0x00, 0x00, 
+	0x00, 0x00, 0xc1, 0x01, 0x14, 0x01, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00 };
+	
+	test.receive(sizeof(peer0_a), peer0_a);
+	test.receive(sizeof(peer0_a1), peer0_a1);
+	test.receive(sizeof(peer0_a2), peer0_a2);
+	while (test.parse());
+	test.receive(sizeof(peer0_a3), peer0_a3);
+	test.receive(sizeof(peer0_a4), peer0_a4);
+	test.receive(sizeof(peer0_b), peer0_b);
+	while (test.parse());
+	test.receive(sizeof(peer0_b1), peer0_b1);
+	while (test.parse());
+	*/
+	/*
 
-int main(int argc, char* args[]) {
+	char peerall[] = { 0x07, 
+	    0x00, 0x00, 0x00, 0x00, 0x55, 0x41, 0x00, 0x00,  
+	    0x00, 0x00, 0xc1, 0x01, 0x14, 0x01, 0x00, 0x00,  
+	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+ 	    0x00, 0xff, 0xff,
+		                  0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00, 0x00 ,
+                                0x0a, 0x00, 0x00, 0x00, 
+		0x00, 0x00, 0x00,
+                          0x00,
+		0x07,
+	0x00, 0x00, 0x00, 0x00, 0x1f, 0x42, 0x00, 0x00, 
+	0x00, 0x00, 0xc1, 0x01, 0x14, 0x01, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 
+	0x00, 0x00, 0x00, 0x00 };
+	
+	
+	rand_init();
+	
+	size_t length = sizeof(peerall);
+	size_t i = 0;
+	while (i < length) {
+		std::cout << " i < length = " << i << " < " << length << std::endl;
+		int rand_nmbr = rand_get();
+		std::cout << " if (rand_nmbr("<< rand_nmbr<< ") > (length("<<length<<") - i("<<i<<"))("<<(length - i)<<"))" << std::endl;
+		if (rand_nmbr > (length - i))
+			rand_nmbr = (length - i);
+		
+		std::cout << " rand_nmbr = " << rand_nmbr << std::endl;
+		
+		test.receive(rand_nmbr, (peerall + i));
+		while (test.parse());
+		size_t i_old = i;
+		i += rand_nmbr;
+		std::cout << " i(" << i_old << ") += " << rand_nmbr << " = " << i << std::endl;
+	}
+	
+	
+	
+	return 0;*/
+
+	Main main;
+
+	// In windows when clicking on a smashbattle:// link, the current working dir is not set.
+	// Therefore extract it from args[0] and change work dir.
+	string cwd(util::basedir(string(args[0])));
+
+#ifdef WIN32
+	_chdir(cwd.c_str());
+#else
+//	chdir("/usr/share/games/smashbattle/");
+#endif
+
 	if(argc > 1) {
 		if(strcmp(args[1], "-f") == 0) {
-			Main::flags |= SDL_FULLSCREEN;
+			main.flags |= SDL_FULLSCREEN;
+		}
+
+		else if (strcmp(args[1], "-d") == 0) {
+			main.menu_skips_to_local_multiplayer = true;
+		}
+
+		
+		// Usage smashbattle -s "TRAINING DOJO" 1100 --> start server on port 1100 with level "TRAINING DOJO"
+		else if(strcmp(args[1], "-s") == 0 && argc >= 2) {
+			string level, strport, servername;
+			bool hideSdlWindow = true;
+			if (argc == 2) {
+				strport = "1100";
+			}
+			else if (argc == 3) {
+				strport = string(args[2]).substr(0, 5);
+			}
+			else if (argc == 4) {
+				// Get level from param
+				level = string(args[2]).substr(0, 80);
+				strport = string(args[3]).substr(0, 5);
+			}
+			else if (argc >= 5) {
+				// Get level from param
+				level = string(args[2]).substr(0, 80);
+				strport = string(args[3]).substr(0, 5);
+				servername = string(args[4]).substr(0, 80);
+				if (argc == 6) {
+					hideSdlWindow = string(args[5]) == "true";
+				}
+			}
+
+			log(format("program started with -s flag, parsed level %s and port %d", level.c_str(), stoi(strport)), Logger::Priority::INFO);
+			
+			main.getServer().setState(new network::ServerStateInitialize(level, stoi(strport), servername));
+
+			main.no_sdl = hideSdlWindow;
+
+			return main.run(MainRunModes::SERVER);
+		}
+
+		else if(strcmp(args[1], "-c") == 0 && argc >= 3) {
+			char host[80+1] = {0x00};
+			char port[5+1] = {0x00};
+			std::string character = "INSPECTOR";
+			if (argc >= 4) {
+				character = args[3];
+			}
+
+			if (2 == sscanf(args[2], "%80[^:]:%5[0-9]/", host, port)) {
+				log(format("initialized as client, connect to: %s && %s", host, port), Logger::Priority::INFO);
+
+				main.getServerClient().setHost(host);
+				main.getServerClient().setPort(atoi(port));
+				main.getServerClient().setCharacter(main.getServerClient().characterByName(character));
+
+				return main.run(MainRunModes::CLIENT);
+			}
 		}
 	}
-	Main main;
-	return main.run();
+
+	// Launch server in separate thread
+#ifdef ENABLE_EMBEDDED_SERVER
+	auto f1 = std::async( std::launch::async, []{
+		Main main;
+		main.no_sdl = true;
+		main_.getServer().setState(new network::ServerStateInitialize("TRAINING DOJO", 1111, "RAY'S ASYNC SERV"));
+		return main.run(MainRunModes::SERVER);
+	});
+
+	// Launch client
+	main.no_sdl = false;
+#endif
+
+	return main.run(MainRunModes::ARCADE);
 }
 
 void Main::load_options() {
@@ -296,19 +651,15 @@ void Main::load_options() {
 	file.open(filename, std::ifstream::in | std::ifstream::binary);
 
 	if(file.eof() || !file.is_open()) {
-		audio->options.sound_volume = 100;
-		audio->options.music_volume = 100;
-		set_default_controlschemes();
+		load_default_options();
 		file.close();
 		return;
 	}
 
 	file.read((char*)&hdr, sizeof(SaveHeader));
 	
-	if(hdr.signature != SAVE_SIGNATURE || hdr.version != SAVE_VERSION) {
-		audio->options.sound_volume = 100;
-		audio->options.music_volume = 100;
-		set_default_controlschemes();
+	if(hdr.signature != SAVE_SIGNATURE || hdr.version > SAVE_VERSION) {
+		load_default_options();
 		file.close();
 		return;
 	}
@@ -316,10 +667,27 @@ void Main::load_options() {
 	audio->load_options(&file);
 
 	for(int i = 0; i < 4; i++) {
-		input[i]->load_options(&file);
+		input[i]->load_options(&file, hdr.version);
+	}
+
+	if (!file.eof()) {
+		file.read((char*)&online_character, sizeof(online_character));
+	}
+	else {
+		srand(SDL_GetTicks());
+		online_character = (Uint8)(rand() % Player::CHARACTER_COUNT);
 	}
 
 	file.close();
+}
+
+void Main::load_default_options()
+{
+	audio->options.sound_volume = 100;
+	audio->options.music_volume = 100;
+	set_default_controlschemes();
+	srand(SDL_GetTicks());
+	online_character = (Uint8)(rand() % Player::CHARACTER_COUNT);
 }
 
 void Main::save_options() {
@@ -351,6 +719,8 @@ void Main::save_options() {
 		input[i]->save_options(&file);
 	}
 
+	file.write((char *)&online_character, sizeof(online_character));
+
 	file.close();
 }
 
@@ -358,18 +728,19 @@ void Main::set_default_controlschemes() {
 	// Player 1
 	input[0]->enable_keyboard(true);
 
-	input[0]->bind_key(SDLK_a, A_LEFT);
-	input[0]->bind_key(SDLK_d, A_RIGHT);
-	input[0]->bind_key(SDLK_w, A_UP);
-	input[0]->bind_key(SDLK_s, A_DOWN);
-	
-	input[0]->bind_key(SDLK_w, A_JUMP);
-	input[0]->bind_key(SDLK_LSHIFT, A_RUN);
-	
-	input[0]->bind_key(SDLK_LCTRL, A_SHOOT);
-	input[0]->bind_key(SDLK_LALT, A_BOMB);
+	input[0]->bind_key(SDLK_LEFT, A_LEFT);
+	input[0]->bind_key(SDLK_RIGHT, A_RIGHT);
+	input[0]->bind_key(SDLK_UP, A_UP);
+	input[0]->bind_key(SDLK_DOWN, A_DOWN);
 
-	input[0]->bind_key(SDLK_ESCAPE, A_START);
+	input[0]->bind_key(SDLK_UP, A_JUMP);
+	input[0]->bind_key(SDLK_RSHIFT, A_RUN);
+	
+	input[0]->bind_key(SDLK_RCTRL, A_SHOOT);
+	input[0]->bind_key(SDLK_RALT, A_BOMB);
+
+	input[0]->bind_key(SDLK_RETURN, A_START);
+	input[0]->bind_key(SDLK_BACKSPACE, A_BACK);
 
 	input[0]->enable_joystick(true);
 	input[0]->open_joystick(0);
@@ -386,27 +757,29 @@ void Main::set_default_controlschemes() {
 	input[0]->bind_joybutton(7, A_BOMB);
 
 	input[0]->bind_joybutton(9, A_START);
+	input[0]->bind_joybutton(8, A_BACK);
 
 	input[0]->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
 	input[0]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
 	input[0]->bind_joyhat(0, SDL_HAT_UP, A_UP);
 	input[0]->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
-	
+
 	// Player 2
 	input[1]->enable_keyboard(true);
 
-	input[1]->bind_key(SDLK_LEFT, A_LEFT);
-	input[1]->bind_key(SDLK_RIGHT, A_RIGHT);
-	input[1]->bind_key(SDLK_UP, A_UP);
-	input[1]->bind_key(SDLK_DOWN, A_DOWN);
+	input[1]->bind_key(SDLK_a, A_LEFT);
+	input[1]->bind_key(SDLK_d, A_RIGHT);
+	input[1]->bind_key(SDLK_w, A_UP);
+	input[1]->bind_key(SDLK_s, A_DOWN);
 
-	input[1]->bind_key(SDLK_UP, A_JUMP);
-	input[1]->bind_key(SDLK_RSHIFT, A_RUN);
-	
-	input[1]->bind_key(SDLK_RCTRL, A_SHOOT);
-	input[1]->bind_key(SDLK_RALT, A_BOMB);
+	input[1]->bind_key(SDLK_w, A_JUMP);
+	input[1]->bind_key(SDLK_LSHIFT, A_RUN);
 
-	input[1]->bind_key(SDLK_RETURN, A_START);
+	input[1]->bind_key(SDLK_LCTRL, A_SHOOT);
+	input[1]->bind_key(SDLK_LALT, A_BOMB);
+
+	input[1]->bind_key(SDLK_ESCAPE, A_START);
+	input[1]->bind_key(SDLK_BACKSPACE, A_BACK);
 
 	input[1]->enable_joystick(true);
 	input[1]->open_joystick(1);
@@ -423,11 +796,13 @@ void Main::set_default_controlschemes() {
 	input[1]->bind_joybutton(7, A_BOMB);
 
 	input[1]->bind_joybutton(9, A_START);
+	input[1]->bind_joybutton(8, A_BACK);
 
 	input[1]->bind_joyhat(0, SDL_HAT_LEFT, A_LEFT);
 	input[1]->bind_joyhat(0, SDL_HAT_RIGHT, A_RIGHT);
 	input[1]->bind_joyhat(0, SDL_HAT_UP, A_UP);
 	input[1]->bind_joyhat(0, SDL_HAT_DOWN, A_DOWN);
+
 
 	// Players 3 and 4
 	input[2]->enable_keyboard(false);

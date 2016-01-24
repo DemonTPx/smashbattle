@@ -1,5 +1,4 @@
-#ifndef _MAIN_H
-#define _MAIN_H
+#pragma once
 
 #include <iostream>
 
@@ -13,62 +12,112 @@
 #define WINDOW_HEIGHT 480
 
 #define SAVE_SIGNATURE 0x5353 // 'SS'
-#define SAVE_VERSION 1
+#define SAVE_VERSION 2
+
+//#define TWEAKERS
+#define PBWEB
+#define PBWEB_JUNGLE
+
+#ifdef PBWEB
+#ifdef PBWEB_JUNGLE
+#define MENU_CURSOR_COLOR 0x426302
+#else
+#define MENU_CURSOR_COLOR 0xD19431
+#endif
+#elif defined(TWEAKERS)
+#define MENU_CURSOR_COLOR 0xA0062E
+#else
+#define MENU_CURSOR_COLOR 0x0088FF
+#endif
 
 struct SaveHeader {
 	short signature;
 	short version;
 };
 
+enum class MainRunModes
+{ 
+	ARCADE,
+	SERVER,
+	CLIENT
+};
+
+class Gameplay;
+namespace network {
+class ServerClient;
+class Server;
+}
+
 class Main {
 public:
-	static Main * instance;
 
-	static SDL_Surface * screen;
-	static int flags;
+	bool no_sdl;
 
-	static bool running;
-	static int frame_delay;
-	static unsigned int frame;
-	static bool fps_cap;
+	//static Main * instance;
 
-	static bool screenshot_next_flip;
+	SDL_Surface * screen;
+	int flags;
 
-	static const int FRAMES_PER_SECOND;
-	static const int MILLISECS_PER_FRAME;
+	bool running;
+	int frame_delay;
+	unsigned int frame;
+	bool fps_cap;
 
-	static const int FRAMES_UNTIL_RESET;
+	bool screenshot_next_flip;
 
-	static const int CONTROLS_REPEAT_DELAY;
-	static const int CONTROLS_REPEAT_SPEED;
+	const int FRAMES_PER_SECOND;
+	const int MILLISECS_PER_FRAME;
 
-	static const int JOYSTICK_AXIS_THRESHOLD;
+	const int FRAMES_UNTIL_RESET;
 
-	static Timer * fps;
+	const int CONTROLS_REPEAT_DELAY;
+	const int CONTROLS_REPEAT_SPEED;
 
-	static int fps_counter_last_frame;
-	static int fps_counter_this_frame;
-	static Timer * fps_counter_timer;
-	static bool fps_counter_visible;
+	const int JOYSTICK_AXIS_THRESHOLD;
 
-	static AudioController * audio;
-	static Graphics * graphics;
-	static Text * text;
+	MainRunModes runmode;
 
-	static unsigned int last_activity;
-	static bool autoreset;
-	static bool is_reset;
+	Timer * fps;
+
+	int fps_counter_last_frame;
+	int fps_counter_this_frame;
+	Timer * fps_counter_timer;
+	bool fps_counter_visible;
+	bool ingame_debug_visible;
+
+	AudioController * audio;
+	Graphics * graphics;
+	Text * text;
+
+	Gameplay *gameplay_;
+
+	unsigned int last_activity;
+	bool autoreset;
+	bool is_reset;
 
 	SDL_Joystick * joystick[10];
 
 	GameInput * input[4];
 	GameInput * input_master;
 
+	bool menu_skips_to_local_multiplayer;
+
+	Uint8 online_character;
+
 	Main();
 	~Main();
-	int run();
+
+	network::ServerClient &getServerClient();
+	network::Server &getServer();
+
+	void setGameplay(Gameplay *gameplay);
+	Gameplay &gameplay();
+
+	int run(const MainRunModes &);
 	void flip(bool no_cap = false);
+	void draw_loading_screen();
 	void handle_event(SDL_Event * event);
+	void reset_inputs();
 private:
 	bool init();
 	void clean_up();
@@ -78,10 +127,11 @@ private:
 	void take_screenshot();
 
 	void load_options();
+	void load_default_options();
 	void save_options();
 
 	void set_default_controlschemes();
+
+	network::ServerClient *serverClient_;
+	network::Server *server_;
 };
-
-#endif
-

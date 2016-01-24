@@ -2,8 +2,10 @@
 
 #include "Player.h"
 #include "Graphics.h"
+#include "Main.h"
+#include "Color.h"
 
-Graphics::Graphics() {
+Graphics::Graphics(Main &main) : main_(main) {
 }
 
 Graphics::~Graphics() {
@@ -11,7 +13,9 @@ Graphics::~Graphics() {
 
 void Graphics::load_all() {
 	weapons = load_bmp("gfx/weapons.bmp");
+	kill_moves = load_bmp("gfx/kill_moves.bmp");
 	bombs = load_bmp("gfx/bomb.bmp");
+	owl = load_bmp("gfx/owl.bmp");
 	powerups = load_bmp("gfx/powerups.bmp");
 
 	shield = load_bmp("gfx/shield.bmp");
@@ -24,7 +28,13 @@ void Graphics::load_all() {
 	
 	bg_grey = load_bmp("gfx/bg_grey.bmp");
 
+#ifdef PBWEB
+	bg_menu = Level::get_preview("stage/titlescreen_jungle.lvl");
+#elif defined(TWEAKERS)
+	bg_menu = Level::get_preview("stage/titlescreen_tweakers.lvl");
+#else
 	bg_menu = Level::get_preview("stage/titlescreen.lvl");
+#endif
 
 	cups = load_bmp("gfx/cups.bmp");
 
@@ -34,19 +44,19 @@ void Graphics::load_all() {
 	npc_cannon = load_bmp("gfx/cannon.bmp");
 	npc_gatling = load_bmp("gfx/gatling.bmp");
 
-	statsblock[0] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[0], NULL, 0x880000);
+	statsblock[0] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRectColor(statsblock[0], NULL, 0x880000);
 
-	statsblock[1] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[1], NULL, 0x888800);
+	statsblock[1] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRectColor(statsblock[1], NULL, 0x888800);
 
-	statsblock[2] = SDL_CreateRGBSurface(NULL, 16, 18, 32, 0, 0, 0, 0);
-	SDL_FillRect(statsblock[2], NULL, 0x008800);
+	statsblock[2] = SDL_CreateRGBSurface(0, 16, 18, 32, 0, 0, 0, 0);
+	SDL_FillRectColor(statsblock[2], NULL, 0x008800);
 
-	text_ready = Main::text->render_text_medium("READY");
-	text_random = Main::text->render_text_medium("RANDOM");
+	text_ready = main_.text->render_text_medium("READY");
+	text_random = main_.text->render_text_medium("RANDOM");
 	
-	text_pressstart = Main::text->render_text_medium("PRESS START");
+	text_pressstart = main_.text->render_text_medium("PRESS START");
 
 	load_players();
 	set_player_clips();
@@ -84,9 +94,33 @@ void Graphics::load_players() {
 		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey); 
 		player->push_back(surface);
 
-		playername->push_back(Main::text->render_text_medium(Player::CHARACTERS[i].name));
+		playername->push_back(main_.text->render_text_medium(Player::CHARACTERS[i].name));
 	}
 
+}
+
+void Graphics::replace_color(SDL_Surface * surface, Uint32 color_old, Uint32 color_new) {
+	Uint32 pixel;
+	Uint32 * p;
+	Uint8 * pixels;
+	int pixelcount;
+	int mask;
+
+	color_old = SDL_MapRGBHex(surface->format, color_old);
+	color_new = SDL_MapRGBHex(surface->format, color_new);
+
+	pixels = (Uint8 *)surface->pixels;
+	pixelcount = surface->w * surface->h;
+
+	mask = surface->format->Rmask | surface->format->Gmask | surface->format->Bmask;
+
+	for (int x = 0; x < pixelcount * surface->format->BytesPerPixel; x += surface->format->BytesPerPixel) {
+		pixel = *((Uint32 *)(pixels + x)) & mask;
+		p = ((Uint32 *)(pixels + x));
+		if (pixel == color_old) {
+			*p = color_new;
+		}
+	}
 }
 
 /*
@@ -129,6 +163,7 @@ void Graphics::create_player_masks() {
 void Graphics::clear_all() {
 	SDL_FreeSurface(weapons);
 	SDL_FreeSurface(bombs);
+	SDL_FreeSurface(owl);
 	SDL_FreeSurface(powerups);
 
 	SDL_FreeSurface(shield);
@@ -200,18 +235,30 @@ void Graphics::set_player_clips() {
 	player_clip[SPR_AVATAR_SELECTED]->w = PLAYER_W * 2;
 	player_clip[SPR_AVATAR_SELECTED]->h = PLAYER_H;
 
+	player_clip[SPR_R_HEAD] = new SDL_Rect();
+	player_clip[SPR_R_HEAD]->x = 0;
+	player_clip[SPR_R_HEAD]->y = 0;
+	player_clip[SPR_R_HEAD]->w = PLAYER_W;
+	player_clip[SPR_R_HEAD]->h = PLAYER_W;
+
+	player_clip[SPR_L_HEAD] = new SDL_Rect();
+	player_clip[SPR_L_HEAD]->x = 0;
+	player_clip[SPR_L_HEAD]->y = player_clip[SPR_L_HEAD]->h;
+	player_clip[SPR_L_HEAD]->w = PLAYER_W;
+	player_clip[SPR_L_HEAD]->h = PLAYER_W;
+
 	for(int i = 0; i < 4; i++) {
 		pmarker_clip_below[i] = new SDL_Rect();
-		pmarker_clip_below[i]->x = 16 * i;
+		pmarker_clip_below[i]->x = 14 * i;
 		pmarker_clip_below[i]->y = 0;
-		pmarker_clip_below[i]->w = 16;
-		pmarker_clip_below[i]->h = 22;
+		pmarker_clip_below[i]->w = 14;
+		pmarker_clip_below[i]->h = 20;
 
 		pmarker_clip_above[i] = new SDL_Rect();
-		pmarker_clip_above[i]->x = 16 * i;
-		pmarker_clip_above[i]->y = 22;
-		pmarker_clip_above[i]->w = 16;
-		pmarker_clip_above[i]->h = 22;
+		pmarker_clip_above[i]->x = 14 * i;
+		pmarker_clip_above[i]->y = 20;
+		pmarker_clip_above[i]->w = 14;
+		pmarker_clip_above[i]->h = 20;
 	}
 }
 

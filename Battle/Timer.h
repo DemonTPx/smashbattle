@@ -1,5 +1,4 @@
-#ifndef _TIMER_H
-#define _TIMER_H
+#pragma once
 
 class Timer {
 private:
@@ -20,6 +19,3 @@ public:
 	bool is_started();
 	bool is_paused();
 };
-
-#endif
-

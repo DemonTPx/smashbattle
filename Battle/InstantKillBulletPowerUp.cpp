@@ -2,8 +2,12 @@
 
 #include "GameplayObject.h"
 #include "InstantKillBulletPowerUp.h"
+#include "commands/CommandGeneratePowerup.h"
+#include "Main.h"
 
-InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo) {
+InstantKillBulletPowerUp::InstantKillBulletPowerUp(SDL_Surface * surface, SDL_Rect * clip, SDL_Rect * position, int ammo, Main &main) : GameplayObject(main), main_(main) {
+	clip->x = 72;
+	clip->y = 0;
 	this->surface = surface;
 	this->clip = clip;
 	this->position = position;
@@ -17,7 +21,7 @@ InstantKillBulletPowerUp::~InstantKillBulletPowerUp() {
 }
 
 void InstantKillBulletPowerUp::hit_player(Player * p) {
-	Main::audio->play(SND_ITEM, p->position->x);
+	main_.audio->play(SND_ITEM, p->position->x);
 
 	p->instantkillbullets += ammo;
 
@@ -29,7 +33,7 @@ void InstantKillBulletPowerUp::hit_player(Player * p) {
 
 void InstantKillBulletPowerUp::hit_npc(NPC * npc) {}
 
-void InstantKillBulletPowerUp::draw(SDL_Surface * screen, int frames_processed) {
+void InstantKillBulletPowerUp::draw_impl(SDL_Surface * screen, int frames_processed) {
 	SDL_BlitSurface(surface, clip, screen, position);
 }
 
@@ -40,3 +44,11 @@ void InstantKillBulletPowerUp::move(Level * level) {
 }
 
 void InstantKillBulletPowerUp::process() {}
+
+void InstantKillBulletPowerUp::copyTo(network::CommandGeneratePowerup &powerup)
+{
+	GameplayObject::copyTo(powerup);
+
+	powerup.data.type = network::CommandGeneratePowerup::PowerUps::TypeInstantKillBullet;
+	powerup.data.param = this->ammo;
+}
