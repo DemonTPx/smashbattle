@@ -23,7 +23,7 @@
 #endif
 
 const int LocalMultiplayerRoundEnd::ITEMCOUNT = 3;
-const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE LEVEL", "CHANGE CHARACTER", "QUIT TO MENU"};
+const char * LocalMultiplayerRoundEnd::item[ITEMCOUNT] = {"CHANGE LEVEL", "CHANGE CHARACTER", "END GAME"};
 
 LocalMultiplayerRoundEnd::LocalMultiplayerRoundEnd(Main &main): SimpleDrawable(main), main_(main) {
 	players = new std::vector<Player *>();

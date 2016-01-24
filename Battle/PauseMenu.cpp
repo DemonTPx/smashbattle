@@ -46,8 +46,8 @@ int PauseMenu::pause(Player * p) {
 
 			// Handle player input
 			for(unsigned int idx = 0; idx < main_.gameplay().players->size(); idx++) {
-				Player * p = main_.gameplay().players->at(idx);
-				p->input->handle_event(&event);
+				Player * pl = main_.gameplay().players->at(idx);
+				pl->input->handle_event(&event);
 			}
 		}
 
