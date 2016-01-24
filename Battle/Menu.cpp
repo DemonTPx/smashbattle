@@ -178,12 +178,20 @@ void Menu::draw_impl() {
 		SDL_BlitSurface(main_.graphics->playername->at(playeranimation->character), 0, screen, &pos_playername);
 	}
 
-	// Credits
-	for (unsigned int i = 0; i < credits->size(); i++) {
-		rect.x = (WINDOW_WIDTH - credits->at(i)->w) / 2;
-		rect.y = WINDOW_HEIGHT - ((credits->size() - i) * 10);
-		SDL_BlitSurface(credits->at(i), NULL, screen, &rect);
-	}
+    // Credits
+    unsigned int currect_credit = (frame / 180 % (credits_title.size() + 2));
+
+    if (currect_credit < credits_title.size()) {
+        rect.x = (WINDOW_WIDTH - credits_title.at(currect_credit)->w) / 2;
+        rect.y = WINDOW_HEIGHT - credits_title.at(currect_credit)->h - 24;
+        SDL_BlitSurface(credits_title.at(currect_credit), NULL, screen, &rect);
+
+        if (currect_credit < credits_name.size()) {
+            rect.x = (WINDOW_WIDTH - credits_name.at(currect_credit)->w) / 2;
+            rect.y = WINDOW_HEIGHT - credits_name.at(currect_credit)->h - 4;
+            SDL_BlitSurface(credits_name.at(currect_credit), NULL, screen, &rect);
+        }
+    }
 }
 
 void Menu::process_cursor() {
@@ -213,7 +221,7 @@ void Menu::process_cursor() {
 
 				main_.input_master = input[i];
 				input_master = input[i];
-				
+
 				if (main_.menu_skips_to_local_multiplayer) {
 					start_local_multiplayer();
 					started = false;
@@ -521,13 +529,20 @@ void Menu::init() {
 		surf_items_clip->push_back(rect);
 	}
 
-	credits = new std::vector<SDL_Surface*>(0);
-	surface = main_.text->render_text_small("CODE: BERT HEKMAN & RAY BURGEMEESTRE");
-	credits->push_back(surface);
-	surface = main_.text->render_text_small("GRAPHICS: JEROEN GROENEWEG & JEROEN STENGS");
-	credits->push_back(surface);
-	surface = main_.text->render_text_small("MUSIC: NICK PERRIN");
-	credits->push_back(surface);
+    credits_title.push_back(main_.text->render_text_medium_gray("CODE / CONCEPT"));
+    credits_name.push_back(main_.text->render_text_medium("BERT HEKMAN"));
+    credits_title.push_back(main_.text->render_text_medium_gray("GRAPHICS / CONCEPT"));
+    credits_name.push_back(main_.text->render_text_medium("JEROEN GROENEWEG"));
+    credits_title.push_back(main_.text->render_text_medium_gray("MUSIC"));
+    credits_name.push_back(main_.text->render_text_medium("NICK PERRIN"));
+    credits_title.push_back(main_.text->render_text_medium_gray("NETWORKING CODE"));
+    credits_name.push_back(main_.text->render_text_medium("RAY BURGEMEESTRE"));
+    credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL GRAPHICS"));
+    credits_name.push_back(main_.text->render_text_medium("JEROEN STENGS"));
+    credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL CODE"));
+    credits_name.push_back(main_.text->render_text_medium("JORDY MOOS"));
+    credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL CODE"));
+    credits_name.push_back(main_.text->render_text_medium("TIM VAN DENSEN"));
 
 	playeranimation = new PlayerAnimation(0, main_);
 	animation_start = 0;
@@ -547,12 +562,6 @@ void Menu::cleanup() {
 	}
 	surf_items_clip->clear();
 	delete surf_items_clip;
-
-	for (unsigned int i = 0; i < credits->size(); i++) {
-		SDL_FreeSurface(credits->at(i));
-	}
-	credits->clear();
-	delete credits;
 
 	delete playeranimation;
 }

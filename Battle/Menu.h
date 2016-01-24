@@ -30,7 +30,9 @@ private:
 	GameInput * input_master;
 	bool started;
 
-	std::vector<SDL_Surface*> * credits;
+	std::vector<SDL_Surface*> credits_title;
+	std::vector<SDL_Surface*> credits_name;
+
 	std::vector<SDL_Surface*> * surf_items;
 	std::vector<SDL_Rect*> * surf_items_clip;
 
