@@ -14,7 +14,7 @@ public:
 	~Bomb();
 
 	SDL_Surface * sprite;
-	SDL_Rect * clip[5];
+	SDL_Rect * clip[6];
 	int explosion_offset_x, explosion_offset_y;
 
 	Player * owner;
@@ -43,7 +43,8 @@ public:
 	static const int FRAME_STRIKE_NORMAL;
 	static const int FRAME_STRIKE_FLASH;
 	static const int FRAME_EXPLOSION;
-	
+	static const int FRAME_EXPLOSION_ALT;
+
 	virtual void move(Level * level);
 	virtual void process();
 

@@ -4,12 +4,13 @@
 #include "Bomb.h"
 #include "Main.h"
 
-const int Bomb::FRAME_COUNT = 5;
+const int Bomb::FRAME_COUNT = 6;
 const int Bomb::FRAME_NORMAL = 0;
 const int Bomb::FRAME_FLASH = 1;
 const int Bomb::FRAME_STRIKE_NORMAL = 2;
 const int Bomb::FRAME_STRIKE_FLASH = 3;
 const int Bomb::FRAME_EXPLOSION = 4;
+const int Bomb::FRAME_EXPLOSION_ALT = 5;
 
 Bomb::Bomb(Main &main) : GameplayObject(main), main_(main) {
 	damage = 0;
@@ -46,6 +47,7 @@ Bomb::Bomb(SDL_Surface * surface, Main &main) : GameplayObject(main), main_(main
 	position->h = BOMB_H;
 
 	current_frame = 0;
+	frame_explode = FRAME_EXPLOSION;
 
 	set_clips();
 }
@@ -66,8 +68,8 @@ void Bomb::draw_impl(SDL_Surface * screen, int frames_processed) {
 	
 	// Flicker explosion
 	if(exploded) {
-		if(current_frame != FRAME_EXPLOSION) {
-			current_frame = FRAME_EXPLOSION;
+		if(current_frame != frame_explode) {
+			current_frame = frame_explode;
 			frame_change_start = 0;
 			flicker_frame = 0;
 		}
@@ -77,7 +79,7 @@ void Bomb::draw_impl(SDL_Surface * screen, int frames_processed) {
 		if(flicker_frame % 12 >= 6) return;
 	}
 
-	if(current_frame == FRAME_EXPLOSION) {
+	if(current_frame == frame_explode) {
 		rect.x = position->x + explosion_offset_x;
 		rect.y = position->y + explosion_offset_y;
 	}
@@ -89,7 +91,7 @@ void Bomb::draw_impl(SDL_Surface * screen, int frames_processed) {
 
 	// If the bomb is going out the side of the screen, we want it to
 	// appear on the other side.
-	if(current_frame == FRAME_EXPLOSION) {
+	if(current_frame == frame_explode) {
 		rect.x = position->x + explosion_offset_x;
 		rect.y = position->y + explosion_offset_y;
 	}
@@ -179,6 +181,7 @@ void Bomb::explode() {
 		return;
 
 	exploded = true;
+	frame_explode = (rand() % 2 == 0) ? FRAME_EXPLOSION : FRAME_EXPLOSION_ALT;
 
 	main_.audio->play(SND_EXPLODE, position->x);
 
@@ -235,7 +238,7 @@ SDL_Rect * Bomb::get_damage_rect() {
 	rect->x = position->x + explosion_offset_x;
 	rect->y = position->y + explosion_offset_y;
 	rect->w = clip[FRAME_EXPLOSION]->w;
-	rect->h = clip[FRAME_EXPLOSION]->h;
+	rect->h = clip[FRAME_EXPLOSION]->h + 8;
 	return rect;
 }
 
@@ -268,7 +271,13 @@ void Bomb::set_clips() {
 	clip[FRAME_EXPLOSION]->x = 0;
 	clip[FRAME_EXPLOSION]->y = 16;
 	clip[FRAME_EXPLOSION]->w = 86;
-	clip[FRAME_EXPLOSION]->h = 66;
+	clip[FRAME_EXPLOSION]->h = 58;
+
+	clip[FRAME_EXPLOSION_ALT] = new SDL_Rect();
+	clip[FRAME_EXPLOSION_ALT]->x = 0;
+	clip[FRAME_EXPLOSION_ALT]->y = 74;
+	clip[FRAME_EXPLOSION_ALT]->w = 86;
+	clip[FRAME_EXPLOSION_ALT]->h = 58;
 
 	explosion_offset_x = (clip[FRAME_NORMAL]->w - clip[FRAME_EXPLOSION]->w) / 2;
 	explosion_offset_y = -clip[FRAME_EXPLOSION]->h + clip[FRAME_NORMAL]->h + 12;
