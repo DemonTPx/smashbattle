@@ -506,7 +506,7 @@ void Menu::init() {
 	selected_item = 0;
 
 #ifdef PBWEB
-	title = main_.text->render_text_large_shadow("PB WEB   MEDIA ");
+	title = main_.text->render_text_large_shadow("PB WEB MEDIA     ");
 #elif defined(TWEAKERS)
 	title = main_.text->render_text_large_shadow("TWEAK   BATTLE");
 #else
