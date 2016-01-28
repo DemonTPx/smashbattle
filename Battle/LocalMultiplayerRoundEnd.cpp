@@ -293,7 +293,7 @@ void LocalMultiplayerRoundEnd::draw_impl() {
 
 		// Avatar
 		if(players->at(order[i]) == winner) {
-			if(frame & 0x10)
+			if(frame % 60 > 30)
 				SDL_BlitSurface(players->at(order[i])->sprites, main_.graphics->player_clip[SPR_AVATAR_SELECTED], screen, &rect);
 			else
 				SDL_BlitSurface(players->at(order[i])->sprites, main_.graphics->player_clip[SPR_AVATAR], screen, &rect);

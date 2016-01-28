@@ -21,7 +21,7 @@
 #define GLYPH_LINES 5
 
 #define TEXT_ASCII_OFFSET 0x21
-#define TEXT_ASCII_MAX 0x7e
+#define TEXT_ASCII_MAX 0x84
 
 #define TEXT_GLYPH_COUNT (TEXT_ASCII_MAX - TEXT_ASCII_OFFSET)
 
@@ -54,7 +54,7 @@ void Text::clear_all() {
 	SDL_FreeSurface(font_large);
 }
 
-void Text::glyph_clip(SDL_Rect * rect, int w, int h, const char g, bool gray) {
+void Text::glyph_clip(SDL_Rect * rect, int w, int h, const unsigned char g, bool gray) {
 	if(g < TEXT_ASCII_OFFSET || g > TEXT_ASCII_MAX)
 		return;
 
@@ -71,7 +71,7 @@ void Text::glyph_clip(SDL_Rect * rect, int w, int h, const char g, bool gray) {
 		rect->y += (GLYPH_LINES * h);
 }
 
-SDL_Surface * Text::render_glyph(SDL_Surface * font, int w, int h, const char g, bool gray) {
+SDL_Surface * Text::render_glyph(SDL_Surface * font, int w, int h, const unsigned char g, bool gray) {
 	if(g < TEXT_ASCII_OFFSET || g > TEXT_ASCII_MAX)
 		return NULL;
 
@@ -86,7 +86,7 @@ SDL_Surface * Text::render_glyph(SDL_Surface * font, int w, int h, const char g,
 	return surface;
 }
 
-SDL_Surface * Text::render_glyph_shadow(SDL_Surface * font, int w, int h, const char g, int offx, int offy) {
+SDL_Surface * Text::render_glyph_shadow(SDL_Surface * font, int w, int h, const unsigned char g, int offx, int offy) {
 	if(g < TEXT_ASCII_OFFSET || g > TEXT_ASCII_MAX)
 		return NULL;
 
@@ -115,6 +115,7 @@ SDL_Surface * Text::render_text(SDL_Surface *font, int w, int h, int spacing, co
 	SDL_Rect rect_d;
 	int length;
 	int surface_w;
+	unsigned char c;
 
 	length = (int)strlen(t);
 
@@ -128,8 +129,9 @@ SDL_Surface * Text::render_text(SDL_Surface *font, int w, int h, int spacing, co
 	rect_d.h = h;
 
 	for(int i = 0; i < length; i++) {
-		if(t[i] >= TEXT_ASCII_OFFSET && t[i] <= TEXT_ASCII_MAX) {
-			glyph_clip(&rect, w, h, t[i], gray);
+		c = (unsigned char)t[i];
+		if(c >= TEXT_ASCII_OFFSET && c <= TEXT_ASCII_MAX) {
+			glyph_clip(&rect, w, h, c, gray);
 
 			SDL_BlitSurface(font, &rect, surface, &rect_d);
 		}
@@ -146,6 +148,7 @@ SDL_Surface * Text::render_text_shadow(SDL_Surface * font, int w, int h, int spa
 	SDL_Rect rect_d, rect_d_s;
 	int length;
 	int surface_w;
+	unsigned char c;
 
 	length = (int)strlen(t);
 
@@ -162,14 +165,15 @@ SDL_Surface * Text::render_text_shadow(SDL_Surface * font, int w, int h, int spa
 	rect_d_s.h = h;
 
 	for(int i = 0; i < length; i++) {
-		if(t[i] >= TEXT_ASCII_OFFSET && t[i] <= TEXT_ASCII_MAX) {
+		c = (unsigned char)t[i];
+		if(c >= TEXT_ASCII_OFFSET && c <= TEXT_ASCII_MAX) {
 			rect_d_s.x = rect_d.x + offx;
 			rect_d_s.y = rect_d.y + offy;
 
-			glyph_clip(&rect, w, h, t[i], true);
+			glyph_clip(&rect, w, h, c, true);
 			SDL_BlitSurface(font, &rect, surface, &rect_d_s);
 
-			glyph_clip(&rect, w, h, t[i], false);
+			glyph_clip(&rect, w, h, c, false);
 			SDL_BlitSurface(font, &rect, surface, &rect_d);
 		}
 
@@ -180,41 +184,41 @@ SDL_Surface * Text::render_text_shadow(SDL_Surface * font, int w, int h, int spa
 }
 
 /* Glyph */
-SDL_Surface * Text::render_glyph_small(const char g) {
+SDL_Surface * Text::render_glyph_small(const unsigned char g) {
 	return render_glyph(font_small, GLYPH_SMALL_W, GLYPH_SMALL_H, g, false);
 }
 
-SDL_Surface * Text::render_glyph_medium(const char g) {
+SDL_Surface * Text::render_glyph_medium(const unsigned char g) {
 	return render_glyph(font_medium, GLYPH_MEDIUM_W, GLYPH_MEDIUM_H, g, false);
 }
 
-SDL_Surface * Text::render_glyph_large(const char g) {
+SDL_Surface * Text::render_glyph_large(const unsigned char g) {
 	return render_glyph(font_large, GLYPH_LARGE_W, GLYPH_LARGE_H, g, false);
 }
 
 /* Glyph gray */
-SDL_Surface * Text::render_glyph_small_gray(const char g) {
+SDL_Surface * Text::render_glyph_small_gray(const unsigned char g) {
 	return render_glyph(font_small, GLYPH_SMALL_W, GLYPH_SMALL_H, g, true);
 }
 
-SDL_Surface * Text::render_glyph_medium_gray(const char g) {
+SDL_Surface * Text::render_glyph_medium_gray(const unsigned char g) {
 	return render_glyph(font_medium, GLYPH_MEDIUM_W, GLYPH_MEDIUM_H, g, true);
 }
 
-SDL_Surface * Text::render_glyph_large_gray(const char g) {
+SDL_Surface * Text::render_glyph_large_gray(const unsigned char g) {
 	return render_glyph(font_large, GLYPH_LARGE_W, GLYPH_LARGE_H, g, true);
 }
 
 /* Glyph gray */
-SDL_Surface * Text::render_glyph_small_shadow(const char g) {
+SDL_Surface * Text::render_glyph_small_shadow(const unsigned char g) {
 	return render_glyph_shadow(font_small, GLYPH_SMALL_W, GLYPH_SMALL_H, g, GLYPH_SMALL_SHADOW_OFFSET, GLYPH_SMALL_SHADOW_OFFSET);
 }
 
-SDL_Surface * Text::render_glyph_medium_shadow(const char g) {
+SDL_Surface * Text::render_glyph_medium_shadow(const unsigned char g) {
 	return render_glyph_shadow(font_medium, GLYPH_MEDIUM_W, GLYPH_MEDIUM_H, g, GLYPH_MEDIUM_SHADOW_OFFSET, GLYPH_MEDIUM_SHADOW_OFFSET);
 }
 
-SDL_Surface * Text::render_glyph_large_shadow(const char g) {
+SDL_Surface * Text::render_glyph_large_shadow(const unsigned char g) {
 	return render_glyph_shadow(font_large, GLYPH_LARGE_W, GLYPH_LARGE_H, g, GLYPH_LARGE_SHADOW_OFFSET, GLYPH_LARGE_SHADOW_OFFSET);
 }
 

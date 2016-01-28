@@ -822,7 +822,7 @@ void LocalMultiplayer::draw_game_ended() {
 		clip_avatar.y = 0;
 		clip_avatar.w = 44;
 		clip_avatar.h = 44;
-		if((frame - end_avatar_start_frame) % 40 > 20)
+		if((frame - end_avatar_start_frame) % 60 > 30)
 			clip_avatar.y = 44;
 
 		SDL_BlitSurface(winner->sprites, &clip_avatar, screen, &rect);
