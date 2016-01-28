@@ -35,7 +35,7 @@ const Character Player::CHARACTERS[Player::CHARACTER_COUNT] = {
 	{(char *)"ROBERT",		(char *)"gfx/pbw-robert.bmp",		2, 2, 0, 0},
 	{(char *)"JOOST", 		(char *)"gfx/pbw-joost.bmp",		0, 2, 2, 0},
 	{(char *)"PETER", 		(char *)"gfx/pbw-peter.bmp",		0, 1, 2, 1},
-	{(char *)"AVALON",		(char *)"gfx/pbw-avalon.bmp", 		1, 0, 1, 0},
+	{(char *)"AVALON",		(char *)"gfx/pbw-avalon.bmp", 		1, 0, 2, 1},
 	{(char *)"SASKIA",		(char *)"gfx/pbw-saskia.bmp", 		0, 0, 2, 2},
 	{(char *)"DAAN", 		(char *)"gfx/pbw-daan.bmp",			2, 1, 1, 0},
 	{(char *)"\x82\x83\x84",(char *)"gfx/pbw-soe.bmp",			1, 1, 2, 0},
