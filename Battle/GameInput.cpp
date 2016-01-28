@@ -6,8 +6,6 @@
 
 #include "GameInput.h"
 
-#define XBOX_CONTROLLER_ONLY
-
 #define KEYBOARD_KEY 1
 #define JOYSTICK_BUTTON 2
 #define JOYSTICK_AXIS 3
@@ -417,18 +415,6 @@ void GameInput::joystick_wait_event(GameInputJoystickEvent * event) {
 			break;
 		}
 		if(sdlevent.type == SDL_JOYAXISMOTION && sdlevent.jaxis.which == jindex) {
-#ifdef XBOX_CONTROLLER_ONLY
-			// Axes 2 and 5 are the triggers. They are pressed when the value is > 0
-            if (sdlevent.jaxis.axis == 2 || sdlevent.jaxis.axis == 5) {
-				if (sdlevent.jaxis.value > 0) {
-					event->type = event->AXIS;
-					event->axis_idx = sdlevent.jaxis.axis;
-					event->axis_value = 0;
-					break;
-				}
-				continue;
-			}
-#endif
 			if(sdlevent.jaxis.value < -JOYSTICK_AXIS_THRESHOLD || sdlevent.jaxis.value > JOYSTICK_AXIS_THRESHOLD) {
 				event->type = event->AXIS;
 				event->axis_idx = sdlevent.jaxis.axis;
@@ -476,15 +462,6 @@ void GameInput::joystick_wait_released() {
 		}
 
 		for(i = 0; i < axes; i++) {
-#ifdef XBOX_CONTROLLER_ONLY
-            // Axes 2 and 5 are the triggers. They are pressed when the value is > 0
-            if (i == 2 || i == 5) {
-            	if (SDL_JoystickGetAxis(joystick, i) > 0) {
-					released = false;
-				}
-				continue;
-			}
-#endif
 			if(SDL_JoystickGetAxis(joystick, i) < -JOYSTICK_AXIS_THRESHOLD ||
 				SDL_JoystickGetAxis(joystick, i) > JOYSTICK_AXIS_THRESHOLD)
 				released = false;
