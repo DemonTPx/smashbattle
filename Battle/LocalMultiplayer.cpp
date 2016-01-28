@@ -517,8 +517,8 @@ void LocalMultiplayer::draw_score_duel() {
 
 	// Show bomb amount
 	if(player1->mines > 0 || player1->mines == -1) {
-		rect_s.x = 54;
-		rect_s.y = 0;
+		rect_s.x = 78;
+		rect_s.y = 12;
 		rect_s.w = 6;
 		rect_s.h = 4;
 		rect.x = 6;
@@ -534,8 +534,8 @@ void LocalMultiplayer::draw_score_duel() {
 	SDL_BlitSurface(main_.graphics->bombs, &rect_s, screen, &rect);
 
 	if(player2->mines > 0 || player2->mines == -1) {
-		rect_s.x = 54;
-		rect_s.y = 0;
+		rect_s.x = 78;
+		rect_s.y = 12;
 		rect_s.w = 6;
 		rect_s.h = 4;
 		rect.x = 628;
@@ -752,8 +752,8 @@ void LocalMultiplayer::draw_score_multi() {
 
 		// Bombs
 		if(player->mines > 0 || player->mines == -1) {
-			rect_s.x = 54;
-			rect_s.y = 0;
+			rect_s.x = 78;
+			rect_s.y = 12;
 			rect_s.w = 6;
 			rect_s.h = 4;
 			rect.x = x + 70;
