@@ -29,7 +29,7 @@ void Graphics::load_all() {
 	bg_grey = load_bmp("gfx/bg_grey.bmp");
 
 #ifdef PBWEB
-	bg_menu = Level::get_preview("stage/titlescreen_jungle.lvl");
+	bg_menu = Level::get_preview("stage/titlescreen_dpc.lvl");
 #elif defined(TWEAKERS)
 	bg_menu = Level::get_preview("stage/titlescreen_tweakers.lvl");
 #else
