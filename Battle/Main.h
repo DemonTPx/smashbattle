@@ -16,13 +16,16 @@
 
 //#define TWEAKERS
 #define PBWEB
+#define PBWEB_DPC
 //#define PBWEB_JUNGLE
 
 #ifdef PBWEB
 #ifdef PBWEB_JUNGLE
 #define MENU_CURSOR_COLOR 0x426302
-#else
+#elif defined(PBWEB_DPC)
 #define MENU_CURSOR_COLOR 0x0088FF
+#else
+#define MENU_CURSOR_COLOR 0xD19431
 #endif
 #elif defined(TWEAKERS)
 #define MENU_CURSOR_COLOR 0xA0062E

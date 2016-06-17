@@ -179,17 +179,24 @@ void Menu::draw_impl() {
 	}
 
     // Credits
-    unsigned int currect_credit = (frame / 180 % (credits_title.size() + 2));
+    unsigned int current_credit = (frame / 180 % (credits_title.size() + 2));
+#ifdef PBWEB_DPC
+	unsigned int credit_line_1_y_delta = -41;
+	unsigned int credit_line_2_y_delta = -10;
+#else
+	unsigned int credit_line_1_y_delta = -24;
+	unsigned int credit_line_2_y_delta = -4;
+#endif
 
-    if (currect_credit < credits_title.size()) {
-        rect.x = (WINDOW_WIDTH - credits_title.at(currect_credit)->w) / 2;
-        rect.y = WINDOW_HEIGHT - credits_title.at(currect_credit)->h - 24;
-        SDL_BlitSurface(credits_title.at(currect_credit), NULL, screen, &rect);
+    if (current_credit < credits_title.size()) {
+        rect.x = (WINDOW_WIDTH - credits_title.at(current_credit)->w) / 2;
+        rect.y = WINDOW_HEIGHT - credits_title.at(current_credit)->h + credit_line_1_y_delta;
+        SDL_BlitSurface(credits_title.at(current_credit), NULL, screen, &rect);
 
-        if (currect_credit < credits_name.size()) {
-            rect.x = (WINDOW_WIDTH - credits_name.at(currect_credit)->w) / 2;
-            rect.y = WINDOW_HEIGHT - credits_name.at(currect_credit)->h - 4;
-            SDL_BlitSurface(credits_name.at(currect_credit), NULL, screen, &rect);
+        if (current_credit < credits_name.size()) {
+            rect.x = (WINDOW_WIDTH - credits_name.at(current_credit)->w) / 2;
+            rect.y = WINDOW_HEIGHT - credits_name.at(current_credit)->h + credit_line_2_y_delta;
+            SDL_BlitSurface(credits_name.at(current_credit), NULL, screen, &rect);
         }
     }
 }
