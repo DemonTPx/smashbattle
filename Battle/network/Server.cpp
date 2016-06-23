@@ -51,9 +51,9 @@ Server::Server()
 
 Server::~Server() {
 	// UDP cleanup
-    if (p) {
-        SDLNet_FreePacket(p);
-    }
+	if (p) {
+		SDLNet_FreePacket(p);
+	}
 
 	// SQL Net cleanup
 	SDLNet_Quit();

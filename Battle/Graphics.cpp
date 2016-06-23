@@ -298,7 +298,7 @@ SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, int colo
 	Uint32 this_pixel;
 	Uint32 mapped_color;
 	int num_pixels, pos;
-    Uint8 r, g, b;
+	Uint8 r, g, b;
 
 	*mask = NULL;
 
@@ -310,17 +310,17 @@ SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, int colo
 	memset(*mask, 0, (size_t) num_pixels / 8);
 
 	for (int i = 0; i < num_pixels; i ++) {
-        pos = i * icon->format->BytesPerPixel;
+		pos = i * icon->format->BytesPerPixel;
 
-        r = *(pixels + pos);
-        g = *(pixels + pos + 1);
-        b = *(pixels + pos + 2);
+		r = *(pixels + pos);
+		g = *(pixels + pos + 1);
+		b = *(pixels + pos + 2);
 
-        this_pixel = (Uint32)r | (Uint32)g << 8 | (Uint32)b << 16;
+		this_pixel = (Uint32)r | (Uint32)g << 8 | (Uint32)b << 16;
 
 		if (this_pixel != mapped_color) {
-            (*mask)[i / 8] |= 0x80 >> i % 8;
-        }
+			(*mask)[i / 8] |= 0x80 >> i % 8;
+		}
 	}
 
 	return icon;

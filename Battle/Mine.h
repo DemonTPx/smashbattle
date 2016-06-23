@@ -16,7 +16,7 @@ public:
 
 	void process();
 protected:
-    virtual void set_clips();
+	virtual void set_clips();
 
 	Main &main_;
 };

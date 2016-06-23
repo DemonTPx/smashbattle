@@ -58,7 +58,7 @@ protected:
 
 	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
 
-    virtual void set_clips();
+	virtual void set_clips();
 
 	Main &main_;
 };

@@ -117,8 +117,8 @@ Gameplay &Main::gameplay() {
 }
 
 Main::~Main() {
-    delete server_;
-    delete serverClient_;
+	delete server_;
+	delete serverClient_;
 }
 
 bool Main::init() {
@@ -264,7 +264,7 @@ void Main::draw_loading_screen() {
 
 	SDL_BlitSurface(loading, 0, screen, &rect);
 
-    SDL_FreeSurface(loading);
+	SDL_FreeSurface(loading);
 
 	flip(true);
 }

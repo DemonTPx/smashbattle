@@ -12,12 +12,12 @@ Egg::Egg(SDL_Surface * surface, Main &main) : Bomb(surface, main), main_(main) {
 }
 
 void Egg::set_clips() {
-    // Delete some inherited stuff
-    delete clip[FRAME_NORMAL];
-    delete clip[FRAME_FLASH];
-    delete clip[FRAME_STRIKE_NORMAL];
-    delete clip[FRAME_STRIKE_FLASH];
-    delete clip[FRAME_EXPLOSION];
+	// Delete some inherited stuff
+	delete clip[FRAME_NORMAL];
+	delete clip[FRAME_FLASH];
+	delete clip[FRAME_STRIKE_NORMAL];
+	delete clip[FRAME_STRIKE_FLASH];
+	delete clip[FRAME_EXPLOSION];
 
 	clip[FRAME_NORMAL] = new SDL_Rect();
 	clip[FRAME_NORMAL]->x = 48;

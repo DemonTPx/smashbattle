@@ -84,7 +84,7 @@ public:
 
 	
 	ServerClient();
-    ~ServerClient();
+	~ServerClient();
 
 	void setMain(Main &main) { main_ = &main; };
 
