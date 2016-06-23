@@ -178,8 +178,8 @@ void Menu::draw_impl() {
 		SDL_BlitSurface(main_.graphics->playername->at(playeranimation->character), 0, screen, &pos_playername);
 	}
 
-    // Credits
-    unsigned int current_credit = (frame / 180 % (credits_title.size() + 2));
+	// Credits
+	unsigned int current_credit = (frame / 180 % (credits_title.size() + 2));
 #ifdef PBWEB_DPC
 	unsigned int credit_line_1_y_delta = -41;
 	unsigned int credit_line_2_y_delta = -10;
@@ -188,17 +188,17 @@ void Menu::draw_impl() {
 	unsigned int credit_line_2_y_delta = -4;
 #endif
 
-    if (current_credit < credits_title.size()) {
-        rect.x = (WINDOW_WIDTH - credits_title.at(current_credit)->w) / 2;
-        rect.y = WINDOW_HEIGHT - credits_title.at(current_credit)->h + credit_line_1_y_delta;
-        SDL_BlitSurface(credits_title.at(current_credit), NULL, screen, &rect);
+	if (current_credit < credits_title.size()) {
+		rect.x = (WINDOW_WIDTH - credits_title.at(current_credit)->w) / 2;
+		rect.y = WINDOW_HEIGHT - credits_title.at(current_credit)->h + credit_line_1_y_delta;
+		SDL_BlitSurface(credits_title.at(current_credit), NULL, screen, &rect);
+	}
 
-        if (current_credit < credits_name.size()) {
-            rect.x = (WINDOW_WIDTH - credits_name.at(current_credit)->w) / 2;
-            rect.y = WINDOW_HEIGHT - credits_name.at(current_credit)->h + credit_line_2_y_delta;
-            SDL_BlitSurface(credits_name.at(current_credit), NULL, screen, &rect);
-        }
-    }
+	if (current_credit < credits_name.size()) {
+		rect.x = (WINDOW_WIDTH - credits_name.at(current_credit)->w) / 2;
+		rect.y = WINDOW_HEIGHT - credits_name.at(current_credit)->h + credit_line_2_y_delta;
+		SDL_BlitSurface(credits_name.at(current_credit), NULL, screen, &rect);
+	}
 }
 
 void Menu::process_cursor() {
@@ -439,7 +439,7 @@ void Menu::start_local_multiplayer() {
 		if (player[i] != NULL)
 			delete player[i];
 	}
-	delete player;
+	delete[] player;
 
 	main_.audio->play_music(MUSIC_TITLE);
 }
@@ -536,20 +536,20 @@ void Menu::init() {
 		surf_items_clip->push_back(rect);
 	}
 
-    credits_title.push_back(main_.text->render_text_medium_gray("CODE / CONCEPT"));
-    credits_name.push_back(main_.text->render_text_medium("BERT HEKMAN"));
-    credits_title.push_back(main_.text->render_text_medium_gray("GRAPHICS / CONCEPT"));
-    credits_name.push_back(main_.text->render_text_medium("JEROEN GROENEWEG"));
-    credits_title.push_back(main_.text->render_text_medium_gray("MUSIC"));
-    credits_name.push_back(main_.text->render_text_medium("NICK PERRIN"));
-    credits_title.push_back(main_.text->render_text_medium_gray("NETWORKING CODE"));
-    credits_name.push_back(main_.text->render_text_medium("RAY BURGEMEESTRE"));
-    credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL GRAPHICS"));
-    credits_name.push_back(main_.text->render_text_medium("JEROEN STENGS"));
-    credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL CODE"));
-    credits_name.push_back(main_.text->render_text_medium("JORDY MOOS"));
-    credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL CODE"));
-    credits_name.push_back(main_.text->render_text_medium("TIM VAN DENSEN"));
+	credits_title.push_back(main_.text->render_text_medium_gray("CODE / CONCEPT"));
+	credits_name.push_back(main_.text->render_text_medium("BERT HEKMAN"));
+	credits_title.push_back(main_.text->render_text_medium_gray("GRAPHICS / CONCEPT"));
+	credits_name.push_back(main_.text->render_text_medium("JEROEN GROENEWEG"));
+	credits_title.push_back(main_.text->render_text_medium_gray("MUSIC"));
+	credits_name.push_back(main_.text->render_text_medium("NICK PERRIN"));
+	credits_title.push_back(main_.text->render_text_medium_gray("NETWORKING CODE"));
+	credits_name.push_back(main_.text->render_text_medium("RAY BURGEMEESTRE"));
+	credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL GRAPHICS"));
+	credits_name.push_back(main_.text->render_text_medium("JEROEN STENGS"));
+	credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL CODE"));
+	credits_name.push_back(main_.text->render_text_medium("JORDY MOOS"));
+	credits_title.push_back(main_.text->render_text_medium_gray("ADDITIONAL CODE"));
+	credits_name.push_back(main_.text->render_text_medium("TIM VAN DENSEN"));
 
 	playeranimation = new PlayerAnimation(0, main_);
 	animation_start = 0;
@@ -569,6 +569,13 @@ void Menu::cleanup() {
 	}
 	surf_items_clip->clear();
 	delete surf_items_clip;
+
+	for (unsigned int i = 0; i < credits_name.size(); i++) {
+		SDL_FreeSurface(credits_name.at(i));
+	}
+	for (unsigned int i = 0; i < credits_title.size(); i++) {
+		SDL_FreeSurface(credits_title.at(i));
+	}
 
 	delete playeranimation;
 }

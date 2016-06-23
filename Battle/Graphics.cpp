@@ -168,6 +168,7 @@ void Graphics::create_player_masks() {
 
 void Graphics::clear_all() {
 	SDL_FreeSurface(weapons);
+	SDL_FreeSurface(kill_moves);
 	SDL_FreeSurface(bombs);
 	SDL_FreeSurface(owl);
 	SDL_FreeSurface(powerups);
@@ -287,36 +288,39 @@ Uint32 Graphics::combine_colors(Uint32 color1, Uint32 color2) {
 	r2 = (color2 & 0xff0000) >> 16;
 	g2 = (color2 & 0xff00) >> 8;
 	b2 = color2 & 0xff;
-	return (((r1 + r2) / 2) << 16) + (((g1 + g2) / 2) << 8) + ((b1 + b2) / 2);
+
+	return (Uint32) (((r1 + r2) / 2) << 16) + (((g1 + g2) / 2) << 8) + ((b1 + b2) / 2);
 }
 
-SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, Uint32 color) {
+SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, int color) {
 	SDL_Surface * icon;
 	Uint8 *pixels;
 	Uint32 this_pixel;
-	int num_pixels, p, m;
-	int this_mask;
+	Uint32 mapped_color;
+	int num_pixels, pos;
+	Uint8 r, g, b;
 
 	*mask = NULL;
 
 	icon = SDL_LoadBMP(filename);
+	mapped_color = SDL_MapRGBHex(icon->format, color);
 	pixels = (Uint8*)icon->pixels;
 	num_pixels = icon->w * icon->h;
 	*mask = new Uint8[num_pixels / 8];
-	memset(*mask, 0, num_pixels / 8);
-	m = 0;
-	p = 0;
-	this_mask = icon->format->Rmask | icon->format->Gmask | icon->format->Bmask;
-	for(int i = 0; i < num_pixels * icon->format->BytesPerPixel; i += icon->format->BytesPerPixel) {
-		if(m == 8) {
-			m = 0;
-			p++;
-		}
-		this_pixel = *((Uint32*)(pixels + i)) & this_mask;
+	memset(*mask, 0, (size_t) num_pixels / 8);
 
-		if(this_pixel != color)
-			(*mask)[p] |= 0x80 >> m;
-		m++;
+	for (int i = 0; i < num_pixels; i ++) {
+		pos = i * icon->format->BytesPerPixel;
+
+		r = *(pixels + pos);
+		g = *(pixels + pos + 1);
+		b = *(pixels + pos + 2);
+
+		this_pixel = (Uint32)r | (Uint32)g << 8 | (Uint32)b << 16;
+
+		if (this_pixel != mapped_color) {
+			(*mask)[i / 8] |= 0x80 >> i % 8;
+		}
 	}
 
 	return icon;

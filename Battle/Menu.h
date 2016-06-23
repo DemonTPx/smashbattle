@@ -39,7 +39,7 @@ private:
 	PlayerAnimation * playeranimation;
 	int animation_start;
 
-	bool draw_playername;
+	bool draw_playername = false;
 	SDL_Rect pos_playername;
 
 	static const char * item[];
