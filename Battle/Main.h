@@ -15,8 +15,8 @@
 #define SAVE_VERSION 2
 
 //#define TWEAKERS
-#define PBWEB
-#define PBWEB_DPC
+//#define PBWEB
+//#define PBWEB_DPC
 //#define PBWEB_JUNGLE
 
 #ifdef PBWEB
