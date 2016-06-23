@@ -189,15 +189,15 @@ void Menu::draw_impl() {
 #endif
 
 	if (current_credit < credits_title.size()) {
-	rect.x = (WINDOW_WIDTH - credits_title.at(current_credit)->w) / 2;
-	rect.y = WINDOW_HEIGHT - credits_title.at(current_credit)->h + credit_line_1_y_delta;
-	SDL_BlitSurface(credits_title.at(current_credit), NULL, screen, &rect);
+		rect.x = (WINDOW_WIDTH - credits_title.at(current_credit)->w) / 2;
+		rect.y = WINDOW_HEIGHT - credits_title.at(current_credit)->h + credit_line_1_y_delta;
+		SDL_BlitSurface(credits_title.at(current_credit), NULL, screen, &rect);
+	}
 
 	if (current_credit < credits_name.size()) {
-	rect.x = (WINDOW_WIDTH - credits_name.at(current_credit)->w) / 2;
-	rect.y = WINDOW_HEIGHT - credits_name.at(current_credit)->h + credit_line_2_y_delta;
-	SDL_BlitSurface(credits_name.at(current_credit), NULL, screen, &rect);
-	}
+		rect.x = (WINDOW_WIDTH - credits_name.at(current_credit)->w) / 2;
+		rect.y = WINDOW_HEIGHT - credits_name.at(current_credit)->h + credit_line_2_y_delta;
+		SDL_BlitSurface(credits_name.at(current_credit), NULL, screen, &rect);
 	}
 }
 
