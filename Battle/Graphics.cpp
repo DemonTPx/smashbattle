@@ -288,7 +288,8 @@ Uint32 Graphics::combine_colors(Uint32 color1, Uint32 color2) {
 	r2 = (color2 & 0xff0000) >> 16;
 	g2 = (color2 & 0xff00) >> 8;
 	b2 = color2 & 0xff;
-	return (((r1 + r2) / 2) << 16) + (((g1 + g2) / 2) << 8) + ((b1 + b2) / 2);
+
+	return (Uint32) (((r1 + r2) / 2) << 16) + (((g1 + g2) / 2) << 8) + ((b1 + b2) / 2);
 }
 
 SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, int color) {
@@ -296,8 +297,8 @@ SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, int colo
 	Uint8 *pixels;
 	Uint32 this_pixel;
 	Uint32 mapped_color;
-	int num_pixels, p, m;
-	Uint32 this_mask;
+	int num_pixels, pos;
+    Uint8 r, g, b;
 
 	*mask = NULL;
 
@@ -306,20 +307,20 @@ SDL_Surface * Graphics::load_icon(const char * filename, Uint8 ** mask, int colo
 	pixels = (Uint8*)icon->pixels;
 	num_pixels = icon->w * icon->h;
 	*mask = new Uint8[num_pixels / 8];
-	memset(*mask, 0, num_pixels / 8);
-	m = 0;
-	p = 0;
-	this_mask = icon->format->Rmask | icon->format->Gmask | icon->format->Bmask;
-	for(int i = 0; i < (num_pixels - 1) * icon->format->BytesPerPixel; i += icon->format->BytesPerPixel) {
-		if(m == 8) {
-			m = 0;
-			p++;
-		}
-		this_pixel = *((Uint32*)(pixels + i)) & this_mask;
+	memset(*mask, 0, (size_t) num_pixels / 8);
 
-		if(this_pixel != mapped_color)
-			(*mask)[p] |= 0x80 >> m;
-		m++;
+	for (int i = 0; i < num_pixels; i ++) {
+        pos = i * icon->format->BytesPerPixel;
+
+        r = *(pixels + pos);
+        g = *(pixels + pos + 1);
+        b = *(pixels + pos + 2);
+
+        this_pixel = (Uint32)r | (Uint32)g << 8 | (Uint32)b << 16;
+
+		if (this_pixel != mapped_color) {
+            (*mask)[i / 8] |= 0x80 >> i % 8;
+        }
 	}
 
 	return icon;
