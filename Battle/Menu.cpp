@@ -439,7 +439,7 @@ void Menu::start_local_multiplayer() {
 		if (player[i] != NULL)
 			delete player[i];
 	}
-	delete player;
+	delete[] player;
 
 	main_.audio->play_music(MUSIC_TITLE);
 }
@@ -569,6 +569,13 @@ void Menu::cleanup() {
 	}
 	surf_items_clip->clear();
 	delete surf_items_clip;
+
+    for (unsigned int i = 0; i < credits_name.size(); i++) {
+        SDL_FreeSurface(credits_name.at(i));
+    }
+    for (unsigned int i = 0; i < credits_title.size(); i++) {
+        SDL_FreeSurface(credits_title.at(i));
+    }
 
 	delete playeranimation;
 }

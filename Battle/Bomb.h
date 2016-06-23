@@ -11,7 +11,7 @@ class Bomb : public GameplayObject {
 public:
 	Bomb(Main &main);
 	Bomb(SDL_Surface * surface, Main &main);
-	~Bomb();
+	virtual ~Bomb();
 
 	SDL_Surface * sprite;
 	SDL_Rect * clip[6];
@@ -58,7 +58,7 @@ protected:
 
 	virtual void draw_impl(SDL_Surface * screen, int frames_processed = 0);
 
-	void set_clips();
+    virtual void set_clips();
 
 	Main &main_;
 };

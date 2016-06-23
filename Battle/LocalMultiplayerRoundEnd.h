@@ -22,9 +22,9 @@ public:
 
 	void run();
 
-	int result;
+	int result = ROUNDEND_QUIT;
 	Player * winner;
-	int round;
+	int round = 0;
 
 	void add_player(Player * p);
 

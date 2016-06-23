@@ -168,6 +168,7 @@ void Graphics::create_player_masks() {
 
 void Graphics::clear_all() {
 	SDL_FreeSurface(weapons);
+	SDL_FreeSurface(kill_moves);
 	SDL_FreeSurface(bombs);
 	SDL_FreeSurface(owl);
 	SDL_FreeSurface(powerups);

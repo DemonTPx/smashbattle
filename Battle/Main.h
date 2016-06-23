@@ -59,7 +59,7 @@ public:
 	//static Main * instance;
 
 	SDL_Surface * screen;
-	int flags;
+	Uint32 flags;
 
 	bool running;
 	int frame_delay;

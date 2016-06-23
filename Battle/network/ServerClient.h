@@ -84,6 +84,7 @@ public:
 
 	
 	ServerClient();
+    ~ServerClient();
 
 	void setMain(Main &main) { main_ = &main; };
 
@@ -151,7 +152,6 @@ protected:
 
 	
 private:
-	~ServerClient();
 	
 	ServerClient(ServerClient const&); // Don't implement
 	void operator=(ServerClient const&); // Don't implement

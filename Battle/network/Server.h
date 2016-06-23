@@ -30,6 +30,7 @@ class Server {
 public:
 
 	Server();
+    ~Server();
 
 	void setMain(Main &main);
 	Main & getMain();
@@ -111,7 +112,6 @@ public:
 	}
 	
 private:
-	~Server();
 
 	// Prevent copies of server
 	Server(Server const&); // Don't implement
@@ -151,7 +151,7 @@ private:
 
 	// UDP
 	UDPsocket sd; /* Socket descriptor */
-	UDPpacket *p; /* Pointer to packet memory */
+	UDPpacket *p = 0; /* Pointer to packet memory */
 	short udpsequence_;
 
 	friend class ClientNetworkMultiplayer;
