@@ -30,7 +30,7 @@ class Server {
 public:
 
 	Server();
-    ~Server();
+	~Server();
 
 	void setMain(Main &main);
 	Main & getMain();
