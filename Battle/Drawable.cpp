@@ -1,7 +1,7 @@
 #include "Drawable.h"
 #include "Main.h"
 
-#include "SDL/SDL.h"
+#include "SDL2/SDL.h"
 
 Drawable::Drawable(Main &main) : main_(main) {}
 

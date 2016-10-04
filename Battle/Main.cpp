@@ -1,5 +1,5 @@
-#include "SDL/SDL.h"
-#include "SDL/SDL_mixer.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_mixer.h"
 
 #include <future>
 #include <cstdio>
@@ -67,7 +67,9 @@ Main::Main()
 	server_ = new network::Server();
 
 	screen = NULL;
-	flags = SDL_SWSURFACE;
+	flags = 0;
+	fullscreen = 0;
+	fullscreen_mode = SDL_WINDOW_FULLSCREEN_DESKTOP;
 
 	running = false;
 	frame_delay = 0;
@@ -135,14 +137,20 @@ bool Main::init() {
 #else
 		icon = Graphics::load_icon("gfx/sb-icon.bmp", &mask, 0x00ffff);
 #endif
-		SDL_WM_SetIcon(icon, mask);
-		SDL_WM_SetCaption("Smash Battle", NULL);
+
+		SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, flags | fullscreen, &window, &renderer);
+
+		SDL_SetWindowTitle(window, "Smash Battle");
+		SDL_SetWindowIcon(window, icon);
+
+		screen = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0xff0000, 0xff00, 0xff, 0xff000000);
+		texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
+//		texture = SDL_CreateTextureFromSurface(renderer, screen);
+
+		SDL_ShowCursor(0);
 
 		SDL_FreeSurface(icon);
 		delete[] mask;
-		
-		screen = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, flags);
-		SDL_ShowCursor(0);
 	}
 
 	fps_cap = true;
@@ -228,7 +236,10 @@ void Main::flip(bool no_cap)
 	}
 
 	if (!no_sdl) {
-		SDL_Flip(screen);
+		SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_RenderPresent(renderer);
 	}
 	frame++;
 	if(!no_cap && (fps_cap == true) && (fps->get_ticks() < frame_delay)) {
@@ -345,14 +356,9 @@ void Main::handle_event(SDL_Event * event) {
 				getServer().setState(new network::ServerStateAcceptClients());
 		}
 		if(event->key.keysym.sym == SDLK_F10) {
-			// Toggle fullscreen X11
-			if (!SDL_WM_ToggleFullScreen(screen)) {
-				// More portable version of toggle
-				screen = SDL_SetVideoMode(0, 0, 0, screen->flags ^ SDL_FULLSCREEN);
-				// If toggle failed, switch back
-				if (screen == NULL) 
-					screen = SDL_SetVideoMode(0, 0, 0, flags);
-			}
+			fullscreen = fullscreen ^ fullscreen_mode;
+			SDL_SetWindowFullscreen(window, fullscreen);
+			// TODO: Fix double toggle
 		}
 		if(event->key.keysym.sym == SDLK_F11) {
 			fps_counter_visible = !fps_counter_visible;
@@ -360,7 +366,7 @@ void Main::handle_event(SDL_Event * event) {
 		if(event->key.keysym.sym == SDLK_F2) {
 			ingame_debug_visible = !ingame_debug_visible;
 		}
-		if(event->key.keysym.sym == SDLK_PRINT) {
+		if(event->key.keysym.sym == SDLK_PRINTSCREEN) {
 			screenshot_next_flip = true;
 		}
 	}
@@ -564,7 +570,8 @@ int main(int argc, char* args[])
 
 	if(argc > 1) {
 		if(strcmp(args[1], "-f") == 0) {
-			main.flags |= SDL_FULLSCREEN;
+			main.flags |= main.fullscreen_mode;
+			main.fullscreen = main.fullscreen_mode;
 		}
 
 		else if (strcmp(args[1], "-d") == 0) {
@@ -648,9 +655,9 @@ void Main::load_options() {
 	SaveHeader hdr;
 
 #ifdef WIN32
-	sprintf(filename, "%s\\%s", getenv("APPDATA"), "smashbattle.sav");
+	sprintf(filename, "%s\\%s", getenv("APPDATA"), "smash_battle.sav");
 #else
-	sprintf(filename, "%s/%s", getenv("HOME"), ".smashbattle");
+	sprintf(filename, "%s/%s", getenv("HOME"), ".smash_battle");
 #endif
 	file.open(filename, std::ifstream::in | std::ifstream::binary);
 

@@ -1,4 +1,4 @@
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include "Text.h"
 
@@ -30,21 +30,21 @@ void Text::load_all() {
 	Uint32 colorkey;
 
 	surface = SDL_LoadBMP("gfx/font_s.bmp");
-	font_small = SDL_DisplayFormat(surface);
+	font_small = SDL_ConvertSurfaceFormat(surface, surface->format->format, surface->flags);
 	colorkey = SDL_MapRGB(font_small->format, 0, 255, 255);
-	SDL_SetColorKey(font_small, SDL_SRCCOLORKEY, colorkey); 
+	SDL_SetColorKey(font_small, SDL_TRUE, colorkey);
 	SDL_FreeSurface(surface);
 	
 	surface = SDL_LoadBMP("gfx/font_m.bmp");
-	font_medium = SDL_DisplayFormat(surface);
+	font_medium = SDL_ConvertSurfaceFormat(surface, surface->format->format, surface->flags);
 	colorkey = SDL_MapRGB(font_medium->format, 0, 255, 255);
-	SDL_SetColorKey(font_medium, SDL_SRCCOLORKEY, colorkey); 
+	SDL_SetColorKey(font_medium, SDL_TRUE, colorkey);
 	SDL_FreeSurface(surface);
 	
 	surface = SDL_LoadBMP("gfx/font_l.bmp");
-	font_large = SDL_DisplayFormat(surface);
+	font_large = SDL_ConvertSurfaceFormat(surface, surface->format->format, surface->flags);
 	colorkey = SDL_MapRGB(font_large->format, 0, 255, 255);
-	SDL_SetColorKey(font_large, SDL_SRCCOLORKEY, colorkey); 
+	SDL_SetColorKey(font_large, SDL_TRUE, colorkey);
 	SDL_FreeSurface(surface);
 }
 

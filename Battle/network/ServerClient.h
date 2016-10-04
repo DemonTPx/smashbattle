@@ -13,9 +13,9 @@
 #endif
 #include <stdlib.h>
 
-#include "SDL/SDL.h"
-#include "SDL/SDL_thread.h"
-#include "SDL/SDL_net.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_thread.h"
+#include "SDL2/SDL_net.h"
 
 
 #include "network/CommandProcessor.h"

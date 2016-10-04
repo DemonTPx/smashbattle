@@ -1,5 +1,5 @@
-#include "SDL/SDL.h"
-#include "SDL/SDL_mixer.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_mixer.h"
 #include "zlib.h"
 
 #include <iostream>
@@ -174,9 +174,9 @@ void Level::load(const char * filename) {
 	}
 
 	surface = SDL_LoadBMP(tiles_file_full);
-	tiles = SDL_DisplayFormat(surface);
+	tiles = SDL_ConvertSurfaceFormat(surface, surface->format->format, surface->flags);
 	colorkey = SDL_MapRGB(tiles->format, 0, 255, 255);
-	SDL_SetColorKey(tiles, SDL_SRCCOLORKEY, colorkey);
+	SDL_SetColorKey(tiles, SDL_TRUE, colorkey);
 	SDL_FreeSurface(surface);
 
 	// PRE-RENDER THE BACKGROUND
@@ -190,7 +190,7 @@ void Level::load(const char * filename) {
 		strncat(bg_file_full, meta.filename_background, 30);
 
 		loaded = SDL_LoadBMP(bg_file_full);
-		surface = SDL_DisplayFormat(loaded);
+		surface = SDL_ConvertSurfaceFormat(loaded, loaded->format->format, loaded->flags);
 		SDL_FreeSurface(loaded);
 
 		for(int y = 0; y < WINDOW_HEIGHT; y += surface->h) {
@@ -212,9 +212,9 @@ void Level::load(const char * filename) {
 		strncat(props_file_full, meta.filename_props, 30);
 
 		loaded = SDL_LoadBMP(props_file_full);
-		surface = SDL_DisplayFormat(loaded);
+		surface = SDL_ConvertSurfaceFormat(loaded, loaded->format->format, loaded->flags);
 		colorkey = SDL_MapRGB(surface->format, 0, 255, 255);
-		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey);
+		SDL_SetColorKey(surface, SDL_TRUE, colorkey);
 		SDL_FreeSurface(loaded);
 
 		for(unsigned int i = 0; i < props->size(); i++) {
@@ -473,7 +473,7 @@ SDL_Surface * Level::get_preview(const char * filename) {
 		strncat(bg_file_full, meta.filename_background, 30);
 
 		loaded = SDL_LoadBMP(bg_file_full);
-		surface_s = SDL_DisplayFormat(loaded);
+		surface_s = SDL_ConvertSurfaceFormat(loaded, loaded->format->format, loaded->flags);
 		SDL_FreeSurface(loaded);
 
 		for(int y = 0; y < WINDOW_HEIGHT; y += surface_s->h) {
@@ -495,9 +495,9 @@ SDL_Surface * Level::get_preview(const char * filename) {
 		strncat(props_file_full, meta.filename_props, 30);
 
 		loaded = SDL_LoadBMP(props_file_full);
-		surface_s = SDL_DisplayFormat(loaded);
+		surface_s = SDL_ConvertSurfaceFormat(loaded, loaded->format->format, loaded->flags);
 		colorkey = SDL_MapRGB(surface_s->format, 0, 255, 255);
-		SDL_SetColorKey(surface_s, SDL_SRCCOLORKEY, colorkey);
+		SDL_SetColorKey(surface_s, SDL_TRUE, colorkey);
 		SDL_FreeSurface(loaded);
 
 		for(unsigned int i = 0; i < props->size(); i++) {
@@ -522,9 +522,9 @@ SDL_Surface * Level::get_preview(const char * filename) {
 		strncat(tiles_file_full, meta.filename_tiles, 30);
 
 		loaded = SDL_LoadBMP(tiles_file_full);
-		surface_s = SDL_DisplayFormat(loaded);
+		surface_s = SDL_ConvertSurfaceFormat(loaded, loaded->format->format, loaded->flags);
 		colorkey = SDL_MapRGB(surface_s->format, 0, 255, 255);
-		SDL_SetColorKey(surface_s, SDL_SRCCOLORKEY, colorkey);
+		SDL_SetColorKey(surface_s, SDL_TRUE, colorkey);
 		SDL_FreeSurface(loaded);
 
 		for(int i = 0; i < TILE_COUNT; i++) {

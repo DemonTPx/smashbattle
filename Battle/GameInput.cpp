@@ -1,4 +1,4 @@
-#include "SDL/SDL.h"
+#include "SDL2/SDL.h"
 
 #include <iostream>
 
@@ -402,7 +402,7 @@ void GameInput::joystick_wait_event(GameInputJoystickEvent * event) {
 	old_state = SDL_JoystickEventState(SDL_QUERY);
 	SDL_JoystickEventState(SDL_ENABLE);
 
-	jindex = SDL_JoystickIndex(joystick);
+	jindex = SDL_JoystickInstanceID(joystick);
 
 	while(main_.running) {
 		SDL_WaitEvent(&sdlevent);

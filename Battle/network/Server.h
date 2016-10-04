@@ -5,7 +5,7 @@
 #include <map>
 #include <memory>
 
-#include "SDL/SDL_net.h"
+#include "SDL2/SDL_net.h"
 
 #include "network/Client.h"
 #include "Level.h"

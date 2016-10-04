@@ -58,8 +58,13 @@ public:
 
 	//static Main * instance;
 
+	SDL_Window * window;
+	SDL_Renderer * renderer;
+	SDL_Texture * texture;
 	SDL_Surface * screen;
 	Uint32 flags;
+	Uint32 fullscreen;
+	Uint32 fullscreen_mode;
 
 	bool running;
 	int frame_delay;

@@ -1,4 +1,4 @@
-#include "SDL/SDL.h"
+#include "SDL2/SDL.h"
 #include "ServerListing.h"
 #include "Options.h"
 #include "util/stringutils.hpp"

@@ -1,4 +1,4 @@
-#include "SDL/SDL.h"
+#include "SDL2/SDL.h"
 
 #include "Player.h"
 #include "Graphics.h"
@@ -77,10 +77,10 @@ SDL_Surface * Graphics::load_bmp(const char * filename) {
 		printf("Could not load '%s'", filename);
 		return NULL;
 	}
-	surface = SDL_DisplayFormat(loaded);
+	surface = SDL_ConvertSurfaceFormat(loaded, loaded->format->format, loaded->flags);
 	SDL_FreeSurface(loaded);
 	colorkey = SDL_MapRGB(surface->format, 0, 255, 255);
-	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey);
+	SDL_SetColorKey(surface, SDL_TRUE, colorkey);
 
 	return surface;
 }
@@ -94,10 +94,10 @@ void Graphics::load_players() {
 
 	for(int i = 0; i < Player::CHARACTER_COUNT; i++) {
 		loaded = SDL_LoadBMP(Player::CHARACTERS[i].filename);
-		surface = SDL_DisplayFormat(loaded);
+		surface = SDL_ConvertSurfaceFormat(loaded, loaded->format->format, loaded->flags);
 		SDL_FreeSurface(loaded);
 		colorkey = SDL_MapRGB(surface->format, 0, 255, 255);
-		SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorkey); 
+		SDL_SetColorKey(surface, SDL_TRUE, colorkey);
 		player->push_back(surface);
 
 		playername->push_back(main_.text->render_text_medium(Player::CHARACTERS[i].name));
